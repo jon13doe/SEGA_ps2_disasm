@@ -135,34 +135,34 @@ GameInit:
 	bsr.w	VDPSetupGame
 	bsr.w	LoadPCMDrums
 	bsr.w	JoypadInit
-	move.b	#ScreenID_Sega, (game_screen).w	; start from Sega screen
+	move.b	#GameModeID_Sega, (game_screen).w	; start from Sega screen
 	
 
 MainGameLoop:
 	move.b	(game_screen).w, d0	; get screen id
 	andi.w	#$1C, d0			
 	lsl.w	#1, d0		
-	jsr	GameScreenTable(pc,d0.w)
+	jsr	GameModeTable(pc,d0.w)
 	bra.s	MainGameLoop
 	
 ; ===================================================
 ; Table for every screen in the game
 ; ===================================================
-GameScreenTable:
+GameModeTable:
 
-PtrScreen_Sega:	    jmp	(SegaScreen).l
+PtrGameMode_Sega:	    jmp	(GameMode_Sega).l
 	nop
-PtrScreen_Title:    jmp	(TitleScreen).l
+PtrGameMode_Title:    jmp	(GameMode_Title).l
 	nop
-PtrScreen_Ending:   jmp	(EndingScreen).l
+PtrGameMode_Ending:   jmp	(GameMode_Ending).l
 	nop
-PtrScreen_Level:    jmp	(LevelScreen).l	
+PtrGameMode_Map:    jmp	(GameMode_Map).l	
 	nop
-PtrScreen_Building: jmp	(BuildingScreen).l
+PtrGameMode_Building: jmp	(GameMode_Building).l
 	nop
-PtrScreen_Battle:   jmp	(BattleScreen).l	
+PtrGameMode_Battle:   jmp	(GameMode_Battle).l	
 	nop
-PtrScreen_Intro:    jmp	(IntroScreen).l	
+PtrGameMode_Intro:    jmp	(GameMode_Intro).l	
 	nop
 ; ===================================================
 	
@@ -503,7 +503,7 @@ PtrObj_EnemiesBattle:		bra.w	Obj_EnemiesBattle					; $F - all properties and beh
 	bra.w	loc_31BC													; $11
 	bra.w	loc_321E													; $12
 	bra.w	loc_3250													; $13
-PtrObj_CharactersLevel:		bra.w	Obj_CharactersInLevel				; $14 - characters' sprites on the level screen
+PtrObj_MapCharacters:		bra.w	Obj_MapCharacters				; $14 - characters' sprites in the map screen
 PtrObj_FollowingChars:		bra.w	Obj_FollowingChars					; $15 - the characters behind the lead characters
 PtrObj_MotaYoungMan:		bra.w	Obj_MotaYoungMan					; $16 - random young man in towns on Motavia
 PtrObj_MotaYoungWoman:		bra.w	Obj_MotaYoungWoman					; $17 
@@ -563,7 +563,7 @@ loc_796:
 	move.l	d7, (a6)+
 	dbf	d6, -
 	
-	lea	(enemy_stat_buffer).w, a6
+	lea	(enemy_stats).w, a6
 	moveq	#0, d7
 	move.w	#$FF, d6
 -
@@ -630,7 +630,7 @@ loc_796:
 	lea	(EnemyXPosArray).l, a3
 	adda.w	d0, a3
 	move.w	#$100, (enemy_data_buffer+$18).w
-	lea	(enemy_stat_buffer).w, a6
+	lea	(enemy_stats).w, a6
 	lea	($FFFFE800).w, a5
 	lea	($FFFFFBC2).w, a0
 	move.w	#$4000, d5
@@ -716,7 +716,7 @@ loc_8D4:
 	move.w	d1, (a5)
 	moveq	#0, d1
 	move.b	(a1)+, d1
-	move.w	d1, $28(a5)	; duration animation
+	move.w	d1, $28(a5)	; animation duration
 	moveq	#0, d1
 	move.b	(a1)+, d1
 	lsl.w	#1, d1
@@ -796,9 +796,9 @@ EnemyXPosArray:
 ; ========================================================
 
 	
-LoadSpritesInLevel:
+Map_LoadObjects:
 	lea	(LevelSpriteData).l, a2
-	move.w	(level_index).w, d0
+	move.w	(map_index).w, d0
 	lsl.w	#1, d0
 	adda.w	(a2,d0.w), a2
 	lea	($FFFFE800).w, a3
@@ -823,7 +823,7 @@ LoadSpritesInLevel:
 +
 	lea	(party_member_join_next).w, a1
 	lea	($FFFFC700).w, a2
-	move.w	(level_index).w, d0
+	move.w	(map_index).w, d0
 	bne.s	+
 	tst.b	($FFFFC716).w
 	beq.s	+
@@ -835,17 +835,17 @@ LoadSpritesInLevel:
 	move.w	#6, ($FFFFE824).w
 	move.w	#6, ($FFFFE82A).w
 +
-	cmpi.w	#LevelID_Ryuon, d0
+	cmpi.w	#MapID_Ryuon, d0
 	bhi.s	+
 	move.b	d0, (a2,d0.w)
 +
 	moveq	#-1, d1
-	cmpi.w	#LevelID_Paseo, d0
+	cmpi.w	#MapID_Paseo, d0
 	bne.s	+		; branch if we're not in Paseo
 	move.w	#$F0, d1
 	move.w	#$450, d2
 +
-	cmpi.w	#LevelID_Arima, d0
+	cmpi.w	#MapID_Arima, d0
 	bne.s	+		; branch if we're not in Arima
 	move.w	#$F0, d1
 	move.w	#$530, d2
@@ -853,7 +853,7 @@ LoadSpritesInLevel:
 	bne.s	+
 	addq.w	#1, (a1)
 +
-	cmpi.w	#LevelID_Oputa, d0
+	cmpi.w	#MapID_Oputa, d0
 	bne.s	+		;  branch if we're not in Oputa
 	move.w	#$1F0, d1
 	move.w	#$250, d2
@@ -861,7 +861,7 @@ LoadSpritesInLevel:
 	bne.s	+
 	addq.w	#1, (a1)
 +
-	cmpi.w	#LevelID_Zema, d0
+	cmpi.w	#MapID_Zema, d0
 	bne.s	+		;  branch if we're not in Zema
 	move.w	#$6B0, d1
 	move.w	#$4B0, d2
@@ -869,7 +869,7 @@ LoadSpritesInLevel:
 	bne.s	+
 	addq.w	#1, (a1)
 +
-	cmpi.w	#LevelID_Kueri, d0
+	cmpi.w	#MapID_Kueri, d0
 	bne.s	+		; branch if we're not in Kueri
 	move.w	#$5F0, d1
 	move.w	#$F0, d2
@@ -877,7 +877,7 @@ LoadSpritesInLevel:
 	bne.s	+
 	addq.w	#1, (a1)
 +
-	cmpi.w	#LevelID_Piata, d0
+	cmpi.w	#MapID_Piata, d0
 	bne.s	+		; branch if we're not in Piata
 	move.w	#$6B0, d1
 	move.w	#$8D0, d2
@@ -2566,7 +2566,7 @@ ObjCB_Init:
 	move.w	#0, $1A(a0)
 	move.w	#3, $28(a0)
 	move.w	#1, $22(a0)
-	lea	(character_data_buffer+2).w, a3		
+	lea	(character_stats+curr_hp).w, a3		
 	move.w	$36(a0), d0			; get character index
 	lsl.w	#6, d0
 	adda.w	d0, a3
@@ -2627,7 +2627,7 @@ loc_1BE2:
 	rts
 	
 loc_1BE4:
-	move.b	#SXFID_DamageRedScreen, (sound_queue).w
+	move.b	#SFXID_DamageRedScreen, (sound_queue).w
 	move.w	#$200, (palette_table).w
 	cmpi.w	#$103, (enemy_data_buffer).w		; branch if it's not Mother Brain boss battle
 	bne.s	loc_1C0E
@@ -2647,7 +2647,7 @@ loc_1C1C:
 	move.w	$C(a0), $A(a0)
 	btst	#0, 3(a0)
 	beq.s	loc_1C1A
-	lea	(character_data_buffer).w, a3
+	lea	(character_stats).w, a3
 	move.w	$36(a0), d0
 	move.w	d0, (character_index).w
 	lsl.w	#6, d0
@@ -2675,7 +2675,7 @@ loc_1C1C:
 	move.w	#1, ($FFFFCC98).w
 	move.w	#0, ($FFFFF632).w
 	
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	moveq	#7, d1
 -
 	andi.w	#$FBE0, (a1)	; restore characters' status to normal
@@ -2753,7 +2753,7 @@ Battle_CommandUsedIndex:
 	bra.w	CommandUsed_Defense
 ; ---------------------------------------------------------------
 CommandUsed_Attack:
-	lea	(character_data_buffer).w, a3
+	lea	(character_stats).w, a3
 	move.w	$36(a0), d0
 	lsl.w	#6, d0
 	adda.w	d0, a3
@@ -2814,7 +2814,7 @@ loc_1E0C:
 	move.w	d6, d0
 	move.w	d0, d1
 	addq.w	#8, d1
-	lea	(enemy_stat_buffer).w, a1
+	lea	(enemy_stats).w, a1
 	lsl.w	#6, d0
 	adda.w	d0, a1
 	tst.w	2(a1)
@@ -3051,7 +3051,7 @@ TechAction_Zan:
 	bsr.w	loc_2736
 	move.w	#$120, $A(a0)
 	move.w	#8, $2C(a0)
-	lea	(enemy_stat_buffer).w, a1
+	lea	(enemy_stats).w, a1
 	lea	($FFFFE800).w, a2
 	moveq	#4, d4
 loc_2112:
@@ -3083,7 +3083,7 @@ loc_2148:
 	move.w	#$120, $A(a0)
 	move.w	#8, $2C(a0)
 	moveq	#-1, d0
-	lea	(enemy_stat_buffer).w, a1
+	lea	(enemy_stats).w, a1
 	lea	($FFFFE800).w, a2
 	moveq	#4, d4
 loc_2162:
@@ -3411,7 +3411,7 @@ loc_24F2:
 	bra.s	loc_251C
 	
 loc_24FE:
-	lea	(character_data_buffer+$28).w, a2		; get first item in the inventory
+	lea	(character_stats+items).w, a2		; get first item in the inventory
 	lsl.w	#6, d0
 	adda.w	d0, a2
 	move.w	#0, ($FFFFDE84).w
@@ -3572,7 +3572,7 @@ ItemUsed_FireStaff:
 	bra.w	ProcessTechnique
 ; ---------------------------------------------------------------
 CommandUsed_Defense:
-	lea	(character_data_buffer).w, a3
+	lea	(character_stats).w, a3
 	move.w	$36(a0), d0
 	lsl.w	#6, d0
 	adda.w	d0, a3
@@ -3605,7 +3605,7 @@ ObjCB_Dead:
 ; ===============================================================
 	
 DisplayCharacterWhileFighting:
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	move.w	d0, d1
 	lsl.w	#6, d0
 	adda.w	d0, a1
@@ -3625,7 +3625,7 @@ loc_270C:
 loc_270E:
 	bsr.w	GenerateRandomNumber
 	andi.w	#7, d0
-	lea	(enemy_stat_buffer).w, a1
+	lea	(enemy_stats).w, a1
 	move.w	d0, d1
 	lsl.w	#6, d0
 	adda.w	d0, a1
@@ -3759,7 +3759,7 @@ loc_284C:
 loc_2862:
 	move.l	a1, -(sp)
 	move.l	a2, -(sp)
-	lea	(enemy_stat_buffer+2).w, a1
+	lea	(enemy_stats+2).w, a1
 	lea	($FFFFE800).w, a2
 	moveq	#4, d1
 loc_2870:
@@ -3898,7 +3898,7 @@ ObjEnmBattle_Init:
 	rts
 ; ---------------------------------------------------------------
 loc_29A4:
-	lea	(enemy_stat_buffer).w, a3
+	lea	(enemy_stats).w, a3
 	move.w	a0, d0
 	subi.w	#$E800, d0
 	lsr.w	#1, d0
@@ -3920,7 +3920,7 @@ loc_29A4:
 	move.w	#0, (a0)
 	move.w	#4, $22(a0)
 	andi.w	#$E0, (a3)
-	move.b	#SXFID_EnemyKilled, (sound_queue).w
+	move.b	#SFXID_EnemyKilled, (sound_queue).w
 loc_29F6:
 	andi.w	#$FFF3, (a3)
 	move.b	#0, 3(a0)
@@ -4036,7 +4036,7 @@ Enemy_PickCharToAttack:
 	adda.w	d0, a1
 	move.w	(a1), d0
 	move.w	d0, $2C(a0)				; index of character to target
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	move.w	d0, d1
 	lsl.w	#6, d0
 	adda.w	d0, a1
@@ -4085,7 +4085,7 @@ loc_2B94:
 loc_2BA4:
 	bsr.w	GenerateRandomNumber
 	andi.w	#7, d0
-	lea	(enemy_stat_buffer).w, a1
+	lea	(enemy_stats).w, a1
 	move.w	d0, d1
 	lsl.w	#6, d0
 	adda.w	d0, a1
@@ -4365,9 +4365,9 @@ loc_2E46:
 	move.b	#2, ($FFFFCC00).w
 	move.w	#2, (event_routine).w
 	move.w	#3, $22(a0)
-	move.w	#LevelID_Gaira, (level_index).w			; move to Gaira
-	move.w	#$2B0, (level_y_pos).w
-	move.w	#$50, (level_x_pos).w
+	move.w	#MapID_Gaira, (map_index).w			; move to Gaira
+	move.w	#$2B0, (map_y_pos).w
+	move.w	#$50, (map_x_pos).w
 	move.w	#$A00, (event_flags).w
 	rts
 ; -----------------------------------------------------------
@@ -4472,7 +4472,7 @@ loc_2FA4:
 	move.w	a2, d0
 	subi.w	#$E800, d0
 	bcs.s	loc_3000
-	lea	(enemy_stat_buffer).w, a1
+	lea	(enemy_stats).w, a1
 	lsr.w	#1, d0
 	adda.w	d0, a1
 	lsr.w	#6, d0
@@ -4789,7 +4789,7 @@ loc_3308:
 	beq.s	loc_338C
 	bset	#6, 3(a2)
 	bne.s	loc_3386
-	move.b	#SXFID_Sword, (sound_queue).w	; this is the generic sound when characters/enemies get hurt
+	move.b	#SFXID_Sword, (sound_queue).w	; this is the generic sound when characters/enemies get hurt
 	move.w	#$30, $30(a2)
 	addq.w	#1, ($FFFFCC06).w
 	lea	(window_index).w, a1
@@ -5132,8 +5132,8 @@ loc_36B0:
 ; Object - Character Sprites in level
 ; --------------------------------------------------------------
 	
-Obj_CharactersInLevel:
-	tst.w	(level_index).w
+Obj_MapCharacters:
+	tst.w	(map_index).w
 	bne.s	loc_36D8
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_36E4
@@ -5184,7 +5184,7 @@ loc_3746:
 ; --------------------------------------------------------------
 
 ObjCL_Main:
-	cmpi.w	#LevelID_Gaira, (level_index).w
+	cmpi.w	#MapID_Gaira, (map_index).w
 	bne.s	+
 	move.l	4(a0), d0
 	move.l	#loc_12B06, 4(a0)
@@ -5219,13 +5219,13 @@ loc_3786:
 	bpl.s	loc_381A
 	cmpi.b	#$FF, d0
 	bne.s	loc_37EC
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	move.w	$FFFFE40A.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	move.w	#0, (joypad_held).w
 	rts
 	
@@ -5238,7 +5238,7 @@ loc_37EC:
 loc_37FE:
 	cmpi.b	#$FD, d0
 	bne.s	loc_3818
-	move.b	#SXFID_DoorOpen, (sound_queue).w
+	move.b	#SFXID_DoorOpen, (sound_queue).w
 	move.w	#2, $FFFFE822.w
 	move.w	#0, (demo_flag).w
 	rts
@@ -5339,7 +5339,7 @@ loc_390E:
 	addq.w	#1, $32(a0)		; new mappings
 	andi.w	#3, $32(a0)		; force to 4 values
 	
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -5388,7 +5388,7 @@ loc_39D0:
 	
 ; =======================================
 ; Sprite mappings index in level
-Level_SpriteMappingsArray:
+Map_SpriteMappingsArray:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$00
@@ -5680,7 +5680,7 @@ loc_3AD8:
 ; Object - Characters following the leading character
 ; --------------------------------------------------------------	
 Obj_FollowingChars:
-	tst.w	(level_index).w
+	tst.w	(map_index).w
 	bne.s	loc_3AFA
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_3B06
@@ -5744,7 +5744,7 @@ loc_3B7C:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -5885,7 +5885,7 @@ loc_3D50:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -6020,7 +6020,7 @@ loc_3F14:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -6260,7 +6260,7 @@ loc_425A:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -6456,7 +6456,7 @@ loc_451C:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray2).l, a1
+	lea	(Map_SpriteMappingsArray2).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -6466,7 +6466,7 @@ loc_4548:
 	rts
 	
 ; ===============================
-Level_SpriteMappingsArray2:
+Map_SpriteMappingsArray2:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$00
@@ -6643,7 +6643,7 @@ loc_4796:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray3).l, a1
+	lea	(Map_SpriteMappingsArray3).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -6654,7 +6654,7 @@ loc_47C4:
 ; --------------------------------------------------------------
 
 ; ==================================
-Level_SpriteMappingsArray3:
+Map_SpriteMappingsArray3:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$02
@@ -7158,7 +7158,7 @@ loc_4DBE:
 	bpl.s	loc_4DD6
 	move.w	#BuildingID_EsperMansion, (building_index).w
 	move.w	#$39, (portrait_index).w
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 loc_4DD6:
 	rts
 ; --------------------------------------------------------------
@@ -7229,7 +7229,7 @@ loc_4E78:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -7300,7 +7300,7 @@ loc_4F36:
 	move.l	#Map_Teim, 4(a0)
 	move.w	#$37, $28(a0)
 	move.w	#4, $2C(a0)
-	cmpi.w	#LevelID_DarumTube, (level_index).w
+	cmpi.w	#MapID_DarumTube, (map_index).w
 	beq.s	loc_4F66
 	tst.b	$FFFFC727.w
 	beq.s	loc_4F64
@@ -7332,7 +7332,7 @@ loc_4FA6:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -7393,7 +7393,7 @@ loc_5060:
 	move.w	#0, $24(a0)
 	move.w	#7, $26(a0)
 	move.w	#1, $22(a0)
-	move.b	#SXFID_Explosion, (sound_queue).w
+	move.b	#SFXID_Explosion, (sound_queue).w
 	rts
 loc_508E:
 	subq.w	#1, $26(a0)
@@ -7467,7 +7467,7 @@ loc_5166:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray2).l, a1
+	lea	(Map_SpriteMappingsArray2).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -7530,7 +7530,7 @@ loc_51F8:
 	move.b	#$30, 2(a0)
 	tst.w	$24(a0)
 	bpl.s	loc_5218
-	move.b	#SXFID_Explosion, (sound_queue).w
+	move.b	#SFXID_Explosion, (sound_queue).w
 loc_5218:
 	addq.w	#1, $24(a0)
 	cmpi.w	#5, $24(a0)
@@ -7572,7 +7572,7 @@ loc_5280:
 	move.b	$FFFFC743.w, d0
 	cmpi.b	#3, d0
 	bne.s	loc_52B8
-	cmpi.w	#LevelID_EsperMansionB1, (level_index).w
+	cmpi.w	#MapID_EsperMansionB1, (map_index).w
 	bne.s	loc_52B8
 	move.b	#1, 2(a0)
 loc_52B8:
@@ -7657,7 +7657,7 @@ loc_53C0:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray).l, a1
+	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -8036,7 +8036,7 @@ loc_585C:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray2).l, a1
+	lea	(Map_SpriteMappingsArray2).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -8221,7 +8221,7 @@ loc_5A62:
 	move.w	$32(a0), d0
 	addq.w	#1, $32(a0)
 	andi.w	#3, $32(a0)
-	lea	(Level_SpriteMappingsArray3).l, a1
+	lea	(Map_SpriteMappingsArray3).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
 	add.w	$2A(a0), d0
@@ -8303,7 +8303,7 @@ loc_5B58:
 
 VBlankSub_10:
 	bsr.w	VBlankSub_1C_24
-	tst.w	(level_index).w
+	tst.w	(map_index).w
 	bne.s	loc_5B6E
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_5B96
@@ -8558,7 +8558,7 @@ CheckGamePause:
 	bne.s	+		; branch if the game is already paused
 	btst	#ButtonStart, (joypad_pressed).w	; otherwise check if start is pressed
 	beq.s	++		; return if start was not pressed
-	move.b	#SXFID_Pause, (sound_queue).w	; otherwise play pause sound
+	move.b	#SFXID_Pause, (sound_queue).w	; otherwise play pause sound
 +
 	move.w	#1, (paused_flag).w		; set paused flag
 	
@@ -8571,7 +8571,7 @@ GamePausedLoop:
 	bne.s	+	; return if it is and enable slow motion
 	btst	#ButtonStart, (joypad_pressed).w	; check for start press
 	beq.s	GamePausedLoop		; if not pressed, stay here
-	move.b	#SXFID_Unpause, (sound_queue).w	; otherwise play unpause sound
+	move.b	#SFXID_Unpause, (sound_queue).w	; otherwise play unpause sound
 	move.w	#0, (paused_flag).w	; clear paused flag
 	move.b	#0, (paused_mode).w	; resume music
 +
@@ -9287,7 +9287,7 @@ loc_6430:
 	lea	(loc_65D8).l, a0
 	lea	$FFFFFB5C.w, a1
 	move.l	(a0,d0.w), (a1)
-	cmpi.w	#LevelID_BiosystemsLabB1, (level_index).w
+	cmpi.w	#MapID_BiosystemsLabB1, (map_index).w
 	bne.s	+
 	adda.w	#$20, a0
 	move.l	(a0,d0.w), -(a1)
@@ -9304,7 +9304,7 @@ loc_6430:
 	swap	d2
 loc_649A:
 	move.l	d2, (a1)
-	cmpi.w	#LevelID_Gaira, (level_index).w
+	cmpi.w	#MapID_Gaira, (map_index).w
 	beq.s	loc_64A6
 loc_64A4:
 	rts
@@ -9318,7 +9318,7 @@ loc_64A6:
 	cmpi.b	#1, d0
 	bne.s	loc_64CA
 	moveq	#0, d0
-	move.b	#SXFID_Alarm, (sound_queue).w
+	move.b	#SFXID_Alarm, (sound_queue).w
 loc_64CA:
 	lea	(loc_6678).l, a0
 	lea	$FFFFFB44.w, a1
@@ -9342,7 +9342,7 @@ loc_64E8:
 loc_650E:
 	cmpi.w	#2, d0
 	bne.s	loc_6548
-	cmpi.w	#LevelID_Aukba, (level_index).w
+	cmpi.w	#MapID_Aukba, (map_index).w
 	bcc.s	loc_6546
 	subq.w	#1, $FFFFF634.w
 	bpl.s	loc_6546
@@ -9360,7 +9360,7 @@ loc_6546:
 loc_6548:
 	cmpi.w	#3, d0
 	bne.s	loc_6586
-	cmpi.w	#LevelID_Uzo, (level_index).w
+	cmpi.w	#MapID_Uzo, (map_index).w
 	bne.s	loc_6586
 	subq.w	#1, $FFFFF634.w
 	bpl.s	loc_6584
@@ -9378,7 +9378,7 @@ loc_6584:
 loc_6586:
 	cmpi.w	#6, d0
 	bne.w	loc_65D6
-	cmpi.w	#LevelID_NoahGroundF, (level_index).w
+	cmpi.w	#MapID_NoahGroundF, (map_index).w
 	bcs.w	loc_65D4
 	subq.w	#1, $FFFFF634.w
 	bpl.s	loc_65D4
@@ -9537,7 +9537,7 @@ loc_66F6:
 	move.w	d0, d1
 	andi.w	#$F, d0
 	bne.s	loc_672C
-	move.b	#SXFID_Alarm, (sound_queue).w
+	move.b	#SFXID_Alarm, (sound_queue).w
 loc_672C:
 	move.w	#0, (palette_table).w
 	cmpi.w	#8, d0
@@ -10102,7 +10102,7 @@ loc_6D92:
 	
 Sprites_ChkCanMove:
 	bsr.s	loc_6DA4
-	beq.w	Level_ChkTargetInteract
+	beq.w	Map_ChkTargetInteract
 	rts
 	
 loc_6DA4:
@@ -10213,8 +10213,8 @@ loc_6E7A:
 	addq.w	#4, a1
 	bra.s	loc_6E60
 loc_6E7E:
-	move.w	(level_index).w, d0
-	cmpi.w	#LevelID_EsperMansionB1, d0
+	move.w	(map_index).w, d0
+	cmpi.w	#MapID_EsperMansionB1, d0
 	bcs.s	loc_6EA2
 	subq.w	#4, d0
 	move.w	d0, d1
@@ -10222,7 +10222,7 @@ loc_6E7E:
 	add.w	d1, d0
 	lea	(loc_28546).l, a1
 	adda.w	d0, a1
-	move.b	#SXFID_LevelChanged, (sound_queue).w
+	move.b	#SFXID_MapChanged, (sound_queue).w
 	bra.w	loc_6FA6
 loc_6EA2:
 	moveq	#-1, d4
@@ -10236,7 +10236,7 @@ loc_6EA6:
 	bne.s	loc_6EE6
 	cmpi.b	#$37, (a1)
 	bne.s	loc_6ED6
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	bne.s	loc_6ED6
 	move.w	#1, $FFFFDE70.w
 	move.w	#0, ($FFFFDE72).w
@@ -10260,17 +10260,17 @@ loc_6EE6:
 	move.w	d0, $FFFFF764.w
 	move.b	(a1), d0
 	move.w	d0, $FFFFF766.w
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	move.w	$FFFFE40A.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	rts
 loc_6F1C:
-	move.w	(level_index).w, d0
-	cmpi.w	#LevelID_EsperMansionB1, d0
+	move.w	(map_index).w, d0
+	cmpi.w	#MapID_EsperMansionB1, d0
 	bcc.s	loc_6F4E
 	cmpi.b	#$10, (a1)
 	bcs.s	loc_6F4E
@@ -10283,7 +10283,7 @@ loc_6F1C:
 	move.w	d0, $FFFFC650.w
 	move.w	#0, $FFFFCB0E.w
 loc_6F4E:
-	move.b	#SXFID_LevelChanged, (sound_queue).w
+	move.b	#SFXID_MapChanged, (sound_queue).w
 	bra.s	loc_6FA6
 	
 loc_6F56:
@@ -10301,7 +10301,7 @@ loc_6F6A:
 	rts
 	
 loc_6F76:
-	move.w	(level_index).w, d0
+	move.w	(map_index).w, d0
 	move.w	($FFFFF710).w, d1
 	cmpi.w	#2, d1
 	bne.s	loc_6FCA
@@ -10316,19 +10316,19 @@ loc_6F90:
 	add.w	d1, d0
 	lea	(loc_28546).l, a1
 	adda.w	d0, a1
-	move.b	#SXFID_LevelChanged, (sound_queue).w
+	move.b	#SFXID_MapChanged, (sound_queue).w
 loc_6FA6:
 	moveq	#0, d0
 	move.b	(a1)+, d0
-	move.w	d0, (level_index).w
+	move.w	d0, (map_index).w
 	moveq	#0, d0
 	move.b	(a1)+, d0
 	lsl.w	#4, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	moveq	#0, d0
 	move.b	(a1)+, d0
 	lsl.w	#4, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
 	rts
 loc_6FCA:
@@ -10342,25 +10342,25 @@ loc_6FCA:
 	bhi.s	loc_7040
 	cmpi.w	#$15, d0
 	bne.s	loc_7008
-	subq.w	#1, (level_index).w
-	move.w	#$C0, (level_y_pos).w
-	move.w	#$60, (level_x_pos).w
+	subq.w	#1, (map_index).w
+	move.w	#$C0, (map_y_pos).w
+	move.w	#$60, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
-	move.b	#SXFID_FellInHole, (sound_queue).w
+	move.b	#SFXID_FellInHole, (sound_queue).w
 	rts
 loc_7008:
 	cmpi.w	#$16, d0
 	bne.s	loc_7040
-	subq.w	#1, (level_index).w
-	move.w	#$220, (level_y_pos).w
-	move.w	#$2C0, (level_x_pos).w
+	subq.w	#1, (map_index).w
+	move.w	#$220, (map_y_pos).w
+	move.w	#$2C0, (map_x_pos).w
 	cmpi.w	#$100, $FFFFE40E.w
 	bcc.s	loc_7032
-	move.w	#$A0, (level_y_pos).w	
-	move.w	#$340, (level_x_pos).w	
+	move.w	#$A0, (map_y_pos).w	
+	move.w	#$340, (map_x_pos).w	
 loc_7032:
 	move.w	#-1, (screen_changed_flag).w
-	move.b	#SXFID_FellInHole, (sound_queue).w
+	move.b	#SFXID_FellInHole, (sound_queue).w
 	rts
 loc_7040:
 	cmpi.w	#5, d1
@@ -10394,23 +10394,23 @@ loc_7082:
 	adda.w	d0, a1
 	move.b	(a1)+, d1
 	ext.w	d1
-	add.w	d1, (level_index).w
+	add.w	d1, (map_index).w
 	move.b	(a1)+, d1
 	ext.w	d1
 	lsl.w	#5, d1
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
 	add.w	d1, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	move.b	(a1), d1
 	ext.w	d1
 	lsl.w	#5, d1
 	move.w	$FFFFE40A.w, d0
 	andi.w	#$FFF0, d0
 	add.w	d1, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
-	move.b	#SXFID_FellInHole, (sound_queue).w
+	move.b	#SFXID_FellInHole, (sound_queue).w
 	rts
 loc_70D6:
 	cmpi.w	#$218, $FFFFE40E.w
@@ -10419,8 +10419,8 @@ loc_70D6:
 	bne.s	loc_7102
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_y_pos).w
-	move.w	#$210, (level_x_pos).w
+	move.w	d0, (map_y_pos).w
+	move.w	#$210, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
 	move.w	#$E00, (event_flags).w
 loc_7102:
@@ -10436,7 +10436,7 @@ loc_7108:
 loc_711C:
 	move.l	#$EEE0EEE, (a1)+
 	dbf	d0, loc_711C
-	move.b	#SXFID_DangerousFloor, (sound_queue).w
+	move.b	#SFXID_DangerousFloor, (sound_queue).w
 	move.b	#$10, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	lea	(palette_table).w, a1
@@ -10452,7 +10452,7 @@ loc_7148:
 	dbf	d0, loc_7148
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d0
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 loc_7162:
 	move.w	(a1)+, d1
 	move.w	d1, d2
@@ -10500,7 +10500,7 @@ loc_718A:
 	even
 	
 	
-Level_ChkTargetInteract:
+Map_ChkTargetInteract:
 	move.l	d0, -(sp)
 	lea	(loc_7278).l, a2
 	add.w	d6, d6
@@ -10588,7 +10588,7 @@ loc_7278:
 
 	
 ; ------------------------------------------------------------
-SegaScreen:
+GameMode_Sega:
 	move.b	#$E0, d0
 	bsr.w	UpdateSoundQueue	; stop music
 	bsr.w	PaletteFadeFrom
@@ -10625,11 +10625,11 @@ SegaScreen:
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w	; check start press
 	beq.s	-				
 +
-	move.b	#ScreenID_Title, (game_screen).w	; move to Title screen
+	move.b	#GameModeID_Title, (game_screen).w	; move to Title screen
 	rts
 	
 ; ------------------------------------------------------------
-TitleScreen:
+GameMode_Title:
 	bsr.w	PaletteFadeFrom
 	move	#$2700,sr	; disable interrupts
 	move.w	(vdp_reg1_values).w, d0	; get VDP reg #1 values
@@ -10708,7 +10708,7 @@ TitleScreen:
 	move.b	#8, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w	; start press?
-	bne.w	MoveToIntroScreen		; if so, exit title screen
+	bne.w	MoveToGameMode_Intro		; if so, exit title screen
 	bsr.w	RunObjects
 	bsr.w	BuildSprites
 	tst.w	(demo_timer).w
@@ -10727,7 +10727,7 @@ TitleScreen:
 	move.b	#8, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w
-	bne.w	MoveToIntroScreen
+	bne.w	MoveToGameMode_Intro
 	dbf	d4, -
 	
 	move.l	#$5C200000, d0
@@ -10751,7 +10751,7 @@ TitleScreen:
 	move.b	#8, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w
-	bne.s	MoveToIntroScreen
+	bne.s	MoveToGameMode_Intro
 	dbf	d4, -
 	
 	move.l	#$40000001, d0
@@ -10761,7 +10761,7 @@ TitleScreen:
 	dbf	d5, --
 	
 
-TitleScreenLoop:
+GameMode_TitleLoop:
 	move.w	#ObjID_PushStartButton5, (push_start_button_text).w		; part of object ram
 	move.w	#ObjID_CopyrightText, (copyright_text).w				; part of object ram
 	move.b	#8, (vblank_routine).w
@@ -10771,28 +10771,28 @@ TitleScreenLoop:
 	tst.w	(demo_timer).w
 	beq.s	MoveToOpeningScreen		; introduction screen on Motavia
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w
-	beq.s	TitleScreenLoop
+	beq.s	GameMode_TitleLoop
 
-MoveToIntroScreen:
+MoveToGameMode_Intro:
 	move.w	#0, (controls_locked).w		; unlock controls
-	move.b	#ScreenID_Intro, (game_screen).w		
+	move.b	#GameModeID_Intro, (game_screen).w		
 	move.w	#BuildingID_RolfHouseStart, (building_index).w		
 	rts
 	
 
 MoveToOpeningScreen:
 	move.w	#1, (controls_locked).w
-	move.b	#ScreenID_Level, (game_screen).w
-	move.w	#LevelID_MotaviaOutside, (level_index).w
-	move.w	#$520, (level_y_pos).w
-	move.w	#$5B0, (level_x_pos).w
+	move.b	#GameModeID_Map, (game_screen).w
+	move.w	#MapID_MotaviaOutside, (map_index).w
+	move.w	#$520, (map_y_pos).w
+	move.w	#$5B0, (map_x_pos).w
 	move.w	#$1007, (event_flags).w
 	move.w	#$3C, ($FFFFF780).w
 	move.b	#$82, ($FFFFF640).w	; keep playing same music
 	rts
 	
 ; ------------------------------------------------------------
-EndingScreen:
+GameMode_Ending:
 	move.w	#$93, d0
 	bsr.w	UpdateSoundQueue
 	bsr.w	loc_634E
@@ -10980,7 +10980,7 @@ loc_785C:
 	beq.s	loc_785C
 	
 	move.w	#$9001, (vdp_control_port).l
-	move.b	#ScreenID_Sega, (game_screen).w	; Sega screen
+	move.b	#GameModeID_Sega, (game_screen).w	; Sega screen
 	rts
 	
 loc_787E:
@@ -11335,7 +11335,7 @@ EndingCredits_Script:
 	even
 	
 ; ------------------------------------------------------------	
-LevelScreen:
+GameMode_Map:
 	cmpi.w	#$E00,(event_flags).w
 	beq.s	loc_7C22
 	bsr.w	PaletteFadeFrom
@@ -11370,12 +11370,12 @@ loc_7C4A:
 	lea	(loc_2B1F0).l, a0
 	lea	($FF3000).l, a4
 	bsr.w	DecompressArt2
-	tst.w	(level_index).w
+	tst.w	(map_index).w
 	bne.s	loc_7CA0	; branch if value is not Motavia level
 	tst.w	(jet_scooter_flag).w
 	beq.s	loc_7CA0
-	move.w	(level_y_pos).w, ($FFFFC654).w
-	move.w	(level_x_pos).w, ($FFFFC656).w
+	move.w	(map_y_pos).w, ($FFFFC654).w
+	move.w	(map_x_pos).w, ($FFFFC656).w
 	
 loc_7CA0:
 	lea	(object_ram).w, a6
@@ -11387,15 +11387,15 @@ loc_7CAA:
 	
 	tst.w	(controls_locked).w
 	bne.s	loc_7CCE
-	move.w	#ObjID_CharactersLevel,($FFFFE400).w
+	move.w	#ObjID_MapCharacters,($FFFFE400).w
 	move.w	#3,($FFFFE424).w
-	move.w	(level_x_pos).w,($FFFFE40A).w
-	move.w	(level_y_pos).w,($FFFFE40E).w
+	move.w	(map_x_pos).w,($FFFFE40A).w
+	move.w	(map_y_pos).w,($FFFFE40E).w
 	
 loc_7CCE:
 	move.w	#$300,($FFFFE408).w
-	bsr.w	LoadLevelData
-	bsr.w	LoadSpritesInLevel
+	bsr.w	Map_LoadData
+	bsr.w	Map_LoadObjects
 	bsr.w	loc_7E02
 	tst.w	($FFFFE400).w
 	beq.s	loc_7D08
@@ -11435,12 +11435,12 @@ loc_7D08:
 	cmpi.w	#$E00, (event_flags).w
 	beq.s	loc_7D66
 	bsr.w	PaletteFadeTo
-	bra.s	LevelScreenLoop
+	bra.s	GameMode_MapLoop
 loc_7D66:
 	bsr.w	loc_62CC
 	
 
-LevelScreenLoop:
+GameMode_MapLoop:
 	bsr.w	CheckGamePause
 	move.b	#$10, (vblank_routine).w
 	bsr.w	WaitForVBlank
@@ -11459,7 +11459,7 @@ LevelScreenLoop:
 	bsr.w	loc_6430
 	btst	#6, ($FFFFF712).w
 	beq.s	loc_7DCE
-	cmpi.w	#LevelID_NoahGroundF, (level_index).w
+	cmpi.w	#MapID_NoahGroundF, (map_index).w
 	bcc.s	loc_7DCA
 	tst.b	($FFFFC73E).w
 	beq.s	loc_7DCE
@@ -11476,13 +11476,13 @@ loc_7DCE:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#ButtonStart_Mask, d0			; start press
 	beq.s	loc_7DF6	; branch if start was not pressed
-	move.b	#ScreenID_Title, (game_screen).w	; Title screen index
+	move.b	#GameModeID_Title, (game_screen).w	; Title screen index
 loc_7DEC:
-	cmpi.b	#ScreenID_Sega, (game_screen).w
+	cmpi.b	#GameModeID_Sega, (game_screen).w
 	beq.w	GameOverScreen	; branch if all characters are dead
 loc_7DF6:
-	cmpi.b	#ScreenID_Level, (game_screen).w
-	beq.w	LevelScreenLoop	; branch if we are on the Level screen
+	cmpi.b	#GameModeID_Map, (game_screen).w
+	beq.w	GameMode_MapLoop	; branch if we are on the Level screen
 loc_7E00:
 	rts
 	
@@ -11551,9 +11551,9 @@ loc_7EE4:
 	move.w	#1, $FFFFDE70.w
 	move.w	#$28, $FFFFDE6E.w
 	move.w	#$403, (event_flags).w
-	move.w	#LevelID_MotaviaOutside, (level_index).w
-	move.w	#$4A0, (level_y_pos).w
-	move.w	#$490, (level_x_pos).w
+	move.w	#MapID_MotaviaOutside, (map_index).w
+	move.w	#$4A0, (map_y_pos).w
+	move.w	#$490, (map_x_pos).w
 	move.b	#$82, $FFFFF640.w
 	rts
 loc_7F14:
@@ -11562,9 +11562,9 @@ loc_7F14:
 	move.w	#0, ($FFFFE400).w
 	move.w	#$12C, (demo_timer).w
 	move.w	#$501, (event_flags).w
-	move.w	#LevelID_ClimatrolF7, (level_index).w
-	move.w	#$1A0, (level_y_pos).w
-	move.w	#$300, (level_x_pos).w
+	move.w	#MapID_ClimatrolF7, (map_index).w
+	move.w	#$1A0, (map_y_pos).w
+	move.w	#$300, (map_x_pos).w
 	move.b	#$87, $FFFFF640.w
 	rts
 loc_7F44:
@@ -11574,9 +11574,9 @@ loc_7F44:
 	move.w	#$29, $FFFFDE6E.w
 	move.w	#$12C, (demo_timer).w
 	move.w	#$602, (event_flags).w
-	move.w	#LevelID_MotaviaOutside, (level_index).w
-	move.w	#$4A0, (level_y_pos).w
-	move.w	#$490, (level_x_pos).w
+	move.w	#MapID_MotaviaOutside, (map_index).w
+	move.w	#$4A0, (map_y_pos).w
+	move.w	#$490, (map_x_pos).w
 	move.b	#1, $FFFFC735.w
 	move.b	#$82, $FFFFF640.w
 	rts
@@ -11586,7 +11586,7 @@ loc_7F80:
 	move.w	#0, ($FFFFE400).w
 	move.w	#$12C, (demo_timer).w
 	move.w	#$704, (event_flags).w
-	move.w	#LevelID_ClimatrolF7, $FFFFF748.w
+	move.w	#MapID_ClimatrolF7, $FFFFF748.w
 	move.w	#$1A0, $FFFFF74A.w
 	move.w	#$300, $FFFFF74C.w
 	move.b	#$87, $FFFFF640.w
@@ -11709,9 +11709,9 @@ loc_810E:
 	bsr.w	loc_8240
 	tst.w	(screen_changed_flag).w
 	beq.s	loc_812E
-	move.w	$FFFFF748.w, (level_index).w
-	move.w	$FFFFF74A.w, (level_y_pos).w
-	move.w	$FFFFF74C.w, (level_x_pos).w
+	move.w	$FFFFF748.w, (map_index).w
+	move.w	$FFFFF74A.w, (map_y_pos).w
+	move.w	$FFFFF74C.w, (map_x_pos).w
 loc_812E:
 	rts
 loc_8130:
@@ -11721,9 +11721,9 @@ loc_8130:
 	bne.w	loc_815A	
 	tst.w	(current_active_objects_num).w	
 	bne.w	loc_815A	
-	move.w	$FFFFC64C.w, (level_index).w	
-	move.w	$FFFFC64E.w, (level_y_pos).w	
-	move.w	$FFFFC650.w, (level_x_pos).w	
+	move.w	$FFFFC64C.w, (map_index).w	
+	move.w	$FFFFC64E.w, (map_y_pos).w	
+	move.w	$FFFFC650.w, (map_x_pos).w	
 	bra.w	loc_824C	
 loc_815A:
 	rts	
@@ -11798,7 +11798,7 @@ loc_81E6:
 	cmp.w	(a1)+, d0
 	bne.s	loc_821E
 	move.w	#$101, (enemy_data_buffer).w		; Army Eye boss battle
-	move.b	#ScreenID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_screen).w
 loc_821E:
 	move.w	#0, (event_flags).w
 loc_8224:
@@ -11835,7 +11835,7 @@ loc_824C:
 ; ------------------------------------------------------------
 	
 ; ------------------------------------------------------------
-BuildingScreen:
+GameMode_Building:
 	bsr.w	PaletteFadeFrom
 	move	#$2700, sr
 	move.w	(vdp_reg1_values).w, d0
@@ -11887,7 +11887,7 @@ loc_8304:
 	bra.w	loc_8396
 	
 loc_8318:
-	cmpi.w	#LevelID_DezolisSkure, (level_index).w
+	cmpi.w	#MapID_DezolisSkure, (map_index).w
 	bne.s	loc_8396
 	addq.w	#5, (event_routine).w
 	bra.s	loc_8396
@@ -11944,7 +11944,7 @@ loc_839A:
 	bsr.w	PaletteFadeTo
 	
 
-BuildingScreenLoop:
+GameMode_BuildingLoop:
 	bsr.w	CheckGamePause
 	move.b	#$14, (vblank_routine).w
 	bsr.w	WaitForVBlank
@@ -11955,8 +11955,8 @@ BuildingScreenLoop:
 	bsr.w	loc_66F6
 	tst.w	(screen_changed_flag).w
 	bne.s	loc_8406
-	cmpi.b	#ScreenID_Building, (game_screen).w
-	beq.s	BuildingScreenLoop
+	cmpi.b	#GameModeID_Building, (game_screen).w
+	beq.s	GameMode_BuildingLoop
 loc_8406:
 	rts
 	
@@ -12044,7 +12044,7 @@ BuildingMusicPtrs:
 	even
 	
 ; ------------------------------------------------------------
-BattleScreen:
+GameMode_Battle:
 	bsr.w	loc_634E
 	move	#$2700, sr
 	move.w	(vdp_reg1_values).w, d0
@@ -12069,10 +12069,10 @@ loc_850C:
 	move.w	#$8F02, (a6)
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	move.w	$FFFFE40A.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	move.l	#$60000002, (vdp_control_port).l
 	lea	(FontsIconsArt).l, a0
 	bsr.w	DecompressArt
@@ -12157,8 +12157,8 @@ loc_85D6:
 	move.w	d0, (fight_active_flag).w
 	move.w	d0, (fight_interrupted_flag).w
 	bsr.w	loc_F4E8
-	lea	(character_data_buffer).w, a0
-	lea	(battle_character_data_buffer).w, a1	; save characters' stats
+	lea	(character_stats).w, a0
+	lea	(battle_character_stats).w, a1	; save characters' stats
 	bsr.w	loc_6D5A	; for first 2 characters
 	bsr.w	loc_6D5A	; next 2
 	bsr.w	loc_6D5A	; next 2
@@ -12215,12 +12215,12 @@ loc_86F6:
 	move.w	#2, ($FFFFCC98).w
 loc_8730:
 	cmpi.w	#$102, (enemy_data_buffer).w
-	bcc.s	BattleScreenLoop		; branch if we are in either Dark Force or Mother Brain boss battle (don't show top windows in battle for these two bosses)
+	bcc.s	GameMode_BattleLoop		; branch if we are in either Dark Force or Mother Brain boss battle (don't show top windows in battle for these two bosses)
 	move.l	#((4<<$18)|(WinID_FirstEnemyName<<$10)|(4<<8)|WinID_SecondEnemyName), (window_index).w
 	move.l	#((4<<$18)|(WinID_FirstEnemyInfo<<$10)|(4<<8)|WinID_SecondEnemyInfo), (window_index+4).w
 	
 
-BattleScreenLoop:
+GameMode_BattleLoop:
 	bsr.w	CheckGamePause
 	move.b	#$18, (vblank_routine).w
 	bsr.w	WaitForVBlank
@@ -12233,7 +12233,7 @@ BattleScreenLoop:
 	
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
-	bsr.w	BattleScreen_CheckRoutine
+	bsr.w	GameMode_Battle_CheckRoutine
 	bsr.w	CheckPrepareWindows
 	bsr.w	loc_5F74
 	bsr.w	loc_67B8
@@ -12244,10 +12244,10 @@ BattleScreenLoop:
 	beq.s	+
 	move.w	#1, (fight_interrupted_flag).w	; interrupt fight if we pressed a button
 +
-	cmpi.b	#ScreenID_Battle, (game_screen).w
-	beq.s	BattleScreenLoop
+	cmpi.b	#GameModeID_Battle, (game_screen).w
+	beq.s	GameMode_BattleLoop
 	
-	cmpi.b	#ScreenID_Sega, (game_screen).w
+	cmpi.b	#GameModeID_Sega, (game_screen).w
 	beq.s	GameOverScreen
 	rts
 	
@@ -12338,7 +12338,7 @@ loc_88DE:
 	
 	rts
 ; ------------------------------------------------------------
-IntroScreen:
+GameMode_Intro:
 	bsr.w	PaletteFadeFrom
 	move	#$2700, sr
 	move.w	(vdp_reg1_values).w, d0	; VDP reg #1 values
@@ -12402,7 +12402,7 @@ loc_8970:
 	bsr.w	PaletteFadeTo
 	
 	
-IntroScreenLoop:
+GameMode_IntroLoop:
 	move.b	#$14, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	jsr	(RunObjects).l
@@ -12412,17 +12412,17 @@ IntroScreenLoop:
 	tst.w	(screen_changed_flag).w
 	bmi.s	loc_89E6
 	bne.s	loc_89E4
-	cmpi.b	#ScreenID_Intro, (game_screen).w
-	beq.s	IntroScreenLoop
+	cmpi.b	#GameModeID_Intro, (game_screen).w
+	beq.s	GameMode_IntroLoop
 loc_89E4:
 	rts
 	
 loc_89E6:
-	move.b	#ScreenID_Level, (game_screen).w
+	move.b	#GameModeID_Map, (game_screen).w
 	rts
 	
 loc_89EE:
-	lea	(character_data_buffer).w, a6
+	lea	(character_stats).w, a6
 	moveq	#0, d7
 	move.w	#$D7F, d6
 -
@@ -12436,15 +12436,15 @@ loc_8A08:
 	move.l	d7, (a6)+
 	dbf	d6, loc_8A08
 	
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$120, (level_y_pos).w
-	move.w	#$2D0, (level_x_pos).w
-	move.w	(level_index).w, $FFFFC646.w
-	move.w	(level_y_pos).w, $FFFFC648.w
-	move.w	(level_x_pos).w, $FFFFC64A.w
-	move.w	(level_index).w, $FFFFC64C.w
-	move.w	(level_y_pos).w, $FFFFC64E.w
-	move.w	(level_x_pos).w, $FFFFC650.w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$120, (map_y_pos).w
+	move.w	#$2D0, (map_x_pos).w
+	move.w	(map_index).w, $FFFFC646.w
+	move.w	(map_y_pos).w, $FFFFC648.w
+	move.w	(map_x_pos).w, $FFFFC64A.w
+	move.w	(map_index).w, $FFFFC64C.w
+	move.w	(map_y_pos).w, $FFFFC64E.w
+	move.w	(map_x_pos).w, $FFFFC650.w
 	move.w	#0, (party_members_num).w
 	move.w	#0, (party_members_joined).w
 	move.w	#1, (party_member_join_next).w
@@ -12453,7 +12453,7 @@ loc_8A08:
 	move.w	#$101, ($FFFFC78E).w
 	
 	lea	(CharInitialSetup).l, a0
-	lea	(character_data_buffer+$20).w, a1
+	lea	(character_stats+equipment).w, a1
 	moveq	#(CharInitialSetupEnd-CharInitialSetup)/16-1, d0	; Loop for each character
 -
 	bsr.w	loc_6D92
@@ -12489,7 +12489,7 @@ SetCharInitialStats:
 	adda.w	d1, a2			; increase pointer
 	movea.l	(a2), a2		; load experience table for character in a2
 	move.w	d3, d1
-	lea	(character_data_buffer+$A).w, a1		
+	lea	(character_stats+level).w, a1		
 	lsl.w	#6, d1
 	adda.w	d1, a1
 	moveq	#0, d0
@@ -13226,9 +13226,9 @@ loc_9060:
 	dc.w	0, 0
 ; ==================================
 	
-LoadLevelData:
-	lea	(LevelData).l, a1
-	move.w	(level_index).w, d0	; get Level index
+Map_LoadData:
+	lea	(MapData).l, a1
+	move.w	(map_index).w, d0	; get Level index
 	mulu.w	#$14, d0
 	adda.w	d0, a1
 	lea	(loc_9342).l, a4
@@ -13322,7 +13322,7 @@ loc_915E:
 	bsr.w	DecompressArt
 	dbf	d6, loc_915E
 
-	move.w	(level_x_pos).w, d0
+	move.w	(map_x_pos).w, d0
 	move.w	$FFFFF722.w, d1
 	subi.w	#$A0, d0
 	bcc.s	loc_919A
@@ -13340,7 +13340,7 @@ loc_919A:
 loc_91AA:
 	move.w	d0, $FFFFF71E.w
 	move.w	d0, $FFFFF71A.w
-	move.w	(level_y_pos).w, d0
+	move.w	(map_y_pos).w, d0
 	move.w	$FFFFF720.w, d1
 	subi.w	#$80, d0
 	bcc.s	loc_91CA
@@ -13384,13 +13384,13 @@ loc_9222:
 	lea	(loc_412F8).l, a0
 	bsr.w	DecompressArt
 loc_923C:
-	cmpi.w	#LevelID_NoahGroundF, (level_index).w
+	cmpi.w	#MapID_NoahGroundF, (map_index).w
 	bcs.s	loc_9258
 	move.l	#$5E200000, (vdp_control_port).l
 	lea	(loc_39E9C).l, a0
 	bsr.w	DecompressArt
 loc_9258:
-	move.w	(level_index).w, d0
+	move.w	(map_index).w, d0
 	bne.s	loc_92CC
 	tst.b	$FFFFC735.w
 	beq.s	loc_92CA
@@ -14115,7 +14115,7 @@ ProcessPlayerMenu:
 	move.b	(joypad_pressed).w, d0
 	btst	#Button_C, d0		; C button pressed
 	beq.s	+	; if not, return
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	move.w	#WinID_PlayerMenu, (window_index).w
 	move.w	#1, (event_routine).w
 	move.w	#0, (event_routine_sub).w
@@ -14163,7 +14163,7 @@ Menu_Item_RoutineOpened:
 Menu_Item_RoutineCharSelected:
 	move.w	(event_routine_sub).w, d1
 	bne.w	JmpTo_CloseCurrentWindow
-	lea	(character_data_buffer+$27).w, a2			; get character's number of items
+	lea	(character_stats+item_num).w, a2			; get character's number of items
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2		; get character selected
@@ -14207,7 +14207,7 @@ ItemAction_UseEntry:
 	move.w	#WinID_ScriptMessage, (window_index).w
 	addq.w	#1, (event_routine_sub).w
 +
-	lea	(character_data_buffer+2).w, a2		; character's current HP
+	lea	(character_stats+curr_hp).w, a2		; character's current HP
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2		; get selected character
@@ -14316,7 +14316,7 @@ loc_9BFE:
 	beq.s	+
 	divu.w	#3, d6
 +
-	bsr.w	Level_ChkTargetInteract
+	bsr.w	Map_ChkTargetInteract
 	rts
 	
 loc_9C12:
@@ -14390,10 +14390,10 @@ loc_9CCA:
 loc_9CD6:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
-	move.w	#LevelID_UnderwaterPassage, (level_index).w
-	move.w	#$170, (level_y_pos).w
-	move.w	#$700, (level_x_pos).w
-	move.w	#LevelID_MotaviaOutside, $FFFFC64C.w
+	move.w	#MapID_UnderwaterPassage, (map_index).w
+	move.w	#$170, (map_y_pos).w
+	move.w	#$700, (map_x_pos).w
+	move.w	#MapID_MotaviaOutside, $FFFFC64C.w
 	move.w	$FFFFE80E.w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, $FFFFC64E.w
@@ -14454,7 +14454,7 @@ loc_9D92:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
 	move.w	#$1B, (script_id).w		; "The dam locks open, and rushing water is heard."
-	move.b	#SXFID_DamOpened, (sound_queue).w
+	move.b	#SFXID_DamOpened, (sound_queue).w
 	addq.w	#1, (event_routine_sub).w
 	rts
 ; -------------------------------------------
@@ -14493,8 +14493,8 @@ ItemAction_Telepipe:
 	tst.w	d1
 	bne.s	loc_9E18
 	move.w	#$12, (script_id).w		; "Character's body feels very light."
-	move.w	(level_index).w, d0
-	cmpi.w	#LevelID_DezolisSkure, d0
+	move.w	(map_index).w, d0
+	cmpi.w	#MapID_DezolisSkure, d0
 	bls.s	+						; We can use this item only on Motavia and Dezolis (in Skure as well) world map
 	move.w	#$27, (script_id).w		; "That can't be used here."
 	addq.w	#1, (event_routine_sub).w
@@ -14506,46 +14506,46 @@ loc_9E18:
 	bne.w	CloseAllWindows
 	tst.w	(planet_index).w
 	bne.s	loc_9E56
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$100, (level_y_pos).w
-	move.w	#$1F0, (level_x_pos).w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$100, (map_y_pos).w
+	move.w	#$1F0, (map_x_pos).w
 	tst.w	$FFFFC65A.w
 	bne.s	loc_9E98
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$80, (level_y_pos).w
-	move.w	#$110, (level_x_pos).w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$80, (map_y_pos).w
+	move.w	#$110, (map_x_pos).w
 	tst.w	$FFFFC65C.w
 	bne.s	loc_9E98
 	bra.s	loc_9E86
 loc_9E56:
-	move.w	#LevelID_DezolisSkure, (level_index).w
-	move.w	#$4F0, (level_y_pos).w
-	move.w	#$3C0, (level_x_pos).w
+	move.w	#MapID_DezolisSkure, (map_index).w
+	move.w	#$4F0, (map_y_pos).w
+	move.w	#$3C0, (map_x_pos).w
 	tst.w	$FFFFC65A.w
 	beq.s	loc_9E98
-	move.w	#LevelID_Aukba, (level_index).w
-	move.w	#$60, (level_y_pos).w
-	move.w	#$70, (level_x_pos).w
+	move.w	#MapID_Aukba, (map_index).w
+	move.w	#$60, (map_y_pos).w
+	move.w	#$70, (map_x_pos).w
 	tst.w	$FFFFC65C.w
 	bne.s	loc_9E98
 loc_9E86:
-	move.w	$FFFFC646.w, (level_index).w
-	move.w	$FFFFC648.w, (level_y_pos).w
-	move.w	$FFFFC64A.w, (level_x_pos).w
+	move.w	$FFFFC646.w, (map_index).w
+	move.w	$FFFFC648.w, (map_y_pos).w
+	move.w	$FFFFC64A.w, (map_x_pos).w
 loc_9E98:
 	move.w	#0, (jet_scooter_flag).w
 	move.w	#-1, (screen_changed_flag).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_Teleport, (sound_queue).w
+	move.b	#SFXID_Teleport, (sound_queue).w
 	tst.w	$FFFFDE80.w
-	bne.w	Level_TechEffect_SubtractTP
+	bne.w	Map_TechEffect_SubtractTP
 	bra.w	RemoveItemFromInventory	
 ; -------------------------------------------
 ItemAction_Escapipe:
 	tst.w	d1
 	bne.s	loc_9ED8
 	move.w	#$12, (script_id).w		; "Character's body feels very light."
-	cmpi.w	#LevelID_EsperMansionB1, (level_index).w
+	cmpi.w	#MapID_EsperMansionB1, (map_index).w
 	bcc.s	loc_9ED6
 	move.w	#$27, (script_id).w		; "That can't be used here."
 	addq.w	#1, (event_routine_sub).w
@@ -14554,23 +14554,23 @@ loc_9ED6:
 loc_9ED8:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
-	move.w	$FFFFC64C.w, (level_index).w
-	move.w	$FFFFC64E.w, (level_y_pos).w
-	move.w	$FFFFC650.w, (level_x_pos).w
+	move.w	$FFFFC64C.w, (map_index).w
+	move.w	$FFFFC64E.w, (map_y_pos).w
+	move.w	$FFFFC650.w, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_Teleport, (sound_queue).w
+	move.b	#SFXID_Teleport, (sound_queue).w
 	tst.w	$FFFFDE80.w
-	bne.w	Level_TechEffect_SubtractTP
+	bne.w	Map_TechEffect_SubtractTP
 	bra.w	RemoveItemFromInventory
 ; -------------------------------------------
 ItemAction_Hidapipe:
 	tst.w	d1	
 	bne.s	loc_9F2E	
 	move.w	#$13, (script_id).w	
-	move.w	(level_index).w, d0	
+	move.w	(map_index).w, d0	
 	beq.s	loc_9F2C	
-	cmpi.w	#LevelID_DezolisSkure, d0	
+	cmpi.w	#MapID_DezolisSkure, d0	
 	beq.s	loc_9F2C	
 	move.w	#$27, (script_id).w		; "That can't be used here."
 	addq.w	#1, (event_routine_sub).w	
@@ -14579,7 +14579,7 @@ loc_9F2C:
 loc_9F2E:
 	subq.w	#1, d1	
 	bne.w	CloseAllWindows	
-	move.b	#SXFID_Hidapipe, (sound_queue).w	
+	move.b	#SFXID_Hidapipe, (sound_queue).w	
 	move.b	#0, (track_timer).w	
 -
 	cmpi.b	#$80, (track_timer).w	
@@ -14598,7 +14598,7 @@ loc_9F62:
 	subq.w	#1, d1
 	bne.s	loc_9F92
 	move.w	#WinID_ScriptMessage, (window_index).w
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14616,7 +14616,7 @@ loc_9F92:
 	beq.w	JmpTo_CloseCurrentWindow
 	subq.w	#1, d1
 	bne.s	loc_9FC4
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14642,7 +14642,7 @@ loc_9FDA:
 	bne.s	loc_A02A
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A028
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14671,7 +14671,7 @@ loc_A016:
 	move.w	d1, -(a2)		; finally, move the new value into current HP 
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_Healed, (sound_queue).w
+	move.b	#SFXID_Healed, (sound_queue).w
 loc_A028:
 	rts
 	
@@ -14692,7 +14692,7 @@ loc_A044:
 	subq.w	#1, d1
 	bne.s	loc_A074
 	move.w	#WinID_ScriptMessage, (window_index).w
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14709,7 +14709,7 @@ loc_A074:
 	beq.w	JmpTo_CloseCurrentWindow
 	subq.w	#1, d1
 	bne.s	loc_A0A6
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14733,14 +14733,14 @@ loc_A0BC:
 	bne.s	loc_A0E8
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A0E6
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	move.w	#0, (a2)
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_PoisonCured, (sound_queue).w
+	move.b	#SFXID_PoisonCured, (sound_queue).w
 loc_A0E6:
 	rts
 loc_A0E8:
@@ -14772,7 +14772,7 @@ loc_A11E:
 	lea	(party_member_id).w, a1	
 	move.w	(party_members_num).w, d0	
 loc_A130:
-	lea	(character_data_buffer).w, a2	
+	lea	(character_stats).w, a2	
 	move.w	(a1)+, d1	
 	lsl.w	#6, d1	
 	adda.w	d1, a2	
@@ -14785,7 +14785,7 @@ loc_A144:
 	dbf	d0, loc_A130	
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w	
 	addq.w	#1, (event_routine_sub).w	
-	move.b	#SXFID_Healed, (sound_queue).w
+	move.b	#SFXID_Healed, (sound_queue).w
 loc_A158:
 	rts	
 loc_A15A:
@@ -14809,7 +14809,7 @@ loc_A188:
 	subq.w	#1, d1
 	bne.s	loc_A1B2
 	bsr.w	RemoveItemFromInventory
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14834,8 +14834,8 @@ loc_A1C8:
 	bpl.s	loc_A1F0
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_Revived, (sound_queue).w
-	lea	$FFFFC004.w, a2
+	move.b	#SFXID_Revived, (sound_queue).w
+	lea	(character_stats+max_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14855,7 +14855,7 @@ NeiSword_ItemSelected:
 	tst.w	d1
 	bne.s	loc_A21E
 	move.w	#$12, (script_id).w
-	cmpi.w	#LevelID_NoahGroundF, (level_index).w
+	cmpi.w	#MapID_NoahGroundF, (map_index).w
 	bcc.s	+									;  we can use this item only on Noah
 	move.w	#$27, (script_id).w		; if you're not on Noah, display text that it cannot be used
 	addq.w	#1, (event_routine_sub).w
@@ -14866,12 +14866,12 @@ NeiSword_ItemSelected:
 loc_A21E:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
-	move.w	#LevelID_EsperMansionF1, (level_index).w	; move to Esper Mansion after using Nei Sword
-	move.w	#$100, (level_y_pos).w
-	move.w	#$100, (level_x_pos).w
+	move.w	#MapID_EsperMansionF1, (map_index).w	; move to Esper Mansion after using Nei Sword
+	move.w	#$100, (map_y_pos).w
+	move.w	#$100, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_Teleport, (sound_queue).w
+	move.b	#SFXID_Teleport, (sound_queue).w
 -
 	cmpi.b	#$80, (track_timer).w
 	bne.s	-
@@ -14894,13 +14894,13 @@ Visiphone_ItemSelected:
 	move.w	#9, (portrait_index).w
 	move.w	#0, $FFFFF764.w
 	move.w	#1, $FFFFF766.w
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 	move.w	$FFFFE40E.w, d0		; get characters' y position
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_y_pos).w ; and save it
+	move.w	d0, (map_y_pos).w ; and save it
 	move.w	$FFFFE40A.w, d0		; get characters' x position
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_x_pos).w ; and save it
+	move.w	d0, (map_x_pos).w ; and save it
 	rts	
 ; -------------------------------------------
 ItemAction_GiveEntry:
@@ -14912,7 +14912,7 @@ ItemAction_GiveEntry:
 loc_A2B6:
 	subq.w	#1, d1
 	bne.w	loc_A342
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14941,7 +14941,7 @@ loc_A306:
 	cmp.w	(character_index_2).w, d0
 	beq.s	loc_A336
 	move.w	#8, (script_id).w
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -14972,7 +14972,7 @@ loc_A368:
 ItemAction_TossEntry:
 	move.w	(event_routine_sub).w, d1
 	bne.s	ItemToss_ProcessAction
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2
@@ -15167,7 +15167,7 @@ loc_A576:
 loc_A584:
 	move.w	(event_routine_sub).w, d1
 	bne.w	JmpTo_CloseCurrentWindow
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15186,7 +15186,7 @@ loc_A5AE:
 	addq.w	#1, (event_routine_sub).w
 	rts
 loc_A5C8:
-	move.w	#WinID_LevelTechList, (window_index).w
+	move.w	#WinID_MapTechList, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
 ; -------------------------------------	
@@ -15195,7 +15195,7 @@ loc_A5D4:
 	bne.s	+
 	move.w	#WinID_ChosenItemChar, (window_index).w
 	addq.w	#1, (event_routine_sub).w
-	lea	(character_data_buffer+6).w, a2
+	lea	(character_stats+curr_tp).w, a2
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2
@@ -15217,9 +15217,9 @@ loc_A5D4:
 	bcs.s	loc_A65C
 	lsl.w	#2, d0
 	andi.w	#$FC, d0
-	jmp	Level_TechEffectIndex(pc,d0.w)
+	jmp	Map_TechEffectIndex(pc,d0.w)
 ; -------------------------------------	
-Level_TechEffectIndex:
+Map_TechEffectIndex:
 	bra.w	TechEffect_Res
 	bra.w	TechEffect_Res
 	bra.w	TechEffect_Res
@@ -15249,7 +15249,7 @@ TechEffect_Res:
 loc_A676:
 	subq.w	#1, d1
 	bne.s	loc_A6B8
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15267,7 +15267,7 @@ loc_A6A2:
 	addq.w	#3, (event_routine_sub).w	
 loc_A6B0:
 	addq.w	#2, (event_routine_sub).w
-	bra.w	Level_TechEffect_SubtractTP
+	bra.w	Map_TechEffect_SubtractTP
 loc_A6B8:
 	subq.w	#1, d1
 	beq.w	JmpTo_CloseCurrentWindow
@@ -15283,7 +15283,7 @@ loc_A6D4:
 	bne.s	loc_A73E
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A73C
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15313,10 +15313,10 @@ loc_A71C:
 	move.w	d1, -(a2)
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
-	move.b	#SXFID_Revived, (sound_queue).w
+	move.b	#SFXID_Revived, (sound_queue).w
 	cmpi.b	#TechID_Rever, (technique_index).w
 	beq.s	loc_A73C				; if it's the Rever technique, branch
-	move.b	#SXFID_Healed, (sound_queue).w			; otherwise play "Healed" sound
+	move.b	#SFXID_Healed, (sound_queue).w			; otherwise play "Healed" sound
 loc_A73C:
 	rts
 
@@ -15331,7 +15331,7 @@ loc_A748:
 TechEffect_Sar:
 	tst.w	d1	
 	bne.s	loc_A762	
-	bsr.w	Level_TechEffect_SubtractTP	
+	bsr.w	Map_TechEffect_SubtractTP	
 	move.w	#WinID_ScriptMessage, (window_index).w	
 	move.w	#$108, (script_id).w	
 	rts	
@@ -15350,7 +15350,7 @@ loc_A778:
 	lea	(party_member_id).w, a1	
 	move.w	(party_members_num).w, d2	
 loc_A78A:
-	lea	(character_data_buffer).w, a2	
+	lea	(character_stats).w, a2	
 	move.w	(a1)+, d1	
 	lsl.w	#6, d1	
 	adda.w	d1, a2	
@@ -15381,7 +15381,7 @@ loc_A7C2:
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w	
 	addq.w	#1, (event_routine_sub).w
 ; sound for the Sar techniques is missing; I included the sound ID used for the res technique right below. Just uncomment it if you want it
-	;move.b	#SXFID_Healed, (sound_queue).w
+	;move.b	#SFXID_Healed, (sound_queue).w
 
 loc_A7D0:
 	rts	
@@ -15397,7 +15397,7 @@ TechEffect_Sak:
 loc_A7E2:
 	subq.w	#1, d1
 	bne.s	loc_A812
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15418,18 +15418,18 @@ loc_A812:
 	move.w	#$8001, (window_index).w
 	move.w	#$1E, $FFFFDE5E.w
 	addq.w	#1, (event_routine_sub).w
-	bra.w	Level_TechEffect_SubtractTP
+	bra.w	Map_TechEffect_SubtractTP
 loc_A830:
 	subq.w	#1, d1
 	bne.s	loc_A86C
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A86A
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	move.w	#0, (a2)
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15442,7 +15442,7 @@ loc_A860:
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
 ; sound for Sak is missing; I included the sound ID used for the res technique right below. Just uncomment it if you want it
-	;move.b	#SXFID_Healed, (sound_queue).w
+	;move.b	#SFXID_Healed, (sound_queue).w
 loc_A86A:
 	rts
 loc_A86C:
@@ -15456,7 +15456,7 @@ loc_A876:
 TechEffect_Nasak:
 	tst.w	d1
 	bne.s	loc_A890
-	bsr.w	Level_TechEffect_SubtractTP
+	bsr.w	Map_TechEffect_SubtractTP
 	move.w	#WinID_ScriptMessage, (window_index).w
 	move.w	#$106, (script_id).w
 	rts
@@ -15472,7 +15472,7 @@ loc_A8A6:
 	bne.s	loc_A8EC
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A8EA
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15480,7 +15480,7 @@ loc_A8A6:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d0
 loc_A8C8:
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(a1)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15494,7 +15494,7 @@ loc_A8DC:
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
 ; sound for Nasak is missing; I included the sound ID used for the res technique right below. Just uncomment it if you want it
-	;move.b	#SXFID_Healed, (sound_queue).w
+	;move.b	#SFXID_Healed, (sound_queue).w
 loc_A8EA:
 	rts
 loc_A8EC:
@@ -15509,7 +15509,7 @@ TechEffect_Anti:
 loc_A8FC:
 	subq.w	#1, d1
 	bne.s	loc_A940
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15527,7 +15527,7 @@ loc_A928:
 	addq.w	#3, (event_routine_sub).w
 loc_A938:
 	addq.w	#2, (event_routine_sub).w
-	bra.w	Level_TechEffect_SubtractTP
+	bra.w	Map_TechEffect_SubtractTP
 loc_A940:
 	subq.w	#1, d1
 	beq.w	JmpTo_CloseCurrentWindow
@@ -15542,7 +15542,7 @@ loc_A95C:
 	bne.s	loc_A982
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A980
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15550,7 +15550,7 @@ loc_A95C:
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_sub).w
 ; sound for Anti is missing; I included the sound ID used when you have the poison status effect cured at the hospital. Just uncomment it if you want it
-	;move.b	#SXFID_PoisonCured, (sound_queue).w
+	;move.b	#SFXID_PoisonCured, (sound_queue).w
 loc_A980:
 	rts
 loc_A982:
@@ -15568,8 +15568,8 @@ TechEffect_Rever:
 loc_A996:
 	subq.w	#1, d1
 	bne.w	loc_A6BE
-	bsr.w	Level_TechEffect_SubtractTP
-	lea	(character_data_buffer+2).w, a2
+	bsr.w	Map_TechEffect_SubtractTP
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(character_index_2).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15597,7 +15597,7 @@ TechEffect_Hinas:
 TechEffect_Musik:
 	tst.w	d1
 	bne.w	CloseAllWindows
-	bsr.w	Level_TechEffect_SubtractTP
+	bsr.w	Map_TechEffect_SubtractTP
 	move.w	#WinID_ScriptMessage, (window_index).w
 	bsr.w	loc_9C12
 	beq.s	loc_AA3E
@@ -15605,7 +15605,7 @@ TechEffect_Musik:
 	bne.s	loc_AA3E
 	move.w	#$109, (script_id).w
 	move.b	#1, $FFFFC734.w
-	move.b	#SXFID_Musik, (sound_queue).w
+	move.b	#SFXID_Musik, (sound_queue).w
 	move.b	#0, (track_timer).w
 -
 	cmpi.b	#$80, (track_timer).w
@@ -15621,13 +15621,13 @@ loc_AA3E:
 	move.l	#$1090004, (script_id).w
 	rts
 	
-Level_TechEffect_SubtractTP:
+Map_TechEffect_SubtractTP:
 	lea	(TechniqueData+5).l, a3
 	move.b	(technique_index).w, d0
 	andi.w	#$3F, d0
 	lsl.w	#3, d0
 	adda.w	d0, a3
-	lea	(character_data_buffer+6).w, a2
+	lea	(character_stats+curr_tp).w, a2
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2
@@ -15686,7 +15686,7 @@ loc_AADA:
 loc_AAE6:
 	tst.w	(event_routine_sub).w
 	bne.w	JmpTo_CloseCurrentWindow
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15750,7 +15750,7 @@ loc_ABA6:
 	rts
 	
 loc_ABB2:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15789,7 +15789,7 @@ loc_AC0C:
 	bra.s	loc_AC76
 loc_AC16:
 	move.b	(a2), d0
-	lea	$FFFFC021.w, a2
+	lea	(character_stats+right_hand).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15799,7 +15799,7 @@ loc_AC16:
 	moveq	#3, d1
 	bra.s	loc_AC0C
 loc_AC2E:
-	lea	$FFFFC01F.w, a2
+	lea	(character_stats+defense+1).w, a2
 	adda.w	d1, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
@@ -15810,7 +15810,7 @@ loc_AC2E:
 loc_AC42:
 	move.w	(character_index).w, d3
 	bsr.w	loc_ADBE
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -15830,7 +15830,7 @@ loc_AC76:
 	addq.w	#1, (event_routine).w
 	rts
 loc_AC82:
-	lea	$FFFFC01F.w, a2
+	lea	(character_stats+defense+1).w, a2
 	adda.w	d1, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
@@ -15845,7 +15845,7 @@ loc_AC82:
 	andi.w	#7, d0
 	cmpi.w	#3, d0
 	bne.s	loc_ACC2
-	lea	(character_data_buffer+$21).w, a0
+	lea	(character_stats+right_hand).w, a0
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -15855,7 +15855,7 @@ loc_ACC2:
 	move.b	(item_index).w, (a2)
 	tst.b	d1
 	beq.s	loc_ACFE
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2
@@ -15906,12 +15906,12 @@ loc_AD42:
 	
 loc_AD4C:
 	move.w	d3, d1
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	lsl.w	#6, d1
 	adda.w	d1, a1
 	move.w	$1A(a1), $1C(a1)		; get ATTACK stat
 	move.w	d3, d1
-	lea	(character_data_buffer+$20).w, a2				; get equipment data
+	lea	(character_stats+equipment).w, a2				; get equipment data
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	bsr.s	loc_AD8C			; process head equipment
@@ -15957,11 +15957,11 @@ loc_ADB4:
 	
 loc_ADBE:
 	move.w	d3, d2
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	lsl.w	#6, d2
 	adda.w	d2, a1
 	move.w	d3, d2
-	lea	($FFFFC020).w, a3
+	lea	(character_stats+equipment).w, a3
 	lsl.w	#6, d2
 	adda.w	d2, a3
 	bsr.s	loc_ADF8
@@ -16018,7 +16018,7 @@ WaitJoypad_B_C_Pressed:
 	
 
 loc_AE2E:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -16049,7 +16049,7 @@ loc_AE82:
 	rts
 loc_AE84:
 	move.b	(a2), d0
-	lea	(character_data_buffer+$21).w, a2
+	lea	(character_stats+right_hand).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -16063,7 +16063,7 @@ loc_AE84:
 RemoveItemFromInventory:
 	move.w	(character_index).w, d1
 RemoveItemFromInventory2:
-	lea	(character_data_buffer+$27).w, a2		; get number of items in inventory
+	lea	(character_stats+item_num).w, a2		; get number of items in inventory
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	subq.b	#1, (a2)					; decrease number
@@ -16086,7 +16086,7 @@ loc_AEC4:
 AddItemToInventory:
 	move.w	(character_index_2).w, d1
 AddItemToInventory2:
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	addq.b	#1, (a2)
@@ -16106,7 +16106,7 @@ Building_CheckRoutine:
 	bne.s	loc_AF02
 	move.w	(event_routine).w, d1
 	bne.s	loc_AF04
-	move.b	#ScreenID_Level, (game_screen).w
+	move.b	#GameModeID_Map, (game_screen).w
 loc_AF02:
 	rts
 	
@@ -16524,7 +16524,7 @@ SetCharNames:
 	moveq	#(CharNamesEnd-CharNames)/CharNameLength-1, d0			; Loop for each character
 -
 	move.w	d1, d2
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	lsl.w	#6, d2
 	adda.w	d2, a2
 	bsr.s	+
@@ -16608,7 +16608,7 @@ loc_B48A:
 	adda.w	d0, a0
 	move.w	(a0), d0
 	move.w	d0, (character_index).w
-	lea	$FFFFC00A.w, a0
+	lea	(character_stats+level).w, a0
 	move.w	d0, d1
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -16708,10 +16708,10 @@ loc_B598:
 loc_B5A4:
 	move.w	$FFFFF766.w, $FFFFC65C.w
 	move.w	(planet_index).w, $FFFFC65A.w
-	move.w	(level_index).w, $FFFFC646.w
-	move.w	(level_y_pos).w, $FFFFC648.w
-	move.w	(level_x_pos).w, $FFFFC64A.w
-	move.w	$FFFFC00A.w, $FFFFC684.w
+	move.w	(map_index).w, $FFFFC646.w
+	move.w	(map_y_pos).w, $FFFFC648.w
+	move.w	(map_x_pos).w, $FFFFC64A.w
+	move.w	(character_stats+level).w, $FFFFC684.w
 	lea	$FFFFC63C.w, a0
 	moveq	#3, d1
 loc_B5CE:
@@ -16802,7 +16802,7 @@ loc_B6AE:
 	move.w	#$408, (script_id).w		; if we get here, it means that Nei is dead and the dialogue about nei not being able to be revived and removing her from party takes place here
 	lea	(party_member_id).w, a0
 	move.w	(party_members_num).w, d0
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 loc_B6D4:
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
@@ -16837,13 +16837,13 @@ loc_B726:
 	add.w	d0, d0	
 	move.w	(a0,d0.w), d1	
 	move.w	d1, (character_index).w	
-	lea	(character_data_buffer+2).w, a2	
+	lea	(character_stats+curr_hp).w, a2	
 	lsl.w	#6, d1	
 	adda.w	d1, a2	
 	tst.w	(a2)+	
 	bne.s	loc_B74A	
 	move.w	(a2), -(a2)	
-	move.b	#SXFID_Revived, (sound_queue).w
+	move.b	#SFXID_Revived, (sound_queue).w
 	move.w	#$406, (script_id).w	
 loc_B74A:
 	addq.w	#1, ($FFFFC602).w	
@@ -16853,7 +16853,7 @@ loc_B750:
 	tst.w	(demo_flag).w
 	bne.s	loc_B78A
 	move.w	(character_index).w, d1
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	tst.w	(a2)
@@ -16890,7 +16890,7 @@ loc_B7B2:
 	move.l	(meseta_value).w, d0
 	bsr.w	CheckSubtractMoney
 	bne.s	loc_B7E2
-	lea	$FFFFC004.w, a2
+	lea	(character_stats+max_hp).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -16904,7 +16904,7 @@ loc_B7E2:
 	rts
 ; ------------------------------------------	
 loc_B7EE:
-	move.b	#SXFID_Revived, (sound_queue).w
+	move.b	#SFXID_Revived, (sound_queue).w
 	move.l	#$4060405, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
@@ -16976,7 +16976,7 @@ loc_B8AE:
 	move.w	(party_members_num).w, d0
 	moveq	#0, d2
 -
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -17020,7 +17020,7 @@ loc_B90E:
 loc_B924:
 	move.w	$FFFFDEC0.w, d0
 	beq.s	loc_B952		;  if you didn't pick the CURE option, branch
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -17070,12 +17070,12 @@ loc_B9A0:
 	bsr.s	loc_B9D8
 	bra.s	loc_B9C6
 loc_B9B0:
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
 	andi.w	#$7FFF, (a2)
-	move.b	#SXFID_PoisonCured, (sound_queue).w
+	move.b	#SFXID_PoisonCured, (sound_queue).w
 loc_B9C6:
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	move.w	#$1E, $FFFFDE5E.w
@@ -17086,7 +17086,7 @@ loc_B9D8:
 	lea	(party_member_id).w, a0
 	move.w	(party_members_num).w, d0
 loc_B9E0:
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -17097,7 +17097,7 @@ loc_B9E0:
 	move.w	(a2), -(a2)
 loc_B9F4:
 	dbf	d0, loc_B9E0
-	move.b	#SXFID_Healed, (sound_queue).w
+	move.b	#SFXID_Healed, (sound_queue).w
 	rts
 ; ------------------------------------------	
 loc_BA00:
@@ -17189,7 +17189,7 @@ loc_BAE6:
 ; ------------------------------------------	
 loc_BAF2:
 	move.w	(character_index).w, d1
-	lea	$FFFFC027.w, a0
+	lea	(character_stats+item_num).w, a0
 	lsl.w	#6, d1
 	adda.w	d1, a0
 	cmpi.b	#$10, (a0)
@@ -17225,7 +17225,7 @@ loc_BB54:
 	move.w	#((6<<8)|WinID_StoreMeseta), (window_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.w	#$607, (script_id).w
 	addq.w	#4, (event_routine).w
 	rts
@@ -17332,7 +17332,7 @@ loc_BC7C:
 ; ------------------------------------------
 loc_BC88:
 	move.w	(character_index).w, d1
-	lea	$FFFFC027.w, a0
+	lea	(character_stats+item_num).w, a0
 	lsl.w	#6, d1
 	adda.w	d1, a0
 	cmpi.b	#$10, (a0)
@@ -17368,7 +17368,7 @@ loc_BCEA:
 	move.w	#((6<<8)|WinID_StoreMeseta), (window_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.w	#$707, (script_id).w
 	addq.w	#4, (event_routine).w
 	rts
@@ -17489,7 +17489,7 @@ loc_BE4E:
 	tst.w	(event_routine_sub_2).w
 	bne.s	loc_BE70
 	move.w	(character_index).w, d1
-	lea	$FFFFC027.w, a0
+	lea	(character_stats+item_num).w, a0
 	lsl.w	#6, d1
 	adda.w	d1, a0
 	tst.b	(a0)
@@ -17529,7 +17529,7 @@ loc_BEC0:
 	lsr.w	#1, d0
 	tst.w	(planet_index).w
 	beq.s	loc_BEDC
-	cmpi.b	#ItemID_MagicCap, ($FFFFC020).w
+	cmpi.b	#ItemID_MagicCap, (character_stats+equipment).w
 	bne.s	loc_BEDC
 	moveq	#$A, d0
 loc_BEDC:
@@ -17598,7 +17598,7 @@ loc_BF92:
 	tst.w	(event_routine_sub_2).w
 	bne.s	loc_C004
 	move.w	(character_index).w, d1
-	lea	$FFFFC027.w, a0
+	lea	(character_stats+item_num).w, a0
 	lsl.w	#6, d1
 	adda.w	d1, a0
 	cmpi.b	#$10, (a0)
@@ -17626,7 +17626,7 @@ loc_BFE4:
 	move.w	#((6<<8)|WinID_StoreMeseta), (window_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.w	#$80A, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
@@ -17669,7 +17669,7 @@ CentralTowOutEventIndex:
 	bra.w	loc_C122
 loc_C066:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	beq.s	loc_C086
 	moveq	#ItemID_Recorder, d2
 	bsr.w	CheckItemExistInventory
@@ -17800,7 +17800,7 @@ loc_C1EA:
 	addq.w	#1, (event_routine).w
 	rts
 loc_C1FC:
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -17881,7 +17881,7 @@ loc_C2E6:
 loc_C2F8:
 	tst.w	(event_routine_sub_2).w
 	bne.s	loc_C31C
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -17957,7 +17957,7 @@ LibraryEventIndex:
 	
 loc_C3E6:
 	move.w	#WinID_ScriptMessageBig,(window_index).w
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	beq.s	loc_C406
 	moveq	#ItemID_Recorder, d2
 	bsr.w	CheckItemExistInventory
@@ -18033,7 +18033,7 @@ loc_C4CA:
 	move.b	#ItemID_KeyTube, (item_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	addq.w	#2, (event_routine_sub).w
 	rts
 	
@@ -18089,9 +18089,9 @@ loc_C548:
 	rts
 loc_C554:
 	move.w	#$F02, (script_id).w
-	move.w	#LevelID_DezolisSkure, (level_index).w
-	move.w	#$4F0, (level_y_pos).w
-	move.w	#$3C0, (level_x_pos).w
+	move.w	#MapID_DezolisSkure, (map_index).w
+	move.w	#$4F0, (map_y_pos).w
+	move.w	#$3C0, (map_x_pos).w
 	addq.w	#1, (event_routine).w
 	rts
 	
@@ -18099,9 +18099,9 @@ loc_C572:
 	bsr.w	PaletteFadeFrom
 	bra.s	loc_C58A
 loc_C578:
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$100, (level_y_pos).w
-	move.w	#$1F0, (level_x_pos).w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$100, (map_y_pos).w
+	move.w	#$1F0, (map_x_pos).w
 loc_C58A:
 	move.w	(vdp_reg1_values).w, d0
 	andi.b	#$BF, d0
@@ -18120,7 +18120,7 @@ loc_C58A:
 	bsr.w	DrawArtTiles
 	move.w	#ObjID_Spaceship, ($FFFFEC00).w
 	moveq	#$39, d0
-	cmpi.w	#LevelID_DezolisSkure, (level_index).w
+	cmpi.w	#MapID_DezolisSkure, (map_index).w
 	beq.s	loc_C5EA
 	addq.w	#1, d0
 loc_C5EA:
@@ -18131,7 +18131,7 @@ loc_C5EA:
 	move.w	(vdp_reg1_values).w, d0		; VDP reg #1 values
 	ori.b	#$40, d0					; enable display
 	move.w	d0, (vdp_control_port).l				
-	move.b	#SXFID_SpaceshipDeparted, (sound_queue).w
+	move.b	#SFXID_SpaceshipDeparted, (sound_queue).w
 	bsr.w	PaletteFadeTo
 	
 	
@@ -18143,8 +18143,8 @@ SpaceShipLoop:
 	jsr	(BuildSprites).l
 	tst.w	(demo_timer).w
 	bne.s	SpaceShipLoop
-	move.b	#ScreenID_Level, (game_screen).w
-	move.b	#SXFID_SpaceshipLanded, (sound_queue).w
+	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#SFXID_SpaceshipLanded, (sound_queue).w
 	rts
 	
 
@@ -18278,7 +18278,7 @@ loc_C7AC:
 	tst.w	(script_id).w
 	bne.s	loc_C7D4
 	bsr.w	PaletteFadeFrom
-	move.b	#SXFID_Musik, (sound_queue).w
+	move.b	#SFXID_Musik, (sound_queue).w
 	moveq	#$77, d0
 loc_C7BE:
 	move.b	#$14, (vblank_routine).w
@@ -18291,7 +18291,7 @@ loc_C7D4:
 	
 loc_C7D6:
 	move.w	#$A0C, (script_id).w		; "Now you are also a musical artist!"
-	lea	$FFFFC026.w, a0
+	lea	(character_stats+map_tech_num).w, a0
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -18438,7 +18438,7 @@ loc_C948:
 	move.b	#ItemID_MruraGum, (item_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.w	#$B06, (script_id).w
 	rts
 	
@@ -18464,9 +18464,9 @@ loc_C98E:
 	beq.s	loc_C9BE
 	move.w	#$1111, (script_id).w
 	addq.w	#6, (event_routine).w
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$100, (level_y_pos).w
-	move.w	#$1F0, (level_x_pos).w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$100, (map_y_pos).w
+	move.w	#$1F0, (map_x_pos).w
 	move.w	#0, (jet_scooter_flag).w
 	rts
 	
@@ -18567,7 +18567,7 @@ loc_CAD8:
 loc_CAF0:
 	move.b	(a2)+, d0
 	beq.s	loc_CAFA
-	cmp.w	(level_index).w, d0
+	cmp.w	(map_index).w, d0
 	bne.s	loc_CB0A
 loc_CAFA:
 	dbf	d1, loc_CAF0
@@ -18613,13 +18613,13 @@ loc_CB46:
 	adda.w	d0, a2
 	moveq	#0, d0
 	move.b	(a2), d0
-	move.w	d0, (level_index).w
+	move.w	d0, (map_index).w
 	lea	(TeleportLocCoord).l, a1
 	subq.w	#4, d0
 	bcc.s	loc_CB8A
-	move.w	#LevelID_DezolisSkure, (level_index).w		; Skure (floor with Spaceship)
-	move.w	#$4F0, (level_y_pos).w
-	move.w	#$3C0, (level_x_pos).w
+	move.w	#MapID_DezolisSkure, (map_index).w		; Skure (floor with Spaceship)
+	move.w	#$4F0, (map_y_pos).w
+	move.w	#$3C0, (map_x_pos).w
 	rts
 	
 loc_CB8A:
@@ -18628,11 +18628,11 @@ loc_CB8A:
 	moveq	#0, d0
 	move.b	(a1)+, d0
 	lsl.w	#4, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	moveq	#0, d0
 	move.b	(a1), d0
 	lsl.w	#4, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	rts
 	
 Teleport_NoMoney:
@@ -18641,7 +18641,7 @@ Teleport_NoMoney:
 	rts
 	
 loc_CBB0:
-	move.b	#SXFID_Teleport, (sound_queue).w
+	move.b	#SFXID_Teleport, (sound_queue).w
 	addq.w	#3, (event_routine_sub).w
 	rts
 	
@@ -18687,7 +18687,7 @@ loc_CC00:
 	bsr.s	loc_CC3E
 	bne.s	loc_CC0E
 	addq.w	#1, (event_routine).w
-	move.b	#SXFID_Explosion, (sound_queue).w
+	move.b	#SFXID_Explosion, (sound_queue).w
 loc_CC0E:
 	rts
 loc_CC10:
@@ -18899,7 +18899,7 @@ loc_CE52:
 loc_CE5E:
 	bsr.w	loc_ADB0
 	lea	$FFFFDA00.w, a1
-	lea	(character_data_buffer).w, a0
+	lea	(character_stats).w, a0
 	moveq	#0, d1
 	moveq	#7, d0
 loc_CE6E:
@@ -18925,10 +18925,10 @@ loc_CE6E:
 	addq.w	#8, a1
 	dbf	d0, loc_CE6E
 	bsr.w	SetCharEquipment
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$170, (level_y_pos).w
-	move.w	#$3D0, (level_x_pos).w
-	move.b	#ScreenID_Level, (game_screen).w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$170, (map_y_pos).w
+	move.w	#$3D0, (map_x_pos).w
+	move.b	#GameModeID_Map, (game_screen).w
 	move.w	#0, (jet_scooter_flag).w
 	move.w	#BuildingID_CentralTowerGovernor, (building_index).w
 	move.w	#$17, (portrait_index).w
@@ -19010,16 +19010,16 @@ loc_CFB4:
 	addq.w	#3, (event_routine).w
 	rts
 loc_CFC0:
-	move.w	#LevelID_NoahGroundF, (level_index).w
-	move.w	#$6B0, (level_y_pos).w
-	move.w	#$200, (level_x_pos).w
+	move.w	#MapID_NoahGroundF, (map_index).w
+	move.w	#$6B0, (map_y_pos).w
+	move.w	#$200, (map_x_pos).w
 	addq.w	#1, (event_routine_sub).w
 	rts
 loc_CFD8:
 	move.b	#3, $FFFFC743.w
-	move.w	#LevelID_EsperMansionF1, (level_index).w
-	move.w	#$100, (level_y_pos).w
-	move.w	#$100, (level_x_pos).w
+	move.w	#MapID_EsperMansionF1, (map_index).w
+	move.w	#$100, (map_y_pos).w
+	move.w	#$100, (map_x_pos).w
 	addq.w	#1, (event_routine_sub).w
 	rts
 loc_CFF6:
@@ -19070,7 +19070,7 @@ CheckItemExistInventory:
 loc_D036:
 	move.w	(a1)+, d0
 	move.w	d0, (character_index).w
-	lea	($FFFFC028).w, a2
+	lea	(character_stats+items).w, a2
 	lsl.w	#6, d0
 	adda.w	d0, a2
 	move.w	#0, ($FFFFDE84).w
@@ -19188,9 +19188,9 @@ StealItemArray_Room:
 CheckPlanetAndCaps:
 	tst.w	(planet_index).w
 	beq.s	++		; return if we are on Motavia
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	beq.s	+		; branch if Rolf is dead
-	move.b	($FFFFC020).w, d0		; get Rolf Equipment
+	move.b	(character_stats+equipment).w, d0		; get Rolf Equipment
 	cmpi.b	#ItemID_MagicCap, d0
 	beq.s	++		; return if Rolf is wearing a Magic Cap
 	cmpi.b	#ItemID_MogicCap, d0
@@ -19203,7 +19203,7 @@ CheckPlanetAndCaps:
 CheckIfDoublePrice:
 	tst.w	(planet_index).w
 	beq.s	+			; return if we are on Motavia
-	cmpi.b	#ItemID_MagicCap, ($FFFFC020).w
+	cmpi.b	#ItemID_MagicCap, (character_stats+equipment).w
 	bne.s	+			; return if we are not wearing a Magic Cap
 	add.l	d0, d0					; if wearing a Magic Cap, double price
 +
@@ -19218,7 +19218,7 @@ IntroScr_CheckRoutine:
 	bne.s	loc_D158
 	move.w	(event_routine).w, d1
 	bne.s	IntroScr_RunRoutine
-	move.b	#ScreenID_Title, (game_screen).w	
+	move.b	#GameModeID_Title, (game_screen).w	
 loc_D158:
 	rts
 	
@@ -19364,7 +19364,7 @@ loc_D2E4:
 	addq.w	#7, (event_routine).w
 	rts
 loc_D2EA:
-	move.b	#ScreenID_Title, (game_screen).w
+	move.b	#GameModeID_Title, (game_screen).w
 	rts
 loc_D2F2:
 	move.w	#WinID_ScriptMessage2, (window_index).w
@@ -19452,7 +19452,7 @@ loc_D3B6:
 	move.w	#$10, (portrait_index).w	
 +
 	move.w	#1, $FFFFF764.w
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 	rts
 loc_D412:
 	move.w	#$130A, (script_id).w		; "There is no data for that number. Enter a different number."
@@ -19613,7 +19613,7 @@ SaveData:
 	adda.w	d0, a0
 	moveq	#0, d3
 	moveq	#0, d2
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	move.w	#$1FF, d1		; 512 bytes for the characters' data
 -
 	move.b	(a1)+, d2
@@ -19743,7 +19743,7 @@ LoadSavedData:
 	lsl.w	#3, d0
 	adda.w	d0, a0
 	moveq	#0, d3
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	move.w	#$1FF, d1
 -
 	move.b	(a0), (a1)+
@@ -19804,14 +19804,14 @@ loc_D7FA:
 	
 
 ProcessAButAction:
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	lea	($FFFFE400).w, a0
 	move.w	$2A(a0), d6
 	beq.s	loc_D810
 	divu.w	#3, d6
 loc_D810:
 	move.w	d6, d0
-	bsr.w	Level_ChkTargetInteract		; check if we're interacting with something
+	bsr.w	Map_ChkTargetInteract		; check if we're interacting with something
 	beq.s	loc_D84A					; branch if we are not interacting with anything and display the there's nothing message
 	
 	lea	(AButton_TargetFacingDirArray).l, a2
@@ -19941,7 +19941,7 @@ EventType_DialogueIndex:
 loc_D9AA:
 	tst.w	d2
 	bne.s	loc_DA26
-	tst.w	(level_index).w
+	tst.w	(map_index).w
 	bne.s	loc_D9BA
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_D9C6
@@ -20065,11 +20065,11 @@ loc_DAE0:
 loc_DAF0:
 	tst.w	(yes_no_input).w
 	bne.s	loc_DB1C
-	move.w	$FFFFC64C.w, (level_index).w
-	move.w	$FFFFC64E.w, (level_y_pos).w
-	move.w	$FFFFC650.w, (level_x_pos).w
+	move.w	$FFFFC64C.w, (map_index).w
+	move.w	$FFFFC64E.w, (map_y_pos).w
+	move.w	$FFFFC650.w, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
-	move.b	#SXFID_Teleport, (sound_queue).w			; play "Teleport" sound
+	move.b	#SFXID_Teleport, (sound_queue).w			; play "Teleport" sound
 -
 	cmpi.b	#$80, (track_timer).w
 	bne.s	-
@@ -20199,7 +20199,7 @@ loc_DC64:
 	move.b	#ItemID_Teim, (item_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w	
+	move.b	#SFXID_ItemReceived, (sound_queue).w	
 	addq.w	#1, ($FFFFDE72).w
 	rts
 loc_DC84:
@@ -20253,7 +20253,7 @@ loc_DD06:
 loc_DD12:
 	addq.w	#1, ($FFFFDE72).w
 	move.w	#$100, (enemy_data_buffer).w		; Neifirst boss battle
-	move.b	#ScreenID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_screen).w
 	move.w	#$100, (event_flags).w
 	move.l	(party_member_id).w, $FFFFC618.w
 	move.l	$FFFFC60C.w, $FFFFC61C.w
@@ -20286,17 +20286,17 @@ loc_DD7A:
 	move.w	#-1, (screen_changed_flag).w	
 	rts	
 loc_DD9A:
-	move.b	#ScreenID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_screen).w
 	rts
 	
 loc_DDA2:
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	beq.s	DetectLeadingCharacter
 	move.w	#0, (character_index).w
 	rts
 	
 DetectLeadingCharacter:
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	lea	(party_member_id).w, a0
 	move.w	(party_members_num).w, d0
 loc_DDBC:
@@ -20430,9 +20430,9 @@ loc_DECC:
 	rts
 loc_DEE2:
 	addq.w	#1, ($FFFFDE72).w
-	move.w	#LevelID_Paseo, (level_index).w
-	move.w	#$170, (level_y_pos).w
-	move.w	#$20, (level_x_pos).w
+	move.w	#MapID_Paseo, (map_index).w
+	move.w	#$170, (map_y_pos).w
+	move.w	#$20, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
 	move.w	#0, (jet_scooter_flag).w
 	move.w	#BuildingID_CloneLabs, (building_index).w
@@ -20455,14 +20455,14 @@ loc_DF38:
 	addq.w	#1, ($FFFFDE72).w
 	move.w	#$708, (demo_timer).w
 	move.w	#6, (event_flags).w
-	lea	(character_data_buffer).w, a0
+	lea	(character_stats).w, a0
 	lea	$FFFFDA00.w, a1
 	bsr.w	loc_6D5A
 	bsr.w	loc_6D5A
 	bsr.w	loc_6D5A
 	bsr.w	loc_6D5A
 	bsr.w	loc_ADB0
-	lea	(character_data_buffer).w, a0
+	lea	(character_stats).w, a0
 	moveq	#0, d1
 	moveq	#7, d0
 loc_DF78:
@@ -20492,7 +20492,7 @@ loc_DFA8:
 loc_DFAE:
 	subq.w	#1, d2
 	bne.s	loc_DFC4
-	move.b	#SXFID_Explosion, (sound_queue).w
+	move.b	#SFXID_Explosion, (sound_queue).w
 	move.w	#$78, (demo_timer).w
 	addq.w	#1, $FFFFDE70.w
 	rts
@@ -20514,7 +20514,7 @@ loc_DFE6:
 	move.b	#1, (a0)
 	move.w	#BuildingID_GairaControlPanel, (building_index).w
 	move.w	#$1B, (portrait_index).w
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 	rts
 	
 loc_DFFE:
@@ -20531,7 +20531,7 @@ loc_E004:
 loc_E01A:
 	lea	(party_member_id).w, a1	
 	move.w	(party_members_num).w, d0	
-	lea	(character_data_buffer+2).w, a2	
+	lea	(character_stats+curr_hp).w, a2	
 loc_E026:
 	move.w	(a1)+, d1	
 	move.w	d1, d2	
@@ -20539,7 +20539,7 @@ loc_E026:
 	tst.w	(a2,d1.w)	
 	bne.s	loc_E03C	
 	dbf	d0, loc_E026	
-	move.b	#ScreenID_Sega, (game_screen).w	
+	move.b	#GameModeID_Sega, (game_screen).w	
 loc_E03C:
 	addq.w	#1, ($FFFFDE72).w	
 	rts	
@@ -20551,7 +20551,7 @@ loc_E042:
 	rts
 loc_E05A:
 	move.w	#$1688, (script_id).w
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	beq.s	loc_E072
 	move.b	#1, $FFFFC742.w
 	move.w	#$1687, (script_id).w		; "You must be ROLF. We've been expecting you."
@@ -20579,7 +20579,7 @@ loc_E0A2:
 loc_E0AA:
 	move.w	#BuildingID_EsperMansion, (building_index).w
 	move.w	#$39, (portrait_index).w
-	move.b	#ScreenID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_screen).w
 	bra.s	loc_E0D8
 loc_E0BE:
 	tst.w	d2
@@ -20593,10 +20593,10 @@ loc_E0CE:
 loc_E0D8:
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_y_pos).w
+	move.w	d0, (map_y_pos).w
 	move.w	$FFFFE40A.w, d0
 	andi.w	#$FFF0, d0
-	move.w	d0, (level_x_pos).w
+	move.w	d0, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
 	rts
 loc_E0F8:
@@ -20612,7 +20612,7 @@ loc_E0FE:
 	rts
 loc_E114:
 	move.w	#$102, (enemy_data_buffer).w		; Dark Force boss battle
-	move.b	#ScreenID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_screen).w
 	rts
 loc_E122:
 	tst.w	d2
@@ -20671,7 +20671,7 @@ loc_E1B6:
 	bne.s	loc_E1D2
 	move.b	#1, (a0)
 	move.w	#$103, (enemy_data_buffer).w		; Mother Brain boss battle
-	move.b	#ScreenID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_screen).w
 	move.w	#$F00, (event_flags).w
 	rts
 loc_E1D2:
@@ -20691,7 +20691,7 @@ loc_E1EA:
 	move.w	#0, (event_flags).w
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d0
-	lea	(character_data_buffer+2).w, a2
+	lea	(character_stats+curr_hp).w, a2
 	moveq	#0, d3
 loc_E20E:
 	move.w	(a1)+, d1
@@ -20887,7 +20887,7 @@ loc_E456:
 	rts
 loc_E458:
 	addq.w	#1, ($FFFFDE72).w
-	move.b	#ScreenID_Ending, (game_screen).w
+	move.b	#GameModeID_Ending, (game_screen).w
 	rts
 	
 ; ==========================================
@@ -20939,7 +20939,7 @@ loc_E4E4:
 	bsr.s	loc_E48C
 	tst.w	(demo_timer).w
 	bne.s	loc_E4F6
-	move.b	#ScreenID_Sega, (game_screen).w
+	move.b	#GameModeID_Sega, (game_screen).w
 loc_E4F6:
 	rts
 ; -------------------------------------------------------------	
@@ -20994,9 +20994,9 @@ loc_E560:
 	rts
 	
 loc_E584:
-	tst.w	(character_data_buffer+2).w
+	tst.w	(character_stats+curr_hp).w
 	beq.s	loc_E5B8		; branch if Rolf is dead
-	move.b	($FFFFC020).w, d0		; get Rolf's equipment
+	move.b	(character_stats+equipment).w, d0		; get Rolf's equipment
 	lea	(loc_E70C-1).l, a0
 	cmpi.b	#ItemID_MagicCap, d0
 	beq.s	loc_E5A6
@@ -21072,7 +21072,7 @@ loc_E64C:
 	lea	(party_member_id).w, a0
 	move.w	(party_members_num).w, d0
 -
-	lea	(character_data_buffer+2).w, a1
+	lea	(character_stats+curr_hp).w, a1
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a1
@@ -21417,11 +21417,11 @@ loc_E804:
 	ext.l	d0
 	move.l	d0, (meseta_value).w
 	bsr.w	AddToMoneyOwned
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.b	#1, (a0)
 	move.w	#$1701, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d1
 -
@@ -21443,7 +21443,7 @@ loc_E84A:
 loc_E85C:
 	move.w	(a1)+, d0
 	move.w	d0, (character_index).w
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	lsl.w	#6, d0
 	adda.w	d0, a2
 	tst.w	-$26(a2)
@@ -21467,7 +21467,7 @@ loc_E896:
 	addq.b	#1, (a0)
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SXFID_ItemReceived, (sound_queue).w
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	addq.w	#1, ($FFFFDE72).w
 	moveq	#0, d0
 	rts
@@ -21711,7 +21711,7 @@ loc_EAC2:
 
 
 	
-BattleScreen_CheckRoutine:
+GameMode_Battle_CheckRoutine:
 	tst.w	(window_index).w
 	bne.s	+
 	tst.w	(window_index_saved).w
@@ -21721,21 +21721,21 @@ BattleScreen_CheckRoutine:
 	tst.w	($FFFFCC06).w
 	bne.s	+
 	move.w	(event_routine).w, d1
-	bne.s	BattleScreen_RunRoutine
+	bne.s	GameMode_Battle_RunRoutine
 	move.w	#1, (event_routine).w
 	move.w	#0, (event_routine_sub).w
 	move.w	#0, (event_routine_sub_2).w
 +
 	rts
 	
-BattleScreen_RunRoutine:
+GameMode_Battle_RunRoutine:
 	moveq	#0, d0
 	move.b	(battle_main_routine_index).w, d0
 	lsl.w	#2, d0
 	andi.w	#$C, d0
-	jmp	BattleScreen_EventIndex(pc,d0.w)
+	jmp	GameMode_Battle_EventIndex(pc,d0.w)
 ; ------------------------------------------------------------
-BattleScreen_EventIndex:
+GameMode_Battle_EventIndex:
 	bra.w	Battle_EventIndex_Standby
 	bra.w	Battle_EventIndex_Fighting
 	bra.w	Battle_EventIndex_RunOption
@@ -21827,7 +21827,7 @@ loc_EBF8:
 	adda.w	d1, a0
 	move.w	(a0), d0
 	move.w	d0, (character_index).w
-	lea	(character_data_buffer+2).w, a0
+	lea	(character_stats+curr_hp).w, a0
 	lsl.w	#6, d0
 	adda.w	d0, a0
 	tst.w	(a0)
@@ -21881,7 +21881,7 @@ Battle_CommandActionIndex:
 CommandAction_Attack:
 	move.w	(event_routine_sub_2).w, d1
 	bne.s	loc_ECE8
-	lea	$FFFFC021.w, a0
+	lea	(character_stats+right_hand).w, a0
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -21925,7 +21925,7 @@ loc_ED12:
 CommandAction_Technique:
 	move.w	(event_routine_sub_2).w, d1
 	bne.s	loc_ED50
-	lea	$FFFFC025.w, a0
+	lea	(character_stats+battle_tech_num).w, a0
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -21944,7 +21944,7 @@ loc_ED3E:
 loc_ED50:
 	subq.w	#1, d1
 	bne.w	loc_EE00
-	lea	(character_data_buffer+6).w, a2
+	lea	(character_stats+curr_tp).w, a2
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2
@@ -22056,7 +22056,7 @@ loc_EE8C:
 CommandAction_Item:
 	move.w	(event_routine_sub_2).w, d1
 	bne.s	loc_EED6
-	lea	$FFFFC027.w, a0
+	lea	(character_stats+item_num).w, a0
 	move.w	(character_index).w, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -22197,7 +22197,7 @@ loc_F004:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d3
 -
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(a1)+, d1		; get character's id
 	move.w	d1, d2			; save it in d2
 	lsl.w	#6, d1			; get correct character in RAM
@@ -22222,7 +22222,7 @@ loc_F004:
 	
 loc_F060:
 	move.w	#0, $FFFFCC0A.w
-	lea	(enemy_stat_buffer).w, a2
+	lea	(enemy_stats).w, a2
 	moveq	#8, d4		; start after the last character in RAM
 	moveq	#$B, d3
 -
@@ -22286,7 +22286,7 @@ loc_F0C0:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d1
 -
-	lea	(character_data_buffer).w, a0
+	lea	(character_stats).w, a0
 	move.w	(a1)+, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -22385,7 +22385,7 @@ loc_F21C:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d1
 loc_F234:
-	lea	(character_data_buffer+2).w, a0
+	lea	(character_stats+curr_hp).w, a0
 	move.w	(a1)+, d0
 	lsl.w	#6, d0
 	adda.w	d0, a0
@@ -22399,10 +22399,10 @@ loc_F24E:
 	cmpi.w	#$100, (enemy_data_buffer).w
 	bne.s	loc_F24C			; branch if not Neifirst boss battle
 	move.b	#$87, $FFFFF640.w
-	move.b	#ScreenID_Level, (game_screen).w
+	move.b	#GameModeID_Map, (game_screen).w
 	bra.w	RestoreCharDataAfterBattle
 loc_F266:
-	move.b	#ScreenID_Sega, (game_screen).w
+	move.b	#GameModeID_Sega, (game_screen).w
 	bra.w	RestoreCharDataAfterBattle
 loc_F270:
 	tst.w	$FFFFCC94.w
@@ -22420,7 +22420,7 @@ loc_F27E:
 	move.w	(party_members_num).w, d1
 	moveq	#0, d2	; counter for characters who are alive
 loc_F2A4:
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(a1)+, d0
 	lsl.w	#6, d0
 	adda.w	d0, a2
@@ -22440,7 +22440,7 @@ loc_F2A4:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d1
 -
-	lea	(character_data_buffer).w, a2
+	lea	(character_stats).w, a2
 	move.w	(a1)+, d2
 	lsl.w	#6, d2
 	adda.w	d2, a2
@@ -22477,7 +22477,7 @@ loc_F328:
 	adda.w	d1, a2
 	movea.l	(a2), a2
 	move.w	d3, d1
-	lea	(character_data_buffer).w, a1
+	lea	(character_stats).w, a1
 	lsl.w	#6, d1
 	adda.w	d1, a1
 	move.w	$A(a1), d0		; get character level
@@ -22500,7 +22500,7 @@ loc_F372:
 	rts
 	
 Character_ProcessLevelUp:
-	move.b	#SXFID_LevelUp, (sound_queue).w		; play level up sound
+	move.b	#SFXID_LevelUp, (sound_queue).w		; play level up sound
 	move.w	#$1214, (a3)+			; "'Character' gains a level."
 	moveq	#0, d2
 	move.b	(a2), d2
@@ -22563,7 +22563,7 @@ loc_F41E:
 	rts
 	
 loc_F428:
-	move.b	#ScreenID_Level, (game_screen).w
+	move.b	#GameModeID_Map, (game_screen).w
 	rts
 
 ; ----------------------------------	
@@ -22603,7 +22603,7 @@ Run_EventIndex_TryRun:
 	rts
 	
 Run_EventIndex_RunSuccessful:
-	move.b	#ScreenID_Level, (game_screen).w	; exit battle screen
+	move.b	#GameModeID_Map, (game_screen).w	; exit battle screen
 	bra.w	RestoreCharDataAfterBattle
 
 Run_EventIndex_RunFailed:
@@ -22622,8 +22622,8 @@ Run_EventIndex_RunEnemiesAttack:
 	rts
 	
 RestoreCharDataAfterBattle:
-	lea	(battle_character_data_buffer).w, a0
-	lea	(character_data_buffer).w, a1		; restore characters' data
+	lea	(battle_character_stats).w, a0
+	lea	(character_stats).w, a1		; restore characters' data
 	moveq	#CharNumber-1, d0
 -
 	andi.w	#$8100, (a1)
@@ -22661,7 +22661,7 @@ loc_F4F8:
 loc_F50C:
 	cmpi.w	#2, d0
 	bne.s	loc_F584
-	lea	(character_data_buffer+$27).w, a2		; number of items in inventory
+	lea	(character_stats+item_num).w, a2		; number of items in inventory
 	move.w	d1, d0
 	lsl.w	#2, d0
 	adda.w	d0, a2
@@ -22716,7 +22716,7 @@ loc_F570:
 	lsl.w	#4, d1
 	adda.w	d1, a1
 loc_F584:
-	lea	(character_data_buffer+$21).w, a2		; right hand weapon
+	lea	(character_stats+right_hand).w, a2		; right hand weapon
 	lsl.w	#2, d1
 	adda.w	d1, a2
 	tst.b	(a2)+
@@ -22797,8 +22797,8 @@ WindowsIndexTable:
 	bra.w	Win_MenuMeseta			; $F
 	bra.w	Win_CharOrderDestination ; $10
 	bra.w	Win_OrderCharList		; $11
-	bra.w	Win_LevelTechList		; $12
-	bra.w	Win_LevelTechList2		; $13
+	bra.w	Win_MapTechList		; $12
+	bra.w	Win_MapTechList2		; $13
 	bra.w	Win_StrngHPTP			; $14
 	bra.w	Win_StrngStats			; $15
 	bra.w	Win_StrngEquip			; $16
@@ -22961,7 +22961,7 @@ loc_F848:
 	lea	(window_art_buffer+WinArt_CharList-DynamicWindowsStart+8).w, a1
 	move.w	(party_members_num).w, d0
 loc_F85A:
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -22988,7 +22988,7 @@ Win_MenuItemList:
 	tst.b	d1
 	bne.s	loc_F8B0
 	lea	(loc_1141A).l, a3
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -22997,13 +22997,13 @@ Win_MenuItemList:
 	bcs.s	loc_F8AA		; branch if character is carrying less than 9 items
 	addq.w	#8, a3			; display NEXT string
 loc_F8AA:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	bra.s	loc_F922
 	
 loc_F8B0:
 	subq.w	#1, d1
 	bne.s	loc_F8E0
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23034,7 +23034,7 @@ loc_F8E0:
 loc_F902:
 	subq.w	#1, ($FFFFDE84).w
 loc_F906:
-	lea	($FFFFC028).w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23095,13 +23095,13 @@ loc_F96C:
 Win_MenuItemList2:
 	tst.b	d1
 	bne.s	loc_F996
-	lea	$FFFFC030.w, a2
+	lea	(character_stats+items_2).w, a2
 	lea	(loc_11422).l, a3
 	bra.w	loc_F922
 loc_F996:
 	subq.w	#1, d1
 	bne.s	loc_F9BA
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23132,7 +23132,7 @@ loc_F9D4:
 	rts
 loc_F9F2:
 	addq.w	#7, ($FFFFDE84).w
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23195,7 +23195,7 @@ loc_FA82:
 	lea	(window_art_buffer+WinArt_MenuCharStats-DynamicWindowsStart+$1C).w, a1
 	move.w	(party_members_num).w, d5
 loc_FA94:
-	lea	$FFFFC038.w, a3
+	lea	(character_stats+name).w, a3
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a3
@@ -23277,7 +23277,7 @@ loc_FB56:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask|Button_A_Mask, d0
 	beq.w	loc_FBFE
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	move.l	a0, (text_buffer_pointer).w
 	rts
 loc_FB7A:
@@ -23299,7 +23299,7 @@ loc_FB92:
 	andi.b	#Button_B_Mask|Button_C_Mask|Button_A_Mask, d0
 	beq.s	loc_FBFE
 loc_FBA8:
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	move.w	#$3C, $FFFFCD22.w
 	move.w	#0, (joypad_held).w
 	move.w	#0, (window_active_flag).w
@@ -23331,7 +23331,7 @@ loc_FC00:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask|Button_A_Mask, d0
 	beq.s	loc_FC16
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	move.w	#0, (window_active_flag).w
 loc_FC16:
 	rts
@@ -23371,7 +23371,7 @@ loc_FC58:
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	beq.s	loc_FC88
 	move.w	#$8001, (window_index).w
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	moveq	#0, d1
 	move.w	d1, (window_index_saved).w
 	move.b	($FFFFDE50).w, d1
@@ -23475,7 +23475,7 @@ loc_FD26:
 	move.l	(a3), (a1)	; same as above
 	rts
 loc_FD50:
-	lea	(character_data_buffer+2).w, a3
+	lea	(character_stats+curr_hp).w, a3
 	lsl.w	#6, d1
 	adda.w	d1, a3
 	move.w	(a3)+, d0
@@ -23517,7 +23517,7 @@ loc_FDB0:
 	move.w	($FFFFC602).w, d0
 	bmi.s	loc_FDD6
 loc_FDC0:
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23562,7 +23562,7 @@ loc_FE1E:
 	move.w	#$FFFF, $FFFFDE9A.w
 	move.w	(party_members_num).w, d0
 loc_FE32:
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	move.w	(a0)+, d1
 	bmi.s	loc_FE4A
 	lsl.w	#6, d1
@@ -23577,12 +23577,12 @@ loc_FE4A:
 	
 	rts
 ; ----------------------------------------
-Win_LevelTechList:
+Win_MapTechList:
 	tst.b	d1
 	bne.s	loc_FE7E
 	bsr.w	loc_112C4
 	lea	(loc_1144A).l, a3
-	lea	$FFFFC026.w, a2
+	lea	(character_stats+map_tech_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23597,7 +23597,7 @@ loc_FE78:
 loc_FE7E:
 	subq.w	#1, d1
 	bne.s	loc_FEB0
-	lea	$FFFFC026.w, a2
+	lea	(character_stats+map_tech_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23621,7 +23621,7 @@ loc_FEB0:
 	bne.s	loc_FED6
 	tst.w	d1
 	bne.s	loc_FED2
-	move.w	#WinID_LevelTechList2, (window_index).w
+	move.w	#WinID_MapTechList2, (window_index).w
 	rts
 loc_FED2:
 	subq.w	#1, $FFFFDE9C.w
@@ -23640,7 +23640,7 @@ loc_FEF2:
 	move.w	(character_index).w, d1
 	lsl.w	#5, d1
 	adda.w	d1, a2
-	lea	(window_art_buffer+WinArt_LevelTechList-DynamicWindowsStart).w, a1
+	lea	(window_art_buffer+WinArt_MapTechList-DynamicWindowsStart).w, a1
 	move.l	(a3)+, (a1)+	; WARNING: a1 can point to an odd address if the dynamic windows are resized. Split the move.l into multiple move.b instructions and change the code accordingly
 	move.w	(a3), (a1)+
 	addq.w	#1, a1
@@ -23675,7 +23675,7 @@ loc_FF2E:
 	rts
 ; ----------------------------------------
 ; loc_FF46
-Win_LevelTechList2:
+Win_MapTechList2:
 	tst.b	d1
 	bne.s	loc_FF58
 	lea	$FFFFC808.w, a2
@@ -23684,7 +23684,7 @@ Win_LevelTechList2:
 loc_FF58:
 	subq.w	#1, d1
 	bne.s	loc_FF80
-	lea	$FFFFC026.w, a2
+	lea	(character_stats+map_tech_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23743,7 +23743,7 @@ Win_StrngStats:
 	move.w	#0, (window_index_saved).w
 	rts
 loc_10000:
-	lea	$FFFFC010.w, a3
+	lea	(character_stats+strength).w, a3
 	lsl.w	#6, d1
 	adda.w	d1, a3
 	move.w	(a3)+, d0
@@ -23788,7 +23788,7 @@ Win_EqpEquipList:
 loc_10074:
 	rts	
 loc_10076:
-	lea	($FFFFC020).w, a2
+	lea	(character_stats+equipment).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23811,7 +23811,7 @@ loc_1008A:
 ; loc_100A6
 Win_StrngLVEXP:
 	move.w	#0, (window_index_saved).w
-	lea	$FFFFC038.w, a3
+	lea	(character_stats+name).w, a3
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a3
@@ -23849,7 +23849,7 @@ Win_EquipStats:
 	move.w	#0, (window_index_saved).w
 	rts
 loc_10110:
-	lea	$FFFFC014.w, a3
+	lea	(character_stats+agility).w, a3
 	lsl.w	#6, d1
 	adda.w	d1, a3
 	move.w	(a3)+, d0
@@ -23867,7 +23867,7 @@ Win_ItemList2:
 	tst.b	d1
 	bne.s	loc_1015C
 	lea	(loc_1141A).l, a3
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23876,13 +23876,13 @@ Win_ItemList2:
 	bcs.s	loc_10154
 	addq.w	#8, a3
 loc_10154:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	bra.w	loc_F922
 loc_1015C:
 	move.w	#1, $FFFFDEA8.w
 	subq.w	#1, d1
 	bne.s	loc_10192
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23917,7 +23917,7 @@ loc_101B2:
 loc_101C6:
 	subq.w	#1, ($FFFFDE84).w
 loc_101CA:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23932,14 +23932,14 @@ loc_101E4:
 Win_ItemList3:
 	tst.b	d1
 	bne.s	loc_101F8
-	lea	$FFFFC030.w, a2
+	lea	(character_stats+items_2).w, a2
 	lea	(loc_11422).l, a3
 	bra.w	loc_F922
 loc_101F8:
 	move.w	#1, $FFFFDEA8.w
 	subq.w	#1, d1
 	bne.s	loc_10222
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -23971,7 +23971,7 @@ loc_10242:
 	rts
 loc_10260:
 	addq.w	#7, ($FFFFDE84).w
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -24127,7 +24127,7 @@ loc_103EE:
 	bne.s	loc_103FA
 	rts
 loc_103FA:
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	lea	$FFFFC63C.w, a0
 	move.w	(chosen_letter_position).w, d0
 	adda.w	d0, a0
@@ -24391,7 +24391,7 @@ loc_10684:
 	move.w	(party_members_joined).w, d0
 	moveq	#0, d1
 loc_1068E:
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	move.w	d1, d2
 	lsl.w	#6, d2
 	adda.w	d2, a2
@@ -24482,7 +24482,7 @@ loc_10750:
 	beq.s	loc_10776
 	cmp.w	(a0)+, d1
 	beq.s	loc_10776
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	move.w	d1, d2
 	lsl.w	#6, d2
 	adda.w	d2, a2
@@ -24511,7 +24511,7 @@ loc_10796:
 	move.w	(party_members_num).w, d0
 	bmi.s	loc_107B8
 loc_107A6:
-	lea	$FFFFC038.w, a2
+	lea	(character_stats+name).w, a2
 	move.w	(a0)+, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -24710,7 +24710,7 @@ loc_1095A:
 	adda.w	d0, a1
 	move.w	(a1), d5
 	lea	(window_art_buffer+WinArt_BattleCharStats-DynamicWindowsStart+6).w, a1
-	lea	(character_data_buffer+2).w, a3
+	lea	(character_stats+curr_hp).w, a3
 	lsl.w	#6, d1
 	adda.w	d1, a3
 	lea	(loc_114EA).l, a2
@@ -24777,7 +24777,7 @@ loc_10A06:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_C_Mask, d0
 	beq.s	loc_10A26
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	lea	$FFFFDEDA.w, a0
 	moveq	#0, d1
 	move.w	d1, (window_index_saved).w
@@ -24813,7 +24813,7 @@ loc_10A64:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	beq.s	loc_10A8E
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	moveq	#0, d1
 	move.w	d1, (window_index_saved).w
 	move.b	($FFFFDE50).w, d1
@@ -24829,7 +24829,7 @@ loc_10A8E:
 Win_BattleCharName:
 	move.w	#0, (window_index_saved).w
 	lea	(window_art_buffer+WinArt_BattleCharName-DynamicWindowsStart+4).w, a1
-	lea	$FFFFC038.w, a3
+	lea	(character_stats+name).w, a3
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a3
@@ -24939,7 +24939,7 @@ Win_BattleTechList:
 	bne.s	loc_10BE0
 	bsr.w	loc_112C4
 	lea	(loc_1144A).l, a3
-	lea	$FFFFC025.w, a2
+	lea	(character_stats+battle_tech_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -24955,7 +24955,7 @@ loc_10BD4:
 loc_10BE0:
 	subq.w	#1, d1
 	bne.s	loc_10C22
-	lea	$FFFFC025.w, a2
+	lea	(character_stats+battle_tech_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -24981,7 +24981,7 @@ loc_10C22:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	beq.w	loc_10CBC
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	moveq	#0, d1
 	move.w	d1, (window_index_saved).w
 	move.b	($FFFFDE50).w, d1
@@ -25001,7 +25001,7 @@ loc_10C6C:
 	tst.w	d1
 	bne.s	loc_10C9A
 	move.w	#((6<<8)|WinID_BattleTechList), (window_index).w
-	lea	$FFFFC025.w, a2
+	lea	(character_stats+battle_tech_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -25050,7 +25050,7 @@ Win_BattleItemList:
 	tst.b	d1
 	bne.s	loc_10D14
 	lea	(loc_1141A).l, a3
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -25059,13 +25059,13 @@ Win_BattleItemList:
 	bcs.s	loc_10D08
 	addq.w	#8, a3
 loc_10D08:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	adda.w	$FFFFDEEE.w, a2
 	bra.w	loc_10DF0
 loc_10D14:
 	subq.w	#1, d1
 	bne.s	loc_10D54
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -25091,7 +25091,7 @@ loc_10D54:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	beq.w	loc_10DEE
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	moveq	#0, d1
 	move.w	d1, (window_index_saved).w
 	move.b	($FFFFDE50).w, d1
@@ -25111,7 +25111,7 @@ loc_10D9E:
 	tst.w	d1
 	bne.s	loc_10DCC
 	move.w	#((6<<8)|WinID_BattleItemList), (window_index).w
-	lea	$FFFFC027.w, a2
+	lea	(character_stats+item_num).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -25126,7 +25126,7 @@ loc_10DCA:
 loc_10DCC:
 	subq.w	#1, ($FFFFDE84).w
 loc_10DD0:
-	lea	$FFFFC028.w, a2
+	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
 	adda.w	d1, a2
@@ -25291,7 +25291,7 @@ loc_10F62:
 	move.b	(a2)+, d0
 	beq.s	loc_10F80
 	ext.w	d0
-	cmp.w	(level_index).w, d0
+	cmp.w	(map_index).w, d0
 	beq.s	loc_10F80
 loc_10F6E:
 	move.b	d0, (a3)+
@@ -25384,7 +25384,7 @@ loc_11010:
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	beq.s	+
 	move.w	#0, (window_index_saved).w
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 +
 	rts
 	
@@ -25393,7 +25393,7 @@ loc_11028:
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	beq.s	loc_1105E
 	move.w	d1, (window_index).w
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	moveq	#0, d1
 	move.w	d1, (window_index_saved).w
 	move.b	($FFFFDE50).w, d1
@@ -25415,7 +25415,7 @@ loc_11064:
 	move.b	(joypad_pressed).w, d0
 	btst	#Button_C, d0
 	beq.s	loc_11084			; branch if c was not pressed
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 	move.w	#0, (window_index_saved).w
 	moveq	#0, d1
 	move.b	($FFFFDE50).w, d1
@@ -25426,7 +25426,7 @@ loc_11082:
 loc_11084:
 	btst	#Button_B, d0
 	beq.s	loc_11082			; return if b was not pressed
-	move.b	#SXFID_Selection, (sound_queue).w
+	move.b	#SFXID_Selection, (sound_queue).w
 CloseCurrentWindow:
 	move.w	d1, (window_index).w
 	lea	$FFFFDEFE.w, a1
@@ -25668,13 +25668,13 @@ loc_112CA:
 	bne.s	loc_112CA
 	rts
 loc_112D6:
-	lea	$FFFFC026.w, a0
+	lea	(character_stats+map_tech_num).w, a0
 	move.w	d2, d1
 	lsl.w	#6, d1
 	adda.w	d1, a0
 	move.b	(a0), d0
 	andi.w	#$1F, d0
-	lea	(CharAvailableTechniques).l, a2	; techniques that can be used on the level screen
+	lea	(CharAvailableTechniques).l, a2	; techniques that can be used in the map screen
 	bsr.s	loc_112FC
 	subq.w	#1, a0
 	move.b	(a0), d0
@@ -25972,7 +25972,7 @@ loc_11506:
 ; =============================================
 CharAvailableTechniques:
 
-Rolf_TechLevel:
+Rolf_MapTechs:
 	dc.b	TechID_Ryuka
 	dc.b	TechID_Hinas
 	dc.b	TechID_Res
@@ -25990,7 +25990,7 @@ Rolf_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Rolf_TechBattle:
+Rolf_BattleTechs:
 	dc.b	TechID_Foi
 	dc.b	TechID_Gifoi
 	dc.b	TechID_Tsu
@@ -26008,7 +26008,7 @@ Rolf_TechBattle:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Nei_TechLevel:
+Nei_MapTechs:
 	dc.b	TechID_Res
 	dc.b	TechID_Anti
 	dc.b	TechID_Sak
@@ -26026,7 +26026,7 @@ Nei_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Nei_TechBattle:
+Nei_BattleTechs:
 	dc.b	TechID_Res
 	dc.b	TechID_Sak
 	dc.b	TechID_Nasak
@@ -26044,7 +26044,7 @@ Nei_TechBattle:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Rudo_TechLevel:
+Rudo_MapTechs:
 	dc.b	TechID_None
 	dc.b	TechID_None
 	dc.b	TechID_None
@@ -26062,7 +26062,7 @@ Rudo_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Rudo_TechBattle:
+Rudo_BattleTechs:
 	dc.b	TechID_None
 	dc.b	TechID_None
 	dc.b	TechID_None
@@ -26080,7 +26080,7 @@ Rudo_TechBattle:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Amy_TechLevel:
+Amy_MapTechs:
 	dc.b	TechID_Res
 	dc.b	TechID_Anti
 	dc.b	TechID_Gires
@@ -26098,7 +26098,7 @@ Amy_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Amy_TechBattle:
+Amy_BattleTechs:
 	dc.b	TechID_Res
 	dc.b	TechID_Shu
 	dc.b	TechID_Deban
@@ -26116,7 +26116,7 @@ Amy_TechBattle:
 	dc.b	TechID_Gigra
 	dc.b	TechID_None
 ; ---------------------------------------------
-Hugh_TechLevel:
+Hugh_MapTechs:
 	dc.b	TechID_Res
 	dc.b	TechID_Gires
 	dc.b	TechID_None
@@ -26134,7 +26134,7 @@ Hugh_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Hugh_TechBattle:
+Hugh_BattleTechs:
 	dc.b	TechID_Rimit
 	dc.b	TechID_Doran
 	dc.b	TechID_Gen
@@ -26152,7 +26152,7 @@ Hugh_TechBattle:
 	dc.b	TechID_Gigra
 	dc.b	TechID_Gizan
 ; ---------------------------------------------
-Anna_TechLevel:
+Anna_MapTechs:
 	dc.b	TechID_None
 	dc.b	TechID_None
 	dc.b	TechID_None
@@ -26170,7 +26170,7 @@ Anna_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Anna_TechBattle:
+Anna_BattleTechs:
 	dc.b	TechID_Foi
 	dc.b	TechID_Ner
 	dc.b	TechID_Shift
@@ -26188,7 +26188,7 @@ Anna_TechBattle:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Kain_TechLevel:
+Kain_MapTechs:
 	dc.b	TechID_None
 	dc.b	TechID_None
 	dc.b	TechID_None
@@ -26206,7 +26206,7 @@ Kain_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Kain_TechBattle:
+Kain_BattleTechs:
 	dc.b	TechID_Foi
 	dc.b	TechID_Forsa
 	dc.b	TechID_Eijia
@@ -26224,7 +26224,7 @@ Kain_TechBattle:
 	dc.b	TechID_Gizan
 	dc.b	TechID_None
 ; ---------------------------------------------
-Shir_TechLevel:
+Shir_MapTechs:
 	dc.b	TechID_Ryuka
 	dc.b	TechID_Hinas
 	dc.b	TechID_Res
@@ -26242,7 +26242,7 @@ Shir_TechLevel:
 	dc.b	TechID_None
 	dc.b	TechID_None
 ; ---------------------------------------------
-Shir_TechBattle:
+Shir_BattleTechs:
 	dc.b	TechID_Foi
 	dc.b	TechID_Res
 	dc.b	TechID_Gifoi
@@ -26544,7 +26544,7 @@ ProcessRandomBattle:
 	beq.s	loc_116FE
 	tst.w	(demo_flag).w
 	bne.s	loc_116FE
-	tst.w	(level_index).w
+	tst.w	(map_index).w
 	bne.s	loc_116E6
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_11700
@@ -26570,7 +26570,7 @@ loc_11700:
 	rts	
 loc_11716:
 	move.w	#0, $FFFFCB0A.w
-	move.w	(level_index).w, d1
+	move.w	(map_index).w, d1
 	bne.s	loc_11778
 	lea	(loc_23C3A).l, a1
 	tst.b	$FFFFC737.w
@@ -26605,7 +26605,7 @@ loc_11716:
 	bra.s	loc_117C6
 
 loc_11778:
-	cmpi.w	#LevelID_DezolisSkure, d1
+	cmpi.w	#MapID_DezolisSkure, d1
 	bne.s	loc_117B0
 	lea	(loc_23DBA).l, a1
 	move.w	$FFFFE40E.w, d1
@@ -26650,7 +26650,7 @@ loc_117C6:
 	moveq	#0, d1
 	move.b	(a1), d1
 	move.w	d1, (enemy_data_buffer).w	; put formation ID here (this will determine which entry will be used in the EnemyBattleFormationData table)
-	move.b	#ScreenID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_screen).w
 +
 	rts
 	
@@ -26660,7 +26660,7 @@ RenderCharSprites:
 	lea	($FFFFE400).w, a0
 	move.w	(party_members_num).w, d3
 	addq.w	#1, d3
-	tst.w	(level_index).w
+	tst.w	(map_index).w
 	bne.s	+
 	tst.w	(jet_scooter_flag).w
 	beq.s	+
@@ -26701,7 +26701,7 @@ loc_11868:
 	rts
 +
 	move.b	#0, 2(a0)
-	lea	(character_data_buffer+2).w, a1
+	lea	(character_stats+curr_hp).w, a1
 	move.w	(a2)+, d0
 	move.w	d0, d2
 	lsl.w	#6, d2
@@ -26763,7 +26763,7 @@ loc_118F4:
 	lea	$FFFFF63C.w, a1
 	lea	$FFFFF63E.w, a2
 	lea	(vdp_data_port).l, a3
-	move.w	(level_index).w, d0
+	move.w	(map_index).w, d0
 	bne.s	loc_11936
 	subq.w	#1, (a2)
 	bpl.s	loc_11934
@@ -28905,14 +28905,14 @@ PtrWin_CharList2:
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_CharList2-DynamicWindowsStart
 	dc.b	$07, $09
 
-PtrWin_LevelTechList:	
+PtrWin_MapTechList:	
 	dc.b	$40, $98
-	dc.l	(window_art_buffer&$FFFFFF)+WinArt_LevelTechList-DynamicWindowsStart
+	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MapTechList-DynamicWindowsStart
 	dc.b	$08, $11
 
-PtrWin_LevelTechList2:	
+PtrWin_MapTechList2:	
 	dc.b	$41, $1A
-	dc.l	(window_art_buffer&$FFFFFF)+WinArt_LevelTechList-DynamicWindowsStart
+	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MapTechList-DynamicWindowsStart
 	dc.b	$08, $11
 
 PtrWin_StrngHPTP:	
@@ -30516,7 +30516,7 @@ WinArt_CharList2:
 	dc.b	$BE, $BE, $BE, $BE, $BE, $BE
 ; -----------------------------------------------------------------------
 ; loc_1590E
-WinArt_LevelTechList:
+WinArt_MapTechList:
 	dc.b	$B4, $B5, $A7, $A3, $AE, $AB, $B9
 	dc.b	$26, $26, $26, $26, $26, $26, $26
 	dc.b	$B4, $B5, $26, $26, $26, $26, $26
@@ -30858,7 +30858,7 @@ DynamicWindowsEnd:
 ; bytes 5-13 = stats
 ; byte 14 =  number of usable techniques increase
 ;			higher nibble = battle techniques
-;			lower nibble = level techniques
+;			lower nibble = map techniques
 ; 
 ; 1. HP
 ; 2. TP
@@ -32287,8 +32287,8 @@ GameScriptPtrs:
 	dc.l	Script_Opening			; $14
 	dc.l	Script_GameStart		; $15
 	dc.l	Script_People			; $16
-	dc.l	Script_LevelActions		; $17
-	dc.l	Script_LevelEvents		; $18
+	dc.l	Script_MapActions		; $17
+	dc.l	Script_MapEvents		; $18
 	dc.l	Script_Miscellaneous	; $19
 ; =======================================
 
@@ -37183,8 +37183,8 @@ loc_209AA:
 
 	even
 
-Script_LevelActions:
-	dc.b	loc_20A58-Script_LevelActions	; 1
+Script_MapActions:
+	dc.b	loc_20A58-Script_MapActions	; 1
 	dc.b	loc_20A77-loc_20A58				; 2
 	dc.b	loc_20A86-loc_20A77				; 3
 	dc.b	loc_20A9E-loc_20A86				; 4
@@ -37474,8 +37474,8 @@ loc_210B9:
 	even
 
 
-Script_LevelEvents:
-	dc.b	loc_2110D-Script_LevelEvents	; 1
+Script_MapEvents:
+	dc.b	loc_2110D-Script_MapEvents	; 1
 	dc.b	loc_21175-loc_2110D				; 2
 	dc.b	loc_21188-loc_21175				; 3
 	dc.b	loc_211BC-loc_21188				; 4
@@ -39237,8 +39237,8 @@ Enemy_FireAnt:
 	dc.b	$00
 	dc.b	$6C
 	dc.b	$00
-	dc.b	SXFID_FireAntAttack		; sound when attacking
-	dc.b	SXFID_Whip		; sound when using techniques
+	dc.b	SFXID_FireAntAttack		; sound when attacking
+	dc.b	SFXID_Whip		; sound when using techniques
 	dc.l	Battle_AntMap 
 	dc.b	$01		; Enemy ID = 1
 	dc.b	$01		; Enemy ID copy = 1?
@@ -39249,7 +39249,7 @@ Enemy_ArmorAnt:
 	dc.w	$001A, $0022, $000C, $0010 ;0x0 (0x000240FC-0x00024104, Entry count: 0x00000008)
 	dc.b	$20, $30, $00, $17, $03, $4C, $04, $B2 ;0x0 (0x00024104-0x0002410C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$02, $02
 	
@@ -39259,7 +39259,7 @@ Enemy_PinchAnt:
 	dc.w	$0053, $0063, $001E, $001B ;0x0 (0x0002413C-0x00024144, Entry count: 0x00000008)
 	dc.b	$20, $41, $00, $2D, $E2, $66, $08, $99 ;0x0 (0x00024144-0x0002414C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $64, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$03, $03
 	
@@ -39269,7 +39269,7 @@ Enemy_Mosquito:
 	dc.w	$0003, $0005, $0002, $0004 ;0x0 (0x0002417C-0x00024184, Entry count: 0x00000008)
 	dc.b	$20, $17, $00, $09, $06, $FF, $00, $99 ;0x0 (0x00024184-0x0002418C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $64, $0C
-	dc.b	SXFID_MosquitoAttack, SXFID_MosquitoAttack
+	dc.b	SFXID_MosquitoAttack, SFXID_MosquitoAttack
 	dc.l	Battle_MosquitoMap
 	dc.b	$04, $04
 	
@@ -39279,7 +39279,7 @@ Enemy_Waspy:
 	dc.w	$000F, $001B, $000D, $000D ;0x0 (0x000241BC-0x000241C4, Entry count: 0x00000008)
 	dc.b	$20, $24, $00, $12, $06, $FF, $00, $7F ;0x0 (0x000241C4-0x000241CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_MosquitoAttack, SXFID_MosquitoAttack
+	dc.b	SFXID_MosquitoAttack, SFXID_MosquitoAttack
 	dc.l	Battle_MosquitoMap
 	dc.b	$05, $05
 	
@@ -39289,7 +39289,7 @@ Enemy_Stinger:
 	dc.w	$004E, $0063, $001F, $001A ;0x0 (0x000241FC-0x00024204, Entry count: 0x00000008)
 	dc.b	$20, $3A, $00, $2F, $06, $FF, $00, $66 ;0x0 (0x00024204-0x0002420C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_MosquitoAttack, SXFID_MosquitoAttack
+	dc.b	SFXID_MosquitoAttack, SFXID_MosquitoAttack
 	dc.l	Battle_MosquitoMap
 	dc.b	$06, $06
 	
@@ -39299,7 +39299,7 @@ Enemy_Spinner:
 	dc.w	$0007, $0010, $0009, $000A ;0x0 (0x0002423C-0x00024244, Entry count: 0x00000008)
 	dc.b	$20, $10, $00, $0E, $00, $00, $00, $33 ;0x0 (0x00024244-0x0002424C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $7C, $00, $7C, $00
-	dc.b	SXFID_SpinnerAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_SpinnerAttack, SFXID_SpinnerAttack
 	dc.l	Battle_SpinnerMap
 	dc.b	$07, $07
 	
@@ -39309,7 +39309,7 @@ Enemy_Vortex:
 	dc.w	$0028, $004D, $001D, $0017 ;0x0 (0x0002427C-0x00024284, Entry count: 0x00000008)
 	dc.b	$20, $12, $00, $25, $11, $33, $08, $4C ;0x0 (0x00024284-0x0002428C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $7C, $00, $7C, $00
-	dc.b	SXFID_SpinnerAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_SpinnerAttack, SFXID_SpinnerAttack
 	dc.l	Battle_SpinnerMap
 	dc.b	$08, $08
 	
@@ -39319,7 +39319,7 @@ Enemy_Whirly:
 	dc.w	$009C, $00B8, $0030, $0027 ;0x0 (0x000242BC-0x000242C4, Entry count: 0x00000008)
 	dc.b	$20, $1C, $00, $4C, $09, $66, $00, $33 ;0x0 (0x000242C4-0x000242CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $7C, $00, $7C, $00
-	dc.b	SXFID_SpinnerAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_SpinnerAttack, SFXID_SpinnerAttack
 	dc.l	Battle_SpinnerMap
 	dc.b	$09, $09
 	
@@ -39329,7 +39329,7 @@ Enemy_Bee:
 	dc.w	$0005, $0009, $0004, $0007 ;0x0 (0x000242FC-0x00024304, Entry count: 0x00000008)
 	dc.b	$20, $19, $00, $0A, $00, $00, $00, $B2 ;0x0 (0x00024304-0x0002430C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $74, $00, $74, $00
-	dc.b	SXFID_BeeAttack, SXFID_BeeAttack
+	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_BeeMap
 	dc.b	$0A, $0A
 	
@@ -39339,7 +39339,7 @@ Enemy_Buzzer:
 	dc.w	$001A, $0022, $0011, $000F ;0x0 (0x0002433C-0x00024344, Entry count: 0x00000008)
 	dc.b	$20, $27, $00, $1B, $00, $00, $00, $CC ;0x0 (0x00024344-0x0002434C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $74, $00, $74, $00
-	dc.b	SXFID_BeeAttack, SXFID_BeeAttack
+	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_BeeMap
 	dc.b	$0B, $0B
 
@@ -39349,7 +39349,7 @@ Enemy_Insecta:
 	dc.w	$006F, $008B, $0029, $001F ;0x0 (0x0002437C-0x00024384, Entry count: 0x00000008)
 	dc.b	$20, $42, $00, $3C, $00, $00, $00, $B2 ;0x0 (0x00024384-0x0002438C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $74, $00, $74, $00
-	dc.b	SXFID_BeeAttack, SXFID_BeeAttack
+	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_BeeMap
 	dc.b	$0C, $0C
 	
@@ -39359,7 +39359,7 @@ Enemy_Poisoner:
 	dc.w	$0005, $0013, $0004, $0002 ;0x0 (0x000243BC-0x000243C4, Entry count: 0x00000008)
 	dc.b	$20, $19, $00, $0C, $03, $66, $0C, $B2 ;0x0 (0x000243C4-0x000243CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $0C, $64, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_PoisonerMap
 	dc.b	$0D, $0D
 	
@@ -39369,7 +39369,7 @@ Enemy_Spitkill:
 	dc.w	$001F, $0033, $0012, $000D ;0x0 (0x000243FC-0x00024404, Entry count: 0x00000008)
 	dc.b	$20, $2A, $00, $1E, $05, $33, $18, $99 ;0x0 (0x00024404-0x0002440C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $0C, $64, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_PoisonerMap
 	dc.b	$0E, $0E
 	
@@ -39379,7 +39379,7 @@ Enemy_Spitfang:
 	dc.l	Battle_PoisonerArt	
 	dc.b	$00, $B6, $00, $C2, $00, $31, $00, $1C, $20, $4A, $00, $42, $04, $33, $0C, $99
 	dc.b	$0F, $03, $64, $0C, $64, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_PoisonerMap
 	dc.b	$0F, $0F
 	
@@ -39389,7 +39389,7 @@ Enemy_HitTail:
 	dc.w	$0031, $0058, $0020, $0018 ;0x0 (0x0002447C-0x00024484, Entry count: 0x00000008)
 	dc.b	$20, $23, $00, $16, $00, $00, $00, $33 ;0x0 (0x00024484-0x0002448C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $58, $15, $58, $15
-	dc.b	SXFID_FireAntAttack, SXFID_VanAttack
+	dc.b	SFXID_FireAntAttack, SFXID_VanAttack
 	dc.l	Battle_HitTailMap
 	dc.b	$10, $10
 	
@@ -39399,7 +39399,7 @@ Enemy_Center:
 	dc.w	$007F, $008B, $0030, $001F ;0x0 (0x000244BC-0x000244C4, Entry count: 0x00000008)
 	dc.b	$20, $2E, $00, $2A, $EB, $7F, $0C, $19 ;0x0 (0x000244C4-0x000244CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $58, $15, $59, $15
-	dc.b	SXFID_FireAntAttack, SXFID_VanAttack
+	dc.b	SFXID_FireAntAttack, SFXID_VanAttack
 	dc.l	Battle_HitTailMap
 	dc.b	$11, $11
 	
@@ -39409,7 +39409,7 @@ Enemy_Scaly:
 	dc.w	$0165, $0151, $004B, $0030 ;0x0 (0x000244FC-0x00024504, Entry count: 0x00000008)
 	dc.b	$20, $4C, $00, $5B, $E7, $33, $04, $19 ;0x0 (0x00024504-0x0002450C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $58, $15, $59, $15
-	dc.b	SXFID_FireAntAttack, SXFID_VanAttack
+	dc.b	SFXID_FireAntAttack, SFXID_VanAttack
 	dc.l	Battle_HitTailMap
 	dc.b	$12, $12
 	
@@ -39419,7 +39419,7 @@ Enemy_Froggy:
 	dc.w	$0007, $000A, $0005, $0007 ;0x0 (0x0002453C-0x00024544, Entry count: 0x00000008)
 	dc.b	$20, $30, $00, $0C, $F5, $4C, $0C, $33 ;0x0 (0x00024544-0x0002454C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_FireAntAttack, SXFID_MosquitoAttack
+	dc.b	SFXID_FireAntAttack, SFXID_MosquitoAttack
 	dc.l	Battle_FroggyMap
 	dc.b	$13, $13
 	
@@ -39429,7 +39429,7 @@ Enemy_Toader:
 	dc.w	$001E, $0024, $0011, $000D ;0x0 (0x0002457C-0x00024584, Entry count: 0x00000008)
 	dc.b	$20, $48, $00, $18, $12, $33, $08, $33 ;0x0 (0x00024584-0x0002458C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_FireAntAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_FroggyMap
 	dc.b	$14, $14
 	
@@ -39439,7 +39439,7 @@ Enemy_Squat:
 	dc.w	$010A, $00B4, $002E, $0020 ;0x0 (0x000245BC-0x000245C4, Entry count: 0x00000008)
 	dc.b	$20, $4D, $00, $4C, $04, $4C, $0C, $33 ;0x0 (0x000245C4-0x000245CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_FireAntAttack, SXFID_MosquitoAttack
+	dc.b	SFXID_FireAntAttack, SFXID_MosquitoAttack
 	dc.l	Battle_FroggyMap
 	dc.b	$15, $15
 	
@@ -39449,7 +39449,7 @@ Enemy_Carrier:
 	dc.w	$0009, $0010, $0006, $000A ;0x0 (0x000245FC-0x00024604, Entry count: 0x00000008)
 	dc.b	$20, $1F, $00, $11, $00, $00, $00, $4C ;0x0 (0x00024604-0x0002460C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_FireAntAttack, SXFID_FireAntAttack
+	dc.b	SFXID_FireAntAttack, SFXID_FireAntAttack
 	dc.l	Battle_CarrierMap
 	dc.b	$16, $16
 	
@@ -39459,7 +39459,7 @@ Enemy_Mushroom:
 	dc.w	$0065, $007C, $0024, $001D ;0x0 (0x0002463C-0x00024644, Entry count: 0x00000008)
 	dc.b	$20, $2B, $00, $36, $00, $00, $00, $4C ;0x0 (0x00024644-0x0002464C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_TerakiteAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_CarrierMap
 	dc.b	$17, $17
 	
@@ -39469,7 +39469,7 @@ Enemy_HeadRot:
 	dc.w	$0137, $00FE, $0039, $002A ;0x0 (0x0002467C-0x00024684, Entry count: 0x00000008)
 	dc.b	$20, $2D, $00, $5F, $00, $00, $00, $4C ;0x0 (0x00024684-0x0002468C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_BlasterAttack, SXFID_BlasterAttack
+	dc.b	SFXID_BlasterAttack, SFXID_BlasterAttack
 	dc.l	Battle_CarrierMap
 	dc.b	$18, $18
 	
@@ -39479,7 +39479,7 @@ Enemy_Whistle:
 	dc.w	$01D6, $0054, $0025, $0005 ;0x0 (0x000246BC-0x000246C4, Entry count: 0x00000008)
 	dc.b	$40, $44, $00, $52, $00, $00, $00, $B2 ;0x0 (0x000246C4-0x000246CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $66, $02, $6C, $08
-	dc.b	SXFID_WhistleAttack, SXFID_Whip
+	dc.b	SFXID_WhistleAttack, SFXID_Whip
 	dc.l	Battle_WhistleMap
 	dc.b	$19, $19
 	
@@ -39489,7 +39489,7 @@ Enemy_Informer:
 	dc.w	$02B1, $008E, $0035, $0008 ;0x0 (0x000246FC-0x00024704, Entry count: 0x00000008)
 	dc.b	$40, $44, $00, $7D, $11, $33, $08, $B2 ;0x0 (0x00024704-0x0002470C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $66, $02, $6C, $08
-	dc.b	SXFID_WhistleAttack, SXFID_Whip
+	dc.b	SFXID_WhistleAttack, SFXID_Whip
 	dc.l	Battle_WhistleMap
 	dc.b	$1A, $1A
 	
@@ -39499,7 +39499,7 @@ Enemy_Tracer:
 	dc.w	$0002, $0002, $0009, $0008 ;0x0 (0x0002473C-0x00024744, Entry count: 0x00000008)
 	dc.b	$40, $0A, $00, $28, $00, $00, $00, $FF ;0x0 (0x00024744-0x0002474C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $66, $02, $6C, $08
-	dc.b	SXFID_WhistleAttack, SXFID_Whip
+	dc.b	SFXID_WhistleAttack, SFXID_Whip
 	dc.l	Battle_WhistleMap
 	dc.b	$1B, $1B
 	
@@ -39509,7 +39509,7 @@ Enemy_Locust:
 	dc.w	$0007, $000F, $0008, $0005 ;0x0 (0x0002477C-0x00024784, Entry count: 0x00000008)
 	dc.b	$20, $17, $00, $0A, $00, $00, $00, $66 ;0x0 (0x00024784-0x0002478C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $4C, $0C, $4C, $0C
-	dc.b	SXFID_LocustAttack, SXFID_LocustAttack
+	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_LocustMap
 	dc.b	$1C, $1C
 	
@@ -39519,7 +39519,7 @@ Enemy_Locusta:
 	dc.w	$0025, $0045, $001C, $0012 ;0x0 (0x000247BC-0x000247C4, Entry count: 0x00000008)
 	dc.b	$20, $28, $00, $1A, $00, $00, $00, $4C ;0x0 (0x000247C4-0x000247CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $4C, $0C, $4C, $0C
-	dc.b	SXFID_LocustAttack, SXFID_LocustAttack
+	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_LocustMap
 	dc.b	$1D, $1D
 	
@@ -39529,7 +39529,7 @@ Enemy_Fanbite:
 	dc.w	$012D, $0100, $0036, $0014 ;0x0 (0x000247FC-0x00024804, Entry count: 0x00000008)
 	dc.b	$20, $3C, $00, $50, $13, $33, $14, $33 ;0x0 (0x00024804-0x0002480C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $4C, $0C, $4C, $0C
-	dc.b	SXFID_LocustAttack, SXFID_LocustAttack
+	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_LocustMap
 	dc.b	$1E, $1E
 	
@@ -39539,7 +39539,7 @@ Enemy_Amoeba:
 	dc.w	$000C, $0016, $000B, $000A ;0x0 (0x0002483C-0x00024844, Entry count: 0x00000008)
 	dc.b	$20, $0A, $00, $0D, $03, $33, $08, $99 ;0x0 (0x00024844-0x0002484C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $0C, $64, $0C
-	dc.b	SXFID_AmoebaAttack, SXFID_BlasterAttack
+	dc.b	SFXID_AmoebaAttack, SFXID_BlasterAttack
 	dc.l	Battle_AmoebaMap
 	dc.b	$1F, $1F
 	
@@ -39549,7 +39549,7 @@ Enemy_Jelly:
 	dc.w	$0025, $0043, $001A, $000A ;0x0 (0x0002487C-0x00024884, Entry count: 0x00000008)
 	dc.b	$20, $14, $00, $2A, $05, $19, $10, $B2 ;0x0 (0x00024884-0x0002488C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $0C, $64, $0C
-	dc.b	SXFID_AmoebaAttack, SXFID_BlasterAttack
+	dc.b	SFXID_AmoebaAttack, SFXID_BlasterAttack
 	dc.l	Battle_AmoebaMap
 	dc.b	$20, $20
 	
@@ -39559,7 +39559,7 @@ Enemy_Slugmess:
 	dc.w	$00E7, $00DA, $0037, $000A ;0x0 (0x000248BC-0x000248C4, Entry count: 0x00000008)
 	dc.b	$20, $14, $00, $60, $0C, $7F, $00, $99 ;0x0 (0x000248C4-0x000248CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $0C, $64, $0C
-	dc.b	SXFID_AmoebaAttack, SXFID_BlasterAttack
+	dc.b	SFXID_AmoebaAttack, SFXID_BlasterAttack
 	dc.l	Battle_AmoebaMap
 	dc.b	$21, $21
 	
@@ -39569,7 +39569,7 @@ Enemy_Polezi:
 	dc.w	$0238, $00A0, $0032, $000A ;0x0 (0x000248FC-0x00024904, Entry count: 0x00000008)
 	dc.b	$40, $21, $00, $55, $00, $00, $00, $B2 ;0x0 (0x00024904-0x0002490C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $5C, $0C, $5C, $0C
-	dc.b	SXFID_PoleziAttack, SXFID_Whip
+	dc.b	SFXID_PoleziAttack, SFXID_Whip
 	dc.l	Battle_PoleziMap
 	dc.b	$22, $22
 	
@@ -39579,7 +39579,7 @@ Enemy_Poleziax:
 	dc.w	$0357, $00F0, $0057, $000A ;0x0 (0x0002493C-0x00024944, Entry count: 0x00000008)
 	dc.b	$40, $32, $00, $76, $03, $66, $08, $CC ;0x0 (0x00024944-0x0002494C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $5C, $0C, $5C, $0C
-	dc.b	SXFID_PoleziAttack, SXFID_Whip
+	dc.b	SFXID_PoleziAttack, SFXID_Whip
 	dc.l	Battle_PoleziMap
 	dc.b	$23, $23
 	
@@ -39589,7 +39589,7 @@ Enemy_Poleziss:
 	dc.w	$0002, $0002, $000C, $0005 ;0x0 (0x0002497C-0x00024984, Entry count: 0x00000008)
 	dc.b	$40, $0A, $00, $14, $00, $FF, $00, $FF ;0x0 (0x00024984-0x0002498C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $5C, $0C, $5C, $0C
-	dc.b	SXFID_PoleziAttack, SXFID_Whip
+	dc.b	SFXID_PoleziAttack, SFXID_Whip
 	dc.l	Battle_PoleziMap
 	dc.b	$24, $24
 	
@@ -39599,7 +39599,7 @@ Enemy_Leecher:
 	dc.w	$002F, $0031, $0014, $0006 ;0x0 (0x000249BC-0x000249C4, Entry count: 0x00000008)
 	dc.b	$20, $2C, $00, $1A, $EC, $66, $04, $B2 ;0x0 (0x000249C4-0x000249CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_BeeAttack, SXFID_BlasterAttack
+	dc.b	SFXID_BeeAttack, SFXID_BlasterAttack
 	dc.l	Battle_LeecherMap
 	dc.b	$25, $25
 	
@@ -39609,7 +39609,7 @@ Enemy_Fang:
 	dc.w	$0089, $0090, $0025, $0008 ;0x0 (0x000249FC-0x00024A04, Entry count: 0x00000008)
 	dc.b	$20, $3F, $00, $2E, $00, $00, $00, $CC ;0x0 (0x00024A04-0x00024A0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_BeeAttack, SXFID_BlasterAttack
+	dc.b	SFXID_BeeAttack, SFXID_BlasterAttack
 	dc.l	Battle_LeecherMap
 	dc.b	$26, $26
 	
@@ -39619,7 +39619,7 @@ Enemy_Python:
 	dc.w	$0147, $0112, $0041, $000A ;0x0 (0x00024A3C-0x00024A44, Entry count: 0x00000008)
 	dc.b	$20, $58, $00, $7A, $EB, $66, $0C, $99 ;0x0 (0x00024A44-0x00024A4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_BeeAttack, SXFID_BlasterAttack
+	dc.b	SFXID_BeeAttack, SFXID_BlasterAttack
 	dc.l	Battle_LeecherMap
 	dc.b	$27, $27
 	
@@ -39630,7 +39630,7 @@ Enemy_S:
 	dc.l	Battle_AntArt	
 	dc.b	$00, $0F, $00, $1B, $00, $0D, $00, $0A, $20, $0B, $00, $0C, $00, $FF, $00, $66
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$28, $28
 
@@ -39641,7 +39641,7 @@ Enemy_K:
 	dc.l	Battle_AntArt	
 	dc.b	$00, $3E, $00, $70, $00, $21, $00, $12, $20, $15, $00, $26, $00, $FF, $00, $66
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$29, $29
 
@@ -39652,7 +39652,7 @@ Enemy_H:
 	dc.l	Battle_AntArt	
 	dc.b	$00, $98, $01, $12, $00, $37, $00, $24, $20, $22, $00, $53, $00, $FF, $00, $7F
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$2A, $2A
 	
@@ -39662,7 +39662,7 @@ Enemy_Pulser:
 	dc.w	$000C, $0012, $0008, $000A ;0x0 (0x00024B3C-0x00024B44, Entry count: 0x00000008)
 	dc.b	$20, $18, $00, $11, $00, $00, $00, $19 ;0x0 (0x00024B44-0x00024B4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $0C, $60, $0C
-	dc.b	SXFID_PulserAttack, SXFID_BlasterAttack
+	dc.b	SFXID_PulserAttack, SFXID_BlasterAttack
 	dc.l	Battle_PulserMap
 	dc.b	$2B, $2B
 	
@@ -39672,7 +39672,7 @@ Enemy_Blaster:
 	dc.w	$003E, $003C, $000F, $000A ;0x0 (0x00024B7C-0x00024B84, Entry count: 0x00000008)
 	dc.b	$20, $22, $00, $34, $EB, $FF, $00, $33 ;0x0 (0x00024B84-0x00024B8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $0C, $60, $0C
-	dc.b	SXFID_PulserAttack, SXFID_BlasterAttack
+	dc.b	SFXID_PulserAttack, SFXID_BlasterAttack
 	dc.l	Battle_PulserMap
 	dc.b	$2C, $2C
 	
@@ -39682,7 +39682,7 @@ Enemy_Blastoid:
 	dc.w	$0173, $0104, $001A, $000A ;0x0 (0x00024BBC-0x00024BC4, Entry count: 0x00000008)
 	dc.b	$20, $3C, $00, $A3, $0C, $99, $00, $33 ;0x0 (0x00024BC4-0x00024BCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $0C, $60, $0C
-	dc.b	SXFID_PulserAttack, SXFID_BlasterAttack
+	dc.b	SFXID_PulserAttack, SFXID_BlasterAttack
 	dc.l	Battle_PulserMap
 	dc.b	$2D, $2D
 	
@@ -39692,7 +39692,7 @@ Enemy_RotWood:
 	dc.w	$008D, $00A7, $002D, $0006 ;0x0 (0x00024BFC-0x00024C04, Entry count: 0x00000008)
 	dc.b	$20, $47, $00, $32, $00, $00, $00, $B2 ;0x0 (0x00024C04-0x00024C0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_RotWoodMap
 	dc.b	$2E, $2E
 	
@@ -39702,7 +39702,7 @@ Enemy_Blockhed:
 	dc.w	$0105, $0125, $003B, $0008 ;0x0 (0x00024C3C-0x00024C44, Entry count: 0x00000008)
 	dc.b	$20, $5A, $00, $50, $00, $00, $00, $CC ;0x0 (0x00024C44-0x00024C4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_RotWoodMap
 	dc.b	$2F, $2F
 	
@@ -39712,7 +39712,7 @@ Enemy_Firia:
 	dc.w	$0132, $0166, $0044, $000A ;0x0 (0x00024C7C-0x00024C84, Entry count: 0x00000008)
 	dc.b	$20, $62, $00, $6D, $00, $00, $00, $B2 ;0x0 (0x00024C84-0x00024C8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_RotWoodMap
 	dc.b	$30, $30
 	
@@ -39722,7 +39722,7 @@ Enemy_Wolfang:
 	dc.w	$0105, $00DA, $0036, $000F ;0x0 (0x00024CBC-0x00024CC4, Entry count: 0x00000008)
 	dc.b	$20, $4F, $00, $48, $00, $00, $00, $CC ;0x0 (0x00024CC4-0x00024CCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_WolfangMap
 	dc.b	$31, $31
 	
@@ -39732,7 +39732,7 @@ Enemy_Burnwolf:
 	dc.w	$019C, $017E, $004F, $0010 ;0x0 (0x00024CFC-0x00024D04, Entry count: 0x00000008)
 	dc.b	$20, $65, $00, $70, $00, $00, $00, $CC ;0x0 (0x00024D04-0x00024D0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_WolfangMap
 	dc.b	$32, $32
 	
@@ -39742,7 +39742,7 @@ Enemy_Flarewlf:
 	dc.w	$01D7, $01C7, $0055, $0011 ;0x0 (0x00024D3C-0x00024D44, Entry count: 0x00000008)
 	dc.b	$20, $6D, $00, $91, $04, $33, $18, $CC ;0x0 (0x00024D44-0x00024D4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_WolfangMap
 	dc.b	$33, $33
 	
@@ -39752,7 +39752,7 @@ Enemy_PugHit:
 	dc.w	$002A, $0026, $0016, $0011 ;0x0 (0x00024D7C-0x00024D84, Entry count: 0x00000008)
 	dc.b	$20, $2F, $00, $15, $0E, $19, $0C, $CC ;0x0 (0x00024D84-0x00024D8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_LocustAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_PugHitMap
 	dc.b	$34, $34
 	
@@ -39762,7 +39762,7 @@ Enemy_PugBrat:
 	dc.w	$00CE, $0073, $003B, $002F ;0x0 (0x00024DBC-0x00024DC4, Entry count: 0x00000008)
 	dc.b	$20, $5D, $00, $58, $0F, $33, $04, $E5 ;0x0 (0x00024DC4-0x00024DCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_LocustAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_PugHitMap
 	dc.b	$35, $35
 	
@@ -39772,7 +39772,7 @@ Enemy_PugKill:
 	dc.l	Battle_PugHitArt	
 	dc.b	$01, $2E, $01, $1A, $00, $45, $00, $11, $20, $65, $00, $62, $00, $00, $00, $E5
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_LocustAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_PugHitMap
 	dc.b	$36, $36
 	
@@ -39783,7 +39783,7 @@ Enemy_S2:
 	dc.l	Battle_AntArt	
 	dc.b	$00, $16, $00, $26, $00, $10, $00, $0E, $20, $1B, $00, $23, $00, $00, $00, $CC
 	dc.b	$0F, $03, $70, $00, $70, $00
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$37, $37
 
@@ -39794,7 +39794,7 @@ Enemy_S3:
 	dc.l	Battle_AntArt	
 	dc.b	$00, $41, $00, $6B, $00, $20, $00, $25, $20, $31, $00, $3A, $00, $00, $00, $E5
 	dc.b	$0F, $03, $70, $00, $70, $00
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$38, $38
 
@@ -39805,7 +39805,7 @@ Enemy_S4:
 	dc.l	Battle_AntArt	
 	dc.b	$00, $73, $00, $CD, $00, $28, $00, $32, $20, $40, $00, $77, $00, $00, $00, $E5
 	dc.b	$0F, $03, $74, $00, $74, $00
-	dc.b	SXFID_FireAntAttack, SXFID_Whip
+	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$39, $39
 	
@@ -39815,7 +39815,7 @@ Enemy_Wireface:
 	dc.w	$02CE, $00D5, $0037, $000A ;0x0 (0x00024EFC-0x00024F04, Entry count: 0x00000008)
 	dc.b	$40, $43, $00, $89, $00, $00, $00, $66 ;0x0 (0x00024F04-0x00024F0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_VanAttack, SXFID_VanAttack
+	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_WirefaceMap
 	dc.b	$3A, $3A
 	
@@ -39825,7 +39825,7 @@ Enemy_Wirehead:
 	dc.w	$03F6, $00D5, $0043, $000F ;0x0 (0x00024F3C-0x00024F44, Entry count: 0x00000008)
 	dc.b	$40, $4E, $00, $9F, $00, $00, $00, $66 ;0x0 (0x00024F44-0x00024F4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_VanAttack, SXFID_VanAttack
+	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_WirefaceMap
 	dc.b	$3B, $3B
 	
@@ -39835,7 +39835,7 @@ Enemy_PodHead:
 	dc.w	$047D, $013F, $0050, $000F ;0x0 (0x00024F7C-0x00024F84, Entry count: 0x00000008)
 	dc.b	$40, $55, $00, $B0, $00, $00, $00, $66 ;0x0 (0x00024F84-0x00024F8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_VanAttack, SXFID_VanAttack
+	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_WirefaceMap
 	dc.b	$3C, $3C
 	
@@ -39845,7 +39845,7 @@ Enemy_Terakite:
 	dc.w	$010A, $0102, $003A, $004D ;0x0 (0x00024FBC-0x00024FC4, Entry count: 0x00000008)
 	dc.b	$20, $3E, $00, $43, $03, $33, $0C, $B2 ;0x0 (0x00024FC4-0x00024FCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $14, $54, $14
-	dc.b	SXFID_TerakiteAttack, SXFID_WhistleAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_WhistleAttack
 	dc.l	Battle_TerakiteMap
 	dc.b	$3D, $3D
 	
@@ -39855,7 +39855,7 @@ Enemy_Reptile:
 	dc.w	$0183, $01B8, $004F, $0050 ;0x0 (0x00024FFC-0x00025004, Entry count: 0x00000008)
 	dc.b	$20, $46, $00, $5C, $EB, $7F, $0C, $CC ;0x0 (0x00025004-0x0002500C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $14, $54, $14
-	dc.b	SXFID_TerakiteAttack, SXFID_WhistleAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_WhistleAttack
 	dc.l	Battle_TerakiteMap
 	dc.b	$3E, $3E
 	
@@ -39865,7 +39865,7 @@ Enemy_KiteDrgn:
 	dc.l	Battle_TerakiteArt	
 	dc.b	$01, $5F, $01, $DB, $00, $54, $00, $55, $20, $4A, $00, $71, $09, $4C, $00, $CC
 	dc.b	$0F, $03, $54, $14, $54, $14
-	dc.b	SXFID_TerakiteAttack, SXFID_WhistleAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_WhistleAttack
 	dc.l	Battle_TerakiteMap
 	dc.b	$3F, $3F
 	
@@ -39875,7 +39875,7 @@ Enemy_FireEye:
 	dc.w	$0031, $0058, $001D, $0020 ;0x0 (0x0002507C-0x00025084, Entry count: 0x00000008)
 	dc.b	$20, $14, $00, $34, $F5, $66, $08, $7F ;0x0 (0x00025084-0x0002508C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $14, $50, $14
-	dc.b	SXFID_TerakiteAttack, SXFID_VanAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_VanAttack
 	dc.l	Battle_FireEyeMap
 	dc.b	$40, $40
 	
@@ -39885,7 +39885,7 @@ Enemy_Glowstik:
 	dc.w	$014A, $013B, $0043, $002D ;0x0 (0x000250BC-0x000250C4, Entry count: 0x00000008)
 	dc.b	$20, $28, $00, $78, $EB, $66, $08, $99 ;0x0 (0x000250C4-0x000250CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $14, $50, $14
-	dc.b	SXFID_TerakiteAttack, SXFID_VanAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_VanAttack
 	dc.l	Battle_FireEyeMap
 	dc.b	$41, $41
 	
@@ -39895,7 +39895,7 @@ Enemy_Forest:
 	dc.w	$01F5, $01E1, $0053, $003A ;0x0 (0x000250FC-0x00025104, Entry count: 0x00000008)
 	dc.b	$20, $2D, $00, $AF, $00, $00, $00, $4C ;0x0 (0x00025104-0x0002510C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $14, $50, $14
-	dc.b	SXFID_TerakiteAttack, SXFID_VanAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_VanAttack
 	dc.l	Battle_FireEyeMap
 	dc.b	$42, $42
 	
@@ -39905,7 +39905,7 @@ Enemy_Catman:
 	dc.w	$0114, $00EC, $003D, $000A ;0x0 (0x0002513C-0x00025144, Entry count: 0x00000008)
 	dc.b	$20, $32, $00, $43, $00, $00, $00, $99 ;0x0 (0x00025144-0x0002514C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_CatmanMap
 	dc.b	$43, $43
 	
@@ -39915,7 +39915,7 @@ Enemy_Catfang:
 	dc.w	$01E1, $01AE, $004F, $000A ;0x0 (0x0002517C-0x00025184, Entry count: 0x00000008)
 	dc.b	$20, $37, $00, $84, $00, $00, $00, $7F ;0x0 (0x00025184-0x0002518C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_CatmanMap
 	dc.b	$44, $44
 	
@@ -39925,7 +39925,7 @@ Enemy_Cateye:
 	dc.w	$0209, $01E1, $0056, $000A ;0x0 (0x000251BC-0x000251C4, Entry count: 0x00000008)
 	dc.b	$20, $41, $00, $B6, $00, $00, $00, $66 ;0x0 (0x000251C4-0x000251CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_CatmanMap
 	dc.b	$45, $45
 	
@@ -39935,7 +39935,7 @@ Enemy_Mechoman:
 	dc.w	$0273, $008A, $002E, $0044 ;0x0 (0x000251FC-0x00025204, Entry count: 0x00000008)
 	dc.b	$40, $23, $00, $41, $F5, $FF, $0C, $E5 ;0x0 (0x00025204-0x0002520C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $40, $00, $40, $00
-	dc.b	SXFID_WhistleAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_WhistleAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_MechomanMap
 	dc.b	$46, $46
 	
@@ -39945,7 +39945,7 @@ Enemy_Sonomech:
 	dc.w	$0379, $00C7, $0047, $0054 ;0x0 (0x0002523C-0x00025244, Entry count: 0x00000008)
 	dc.b	$40, $2B, $00, $55, $EB, $FF, $0C, $CC ;0x0 (0x00025244-0x0002524C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $40, $00, $40, $00
-	dc.b	SXFID_WhistleAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_WhistleAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_MechomanMap
 	dc.b	$47, $47
 	
@@ -39955,7 +39955,7 @@ Enemy_Attmech:
 	dc.w	$0456, $0107, $0056, $005F ;0x0 (0x0002527C-0x00025284, Entry count: 0x00000008)
 	dc.b	$40, $3A, $00, $69, $F1, $FF, $0C, $E5 ;0x0 (0x00025284-0x0002528C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $40, $00, $40, $00
-	dc.b	SXFID_WhistleAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_WhistleAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_MechomanMap
 	dc.b	$48, $48
 	
@@ -39965,7 +39965,7 @@ Enemy_Mazgamma:
 	dc.w	$02AF, $00CD, $0044, $0005 ;0x0 (0x000252BC-0x000252C4, Entry count: 0x00000008)
 	dc.b	$40, $5A, $00, $98, $00, $00, $00, $CC ;0x0 (0x000252C4-0x000252CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_WhistleAttack, SXFID_WhistleAttack
+	dc.b	SFXID_WhistleAttack, SFXID_WhistleAttack
 	dc.l	Battle_MazgammaMap
 	dc.b	$49, $49
 	
@@ -39975,7 +39975,7 @@ Enemy_Firgamma:
 	dc.w	$03C0, $0138, $0058, $0011 ;0x0 (0x000252FC-0x00025304, Entry count: 0x00000008)
 	dc.b	$40, $6C, $00, $B8, $00, $00, $00, $B2 ;0x0 (0x00025304-0x0002530C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_WhistleAttack, SXFID_WhistleAttack
+	dc.b	SFXID_WhistleAttack, SFXID_WhistleAttack
 	dc.l	Battle_MazgammaMap
 	dc.b	$4A, $4A
 	
@@ -39985,7 +39985,7 @@ Enemy_Kilgamma:
 	dc.w	$04FF, $0154, $0066, $0014 ;0x0 (0x0002533C-0x00025344, Entry count: 0x00000008)
 	dc.b	$40, $7D, $00, $D7, $00, $00, $00, $CC ;0x0 (0x00025344-0x0002534C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_WhistleAttack, SXFID_WhistleAttack
+	dc.b	SFXID_WhistleAttack, SFXID_WhistleAttack
 	dc.l	Battle_MazgammaMap
 	dc.b	$4B, $4B
 	
@@ -39995,7 +39995,7 @@ Enemy_Metalman:
 	dc.w	$02C3, $00C5, $0040, $0003 ;0x0 (0x0002537C-0x00025384, Entry count: 0x00000008)
 	dc.b	$40, $44, $00, $94, $F1, $66, $08, $CC ;0x0 (0x00025384-0x0002538C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $58, $00, $50, $00
-	dc.b	SXFID_PoleziAttack, SXFID_WhistleAttack
+	dc.b	SFXID_PoleziAttack, SFXID_WhistleAttack
 	dc.l	Battle_MetalmanMap
 	dc.b	$4C, $4C
 	
@@ -40005,7 +40005,7 @@ Enemy_TwigMan:
 	dc.w	$0421, $0116, $0054, $000E ;0x0 (0x000253BC-0x000253C4, Entry count: 0x00000008)
 	dc.b	$40, $58, $00, $9E, $00, $00, $00, $B2 ;0x0 (0x000253C4-0x000253CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $58, $00, $50, $00
-	dc.b	SXFID_PoleziAttack, SXFID_WhistleAttack
+	dc.b	SFXID_PoleziAttack, SFXID_WhistleAttack
 	dc.l	Battle_MetalmanMap
 	dc.b	$4D, $4D
 	
@@ -40015,7 +40015,7 @@ Enemy_Twigtall:
 	dc.w	$04FF, $0149, $006C, $0010 ;0x0 (0x000253FC-0x00025404, Entry count: 0x00000008)
 	dc.b	$40, $5D, $00, $D0, $E7, $99, $08, $CC ;0x0 (0x00025404-0x0002540C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $58, $00, $50, $00
-	dc.b	SXFID_PoleziAttack, SXFID_WhistleAttack
+	dc.b	SFXID_PoleziAttack, SFXID_WhistleAttack
 	dc.l	Battle_MetalmanMap
 	dc.b	$4E, $4E
 	
@@ -40025,7 +40025,7 @@ Enemy_Cooley61:
 	dc.w	$045E, $00B0, $005B, $0033 ;0x0 (0x0002543C-0x00025444, Entry count: 0x00000008)
 	dc.b	$40, $3F, $00, $A1, $00, $00, $00, $99 ;0x0 (0x00025444-0x0002544C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $47, $08, $47, $08
-	dc.b	SXFID_BeeAttack, SXFID_BeeAttack
+	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_Cooley61Map
 	dc.b	$4F, $4F
 	
@@ -40035,7 +40035,7 @@ Enemy_Monster:
 	dc.w	$05C4, $007C, $006A, $0036 ;0x0 (0x0002547C-0x00025484, Entry count: 0x00000008)
 	dc.b	$40, $49, $00, $C2, $00, $00, $00, $66 ;0x0 (0x00025484-0x0002548C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $47, $08, $47, $08
-	dc.b	SXFID_BeeAttack, SXFID_BeeAttack
+	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_Cooley61Map
 	dc.b	$50, $50
 	
@@ -40045,7 +40045,7 @@ Enemy_Lrgminer:
 	dc.w	$07C2, $00BD, $0079, $0038 ;0x0 (0x000254BC-0x000254C4, Entry count: 0x00000008)
 	dc.b	$40, $58, $00, $E2, $00, $00, $00, $4C ;0x0 (0x000254C4-0x000254CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $47, $08, $47, $08
-	dc.b	SXFID_BeeAttack, SXFID_BeeAttack
+	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_Cooley61Map
 	dc.b	$51, $51
 	
@@ -40055,7 +40055,7 @@ Enemy_Eyesore:
 	dc.w	$034D, $01CE, $003D, $0050 ;0x0 (0x000254FC-0x00025504, Entry count: 0x00000008)
 	dc.b	$40, $30, $00, $88, $EB, $B2, $08, $7F ;0x0 (0x00025504-0x0002550C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6A, $00, $6C, $00
-	dc.b	SXFID_PoleziAttack, SXFID_VanAttack
+	dc.b	SFXID_PoleziAttack, SFXID_VanAttack
 	dc.l	Battle_EyesoreMap
 	dc.b	$52, $52
 	
@@ -40065,7 +40065,7 @@ Enemy_Hvysolid:
 	dc.w	$0827, $02BE, $0054, $005C ;0x0 (0x0002553C-0x00025544, Entry count: 0x00000008)
 	dc.b	$40, $3A, $00, $BE, $E1, $CC, $0C, $66 ;0x0 (0x00025544-0x0002554C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6A, $00, $60, $00
-	dc.b	SXFID_PoleziAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_PoleziAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_EyesoreMap
 	dc.b	$53, $53
 	
@@ -40075,7 +40075,7 @@ Enemy_GunBust:
 	dc.w	$0D1E, $0392, $0068, $0062 ;0x0 (0x0002557C-0x00025584, Entry count: 0x00000008)
 	dc.b	$40, $44, $00, $D7, $00, $00, $00, $7F ;0x0 (0x00025584-0x0002558C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6A, $00, $6C, $00
-	dc.b	SXFID_PoleziAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_PoleziAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_EyesoreMap
 	dc.b	$54, $54
 	
@@ -40085,7 +40085,7 @@ Enemy_ArmyEye:
 	dc.w	$0002, $0000, $0023, $0068 ;0x0 (0x000255BC-0x000255C4, Entry count: 0x00000008)
 	dc.b	$40, $26, $0B, $B8, $07, $FF, $00, $00 ;0x0 (0x000255C4-0x000255CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $00, $68, $14
-	dc.b	SXFID_ArmyEyeAttack, SXFID_BeeAttack
+	dc.b	SFXID_ArmyEyeAttack, SFXID_BeeAttack
 	dc.l	Battle_ArmyEyeMap
 	dc.b	$55, $55
 	
@@ -40095,7 +40095,7 @@ Enemy_Trcrbase:
 	dc.w	$06ED, $0360, $007F, $0068 ;0x0 (0x000255FC-0x00025604, Entry count: 0x00000008)
 	dc.b	$40, $28, $00, $C9, $DD, $B2, $08, $19 ;0x0 (0x00025604-0x0002560C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $00, $68, $00
-	dc.b	SXFID_ArmyEyeAttack, SXFID_VanAttack
+	dc.b	SFXID_ArmyEyeAttack, SFXID_VanAttack
 	dc.l	Battle_ArmyEyeMap
 	dc.b	$56, $56
 	
@@ -40105,7 +40105,7 @@ Enemy_Specter:
 	dc.w	$095B, $007C, $009D, $007A ;0x0 (0x0002563C-0x00025644, Entry count: 0x00000008)
 	dc.b	$40, $33, $01, $0C, $00, $00, $00, $33 ;0x0 (0x00025644-0x0002564C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $00, $60, $14
-	dc.b	SXFID_ArmyEyeAttack, SXFID_VanAttack
+	dc.b	SFXID_ArmyEyeAttack, SFXID_VanAttack
 	dc.l	Battle_ArmyEyeMap
 	dc.b	$57, $57
 	
@@ -40115,7 +40115,7 @@ Enemy_Van:
 	dc.w	$04EB, $0254, $005D, $0053 ;0x0 (0x0002567C-0x00025684, Entry count: 0x00000008)
 	dc.b	$40, $37, $00, $C5, $F1, $66, $04, $19 ;0x0 (0x00025684-0x0002568C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $1C, $64, $1C
-	dc.b	SXFID_VanAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_VanAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_VanMap
 	dc.b	$58, $58
 	
@@ -40125,7 +40125,7 @@ Enemy_Vanleadr:
 	dc.l	Battle_VanArt	
 	dc.b	$06, $58, $02, $EB, $00, $6C, $00, $5F, $40, $3F, $00, $EF, $E7, $7F, $08, $33
 	dc.b	$0F, $03, $64, $1C, $64, $1C
-	dc.b	SXFID_VanAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_VanAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_VanMap
 	dc.b	$59, $59
 	
@@ -40135,7 +40135,7 @@ Enemy_Aerotank:
 	dc.w	$0A95, $0438, $00A8, $0090 ;0x0 (0x000256FC-0x00025704, Entry count: 0x00000008)
 	dc.b	$40, $4C, $01, $32, $E2, $66, $0C, $4C ;0x0 (0x00025704-0x0002570C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $64, $1C, $64, $1C
-	dc.b	SXFID_VanAttack, SXFID_ArmyEyeAttack
+	dc.b	SFXID_VanAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_VanMap
 	dc.b	$5A, $5A
 	
@@ -40145,7 +40145,7 @@ Enemy_Orangah:
 	dc.w	$06F2, $00C1, $005E, $0006 ;0x0 (0x0002573C-0x00025744, Entry count: 0x00000008)
 	dc.b	$20, $62, $00, $80, $09, $4C, $00, $CC ;0x0 (0x00025744-0x0002574C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $6C, $00, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_SpinnerAttack
 	dc.l	Battle_OrangahMap
 	dc.b	$5B, $5B
 	
@@ -40155,7 +40155,7 @@ Enemy_Orangoo:
 	dc.w	$0882, $00EF, $0062, $0006 ;0x0 (0x0002577C-0x00025784, Entry count: 0x00000008)
 	dc.b	$20, $67, $00, $9B, $00, $00, $00, $CC ;0x0 (0x00025784-0x0002578C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $6C, $00, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_SpinnerAttack
 	dc.l	Battle_OrangahMap
 	dc.b	$5C, $5C
 	
@@ -40165,7 +40165,7 @@ Enemy_Ohx:
 	dc.w	$0A7C, $00FC, $0068, $0006 ;0x0 (0x000257BC-0x000257C4, Entry count: 0x00000008)
 	dc.b	$20, $53, $00, $BF, $0E, $19, $0C, $CC ;0x0 (0x000257C4-0x000257CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $6C, $00, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_SpinnerAttack
 	dc.l	Battle_OrangahMap
 	dc.b	$5D, $5D
 	
@@ -40175,7 +40175,7 @@ Enemy_Mastodon:
 	dc.w	$075F, $0348, $0089, $003F ;0x0 (0x000257FC-0x00025804, Entry count: 0x00000008)
 	dc.b	$20, $2B, $00, $BB, $00, $00, $00, $CC ;0x0 (0x00025804-0x0002580C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_MastodonMap
 	dc.b	$5E, $5E
 	
@@ -40185,7 +40185,7 @@ Enemy_Eletusk:
 	dc.w	$09B8, $038B, $00A7, $0045 ;0x0 (0x0002583C-0x00025844, Entry count: 0x00000008)
 	dc.b	$20, $41, $00, $BB, $00, $00, $00, $B2 ;0x0 (0x00025844-0x0002584C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_MastodonMap
 	dc.b	$5F, $5F
 	
@@ -40195,7 +40195,7 @@ Enemy_Elephant:
 	dc.l	Battle_MastodonArt	
 	dc.b	$0D, $3F, $03, $96, $00, $C1, $00, $46, $20, $41, $00, $BB, $00, $00, $00, $B2
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_MastodonMap
 	dc.b	$60, $60
 	
@@ -40205,7 +40205,7 @@ Enemy_DezoOwl:
 	dc.w	$0728, $0074, $0069, $0024 ;0x0 (0x000258BC-0x000258C4, Entry count: 0x00000008)
 	dc.b	$20, $28, $00, $70, $00, $00, $00, $B2 ;0x0 (0x000258C4-0x000258CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $7C, $00, $7C, $00
-	dc.b	SXFID_LocustAttack, SXFID_LocustAttack
+	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_DezoOwlMap
 	dc.b	$61, $61
 	
@@ -40215,7 +40215,7 @@ Enemy_Skytiara:
 	dc.w	$08EB, $011F, $0081, $003E ;0x0 (0x000258FC-0x00025904, Entry count: 0x00000008)
 	dc.b	$20, $44, $00, $7A, $05, $19, $10, $CC ;0x0 (0x00025904-0x0002590C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $7C, $00, $7C, $00
-	dc.b	SXFID_LocustAttack, SXFID_LocustAttack
+	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_DezoOwlMap
 	dc.b	$62, $62
 	
@@ -40225,7 +40225,7 @@ Enemy_Owltalon:
 	dc.w	$0A8D, $018D, $008D, $004F ;0x0 (0x0002593C-0x00025944, Entry count: 0x00000008)
 	dc.b	$20, $5D, $00, $91, $00, $00, $00, $7F ;0x0 (0x00025944-0x0002594C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $7C, $00, $7C, $00
-	dc.b	SXFID_LocustAttack, SXFID_LocustAttack
+	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_DezoOwlMap
 	dc.b	$63, $63
 	
@@ -40235,7 +40235,7 @@ Enemy_Rabbit:
 	dc.w	$06BC, $010E, $0046, $0006 ;0x0 (0x0002597C-0x00025984, Entry count: 0x00000008)
 	dc.b	$20, $4B, $00, $99, $04, $33, $0C, $66 ;0x0 (0x00025984-0x0002598C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $64, $0C, $64, $0C
-	dc.b	SXFID_BlasterAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_BlasterAttack, SFXID_AmoebaAttack
 	dc.l	Battle_RabbitMap
 	dc.b	$64, $64
 	
@@ -40245,7 +40245,7 @@ Enemy_Rabitta:
 	dc.w	$08BE, $016C, $006C, $000A ;0x0 (0x000259BC-0x000259C4, Entry count: 0x00000008)
 	dc.b	$20, $50, $00, $A7, $11, $33, $04, $66 ;0x0 (0x000259C4-0x000259CC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $07, $64, $0C, $64, $0C
-	dc.b	SXFID_BlasterAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_BlasterAttack, SFXID_AmoebaAttack
 	dc.l	Battle_RabbitMap
 	dc.b	$65, $65
 	
@@ -40255,7 +40255,7 @@ Enemy_Rabitgut:
 	dc.l	Battle_RabbitArt	
 	dc.b	$0B, $04, $01, $7C, $00, $74, $00, $10, $20, $55, $00, $CB, $00, $00, $00, $66
 	dc.b	$0F, $07, $64, $0C, $64, $0C
-	dc.b	SXFID_BlasterAttack, SXFID_AmoebaAttack
+	dc.b	SFXID_BlasterAttack, SFXID_AmoebaAttack
 	dc.l	Battle_RabbitMap
 	dc.b	$66, $66
 	
@@ -40265,7 +40265,7 @@ Enemy_Wrestler:
 	dc.w	$0B8B, $007C, $005A, $0008 ;0x0 (0x00025A3C-0x00025A44, Entry count: 0x00000008)
 	dc.b	$60, $3A, $00, $B8, $03, $66, $0C, $CC ;0x0 (0x00025A44-0x00025A4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_WresterMap
 	dc.b	$67, $67
 	
@@ -40275,7 +40275,7 @@ Enemy_Sakoff:
 	dc.w	$0FE8, $00A6, $006B, $000F ;0x0 (0x00025A7C-0x00025A84, Entry count: 0x00000008)
 	dc.b	$60, $58, $00, $C6, $04, $33, $0C, $CC ;0x0 (0x00025A84-0x00025A8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_WresterMap
 	dc.b	$68, $68
 	
@@ -40285,7 +40285,7 @@ Enemy_Mesoman:
 	dc.w	$1281, $00BD, $0078, $0014 ;0x0 (0x00025ABC-0x00025AC4, Entry count: 0x00000008)
 	dc.b	$60, $67, $00, $D7, $05, $66, $14, $33 ;0x0 (0x00025AC4-0x00025ACC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $0C, $54, $0C
-	dc.b	SXFID_Whip, SXFID_Whip
+	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_WresterMap
 	dc.b	$69, $69
 	
@@ -40295,7 +40295,7 @@ Enemy_Lung:
 	dc.w	$1833, $00A8, $00D1, $002F ;0x0 (0x00025AFC-0x00025B04, Entry count: 0x00000008)
 	dc.b	$60, $5A, $01, $24, $F5, $4C, $04, $19 ;0x0 (0x00025B04-0x00025B0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $0C, $60, $0C
-	dc.b	SXFID_LocustAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_LungMap
 	dc.b	$6A, $6A
 	
@@ -40305,7 +40305,7 @@ Enemy_Glosword:
 	dc.w	$16DC, $00CE, $00E5, $0017 ;0x0 (0x00025B3C-0x00025B44, Entry count: 0x00000008)
 	dc.b	$60, $71, $01, $4A, $11, $33, $08, $33 ;0x0 (0x00025B44-0x00025B4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $0C, $60, $0C
-	dc.b	SXFID_LocustAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_LungMap
 	dc.b	$6B, $6B
 	
@@ -40315,7 +40315,7 @@ Enemy_Desrona:
 	dc.w	$1AF1, $00E7, $00C0, $0017 ;0x0 (0x00025B7C-0x00025B84, Entry count: 0x00000008)
 	dc.b	$60, $80, $01, $22, $13, $19, $14, $B2 ;0x0 (0x00025B84-0x00025B8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $60, $0C, $60, $0C
-	dc.b	SXFID_LocustAttack, SXFID_SpinnerAttack
+	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_LungMap
 	dc.b	$6C, $6C
 	
@@ -40325,7 +40325,7 @@ Enemy_Darkside:
 	dc.w	$0F8A, $00A2, $009A, $000D ;0x0 (0x00025BBC-0x00025BC4, Entry count: 0x00000008)
 	dc.b	$60, $5F, $01, $1B, $00, $00, $00, $19 ;0x0 (0x00025BC4-0x00025BCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $08, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_DarksideMap
 	dc.b	$6D, $6D
 	
@@ -40335,7 +40335,7 @@ Enemy_MrDeath:
 	dc.w	$134E, $00C5, $00AE, $000F ;0x0 (0x00025BFC-0x00025C04, Entry count: 0x00000008)
 	dc.b	$60, $6C, $01, $44, $00, $00, $00, $19 ;0x0 (0x00025C04-0x00025C0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $08, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_DarksideMap
 	dc.b	$6E, $6E
 	
@@ -40345,7 +40345,7 @@ Enemy_Shadow:
 	dc.w	$1685, $00E3, $00BE, $0011 ;0x0 (0x00025C3C-0x00025C44, Entry count: 0x00000008)
 	dc.b	$60, $7D, $01, $6D, $00, $00, $00, $19 ;0x0 (0x00025C44-0x00025C4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $08, $6C, $00
-	dc.b	SXFID_NeifirstAttack, SXFID_NeifirstAttack
+	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_DarksideMap
 	dc.b	$6F, $6F
 	
@@ -40355,7 +40355,7 @@ Enemy_Mystcape:
 	dc.w	$0D3E, $0074, $005C, $0010 ;0x0 (0x00025C7C-0x00025C84, Entry count: 0x00000008)
 	dc.b	$60, $3F, $00, $A3, $0F, $66, $00, $4C ;0x0 (0x00025C84-0x00025C8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_VanAttack, SXFID_VanAttack
+	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_MystcapeMap
 	dc.b	$70, $70
 
@@ -40365,7 +40365,7 @@ Enemy_Illusnst:
 	dc.w	$1148, $009B, $006B, $0012 ;0x0 (0x00025CBC-0x00025CC4, Entry count: 0x00000008)
 	dc.b	$60, $50, $00, $CC, $05, $33, $14, $B2 ;0x0 (0x00025CC4-0x00025CCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_VanAttack, SXFID_VanAttack
+	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_MystcapeMap
 	dc.b	$71, $71
 	
@@ -40375,7 +40375,7 @@ Enemy_Imagiomg:
 	dc.w	$163E, $00DF, $00B1, $0012 ;0x0 (0x00025CFC-0x00025D04, Entry count: 0x00000008)
 	dc.b	$60, $7B, $00, $EE, $00, $00, $00, $4C ;0x0 (0x00025D04-0x00025D0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
-	dc.b	SXFID_VanAttack, SXFID_VanAttack
+	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_MystcapeMap
 	dc.b	$72, $72
 	
@@ -40385,7 +40385,7 @@ Enemy_ArchDrgn:
 	dc.w	$2570, $009F, $00FE, $0043 ;0x0 (0x00025D3C-0x00025D44, Entry count: 0x00000008)
 	dc.b	$60, $64, $01, $14, $00, $00, $00, $7F ;0x0 (0x00025D44-0x00025D4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $68, $04, $68, $04
-	dc.b	SXFID_TerakiteAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_ArchDrgnMap
 	dc.b	$73, $73
 	
@@ -40395,7 +40395,7 @@ Enemy_Frdragon:
 	dc.w	$20A3, $00D6, $00DF, $003F ;0x0 (0x00025D7C-0x00025D84, Entry count: 0x00000008)
 	dc.b	$60, $76, $01, $06, $00, $00, $00, $66 ;0x0 (0x00025D84-0x00025D8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $68, $04, $68, $04
-	dc.b	SXFID_TerakiteAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_ArchDrgnMap
 	dc.b	$74, $74
 	
@@ -40405,7 +40405,7 @@ Enemy_Mxdragon:
 	dc.w	$1A5B, $00C5, $00D5, $003B ;0x0 (0x00025DBC-0x00025DC4, Entry count: 0x00000008)
 	dc.b	$60, $6C, $01, $03, $00, $00, $00, $99 ;0x0 (0x00025DC4-0x00025DCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $68, $04, $68, $04
-	dc.b	SXFID_TerakiteAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_ArchDrgnMap
 	dc.b	$75, $75
 	
@@ -40415,7 +40415,7 @@ Enemy_Firefall:
 	dc.w	$20FE, $00B5, $00C3, $0066 ;0x0 (0x00025DFC-0x00025E04, Entry count: 0x00000008)
 	dc.b	$60, $62, $01, $00, $EB, $CC, $08, $19 ;0x0 (0x00025E04-0x00025E0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $78, $0C, $78, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_FireAntAttack, SFXID_TerakiteAttack
 	dc.l	Battle_FirefallMap
 	dc.b	$76, $76
 	
@@ -40425,7 +40425,7 @@ Enemy_Vorcano:
 	dc.w	$2771, $00DA, $00D7, $0076 ;0x0 (0x00025E3C-0x00025E44, Entry count: 0x00000008)
 	dc.b	$60, $78, $01, $28, $E1, $CC, $08, $33 ;0x0 (0x00025E44-0x00025E4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $78, $0C, $78, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_FireAntAttack, SFXID_TerakiteAttack
 	dc.l	Battle_FirefallMap
 	dc.b	$77, $77
 	
@@ -40435,7 +40435,7 @@ Enemy_Kinglava:
 	dc.w	$3678, $00F5, $00F8, $0081 ;0x0 (0x00025E7C-0x00025E84, Entry count: 0x00000008)
 	dc.b	$60, $87, $01, $4D, $DD, $CC, $04, $66 ;0x0 (0x00025E84-0x00025E8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $78, $0C, $78, $0C
-	dc.b	SXFID_FireAntAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_FireAntAttack, SFXID_TerakiteAttack
 	dc.l	Battle_FirefallMap
 	dc.b	$78, $78
 	
@@ -40445,7 +40445,7 @@ Enemy_Wizard:
 	dc.w	$264D, $0097, $00DA, $0008 ;0x0 (0x00025EBC-0x00025EC4, Entry count: 0x00000008)
 	dc.b	$60, $4E, $01, $60, $F1, $CC, $04, $4C ;0x0 (0x00025EC4-0x00025ECC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $78, $10, $78, $10
-	dc.b	SXFID_PoleziAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_PoleziAttack, SFXID_TerakiteAttack
 	dc.l	Battle_WizardMap
 	dc.b	$79, $79
 	
@@ -40455,7 +40455,7 @@ Enemy_Capeone:
 	dc.w	$2C87, $00CA, $0100, $0010 ;0x0 (0x00025EFC-0x00025F04, Entry count: 0x00000008)
 	dc.b	$60, $5A, $01, $66, $E7, $99, $04, $66 ;0x0 (0x00025F04-0x00025F0C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $78, $10, $78, $10
-	dc.b	SXFID_PoleziAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_PoleziAttack, SFXID_TerakiteAttack
 	dc.l	Battle_WizardMap
 	dc.b	$7A, $7A
 	
@@ -40465,7 +40465,7 @@ Enemy_Fiend:
 	dc.w	$2FD8, $00EC, $0112, $0010 ;0x0 (0x00025F3C-0x00025F44, Entry count: 0x00000008)
 	dc.b	$60, $5A, $01, $6C, $D7, $66, $04, $4C ;0x0 (0x00025F44-0x00025F4C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $78, $10, $78, $10
-	dc.b	SXFID_PoleziAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_PoleziAttack, SFXID_TerakiteAttack
 	dc.l	Battle_WizardMap
 	dc.b	$7B, $7B
 	
@@ -40475,7 +40475,7 @@ Enemy_Neifirst:
 	dc.w	$0457, $0457, $00B2, $000A ;0x0 (0x00025F7C-0x00025F84, Entry count: 0x00000008)
 	dc.b	$20, $5C, $04, $4C, $E1, $66, $08, $00 ;0x0 (0x00025F84-0x00025F8C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $54, $14, $54, $14
-	dc.b	SXFID_NeifirstAttack, SXFID_Whip
+	dc.b	SFXID_NeifirstAttack, SFXID_Whip
 	dc.l	Battle_NeifirstMap
 	dc.b	$7C, $7C
 	
@@ -40485,7 +40485,7 @@ Enemy_DarkFrce:
 	dc.w	$08AE, $0000, $0140, $001E ;0x0 (0x00025FBC-0x00025FC4, Entry count: 0x00000008)
 	dc.b	$60, $94, $0A, $00, $08, $FF, $00, $00 ;0x0 (0x00025FC4-0x00025FCC, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $6C, $00, $6C, $00
-	dc.b	SXFID_WhistleAttack, SXFID_PoleziAttack
+	dc.b	SFXID_WhistleAttack, SFXID_PoleziAttack
 	dc.l	Battle_DarkFrceMap
 	dc.b	$7D, $7D
 	
@@ -40495,7 +40495,7 @@ Enemy_Mombrain:
 	dc.w	$0000, $0000, $00E4, $0080 ;0x0 (0x00025FFC-0x00026004, Entry count: 0x00000008)
 	dc.b	$40, $C6, $09, $92, $AF, $B2, $00, $00 ;0x0 (0x00026004-0x0002600C, Entry count: 0x00000008) [Unknown data]
 	dc.b	$0F, $03, $84, $00, $84, $00
-	dc.b	SXFID_PulserAttack, SXFID_TerakiteAttack
+	dc.b	SFXID_PulserAttack, SFXID_TerakiteAttack
 	dc.l	Battle_MombrainMap
 	dc.b	$7E, $7E
 ; ==========================================================================
@@ -45563,187 +45563,187 @@ loc_276B6:
 WeaponProperties:
 
 WeaponProp_Knife:
-	dc.b	$00, $00, SXFID_Boomerang, $00
+	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
 	
 WeaponProp_Dagger:
-	dc.b	$00, $00, SXFID_Boomerang, $00
+	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
 	
 WeaponProp_Scalpel:
-	dc.b	$00, $00, SXFID_Boomerang, $00
+	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
 	
 WeaponProp_SteelBar:
-	dc.b	$00, $00, SXFID_Claw, $00
+	dc.b	$00, $00, SFXID_Claw, $00
 	dc.l	$04000000|Map_WeaponBar
 	dc.l	0
 	
 WeaponProp_Boomerang:
-	dc.b	$00, $02, SXFID_Boomerang, $00
+	dc.b	$00, $02, SFXID_Boomerang, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$25000000|Map_WpnSlasherAttack
 	
 WeaponProp_Slasher:
-	dc.b	$00, $01, SXFID_Slasher, $00
+	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$26000000|Map_WpnSlasherAttack
 	
 WeaponProp_Sword:
-	dc.b	$00, $00, SXFID_Sword, $00
+	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$81000000|Map_WeaponSword
 	dc.l	0
 	
 WeaponProp_Whip:
-	dc.b	$00, $00, SXFID_Whip, $00
+	dc.b	$00, $00, SFXID_Whip, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
 	
 WeaponProp_CrmcSword:
-	dc.b	$00, $00, SXFID_Sword, $00
+	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$81000000|Map_WeaponSword
 	dc.l	0
 	
 WeaponProp_CeramKnife:
-	dc.b	$00, $00, SXFID_Boomerang, $00
+	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
 	
 WeaponProp_CeramBar:
-	dc.b	$00, $00, SXFID_Claw, $00
+	dc.b	$00, $00, SFXID_Claw, $00
 	dc.l	$04000000|Map_WeaponBar
 	dc.l	0
 	
 WeaponProp_LasrSlshr:
-	dc.b	$00, $01, SXFID_Slasher, $00
+	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$27000000|Map_WpnSlasherAttack
 	
 WeaponProp_LasrSword:
-	dc.b	$00, $00, SXFID_Sword, $00
+	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$82000000|Map_WpnLaserSwd
 	dc.l	0
 
 WeaponProp_LaserBar:
-	dc.b	$00, $00, SXFID_Claw, $00
+	dc.b	$00, $00, SFXID_Claw, $00
 	dc.l	$85000000|Map_WpnLaserBar
 	dc.l	0
 	
 WeaponProp_LaserKnife:
-	dc.b	$00, $00, SXFID_NeifirstAttack, $00
+	dc.b	$00, $00, SFXID_NeifirstAttack, $00
 	dc.l	$81000000|Map_WeaponSword
 	dc.l	0
 	
 WeaponProp_SwdOfAnger:
-	dc.b	$00, $00, SXFID_Sword, $00
+	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$82000000|Map_WpnLaserSwd
 	dc.l	0
 	
 WeaponProp_FireSlshr:
-	dc.b	$00, $01, SXFID_Slasher, $00
+	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$28000000|Map_WpnSlasherAttack
 	
 WeaponProp_FireStaff:
-	dc.b	$00, $00, SXFID_Whip, $00
+	dc.b	$00, $00, SFXID_Whip, $00
 	dc.l	$06000000|Map_WpnFireStaff
 	dc.l	0
 
 WeaponProp_LacnMace:
-	dc.b	$00, $00, SXFID_Whip, $00
+	dc.b	$00, $00, SFXID_Whip, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
 	
 WeaponProp_LacDagger:
-	dc.b	$00, $00, SXFID_Boomerang, $00
+	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	$82000000|Map_WpnLaserSwd
 	dc.l	0
 	
 WeaponProp_ACSlasher:
-	dc.b	$00, $01, SXFID_Slasher, $00
+	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$A9000000|Map_WpnSlasherAttack
 	
 WeaponProp_LacSword:
-	dc.b	$00, $00, SXFID_Sword, $00
+	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$03000000|Map_WpnLacSword
 	dc.l	0
 	
 WeaponProp_NeiSword:
-	dc.b	$00, $00, SXFID_Sword, $00
+	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$03000000|Map_WpnLacSword
 	dc.l	0
 	
 WeaponProp_NeiSlasher:
-	dc.b	$00, $01, SXFID_Slasher, $00
+	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$AA000000|Map_WpnSlasherAttack
 	
 WeaponProp_BowGun:
-	dc.b	$05, $01, SXFID_Shotgun, $00
+	dc.b	$05, $01, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	0
 	
 WeaponProp_SonicGun:
-	dc.b	$07, $01, SXFID_Shotgun, $00
+	dc.b	$07, $01, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	0
 	
 WeaponProp_Shotgun:
-	dc.b	$0A, $02, SXFID_Shotgun, $00
+	dc.b	$0A, $02, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	$39000000|Map_WpnBowGun
 	
 WeaponProp_SilentShot:
-	dc.b	$01, $01, SXFID_AmoebaAttack, $00
+	dc.b	$01, $01, SFXID_AmoebaAttack, $00
 	dc.l	$8C000000|Map_FanbiAcidShot
 	dc.l	0
 	
 WeaponProp_PoisonShot:
-	dc.b	$0A, $01, SXFID_AmoebaAttack, $00
+	dc.b	$0A, $01, SFXID_AmoebaAttack, $00
 	dc.l	$8C000000|Map_FanbiAcidShot
 	dc.l	0
 	
 WeaponProp_AcidShot:
-	dc.b	$14, $01, SXFID_AmoebaAttack, $00
+	dc.b	$14, $01, SFXID_AmoebaAttack, $00
 	dc.l	$8C000000|Map_FanbiAcidShot
 	dc.l	0
 	
 WeaponProp_Cannon:
-	dc.b	$1C, $01, SXFID_Shotgun, $00
+	dc.b	$1C, $01, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	0
 	
 WeaponProp_Vulcan:
-	dc.b	$10, $03, SXFID_Shotgun, $00
+	dc.b	$10, $03, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	$3A000000|Map_WpnBowGun
 	
 WeaponProp_LaserShot:
-	dc.b	$23, $01, SXFID_StrongGun, $00
+	dc.b	$23, $01, SFXID_StrongGun, $00
 	dc.l	$09000000|Map_TsuAndLaserShot
 	dc.l	0
 	
 WeaponProp_LsrCannon:
-	dc.b	$35, $01, SXFID_StrongGun, $00
+	dc.b	$35, $01, SFXID_StrongGun, $00
 	dc.l	$09000000|Map_TsuAndLaserShot
 	dc.l	0
 	
 WeaponProp_PlsCannon:
-	dc.b	$3C, $01, SXFID_StrongGun, $00
+	dc.b	$3C, $01, SFXID_StrongGun, $00
 	dc.l	$8A000000|Map_WeaponPulse
 	dc.l	0
 	
 WeaponProp_PulseVlcn:
-	dc.b	$12, $04, SXFID_StrongGun, $00
+	dc.b	$12, $04, SFXID_StrongGun, $00
 	dc.l	$8A000000|Map_WeaponPulse
 	dc.l	$BB000000|Map_WeaponPulse
 	
 WeaponProp_Neishot:
-	dc.b	$64, $01, SXFID_StrongGun, $00
+	dc.b	$64, $01, SFXID_StrongGun, $00
 	dc.l	$0B000000|Map_WpnNeiShotFired
 	dc.l	$3E000000|Map_MegidAndNeiShotAttack
 	
@@ -45762,262 +45762,262 @@ WeaponProp_Neishot:
 TechniqueProperties:
 
 TechProp_Foi:
-	dc.b	$E5, SXFID_Foi
+	dc.b	$E5, SFXID_Foi
 	dc.l	$0D000000|Map_TechFoi
 	dc.l	Map_TechFoi
 	
 TechProp_Gifoi:
-	dc.b	$E5, SXFID_Foi
+	dc.b	$E5, SFXID_Foi
 	dc.l	$0D000000|Map_TechFoi
 	dc.l	Map_TechFoi
 	
 TechProp_Nafoi:
-	dc.b	$E5, SXFID_Foi
+	dc.b	$E5, SFXID_Foi
 	dc.l	$0D000000|Map_TechFoi
 	dc.l	Map_TechFoi
 	
 TechProp_Zan:
-	dc.b	$E5, SXFID_Zan
+	dc.b	$E5, SFXID_Zan
 	dc.l	$0E000000|Map_TechZanCast
 	dc.l	$3C000000|Map_TechZanAttack
 	
 TechProp_Gizan:
-	dc.b	$E5, SXFID_Zan
+	dc.b	$E5, SFXID_Zan
 	dc.l	$0E000000|Map_TechZanCast
 	dc.l	$3C000000|Map_TechZanAttack
 	
 TechProp_Nazan:
-	dc.b	$E5, SXFID_Zan
+	dc.b	$E5, SFXID_Zan
 	dc.l	$0E000000|Map_TechZanCast
 	dc.l	$3D000000|Map_TechZanAttack
 	
 TechProp_Gra:
-	dc.b	$E5, SXFID_Vol
+	dc.b	$E5, SFXID_Vol
 	dc.l	$0F000000|Map_TechGraCast
 	dc.l	$2B000000|Map_TechGraAttack
 	
 TechProp_Gigra:
-	dc.b	$E5, SXFID_Vol
+	dc.b	$E5, SFXID_Vol
 	dc.l	$0F000000|Map_TechGraCast
 	dc.l	$2B000000|Map_TechGraAttack
 	
 TechProp_Nagra:
-	dc.b	$E5, SXFID_Vol
+	dc.b	$E5, SFXID_Vol
 	dc.l	$0F000000|Map_TechGraCast
 	dc.l	$2C000000|Map_TechGraAttack
 	
 TechProp_Tsu:
-	dc.b	$E5, SXFID_Tsu
+	dc.b	$E5, SFXID_Tsu
 	dc.l	$10000000|Map_TechTsuCast
 	dc.l	$40000000|Map_TsuAndLaserShot
 	
 TechProp_Githu:
-	dc.b	$E5, SXFID_Tsu
+	dc.b	$E5, SFXID_Tsu
 	dc.l	$10000000|Map_TechTsuCast
 	dc.l	$40000000|Map_TsuAndLaserShot
 	
 TechProp_Nathu:
-	dc.b	$E5, SXFID_Tsu
+	dc.b	$E5, SFXID_Tsu
 	dc.l	$10000000|Map_TechTsuCast
 	dc.l	$40000000|Map_TsuAndLaserShot
 
 TechProp_Shift:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
 	
 TechProp_Fanbi:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$12000000|Map_TechShiftCast
 	dc.l	$9B000000|Map_FanbiAcidShot
 	
 TechProp_Eijia:
-	dc.b	$FF, SXFID_Eijia
+	dc.b	$FF, SFXID_Eijia
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	Map_TechEijiaAttack
 	
 TechProp_Brose:
-	dc.b	$7F, SXFID_Eijia
+	dc.b	$7F, SFXID_Eijia
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	$44000000|Map_TechEijiaAttack
 	
 TechProp_Conte:
-	dc.b	$FF, SXFID_Eijia
+	dc.b	$FF, SFXID_Eijia
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	$44000000|Map_TechEijiaAttack
 	
 TechProp_Gaj:
-	dc.b	$FF, SXFID_Gaj
+	dc.b	$FF, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$33000000|Map_TechGajAttack
 	
 TechProp_Gigaj:
-	dc.b	$E5, SXFID_Gaj
+	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$34000000|Map_TechGajAttack
 	
 TechProp_Nagaj:
-	dc.b	$E5, SXFID_Gaj
+	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$35000000|Map_TechGajAttack
 	
 TechProp_Sag:
-	dc.b	$E5, SXFID_Gaj
+	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$01000000|Map_TechGajAttack
 	
 TechProp_Gisag:
-	dc.b	$E5, SXFID_Gaj
+	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$02000000|Map_TechGajAttack
 	
 TechProp_Nasag:
-	dc.b	$E5, SXFID_Gaj
+	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$03000000|Map_TechGajAttack
 	
 TechProp_Gen:
-	dc.b	$E5, SXFID_Foi
+	dc.b	$E5, SFXID_Foi
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Sagen:
-	dc.b	$E5, SXFID_Foi
+	dc.b	$E5, SFXID_Foi
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Vol:
-	dc.b	$99, SXFID_Vol
+	dc.b	$99, SFXID_Vol
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Savol:
-	dc.b	$B2, SXFID_Vol
+	dc.b	$B2, SFXID_Vol
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Shiza:
-	dc.b	$FF, SXFID_Shinb
+	dc.b	$FF, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Doran:
-	dc.b	$CC, SXFID_Shinb
+	dc.b	$CC, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Rimit:
-	dc.b	$7F, SXFID_Shinb
+	dc.b	$7F, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Shinb:
-	dc.b	$FF, SXFID_Shinb
+	dc.b	$FF, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
 	
 TechProp_Forsa:
-	dc.b	$7F, SXFID_Shinb
+	dc.b	$7F, SFXID_Shinb
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	Map_TechEijiaAttack
 	
 TechProp_Rimet:
-	dc.b	$66, SXFID_Shinb
+	dc.b	$66, SFXID_Shinb
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	$44000000|Map_TechEijiaAttack
 
 TechProp_Shu:	
-	dc.b	$FF, SXFID_Deban
+	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
 	
 TechProp_Sashu:
-	dc.b	$FF, SXFID_Deban
+	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
 	
 TechProp_Deban:
-	dc.b	$FF, SXFID_Deban
+	dc.b	$FF, SFXID_Deban
 	dc.l	$16000000|Map_TechShiftCast
 	dc.l	$2F000000|Map_TechDebanAttack
 	
 TechProp_Ner:
-	dc.b	$FF, SXFID_Deban
+	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
 
 TechProp_Saner:
-	dc.b	$FF, SXFID_Deban
+	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
 	
 TechProp_Res:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Gires:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Nares:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Sar:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Gisar:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Nasar:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Sak:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$18000000|Map_TechSakCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Nasak:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$18000000|Map_TechSakCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Anti:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Rever:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Ryuka:	
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Hinas:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Musik:
-	dc.b	$FF, SXFID_Healed
+	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
 	
 TechProp_Megid:
-	dc.b	$FF, SXFID_Gaj
+	dc.b	$FF, SFXID_Gaj
 	dc.l	$19000000|Map_TechMegidCast
 	dc.l	$3E000000|Map_MegidAndNeiShotAttack
 	
@@ -46214,9 +46214,9 @@ TechArt_Megid:
 
 ; ==========================================================================
 	
-LevelData:
+MapData:
 
-Level_MotaviaOutside:
+Map_MotaviaOutside:
 	dc.w	$8C
 	dc.l	loc_498E8
 	dc.l	loc_48AF0
@@ -46224,7 +46224,7 @@ Level_MotaviaOutside:
 	dc.l	$03000000|loc_28664
 	dc.b	$A, MusicID_Restoration
 	
-Level_SkureB2:
+Map_SkureB2:
 	dc.w	$8156
 	dc.l	$41000000|loc_4A370
 	dc.l	$3F000000|loc_5801A
@@ -46232,7 +46232,7 @@ Level_SkureB2:
 	dc.l	$04000000|loc_286F0	
 	dc.b	$83, MusicID_SilentZone
 	
-Level_SkureB1:
+Map_SkureB1:
 	dc.w	$8156
 	dc.l	$42000000|loc_4A632
 	dc.l	$3E000000|loc_5801A
@@ -46240,7 +46240,7 @@ Level_SkureB1:
 	dc.l	$04000000|loc_28758
 	dc.b	$83, MusicID_SilentZone
 	
-Level_DezolisSkure:
+Map_DezolisSkure:
 	dc.w	$8188
 	dc.l	loc_4A944
 	dc.l	loc_5801A
@@ -46248,7 +46248,7 @@ Level_DezolisSkure:
 	dc.l	$04000000|loc_287EA
 	dc.b	$80, MusicID_SilentZone
 
-Level_Paseo:
+Map_Paseo:
 	dc.w	$0224	
 	dc.l	loc_4B5E8
 	dc.l	loc_4B4FC
@@ -46256,7 +46256,7 @@ Level_Paseo:
 	dc.l	$05000000|loc_28864	
 	dc.b	$00, MusicID_Pleasure
 	
-Level_Arima:
+Map_Arima:
 	dc.w	$0222
 	dc.l	loc_4B786
 	dc.l	loc_4B720
@@ -46264,7 +46264,7 @@ Level_Arima:
 	dc.l	$05000000|loc_2889C	
 	dc.b	$00, MusicID_Pleasure
 	
-Level_Oputa:
+Map_Oputa:
 	dc.w	$0234
 	dc.l	loc_4B9BE
 	dc.l	loc_4B84E
@@ -46272,7 +46272,7 @@ Level_Oputa:
 	dc.l	$05000000|loc_288B6
 	dc.b	$01, MusicID_Pleasure
 	
-Level_Zema:
+Map_Zema:
 	dc.w	$0214
 	dc.l	loc_4BC08
 	dc.l	loc_4BB6C
@@ -46280,7 +46280,7 @@ Level_Zema:
 	dc.l	$05000000|loc_288E8
 	dc.b	$00, MusicID_Pleasure
 	
-Level_Kueri:
+Map_Kueri:
 	dc.w	$0232
 	dc.l	loc_4BDC0
 	dc.l	loc_4BCB0
@@ -46288,7 +46288,7 @@ Level_Kueri:
 	dc.l	$05000000|loc_28914
 	dc.b	$01, MusicID_Pleasure
 	
-Level_Piata:
+Map_Piata:
 	dc.w	$0234
 	dc.l	loc_4C060
 	dc.l	loc_4BEB8
@@ -46296,7 +46296,7 @@ Level_Piata:
 	dc.l	$05000000|loc_28946
 	dc.b	$01, MusicID_Pleasure
 	
-Level_Aukba:
+Map_Aukba:
 	dc.w	$8222
 	dc.l	loc_4C2A8
 	dc.l	loc_4C226
@@ -46304,7 +46304,7 @@ Level_Aukba:
 	dc.l	$4C000000|loc_28978
 	dc.b	$02, MusicID_ExcitingTown
 	
-Level_Zosa:
+Map_Zosa:
 	dc.w	$8222
 	dc.l	loc_4C3F0
 	dc.l	loc_4C354
@@ -46312,7 +46312,7 @@ Level_Zosa:
 	dc.l	$4C000000|loc_289A4
 	dc.b	$02, MusicID_ExcitingTown
 	
-Level_Ryuon:
+Map_Ryuon:
 	dc.w	$8214
 	dc.l	loc_4C52A
 	dc.l	loc_4C492
@@ -46320,7 +46320,7 @@ Level_Ryuon:
 	dc.l	$4C000000|loc_289D0
 	dc.b	$02, MusicID_ExcitingTown
 	
-Level_TubeNearPaseo:
+Map_TubeNearPaseo:
 	dc.w	$0522
 	dc.l	loc_4C5AE
 	dc.l	$2B000000|loc_4C5AE
@@ -46328,7 +46328,7 @@ Level_TubeNearPaseo:
 	dc.l	$09000000|loc_289FC
 	dc.b	$04, MusicID_Restoration
 	
-Level_DarumTube:
+Map_DarumTube:
 	dc.w	$0512
 	dc.l	loc_4C618
 	dc.l	$2B000000|loc_4C618
@@ -46336,7 +46336,7 @@ Level_DarumTube:
 	dc.l	$09000000|loc_28A0A	
 	dc.b	$04, MusicID_Restoration
 	
-Level_TubeLockedDoor:
+Map_TubeLockedDoor:
 	dc.w	$0522	
 	dc.l	loc_4C650
 	dc.l	$2C000000|loc_4C650
@@ -46344,7 +46344,7 @@ Level_TubeLockedDoor:
 	dc.l	$09000000|loc_28A24	
 	dc.b	$07, MusicID_Restoration
 	
-Level_EsperMansionB1:
+Map_EsperMansionB1:
 	dc.w	$8612	
 	dc.l	loc_4C6BA
 	dc.l	loc_57FC4
@@ -46352,7 +46352,7 @@ Level_EsperMansionB1:
 	dc.l	$3D000000|loc_28A32
 	dc.b	$85, MusicID_Violation
 	
-Level_EsperMansionF1:
+Map_EsperMansionF1:
 	dc.w	$8622
 	dc.l	loc_4C700
 	dc.l	loc_57FC4
@@ -46360,7 +46360,7 @@ Level_EsperMansionF1:
 	dc.l	$3D000000|loc_28A3A	
 	dc.b	$8B, MusicID_Violation
 	
-Level_Uzo:
+Map_Uzo:
 	dc.w	$036C
 	dc.l	$1E000000|loc_4C7A6
 	dc.l	$2C000000|loc_5801A
@@ -46368,7 +46368,7 @@ Level_Uzo:
 	dc.l	$06000000|loc_28A42
 	dc.b	$84, MusicID_SecretWays
 	
-Level_UnderwaterPassage:
+Map_UnderwaterPassage:
 	dc.w	$0338
 	dc.l	$1F000000|loc_4D544
 	dc.l	loc_58070
@@ -46376,7 +46376,7 @@ Level_UnderwaterPassage:
 	dc.l	$07000000|loc_28A92
 	dc.b	$80, MusicID_SecretWays
 	
-Level_CreviceB2:
+Map_CreviceB2:
 	dc.w	$8322
 	dc.l	loc_4D92A
 	dc.l	$40000000|loc_5801A
@@ -46384,7 +46384,7 @@ Level_CreviceB2:
 	dc.l	$37000000|loc_28AA0
 	dc.b	$80, MusicID_SecretWays
 	
-Level_CreviceB1:
+Map_CreviceB1:
 	dc.w	$8344
 	dc.l	loc_4DA1A
 	dc.l	$40000000|loc_5801A
@@ -46392,7 +46392,7 @@ Level_CreviceB1:
 	dc.l	$37000000|loc_28AB4
 	dc.b	$80, MusicID_SecretWays
 	
-Level_CreviceGroundF:
+Map_CreviceGroundF:
 	dc.w	$8356
 	dc.l	loc_4DD24
 	dc.l	$40000000|loc_5801A
@@ -46400,7 +46400,7 @@ Level_CreviceGroundF:
 	dc.l	$37000000|loc_28AE0
 	dc.b	$80, MusicID_SecretWays
 	
-Level_ShureGroundF:
+Map_ShureGroundF:
 	dc.w	$0536
 	dc.l	$10000000|loc_4E160
 	dc.l	$2B000000|loc_5808A
@@ -46408,7 +46408,7 @@ Level_ShureGroundF:
 	dc.l	$0E000000|loc_28B12
 	dc.b	$87, MusicID_Advanced
 	
-Level_ShureF1:
+Map_ShureF1:
 	dc.w	$0536
 	dc.l	$11000000|loc_4E3E2
 	dc.l	$2B000000|loc_5808A
@@ -46416,7 +46416,7 @@ Level_ShureF1:
 	dc.l	$0E000000|loc_28B32
 	dc.b	$87, MusicID_Advanced
 	
-Level_ShureF2:
+Map_ShureF2:
 	dc.w	$0536
 	dc.l	$12000000|loc_4E66A
 	dc.l	$2C000000|loc_5808A
@@ -46424,7 +46424,7 @@ Level_ShureF2:
 	dc.l	$0E000000|loc_28B6A
 	dc.b	$87, MusicID_Advanced
 	
-Level_ShureF3:
+Map_ShureF3:
 	dc.w	$0536
 	dc.l	$13000000|loc_4E92E
 	dc.l	$2C000000|loc_5808A
@@ -46432,7 +46432,7 @@ Level_ShureF3:
 	dc.l	$0E000000|loc_28B8A
 	dc.b	$87, MusicID_Advanced
 	
-Level_NidoGroundF:
+Map_NidoGroundF:
 	dc.w	$0546
 	dc.l	$14000000|loc_4EBE0
 	dc.l	$2B000000|loc_5808A
@@ -46440,7 +46440,7 @@ Level_NidoGroundF:
 	dc.l	$0E000000|loc_28B92
 	dc.b	$88, MusicID_Advanced
 	
-Level_NidoF1:
+Map_NidoF1:
 	dc.w	$0546
 	dc.l	$14000000|loc_4EF46
 	dc.l	$2C000000|loc_5808A
@@ -46448,7 +46448,7 @@ Level_NidoF1:
 	dc.l	$0E000000|loc_28BBE
 	dc.b	$88, MusicID_Advanced
 	
-Level_NidoF2:
+Map_NidoF2:
 	dc.w	$0546
 	dc.l	$15000000|loc_4F2A6
 	dc.l	$2C000000|loc_5808A
@@ -46456,7 +46456,7 @@ Level_NidoF2:
 	dc.l	$0E000000|loc_28BEA
 	dc.b	$87, MusicID_Advanced
 	
-Level_RoronF5:
+Map_RoronF5:
 	dc.w	$0542
 	dc.l	$1D000000|loc_4F5FE
 	dc.l	$2E000000|loc_5808A
@@ -46464,7 +46464,7 @@ Level_RoronF5:
 	dc.l	$10000000|loc_28BFE
 	dc.b	$89, MusicID_Advanced
 	
-Level_RoronF4:
+Map_RoronF4:
 	dc.w	$0522
 	dc.l	$1D000000|loc_4F76E
 	dc.l	$2E000000|loc_5808A
@@ -46472,7 +46472,7 @@ Level_RoronF4:
 	dc.l	$10000000|loc_28C06
 	dc.b	$89, MusicID_Advanced
 	
-Level_RoronF3:
+Map_RoronF3:
 	dc.w	$0524
 	dc.l	$1C000000|loc_4F818
 	dc.l	$2D000000|loc_5808A
@@ -46480,7 +46480,7 @@ Level_RoronF3:
 	dc.l	$10000000|loc_28C0E
 	dc.b	$89, MusicID_Advanced
 	
-Level_RoronF2:
+Map_RoronF2:
 	dc.w	$0526
 	dc.l	$1C000000|loc_4F9E4
 	dc.l	$2D000000|loc_5808A
@@ -46488,7 +46488,7 @@ Level_RoronF2:
 	dc.l	$10000000|loc_28C28
 	dc.b	$89, MusicID_Advanced
 	
-Level_RoronF1:
+Map_RoronF1:
 	dc.w	$0556
 	dc.l	$1B000000|loc_4FB5A
 	dc.l	$2C000000|loc_5808A
@@ -46496,7 +46496,7 @@ Level_RoronF1:
 	dc.l	$10000000|loc_28C3C
 	dc.b	$89, MusicID_Advanced
 	
-Level_RoronGroundF:
+Map_RoronGroundF:
 	dc.w	$0522
 	dc.l	$1A000000|loc_4FEE6
 	dc.l	$2B000000|loc_5808A
@@ -46504,7 +46504,7 @@ Level_RoronGroundF:
 	dc.l	$10000000|loc_28C68
 	dc.b	$89, MusicID_Advanced
 	
-Level_YellowDamGroundF:
+Map_YellowDamGroundF:
 	dc.w	$0536
 	dc.l	loc_4FF7E
 	dc.l	$35000000|loc_5808A
@@ -46512,7 +46512,7 @@ Level_YellowDamGroundF:
 	dc.l	$0B000000|loc_28C76
 	dc.b	$87, MusicID_Mystery
 	
-Level_YellowDamF1:
+Map_YellowDamF1:
 	dc.w	$0536
 	dc.l	loc_50198
 	dc.l	$35000000|loc_5808A
@@ -46520,7 +46520,7 @@ Level_YellowDamF1:
 	dc.l	$0B000000|loc_28CBA
 	dc.b	$87, MusicID_Mystery
 	
-Level_YellowDamF2:
+Map_YellowDamF2:
 	dc.w	$0536
 	dc.l	loc_503E8
 	dc.l	$36000000|loc_5808A
@@ -46528,7 +46528,7 @@ Level_YellowDamF2:
 	dc.l	$0B000000|loc_28D0A
 	dc.b	$87, MusicID_Mystery
 	
-Level_YellowDamF3:
+Map_YellowDamF3:
 	dc.w	$0536
 	dc.l	loc_50652
 	dc.l	$37000000|loc_5808A
@@ -46536,7 +46536,7 @@ Level_YellowDamF3:
 	dc.l	$0B000000|loc_28D4E
 	dc.b	$87, MusicID_Mystery
 	
-Level_RedDamGroundF:
+Map_RedDamGroundF:
 	dc.w	$0526
 	dc.l	loc_508AC
 	dc.l	$33000000|loc_5808A
@@ -46544,7 +46544,7 @@ Level_RedDamGroundF:
 	dc.l	$0D000000|loc_28D74
 	dc.b	$87, MusicID_Mystery
 	
-Level_RedDamF1:
+Map_RedDamF1:
 	dc.w	$0526
 	dc.l	loc_50A86
 	dc.l	$32000000|loc_5808A
@@ -46552,7 +46552,7 @@ Level_RedDamF1:
 	dc.l	$0D000000|loc_28DA0
 	dc.b	$87, MusicID_Mystery
 	
-Level_RedDamF2:
+Map_RedDamF2:
 	dc.w	$0526
 	dc.l	loc_50C7C
 	dc.l	$34000000|loc_5808A
@@ -46560,7 +46560,7 @@ Level_RedDamF2:
 	dc.l	$0D000000|loc_28DFC
 	dc.b	$87, MusicID_Mystery
 
-Level_BlueDamGroundF:
+Map_BlueDamGroundF:
 	dc.w	$0544
 	dc.l	loc_50E20
 	dc.l	$38000000|loc_5808A
@@ -46568,7 +46568,7 @@ Level_BlueDamGroundF:
 	dc.l	$0A000000|loc_28E1C
 	dc.b	$87, MusicID_Mystery
 	
-Level_BlueDamF1:
+Map_BlueDamF1:
 	dc.w	$0544
 	dc.l	loc_5103C
 	dc.l	$39000000|loc_5808A
@@ -46576,7 +46576,7 @@ Level_BlueDamF1:
 	dc.l	$0A000000|loc_28E48
 	dc.b	$87, MusicID_Mystery
 	
-Level_BlueDamF2:
+Map_BlueDamF2:
 	dc.w	$0544
 	dc.l	loc_51250
 	dc.l	$39000000|loc_5808A
@@ -46584,7 +46584,7 @@ Level_BlueDamF2:
 	dc.l	$0A000000|loc_28E80
 	dc.b	$87, MusicID_Mystery
 	
-Level_BlueDamF3:
+Map_BlueDamF3:
 	dc.w	$0544
 	dc.l	loc_51482
 	dc.l	$3A000000|loc_5808A
@@ -46592,7 +46592,7 @@ Level_BlueDamF3:
 	dc.l	$0A000000|loc_28EBE
 	dc.b	$87, MusicID_Mystery
 	
-Level_BlueDamF4:
+Map_BlueDamF4:
 	dc.w	$0544
 	dc.l	loc_516B8
 	dc.l	$3A000000|loc_5808A
@@ -46600,7 +46600,7 @@ Level_BlueDamF4:
 	dc.l	$0A000000|loc_28F08
 	dc.b	$87, MusicID_Mystery
 	
-Level_GreenDamGroundF:
+Map_GreenDamGroundF:
 	dc.w	$053C
 	dc.l	loc_518D0
 	dc.l	$3B000000|loc_5808A
@@ -46608,7 +46608,7 @@ Level_GreenDamGroundF:
 	dc.l	$0C000000|loc_28F34
 	dc.b	$87, MusicID_Mystery
 	
-Level_GreenDamF1:
+Map_GreenDamF1:
 	dc.w	$053C
 	dc.l	loc_51DFA
 	dc.l	$3C000000|loc_5808A
@@ -46616,7 +46616,7 @@ Level_GreenDamF1:
 	dc.l	$0C000000|loc_29020
 	dc.b	$87, MusicID_Mystery
 	
-Level_BiosystemsLabB1:
+Map_BiosystemsLabB1:
 	dc.w	$0556
 	dc.l	$16000000|loc_522DE
 	dc.l	$2B000000|loc_5808A
@@ -46624,7 +46624,7 @@ Level_BiosystemsLabB1:
 	dc.l	$33000000|loc_290FA
 	dc.b	$88, MusicID_Advanced
 	
-Level_BiosystemsLabGroundF:
+Map_BiosystemsLabGroundF:
 	dc.w	$0556
 	dc.l	$17000000|loc_5271E
 	dc.l	$2B000000|loc_5808A
@@ -46632,7 +46632,7 @@ Level_BiosystemsLabGroundF:
 	dc.l	$33000000|loc_29102
 	dc.b	$88, MusicID_Advanced
 	
-Level_BiosystemsLabF1:
+Map_BiosystemsLabF1:
 	dc.w	$0556
 	dc.l	$18000000|loc_52B52
 	dc.l	$2B000000|loc_5808A
@@ -46640,7 +46640,7 @@ Level_BiosystemsLabF1:
 	dc.l	$33000000|loc_2913A
 	dc.b	$88, MusicID_Advanced
 	
-Level_BiosystemsLabF2:
+Map_BiosystemsLabF2:
 	dc.w	$0556
 	dc.l	$19000000|loc_52F8E
 	dc.l	$2B000000|loc_5808A
@@ -46648,7 +46648,7 @@ Level_BiosystemsLabF2:
 	dc.l	$33000000|loc_29166	
 	dc.b	$88, MusicID_Advanced
 	
-Level_ClimatrolGroundF:
+Map_ClimatrolGroundF:
 	dc.w	$0536	
 	dc.l	$20000000|loc_533D6
 	dc.l	$2C000000|loc_5808A
@@ -46656,7 +46656,7 @@ Level_ClimatrolGroundF:
 	dc.l	$0F000000|loc_2917A
 	dc.b	$83, MusicID_Advanced
 	
-Level_ClimatrolF1:
+Map_ClimatrolF1:
 	dc.w	$0522
 	dc.l	$21000000|loc_5354E
 	dc.l	$2C000000|loc_5808A
@@ -46664,7 +46664,7 @@ Level_ClimatrolF1:
 	dc.l	$0F000000|loc_29188
 	dc.b	$83, MusicID_Advanced
 	
-Level_ClimatrolF2:
+Map_ClimatrolF2:
 	dc.w	$0522
 	dc.l	$21000000|loc_535C2
 	dc.l	$2C000000|loc_5808A
@@ -46672,7 +46672,7 @@ Level_ClimatrolF2:
 	dc.l	$0F000000|loc_29196
 	dc.b	$86, MusicID_Advanced
 	
-Level_ClimatrolF3:
+Map_ClimatrolF3:
 	dc.w	$0522
 	dc.l	$21000000|loc_5364A
 	dc.l	$2C000000|loc_5808A
@@ -46680,7 +46680,7 @@ Level_ClimatrolF3:
 	dc.l	$0F000000|loc_291A4
 	dc.b	$86, MusicID_Advanced
 	
-Level_ClimatrolF4:
+Map_ClimatrolF4:
 	dc.w	$0536
 	dc.l	$22000000|loc_536D2
 	dc.l	$2D000000|loc_5808A
@@ -46688,7 +46688,7 @@ Level_ClimatrolF4:
 	dc.l	$0F000000|loc_291B2
 	dc.b	$86, MusicID_Advanced
 	
-Level_ClimatrolF5:
+Map_ClimatrolF5:
 	dc.w	$0536
 	dc.l	$23000000|loc_5392C
 	dc.l	$2D000000|loc_5808A
@@ -46696,7 +46696,7 @@ Level_ClimatrolF5:
 	dc.l	$0F000000|loc_291EA
 	dc.b	$86, MusicID_Advanced
 	
-Level_ClimatrolF6:
+Map_ClimatrolF6:
 	dc.w	$0536
 	dc.l	$24000000|loc_53BAA
 	dc.l	$2D000000|loc_5808A
@@ -46704,7 +46704,7 @@ Level_ClimatrolF6:
 	dc.l	$0F000000|loc_29294
 	dc.b	$86, MusicID_Advanced
 	
-Level_ClimatrolF7:
+Map_ClimatrolF7:
 	dc.w	$0536
 	dc.l	$25000000|loc_53E04
 	dc.l	$2E000000|loc_5808A
@@ -46712,7 +46712,7 @@ Level_ClimatrolF7:
 	dc.l	$0F000000|loc_29344
 	dc.b	$86, MusicID_Advanced
 	
-Level_ControlTowerGroundF:
+Map_ControlTowerGroundF:
 	dc.w	$0536
 	dc.l	$30000000|loc_54086
 	dc.l	$30000000|loc_5808A
@@ -46720,7 +46720,7 @@ Level_ControlTowerGroundF:
 	dc.l	$34000000|loc_2937C
 	dc.b	$87, MusicID_Mystery
 	
-Level_ControlTowerF1:
+Map_ControlTowerF1:
 	dc.w	$0536
 	dc.l	$31000000|loc_54300
 	dc.l	$31000000|loc_5808A
@@ -46728,7 +46728,7 @@ Level_ControlTowerF1:
 	dc.l	$34000000|loc_29522
 	dc.b	$88, MusicID_Mystery
 	
-Level_TubeNearZema:
+Map_TubeNearZema:
 	dc.w	$0522
 	dc.l	loc_4C5AE
 	dc.l	$2C000000|loc_4C5AE
@@ -46736,7 +46736,7 @@ Level_TubeNearZema:
 	dc.l	$09000000|loc_296C2
 	dc.b	$07, MusicID_Restoration
 	
-Level_Gaira:
+Map_Gaira:
 	dc.w	$0534
 	dc.l	loc_580EE
 	dc.l	$3D000000+loc_5455E
@@ -46745,7 +46745,7 @@ Level_Gaira:
 	dc.b	$0D, MusicID_Mystery
 	
 
-Level_Gaira_Copy:
+Map_Gaira_Copy:
 	dc.w	$0534
 	dc.l	loc_580EE
 	dc.l	$3D000000|loc_5455E	
@@ -46753,7 +46753,7 @@ Level_Gaira_Copy:
 	dc.l	$38000000|loc_296D0	
 	dc.b	$0D, MusicID_Mystery
 	
-Level_NavalGroundF:
+Map_NavalGroundF:
 	dc.w	$8634	
 	dc.l	loc_54752
 	dc.l	$45000000|loc_57FC4
@@ -46761,7 +46761,7 @@ Level_NavalGroundF:
 	dc.l	$3F000000|loc_296D0
 	dc.b	$86, MusicID_Violation
 	
-Level_NavalF1:
+Map_NavalF1:
 	dc.w	$8634
 	dc.l	loc_548DE
 	dc.l	$46000000|loc_57FC4
@@ -46769,7 +46769,7 @@ Level_NavalF1:
 	dc.l	$3F000000|loc_296DE
 	dc.b	$86, MusicID_Violation
 	
-Level_NavalF2:
+Map_NavalF2:
 	dc.w	$8634
 	dc.l	loc_54A72
 	dc.l	$47000000|loc_57FC4
@@ -46777,7 +46777,7 @@ Level_NavalF2:
 	dc.l	$3F000000|loc_296F8
 	dc.b	$86, MusicID_Violation
 	
-Level_NavalF3:
+Map_NavalF3:
 	dc.w	$8634
 	dc.l	loc_54C04
 	dc.l	$48000000|loc_57FC4
@@ -46785,7 +46785,7 @@ Level_NavalF3:
 	dc.l	$3F000000|loc_29712
 	dc.b	$86, MusicID_Violation
 	
-Level_NavalF4:
+Map_NavalF4:
 	dc.w	$8634
 	dc.l	loc_54D98
 	dc.l	$48000000|loc_57FC4
@@ -46793,7 +46793,7 @@ Level_NavalF4:
 	dc.l	$3F000000|loc_2972C
 	dc.b	$86, MusicID_Violation
 	
-Level_MenobeGroundF:
+Map_MenobeGroundF:
 	dc.w	$8646
 	dc.l	loc_54F24
 	dc.l	$45000000|loc_57FC4
@@ -46801,7 +46801,7 @@ Level_MenobeGroundF:
 	dc.l	$40000000|loc_2973A
 	dc.b	$86, MusicID_Violation
 	
-Level_MenobeF1:
+Map_MenobeF1:
 	dc.w	$8646
 	dc.l	loc_552B2
 	dc.l	$46000000|loc_57FC4
@@ -46809,7 +46809,7 @@ Level_MenobeF1:
 	dc.l	$40000000|loc_2977E
 	dc.b	$86, MusicID_Violation
 	
-Level_MenobeF2:
+Map_MenobeF2:
 	dc.w	$8646
 	dc.l	loc_5558E
 	dc.l	$49000000|loc_57FC4
@@ -46817,7 +46817,7 @@ Level_MenobeF2:
 	dc.l	$40000000|loc_297E6
 	dc.b	$86, MusicID_Violation
 	
-Level_MenobeF3:
+Map_MenobeF3:
 	dc.w	$8646
 	dc.l	loc_5586A
 	dc.l	$4A000000|loc_57FC4
@@ -46825,7 +46825,7 @@ Level_MenobeF3:
 	dc.l	$40000000|loc_29848
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoB6:
+Map_IkutoB6:
 	dc.w	$8666
 	dc.l	loc_55AD4
 	dc.l	$4D000000|loc_57FC4
@@ -46833,7 +46833,7 @@ Level_IkutoB6:
 	dc.l	$41000000|loc_29886
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoB5:
+Map_IkutoB5:
 	dc.w	$8666
 	dc.l	loc_55E84
 	dc.l	$4D000000|loc_57FC4
@@ -46841,7 +46841,7 @@ Level_IkutoB5:
 	dc.l	$41000000|loc_2988E
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoB4:
+Map_IkutoB4:
 	dc.w	$8666
 	dc.l	loc_56346
 	dc.l	$4C000000|loc_57FC4
@@ -46849,7 +46849,7 @@ Level_IkutoB4:
 	dc.l	$41000000|loc_2989C
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoB3:
+Map_IkutoB3:
 	dc.w	$8636
 	dc.l	loc_56818
 	dc.l	$4C000000|loc_57FC4
@@ -46857,7 +46857,7 @@ Level_IkutoB3:
 	dc.l	$41000000|loc_298AA
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoB2:
+Map_IkutoB2:
 	dc.w	$8624
 	dc.l	loc_56A5A
 	dc.l	$4B000000|loc_57FC4
@@ -46865,7 +46865,7 @@ Level_IkutoB2:
 	dc.l	$41000000|loc_298B8
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoB1:
+Map_IkutoB1:
 	dc.w	$8622
 	dc.l	loc_56B5C
 	dc.l	$4B000000|loc_57FC4
@@ -46873,7 +46873,7 @@ Level_IkutoB1:
 	dc.l	$41000000|loc_298C6
 	dc.b	$86, MusicID_Violation
 	
-Level_IkutoGroundF:
+Map_IkutoGroundF:
 	dc.w	$8612
 	dc.l	loc_56BF4
 	dc.l	$46000000|loc_57FC4
@@ -46881,7 +46881,7 @@ Level_IkutoGroundF:
 	dc.l	$41000000|loc_298D4
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronGroundF:
+Map_GuaronGroundF:
 	dc.w	$8636
 	dc.l	loc_56C34
 	dc.l	$45000000|loc_57FC4
@@ -46889,7 +46889,7 @@ Level_GuaronGroundF:
 	dc.l	$42000000|loc_298DC
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF1:
+Map_GuaronF1:
 	dc.w	$8626
 	dc.l	loc_56ED0
 	dc.l	$46000000|loc_57FC4
@@ -46897,7 +46897,7 @@ Level_GuaronF1:
 	dc.l	$42000000|loc_2990E
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF2:
+Map_GuaronF2:
 	dc.w	$8622
 	dc.l	loc_57094
 	dc.l	$4E000000|loc_57FC4
@@ -46905,7 +46905,7 @@ Level_GuaronF2:
 	dc.l	$42000000|loc_29946
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF3:
+Map_GuaronF3:
 	dc.w	$8622
 	dc.l	loc_57094
 	dc.l	$4E000000|loc_57FC4
@@ -46913,7 +46913,7 @@ Level_GuaronF3:
 	dc.l	$42000000|loc_29954
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF4:
+Map_GuaronF4:
 	dc.w	$8622	
 	dc.l	loc_57094
 	dc.l	$4E000000|loc_57FC4
@@ -46921,7 +46921,7 @@ Level_GuaronF4:
 	dc.l	$42000000|loc_29962
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF5:
+Map_GuaronF5:
 	dc.w	$8622
 	dc.l	loc_5711E
 	dc.l	$4E000000|loc_57FC4
@@ -46929,7 +46929,7 @@ Level_GuaronF5:
 	dc.l	$42000000|loc_29970
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF6:
+Map_GuaronF6:
 	dc.w	$8622
 	dc.l	loc_5711E
 	dc.l	$4E000000|loc_57FC4
@@ -46937,7 +46937,7 @@ Level_GuaronF6:
 	dc.l	$42000000|loc_2997E
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF7:
+Map_GuaronF7:
 	dc.w	$8634
 	dc.l	loc_571A8
 	dc.l	$4F000000|loc_57FC4
@@ -46945,7 +46945,7 @@ Level_GuaronF7:
 	dc.l	$42000000|loc_2998C
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF8:
+Map_GuaronF8:
 	dc.w	$8624
 	dc.l	loc_57354
 	dc.l	$4F000000|loc_57FC4
@@ -46953,7 +46953,7 @@ Level_GuaronF8:
 	dc.l	$42000000|loc_2999A
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF9:
+Map_GuaronF9:
 	dc.w	$8622
 	dc.l	loc_57468
 	dc.l	$50000000|loc_57FC4
@@ -46961,7 +46961,7 @@ Level_GuaronF9:
 	dc.l	$42000000|loc_299A8
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF10:
+Map_GuaronF10:
 	dc.w	$8622
 	dc.l	loc_57468
 	dc.l	$50000000|loc_57FC4
@@ -46969,7 +46969,7 @@ Level_GuaronF10:
 	dc.l	$42000000|loc_299B6	
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF11:
+Map_GuaronF11:
 	dc.w	$8622
 	dc.l	loc_57468
 	dc.l	$50000000|loc_57FC4
@@ -46977,7 +46977,7 @@ Level_GuaronF11:
 	dc.l	$42000000|loc_299C4
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF12:
+Map_GuaronF12:
 	dc.w	$8622
 	dc.l	loc_574D6
 	dc.l	$50000000|loc_57FC4
@@ -46985,7 +46985,7 @@ Level_GuaronF12:
 	dc.l	$42000000|loc_299D2
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF13:
+Map_GuaronF13:
 	dc.w	$8622
 	dc.l	loc_574D6
 	dc.l	$50000000|loc_57FC4
@@ -46993,7 +46993,7 @@ Level_GuaronF13:
 	dc.l	$42000000|loc_299E0	
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF14:
+Map_GuaronF14:
 	dc.w	$8622
 	dc.l	loc_574D6
 	dc.l	$50000000|loc_57FC4
@@ -47001,7 +47001,7 @@ Level_GuaronF14:
 	dc.l	$42000000|loc_299EE	
 	dc.b	$86, MusicID_Violation
 	
-Level_GuaronF15:
+Map_GuaronF15:
 	dc.w	$8622
 	dc.l	loc_57544
 	dc.l	$51000000|loc_57FC4
@@ -47009,7 +47009,7 @@ Level_GuaronF15:
 	dc.l	$42000000|loc_299FC	
 	dc.b	$86, MusicID_Violation
 	
-Level_NoahGroundF:
+Map_NoahGroundF:
 	dc.w	$8674
 	dc.l	loc_5811C
 	dc.l	$52000000|loc_575BE
@@ -47017,7 +47017,7 @@ Level_NoahGroundF:
 	dc.l	$3E000000|loc_29A04
 	dc.b	$C, MusicID_Under
 	
-Level_NoahF1:
+Map_NoahF1:
 	dc.w	$8694
 	dc.l	loc_5811C
 	dc.l	$53000000|loc_57A52
@@ -47183,106 +47183,106 @@ loc_2852C:
 	
 
 ; ==============================================================
-; 1st byte = level ID
+; 1st byte = Map ID
 ; 2nd byte = y position later multiplied by 16
 ; 3rd byte = x position later multiplied by 16
 ; ==============================================================
 loc_28546:
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $34, $59
-	dc.b	LevelID_MotaviaOutside, $2A, $39
-	dc.b	LevelID_MotaviaOutside, $48, $37
-	dc.b	LevelID_MotaviaOutside, $56, $25
-	dc.b	LevelID_MotaviaOutside, $52, $5B
-	dc.b	LevelID_DezolisSkure, $08, $3E
-	dc.b	LevelID_DezolisSkure, $18, $76
-	dc.b	LevelID_DezolisSkure, $74, $78
-	dc.b	LevelID_TubeNearPaseo, $74, $78
-	dc.b	LevelID_DarumTube, $74, $78
-	dc.b	LevelID_TubeLockedDoor, $74, $78
-	dc.b	LevelID_DezolisSkure, $36, $08
-	dc.b	LevelID_DezolisSkure, $36, $08
-	dc.b	LevelID_MotaviaOutside, $61, $AE
-	dc.b	LevelID_MotaviaOutside, $15, $85
-	dc.b	LevelID_DezolisSkure, $34, $15
-	dc.b	LevelID_DezolisSkure, $34, $15
-	dc.b	LevelID_DezolisSkure, $34, $15
-	dc.b	LevelID_MotaviaOutside, $1A, $82
-	dc.b	LevelID_MotaviaOutside, $1A, $82
-	dc.b	LevelID_MotaviaOutside, $1A, $82
-	dc.b	LevelID_MotaviaOutside, $1A, $82
-	dc.b	LevelID_MotaviaOutside, $3C, $79
-	dc.b	LevelID_MotaviaOutside, $3C, $79
-	dc.b	LevelID_MotaviaOutside, $3C, $79
-	dc.b	LevelID_MotaviaOutside, $78, $5A
-	dc.b	LevelID_MotaviaOutside, $78, $5A
-	dc.b	LevelID_MotaviaOutside, $78, $5A
-	dc.b	LevelID_MotaviaOutside, $78, $5A
-	dc.b	LevelID_MotaviaOutside, $78, $5A
-	dc.b	LevelID_MotaviaOutside, $78, $5A
-	dc.b	LevelID_MotaviaOutside, $43, $2A
-	dc.b	LevelID_MotaviaOutside, $43, $2A
-	dc.b	LevelID_MotaviaOutside, $43, $2A
-	dc.b	LevelID_MotaviaOutside, $43, $2A
-	dc.b	LevelID_MotaviaOutside, $52, $51
-	dc.b	LevelID_MotaviaOutside, $52, $51
-	dc.b	LevelID_MotaviaOutside, $52, $51
-	dc.b	LevelID_MotaviaOutside, $43, $5C
-	dc.b	LevelID_MotaviaOutside, $43, $5C
-	dc.b	LevelID_MotaviaOutside, $43, $5C
-	dc.b	LevelID_MotaviaOutside, $43, $5C
-	dc.b	LevelID_MotaviaOutside, $43, $5C
-	dc.b	LevelID_MotaviaOutside, $2C, $41
-	dc.b	LevelID_MotaviaOutside, $2C, $41
-	dc.b	LevelID_MotaviaOutside, $3C, $22
-	dc.b	LevelID_MotaviaOutside, $3C, $22
-	dc.b	LevelID_MotaviaOutside, $3C, $22
-	dc.b	LevelID_MotaviaOutside, $3C, $22
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_Piata, $18, $09
-	dc.b	LevelID_Piata, $18, $09
-	dc.b	LevelID_MotaviaOutside, $4B, $39
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_MotaviaOutside, $3A, $49
-	dc.b	LevelID_DezolisSkure, $78, $21
-	dc.b	LevelID_DezolisSkure, $78, $21
-	dc.b	LevelID_DezolisSkure, $78, $21
-	dc.b	LevelID_DezolisSkure, $78, $21
-	dc.b	LevelID_DezolisSkure, $78, $21
-	dc.b	LevelID_DezolisSkure, $06, $2D
-	dc.b	LevelID_DezolisSkure, $06, $2D
-	dc.b	LevelID_DezolisSkure, $06, $2D
-	dc.b	LevelID_DezolisSkure, $06, $2D
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $08, $59
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
-	dc.b	LevelID_DezolisSkure, $3E, $73
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $34, $59
+	dc.b	MapID_MotaviaOutside, $2A, $39
+	dc.b	MapID_MotaviaOutside, $48, $37
+	dc.b	MapID_MotaviaOutside, $56, $25
+	dc.b	MapID_MotaviaOutside, $52, $5B
+	dc.b	MapID_DezolisSkure, $08, $3E
+	dc.b	MapID_DezolisSkure, $18, $76
+	dc.b	MapID_DezolisSkure, $74, $78
+	dc.b	MapID_TubeNearPaseo, $74, $78
+	dc.b	MapID_DarumTube, $74, $78
+	dc.b	MapID_TubeLockedDoor, $74, $78
+	dc.b	MapID_DezolisSkure, $36, $08
+	dc.b	MapID_DezolisSkure, $36, $08
+	dc.b	MapID_MotaviaOutside, $61, $AE
+	dc.b	MapID_MotaviaOutside, $15, $85
+	dc.b	MapID_DezolisSkure, $34, $15
+	dc.b	MapID_DezolisSkure, $34, $15
+	dc.b	MapID_DezolisSkure, $34, $15
+	dc.b	MapID_MotaviaOutside, $1A, $82
+	dc.b	MapID_MotaviaOutside, $1A, $82
+	dc.b	MapID_MotaviaOutside, $1A, $82
+	dc.b	MapID_MotaviaOutside, $1A, $82
+	dc.b	MapID_MotaviaOutside, $3C, $79
+	dc.b	MapID_MotaviaOutside, $3C, $79
+	dc.b	MapID_MotaviaOutside, $3C, $79
+	dc.b	MapID_MotaviaOutside, $78, $5A
+	dc.b	MapID_MotaviaOutside, $78, $5A
+	dc.b	MapID_MotaviaOutside, $78, $5A
+	dc.b	MapID_MotaviaOutside, $78, $5A
+	dc.b	MapID_MotaviaOutside, $78, $5A
+	dc.b	MapID_MotaviaOutside, $78, $5A
+	dc.b	MapID_MotaviaOutside, $43, $2A
+	dc.b	MapID_MotaviaOutside, $43, $2A
+	dc.b	MapID_MotaviaOutside, $43, $2A
+	dc.b	MapID_MotaviaOutside, $43, $2A
+	dc.b	MapID_MotaviaOutside, $52, $51
+	dc.b	MapID_MotaviaOutside, $52, $51
+	dc.b	MapID_MotaviaOutside, $52, $51
+	dc.b	MapID_MotaviaOutside, $43, $5C
+	dc.b	MapID_MotaviaOutside, $43, $5C
+	dc.b	MapID_MotaviaOutside, $43, $5C
+	dc.b	MapID_MotaviaOutside, $43, $5C
+	dc.b	MapID_MotaviaOutside, $43, $5C
+	dc.b	MapID_MotaviaOutside, $2C, $41
+	dc.b	MapID_MotaviaOutside, $2C, $41
+	dc.b	MapID_MotaviaOutside, $3C, $22
+	dc.b	MapID_MotaviaOutside, $3C, $22
+	dc.b	MapID_MotaviaOutside, $3C, $22
+	dc.b	MapID_MotaviaOutside, $3C, $22
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_Piata, $18, $09
+	dc.b	MapID_Piata, $18, $09
+	dc.b	MapID_MotaviaOutside, $4B, $39
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_MotaviaOutside, $3A, $49
+	dc.b	MapID_DezolisSkure, $78, $21
+	dc.b	MapID_DezolisSkure, $78, $21
+	dc.b	MapID_DezolisSkure, $78, $21
+	dc.b	MapID_DezolisSkure, $78, $21
+	dc.b	MapID_DezolisSkure, $78, $21
+	dc.b	MapID_DezolisSkure, $06, $2D
+	dc.b	MapID_DezolisSkure, $06, $2D
+	dc.b	MapID_DezolisSkure, $06, $2D
+	dc.b	MapID_DezolisSkure, $06, $2D
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $08, $59
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
+	dc.b	MapID_DezolisSkure, $3E, $73
 ; ==============================================================
 
 	even
@@ -89334,7 +89334,7 @@ PtrSFX_Selection:			dc.w	z80ptr(SFX_Selection)
 PtrSFX_LevelUp:				dc.w	z80ptr(SFX_LevelUp)
 PtrSFX_ItemReceived:		dc.w	z80ptr(SFX_ItemReceived)
 PtrSFX_Explosion:			dc.w	z80ptr(SFX_Explosion)
-PtrSFX_LevelChanged:		dc.w	z80ptr(SFX_LevelChanged)
+PtrSFX_MapChanged:		dc.w	z80ptr(SFX_MapChanged)
 PtrSFX_FellInHole:			dc.w	z80ptr(SFX_FellInHole)
 PtrSFX_Revived:				dc.w	z80ptr(SFX_Revived)
 PtrSFX_PoisonCured:			dc.w	z80ptr(SFX_PoisonCured)
@@ -90364,7 +90364,7 @@ SFX_Explosion:
 	dc.b	$8D, $00, $D0, $03, $A5, $00, $10, $06, $BB, $00, $D0, $08, $EC, $08, $F7, $00, $05
 	dc.b	$F6, $FF, $F2
 	
-SFX_LevelChanged:
+SFX_MapChanged:
 	dc.b	$01, $80, $02, $01, $92, $10, $00, $00, $04, $00, $EF, $04, $FE, $01, $01, $01, $00
 	dc.b	$A4, $10, $10, $10, $20, $F2
 	

@@ -2,6 +2,35 @@
 ; Constants
 ; ---------------------------------------------------------------------------	
 
+; Character statistics
+; 'mod' means a stat modified by equipment
+curr_hp = 2	; word
+max_hp = 4	; word
+curr_tp = 6	; word
+max_tp	= 8	; word
+level = $A	; word
+exp = $C	; longword
+strength = $10	; word
+mental = $12	; word
+agility = $14	; word
+luck = $16	; word
+dexterity = $18	; word
+attack = $1A	; word
+attack_mod = $1C	; word
+defense = $1E	; word
+equipment = $20
+head = $20	; byte
+right_hand = $21	; byte
+left_hand = $22	; byte
+body = $23	; byte
+legs = $24	; byte
+battle_tech_num = $25	; byte
+map_tech_num = $26	; byte
+item_num = $27	; byte
+items = $28
+items_2 = $30
+name = $38	; 2 longwords ; the 1st longword contains spaces only; the 2nd longword is the character's name
+
 ; function to determine the id in a table
 ; ptr = address of pointer in the table
 ; offset = start address of the table
@@ -9,19 +38,19 @@
 ; idstart = id start number
 id function ptr, ((ptr-offset)/ptrsize+idstart)
 
-; Game screens
+; Game modes
 
-offset	:=	GameScreenTable
+offset	:=	GameModeTable
 ptrsize	:=	2
 idstart	:=	0
 
-ScreenID_Sega =		id(PtrScreen_Sega)		; 0
-ScreenID_Title = 	id(PtrScreen_Title)		; 4
-ScreenID_Ending =	id(PtrScreen_Ending)	; 8
-ScreenID_Level = 	id(PtrScreen_Level)		; $C
-ScreenID_Building = id(PtrScreen_Building)	; $10
-ScreenID_Battle = 	id(PtrScreen_Battle)	; $14
-ScreenID_Intro = 	id(PtrScreen_Intro)		; $18
+GameModeID_Sega =		id(PtrGameMode_Sega)		; 0
+GameModeID_Title = 	id(PtrGameMode_Title)		; 4
+GameModeID_Ending =	id(PtrGameMode_Ending)	; 8
+GameModeID_Map = 	id(PtrGameMode_Map)		; $C
+GameModeID_Building = id(PtrGameMode_Building)	; $10
+GameModeID_Battle = 	id(PtrGameMode_Battle)	; $14
+GameModeID_Intro = 	id(PtrGameMode_Intro)		; $18
 
 ; Characters
 CharID_Rolf =  0
@@ -62,7 +91,7 @@ ObjID_Null1 =  id(PtrObj_Null1)										; 9
 ObjID_CharactersBattle =  id(PtrObj_CharactersBattle)				; $A
 ObjID_Null2 =  id(PtrObj_Null2)										; $E
 ObjID_EnemiesBattle =  id(PtrObj_EnemiesBattle)						; $F
-ObjID_CharactersLevel =  id(PtrObj_CharactersLevel)					; $14
+ObjID_MapCharacters =  id(PtrObj_MapCharacters)					; $14
 ObjID_FollowingCharacters =  id(PtrObj_FollowingChars)				; $15
 ObjID_MotaYoungMan =  id(PtrObj_MotaYoungMan)						; $16
 ObjID_MotaYoungWoman =  id(PtrObj_MotaYoungWoman)					; $17
@@ -99,112 +128,112 @@ ObjID_Spaceship =  id(PtrObj_Spaceship)								; $44
 
 ObjectSize = 64
 
-; Levels
-offset	:=	LevelData
+; Maps
+offset	:=	MapData
 ptrsize	:=	20
 idstart	:=	0
 
-LevelID_MotaviaOutside =  id(Level_MotaviaOutside)	; 0
-LevelID_SkureB2 =  id(Level_SkureB2)	; 1
-LevelID_SkureB1 =  id(Level_SkureB1)	; 2
-LevelID_DezolisSkure =  id(Level_DezolisSkure)	; 3
-LevelID_Paseo  = id(Level_Paseo)		; 4
-LevelID_Arima  = id(Level_Arima)		; 5
-LevelID_Oputa  = id(Level_Oputa)		; 6
-LevelID_Zema  = id(Level_Zema)		; 7
-LevelID_Kueri  = id(Level_Kueri)		; 8
-LevelID_Piata  = id(Level_Piata)		; 9
-LevelID_Aukba  = id(Level_Aukba)		; $A
-LevelID_Zosa  = id(Level_Zosa)		; $B
-LevelID_Ryuon  = id(Level_Ryuon)		; $C
-LevelID_TubeNearPaseo  = id(Level_TubeNearPaseo)		; $D
-LevelID_DarumTube  =  id(Level_DarumTube)		; $E
-LevelID_TubeLockedDoor  =  id(Level_TubeLockedDoor)		; $F
-LevelID_EsperMansionB1  =  id(Level_EsperMansionB1)		; $10
-LevelID_EsperMansionF1  =  id(Level_EsperMansionF1)		; $11
-LevelID_Uzo  = id(Level_Uzo)		; $12
-LevelID_UnderwaterPassage  = id(Level_UnderwaterPassage)		; $13
-LevelID_CreviceB2  = id(Level_CreviceB2)		; $14
-LevelID_CreviceB1  = id(Level_CreviceB1)		; $15
-LevelID_CreviceGroundF  = id(Level_CreviceGroundF)		; $16
-LevelID_ShureGroundF  = id(Level_ShureGroundF)		; $17
-LevelID_ShureF1  = id(Level_ShureF1)		; $18
-LevelID_ShureF2  = id(Level_ShureF2)		; $19
-LevelID_ShureF3  = id(Level_ShureF3)		; $1A
-LevelID_NidoGroundF  = id(Level_NidoGroundF)		; $1B
-LevelID_NidoF1  = id(Level_NidoF1)		; $1C
-LevelID_NidoF2  = id(Level_NidoF2)		; $1D
-LevelID_RoronF5  = id(Level_RoronF5)		; $1E
-LevelID_RoronF4  = id(Level_RoronF4)		; $1F
-LevelID_RoronF3  = id(Level_RoronF3)		; $20
-LevelID_RoronF2  = id(Level_RoronF2)		; $21
-LevelID_RoronF1  = id(Level_RoronF1)		; $22
-LevelID_RoronGroundF  = id(Level_RoronGroundF)	; $23
-LevelID_YellowDamGroundF  = id(Level_YellowDamGroundF)	; $24
-LevelID_YellowDamF1  = id(Level_YellowDamF1)		; $25
-LevelID_YellowDamF2  = id(Level_YellowDamF2)		; $26
-LevelID_YellowDamF3  = id(Level_YellowDamF3)		; $27
-LevelID_RedDamGroundF  = id(Level_RedDamGroundF)	; $28
-LevelID_RedDamF1  = id(Level_RedDamF1)		; $29
-LevelID_RedDamF2  = id(Level_RedDamF2)		; $2A
-LevelID_BlueDamGroundF  = id(Level_BlueDamGroundF)	; $2B
-LevelID_BlueDamF1  = id(Level_BlueDamF1)		; $2C
-LevelID_BlueDamF2  = id(Level_BlueDamF2)		; $2D
-LevelID_BlueDamF3  = id(Level_BlueDamF3)		; $2E
-LevelID_BlueDamF4  = id(Level_BlueDamF4)		; $2F
-LevelID_GreenDamGroundF  = id(Level_GreenDamGroundF)	; $30
-LevelID_GreenDamF1  = id(Level_GreenDamF1)		; $31
-LevelID_BiosystemsLabB1  = id(Level_BiosystemsLabB1)		; $32
-LevelID_BiosystemsLabGroundF  = id(Level_BiosystemsLabGroundF)		; $33
-LevelID_BiosystemsLabF1  = id(Level_BiosystemsLabF1)		; $34
-LevelID_BiosystemsLabF2  = id(Level_BiosystemsLabF2)		; $35
-LevelID_ClimatrolGroundF  = id(Level_ClimatrolGroundF)		; $36
-LevelID_ClimatrolF1  = id(Level_ClimatrolF1)		; $37
-LevelID_ClimatrolF2  = id(Level_ClimatrolF2)		; $38
-LevelID_ClimatrolF3  = id(Level_ClimatrolF3)		; $39
-LevelID_ClimatrolF4  = id(Level_ClimatrolF4)		; $3A
-LevelID_ClimatrolF5  = id(Level_ClimatrolF5)		; $3B
-LevelID_ClimatrolF6  = id(Level_ClimatrolF6)		; $3C
-LevelID_ClimatrolF7  = id(Level_ClimatrolF7)		; $3D
-LevelID_ControlTowerGroundF  = id(Level_ControlTowerGroundF)		; $3E
-LevelID_ControlTowerF1  = id(Level_ControlTowerF1)		; $3F
-LevelID_TubeNearZema  = id(Level_TubeNearZema)		; $40
-LevelID_Gaira  = id(Level_Gaira)		; $41
-LevelID_Gaira_Copy  = id(Level_Gaira_Copy)		; $42
-LevelID_NavalGroundF  = id(Level_NavalGroundF)		; $43
-LevelID_NavalF1  = id(Level_NavalF1)		; $44
-LevelID_NavalF2  = id(Level_NavalF2)		; $45
-LevelID_NavalF3  = id(Level_NavalF3)		; $46
-LevelID_NavalF4  = id(Level_NavalF4)		; $47
-LevelID_MenobeGroundF  = id(Level_MenobeGroundF)		; $48
-LevelID_MenobeF1  = id(Level_MenobeF1)		; $49
-LevelID_MenobeF2  = id(Level_MenobeF2)		; $4A
-LevelID_MenobeF3  = id(Level_MenobeF3)		; $4B
-LevelID_IkutoB6  = id(Level_IkutoB6)		; $4C
-LevelID_IkutoB5  = id(Level_IkutoB5)		; $4D
-LevelID_IkutoB4  = id(Level_IkutoB4)		; $4E
-LevelID_IkutoB3  = id(Level_IkutoB3)		; $4F
-LevelID_IkutoB2  = id(Level_IkutoB2)		; $50
-LevelID_IkutoB1  = id(Level_IkutoB1)		; $51
-LevelID_IkutoGroundF  = id(Level_IkutoGroundF)		; $52
-LevelID_GuaronGroundF  = id(Level_GuaronGroundF)		; $53
-LevelID_GuaronF1  = id(Level_GuaronF1)		; $54
-LevelID_GuaronF2  = id(Level_GuaronF2)		; $55
-LevelID_GuaronF3  = id(Level_GuaronF4)		; $56
-LevelID_GuaronF4  = id(Level_GuaronF4)		; $57
-LevelID_GuaronF5  = id(Level_GuaronF5)		; $58
-LevelID_GuaronF6  = id(Level_GuaronF6)		; $59
-LevelID_GuaronF7  = id(Level_GuaronF7)		; $5A
-LevelID_GuaronF8  = id(Level_GuaronF8)		; $5B
-LevelID_GuaronF9  = id(Level_GuaronF9)		; $5C
-LevelID_GuaronF10  = id(Level_GuaronF10)		; $5D
-LevelID_GuaronF11  = id(Level_GuaronF11)		; $5E
-LevelID_GuaronF12  = id(Level_GuaronF12)		; $5F
-LevelID_GuaronF13  = id(Level_GuaronF13)		; $60
-LevelID_GuaronF14  = id(Level_GuaronF14)		; $61
-LevelID_GuaronF15  = id(Level_GuaronF15)		; $62
-LevelID_NoahGroundF  = id(Level_NoahGroundF)		; $63
-LevelID_NoahF1  = id(Level_NoahF1)		; $64
+MapID_MotaviaOutside =  id(Map_MotaviaOutside)	; 0
+MapID_SkureB2 =  id(Map_SkureB2)	; 1
+MapID_SkureB1 =  id(Map_SkureB1)	; 2
+MapID_DezolisSkure =  id(Map_DezolisSkure)	; 3
+MapID_Paseo  = id(Map_Paseo)		; 4
+MapID_Arima  = id(Map_Arima)		; 5
+MapID_Oputa  = id(Map_Oputa)		; 6
+MapID_Zema  = id(Map_Zema)		; 7
+MapID_Kueri  = id(Map_Kueri)		; 8
+MapID_Piata  = id(Map_Piata)		; 9
+MapID_Aukba  = id(Map_Aukba)		; $A
+MapID_Zosa  = id(Map_Zosa)		; $B
+MapID_Ryuon  = id(Map_Ryuon)		; $C
+MapID_TubeNearPaseo  = id(Map_TubeNearPaseo)		; $D
+MapID_DarumTube  =  id(Map_DarumTube)		; $E
+MapID_TubeLockedDoor  =  id(Map_TubeLockedDoor)		; $F
+MapID_EsperMansionB1  =  id(Map_EsperMansionB1)		; $10
+MapID_EsperMansionF1  =  id(Map_EsperMansionF1)		; $11
+MapID_Uzo  = id(Map_Uzo)		; $12
+MapID_UnderwaterPassage  = id(Map_UnderwaterPassage)		; $13
+MapID_CreviceB2  = id(Map_CreviceB2)		; $14
+MapID_CreviceB1  = id(Map_CreviceB1)		; $15
+MapID_CreviceGroundF  = id(Map_CreviceGroundF)		; $16
+MapID_ShureGroundF  = id(Map_ShureGroundF)		; $17
+MapID_ShureF1  = id(Map_ShureF1)		; $18
+MapID_ShureF2  = id(Map_ShureF2)		; $19
+MapID_ShureF3  = id(Map_ShureF3)		; $1A
+MapID_NidoGroundF  = id(Map_NidoGroundF)		; $1B
+MapID_NidoF1  = id(Map_NidoF1)		; $1C
+MapID_NidoF2  = id(Map_NidoF2)		; $1D
+MapID_RoronF5  = id(Map_RoronF5)		; $1E
+MapID_RoronF4  = id(Map_RoronF4)		; $1F
+MapID_RoronF3  = id(Map_RoronF3)		; $20
+MapID_RoronF2  = id(Map_RoronF2)		; $21
+MapID_RoronF1  = id(Map_RoronF1)		; $22
+MapID_RoronGroundF  = id(Map_RoronGroundF)	; $23
+MapID_YellowDamGroundF  = id(Map_YellowDamGroundF)	; $24
+MapID_YellowDamF1  = id(Map_YellowDamF1)		; $25
+MapID_YellowDamF2  = id(Map_YellowDamF2)		; $26
+MapID_YellowDamF3  = id(Map_YellowDamF3)		; $27
+MapID_RedDamGroundF  = id(Map_RedDamGroundF)	; $28
+MapID_RedDamF1  = id(Map_RedDamF1)		; $29
+MapID_RedDamF2  = id(Map_RedDamF2)		; $2A
+MapID_BlueDamGroundF  = id(Map_BlueDamGroundF)	; $2B
+MapID_BlueDamF1  = id(Map_BlueDamF1)		; $2C
+MapID_BlueDamF2  = id(Map_BlueDamF2)		; $2D
+MapID_BlueDamF3  = id(Map_BlueDamF3)		; $2E
+MapID_BlueDamF4  = id(Map_BlueDamF4)		; $2F
+MapID_GreenDamGroundF  = id(Map_GreenDamGroundF)	; $30
+MapID_GreenDamF1  = id(Map_GreenDamF1)		; $31
+MapID_BiosystemsLabB1  = id(Map_BiosystemsLabB1)		; $32
+MapID_BiosystemsLabGroundF  = id(Map_BiosystemsLabGroundF)		; $33
+MapID_BiosystemsLabF1  = id(Map_BiosystemsLabF1)		; $34
+MapID_BiosystemsLabF2  = id(Map_BiosystemsLabF2)		; $35
+MapID_ClimatrolGroundF  = id(Map_ClimatrolGroundF)		; $36
+MapID_ClimatrolF1  = id(Map_ClimatrolF1)		; $37
+MapID_ClimatrolF2  = id(Map_ClimatrolF2)		; $38
+MapID_ClimatrolF3  = id(Map_ClimatrolF3)		; $39
+MapID_ClimatrolF4  = id(Map_ClimatrolF4)		; $3A
+MapID_ClimatrolF5  = id(Map_ClimatrolF5)		; $3B
+MapID_ClimatrolF6  = id(Map_ClimatrolF6)		; $3C
+MapID_ClimatrolF7  = id(Map_ClimatrolF7)		; $3D
+MapID_ControlTowerGroundF  = id(Map_ControlTowerGroundF)		; $3E
+MapID_ControlTowerF1  = id(Map_ControlTowerF1)		; $3F
+MapID_TubeNearZema  = id(Map_TubeNearZema)		; $40
+MapID_Gaira  = id(Map_Gaira)		; $41
+MapID_Gaira_Copy  = id(Map_Gaira_Copy)		; $42
+MapID_NavalGroundF  = id(Map_NavalGroundF)		; $43
+MapID_NavalF1  = id(Map_NavalF1)		; $44
+MapID_NavalF2  = id(Map_NavalF2)		; $45
+MapID_NavalF3  = id(Map_NavalF3)		; $46
+MapID_NavalF4  = id(Map_NavalF4)		; $47
+MapID_MenobeGroundF  = id(Map_MenobeGroundF)		; $48
+MapID_MenobeF1  = id(Map_MenobeF1)		; $49
+MapID_MenobeF2  = id(Map_MenobeF2)		; $4A
+MapID_MenobeF3  = id(Map_MenobeF3)		; $4B
+MapID_IkutoB6  = id(Map_IkutoB6)		; $4C
+MapID_IkutoB5  = id(Map_IkutoB5)		; $4D
+MapID_IkutoB4  = id(Map_IkutoB4)		; $4E
+MapID_IkutoB3  = id(Map_IkutoB3)		; $4F
+MapID_IkutoB2  = id(Map_IkutoB2)		; $50
+MapID_IkutoB1  = id(Map_IkutoB1)		; $51
+MapID_IkutoGroundF  = id(Map_IkutoGroundF)		; $52
+MapID_GuaronGroundF  = id(Map_GuaronGroundF)		; $53
+MapID_GuaronF1  = id(Map_GuaronF1)		; $54
+MapID_GuaronF2  = id(Map_GuaronF2)		; $55
+MapID_GuaronF3  = id(Map_GuaronF4)		; $56
+MapID_GuaronF4  = id(Map_GuaronF4)		; $57
+MapID_GuaronF5  = id(Map_GuaronF5)		; $58
+MapID_GuaronF6  = id(Map_GuaronF6)		; $59
+MapID_GuaronF7  = id(Map_GuaronF7)		; $5A
+MapID_GuaronF8  = id(Map_GuaronF8)		; $5B
+MapID_GuaronF9  = id(Map_GuaronF9)		; $5C
+MapID_GuaronF10  = id(Map_GuaronF10)		; $5D
+MapID_GuaronF11  = id(Map_GuaronF11)		; $5E
+MapID_GuaronF12  = id(Map_GuaronF12)		; $5F
+MapID_GuaronF13  = id(Map_GuaronF13)		; $60
+MapID_GuaronF14  = id(Map_GuaronF14)		; $61
+MapID_GuaronF15  = id(Map_GuaronF15)		; $62
+MapID_NoahGroundF  = id(Map_NoahGroundF)		; $63
+MapID_NoahF1  = id(Map_NoahF1)		; $64
 
 ; Portraits
 offset	:=	PortraitTable
@@ -545,8 +574,8 @@ WinID_FourthCharStats =  id(PtrWin_FourthCharStats)	; $E
 WinID_MenuMeseta =  id(PtrWin_MenuMeseta)	; $F
 WinID_CharOrderDestination =  id(PtrWin_CharOrderDestination)	; $10
 WinID_CharList2 =  id(PtrWin_CharList2)	; $11
-WinID_LevelTechList =  id(PtrWin_LevelTechList)	; $12
-WinID_LevelTechList2 =  id(PtrWin_LevelTechList2)	; $13
+WinID_MapTechList =  id(PtrWin_MapTechList)	; $12
+WinID_MapTechList2 =  id(PtrWin_MapTechList2)	; $13
 WinID_StrngHPTP =  id(PtrWin_StrngHPTP)	; $14
 WinID_StrngStats =  id(PtrWin_StrngStats)	; $15
 WinID_StrngEquip =  id(PtrWin_StrngEquip)	; $16
@@ -830,61 +859,61 @@ offset	:=	SFXPtrs
 ptrsize	:=	2
 idstart	:=	$A0
 
-SXFID_Selection =  id(PtrSFX_Selection)	; $A0
-SXFID_LevelUp =  id(PtrSFX_LevelUp)	; $A1
-SXFID_ItemReceived =  id(PtrSFX_ItemReceived)	; $A2
-SXFID_Explosion =  id(PtrSFX_Explosion)	; $A3
-SXFID_LevelChanged =  id(PtrSFX_LevelChanged)	; $A4
-SXFID_FellInHole =  id(PtrSFX_FellInHole)	; $A5
-SXFID_Revived =  id(PtrSFX_Revived)	; $A6
-SXFID_PoisonCured =  id(PtrSFX_PoisonCured)	; $A7
-SXFID_Alarm =  id(PtrSFX_Alarm)	; $A8
-SXFID_Hidapipe =  id(PtrSFX_Hidapipe)	; $A9
-SXFID_Teleport =  id(PtrSFX_Teleport)	; $AA
-SXFID_DoorOpen =  id(PtrSFX_DoorOpen)	; $AB
-SXFID_DamOpened =  id(PtrSFX_DamOpened)	; $AC
-SXFID_JetScooter =  id(PtrSFX_JetScooter)	; $AD
-SXFID_SpaceshipDeparted =  id(PtrSFX_SpaceshipDeparted)	; $AE
-SXFID_SpaceshipLanded =  id(PtrSFX_SpaceshipLanded)	; $AF
-SXFID_DangerousFloor =  id(PtrSFX_DangerousFloor)	; $B0
-SXFID_Musik =  id(PtrSFX_Musik)	; $B1
-SXFID_Boomerang =  id(PtrSFX_Boomerang)	; $B2
-SXFID_Sword =  id(PtrSFX_Sword)	; $B3
-SXFID_Claw =  id(PtrSFX_Claw)	; $B4
-SXFID_Slasher =  id(PtrSFX_Slasher)	; $B5
-SXFID_Shotgun =  id(PtrSFX_Shotgun)	; $B6
-SXFID_StrongGun =  id(PtrSFX_StrongGun)	; $B7
-SXFID_B8 =  id(PtrSFX_B8)	; $B8
-SXFID_B9 =  id(PtrSFX_B9)	; $B9
-SXFID_DamageRedScreen =  id(PtrSFX_DamageRedScreen)	; $BA
-SXFID_Foi =  id(PtrSFX_Foi)	; $BB
-SXFID_Zan =  id(PtrSFX_Zan)	; $BC
-SXFID_Vol =  id(PtrSFX_Vol)	; $BD
-SXFID_Tsu =  id(PtrSFX_Tsu)	; $BE
-SXFID_Shinb =  id(PtrSFX_Shinb)	; $BF
-SXFID_Eijia =  id(PtrSFX_Eijia)	; $C0
-SXFID_Gaj =  id(PtrSFX_Gaj)	; $C1
-SXFID_Deban =  id(PtrSFX_Deban)	; $C2
-SXFID_Healed =  id(PtrSFX_Healed)	; $C3
-SXFID_C4 =  id(PtrSFX_C4)	; $C4
-SXFID_NeifirstAttack =  id(PtrSFX_NeifirstAttack)	; $C5
-SXFID_Whip =  id(PtrSFX_Whip)	; $C6
-SXFID_WhistleAttack =  id(PtrSFX_WhistleAttack)	; $C7
-SXFID_PoleziAttack =  id(PtrSFX_PoleziAttack)	; $C8
-SXFID_PulserAttack =  id(PtrSFX_PulserAttack)	; $C9
-SXFID_TerakiteAttack =  id(PtrSFX_TerakiteAttack)	; $CA
-SXFID_FireAntAttack =  id(PtrSFX_FireAntAttack)	; $CB
-SXFID_BeeAttack =  id(PtrSFX_BeeAttack)	; $CC
-SXFID_AmoebaAttack =  id(PtrSFX_AmoebaAttack)	; $CD
-SXFID_BlasterAttack =  id(PtrSFX_BlasterAttack)	; $CE
-SXFID_VanAttack =  id(PtrSFX_VanAttack)	; $CF
-SXFID_SpinnerAttack =  id(PtrSFX_SpinnerAttack)	; $D0
-SXFID_MosquitoAttack =  id(PtrSFX_MosquitoAttack)	; $D1
-SXFID_LocustAttack =  id(PtrSFX_LocustAttack)	; $D2
-SXFID_ArmyEyeAttack =  id(PtrSFX_ArmyEyeAttack)	; $D3
-SXFID_EnemyKilled =  id(PtrSFX_EnemyKilled)	; $D4
-SXFID_Pause =  id(PtrSFX_Pause)	; $D5
-SXFID_Unpause =  id(PtrSFX_Unpause)	; $D6
+SFXID_Selection =  id(PtrSFX_Selection)	; $A0
+SFXID_LevelUp =  id(PtrSFX_LevelUp)	; $A1
+SFXID_ItemReceived =  id(PtrSFX_ItemReceived)	; $A2
+SFXID_Explosion =  id(PtrSFX_Explosion)	; $A3
+SFXID_MapChanged =  id(PtrSFX_MapChanged)	; $A4
+SFXID_FellInHole =  id(PtrSFX_FellInHole)	; $A5
+SFXID_Revived =  id(PtrSFX_Revived)	; $A6
+SFXID_PoisonCured =  id(PtrSFX_PoisonCured)	; $A7
+SFXID_Alarm =  id(PtrSFX_Alarm)	; $A8
+SFXID_Hidapipe =  id(PtrSFX_Hidapipe)	; $A9
+SFXID_Teleport =  id(PtrSFX_Teleport)	; $AA
+SFXID_DoorOpen =  id(PtrSFX_DoorOpen)	; $AB
+SFXID_DamOpened =  id(PtrSFX_DamOpened)	; $AC
+SFXID_JetScooter =  id(PtrSFX_JetScooter)	; $AD
+SFXID_SpaceshipDeparted =  id(PtrSFX_SpaceshipDeparted)	; $AE
+SFXID_SpaceshipLanded =  id(PtrSFX_SpaceshipLanded)	; $AF
+SFXID_DangerousFloor =  id(PtrSFX_DangerousFloor)	; $B0
+SFXID_Musik =  id(PtrSFX_Musik)	; $B1
+SFXID_Boomerang =  id(PtrSFX_Boomerang)	; $B2
+SFXID_Sword =  id(PtrSFX_Sword)	; $B3
+SFXID_Claw =  id(PtrSFX_Claw)	; $B4
+SFXID_Slasher =  id(PtrSFX_Slasher)	; $B5
+SFXID_Shotgun =  id(PtrSFX_Shotgun)	; $B6
+SFXID_StrongGun =  id(PtrSFX_StrongGun)	; $B7
+SFXID_B8 =  id(PtrSFX_B8)	; $B8
+SFXID_B9 =  id(PtrSFX_B9)	; $B9
+SFXID_DamageRedScreen =  id(PtrSFX_DamageRedScreen)	; $BA
+SFXID_Foi =  id(PtrSFX_Foi)	; $BB
+SFXID_Zan =  id(PtrSFX_Zan)	; $BC
+SFXID_Vol =  id(PtrSFX_Vol)	; $BD
+SFXID_Tsu =  id(PtrSFX_Tsu)	; $BE
+SFXID_Shinb =  id(PtrSFX_Shinb)	; $BF
+SFXID_Eijia =  id(PtrSFX_Eijia)	; $C0
+SFXID_Gaj =  id(PtrSFX_Gaj)	; $C1
+SFXID_Deban =  id(PtrSFX_Deban)	; $C2
+SFXID_Healed =  id(PtrSFX_Healed)	; $C3
+SFXID_C4 =  id(PtrSFX_C4)	; $C4
+SFXID_NeifirstAttack =  id(PtrSFX_NeifirstAttack)	; $C5
+SFXID_Whip =  id(PtrSFX_Whip)	; $C6
+SFXID_WhistleAttack =  id(PtrSFX_WhistleAttack)	; $C7
+SFXID_PoleziAttack =  id(PtrSFX_PoleziAttack)	; $C8
+SFXID_PulserAttack =  id(PtrSFX_PulserAttack)	; $C9
+SFXID_TerakiteAttack =  id(PtrSFX_TerakiteAttack)	; $CA
+SFXID_FireAntAttack =  id(PtrSFX_FireAntAttack)	; $CB
+SFXID_BeeAttack =  id(PtrSFX_BeeAttack)	; $CC
+SFXID_AmoebaAttack =  id(PtrSFX_AmoebaAttack)	; $CD
+SFXID_BlasterAttack =  id(PtrSFX_BlasterAttack)	; $CE
+SFXID_VanAttack =  id(PtrSFX_VanAttack)	; $CF
+SFXID_SpinnerAttack =  id(PtrSFX_SpinnerAttack)	; $D0
+SFXID_MosquitoAttack =  id(PtrSFX_MosquitoAttack)	; $D1
+SFXID_LocustAttack =  id(PtrSFX_LocustAttack)	; $D2
+SFXID_ArmyEyeAttack =  id(PtrSFX_ArmyEyeAttack)	; $D3
+SFXID_EnemyKilled =  id(PtrSFX_EnemyKilled)	; $D4
+SFXID_Pause =  id(PtrSFX_Pause)	; $D5
+SFXID_Unpause =  id(PtrSFX_Unpause)	; $D6
 
 
 SoundtrackNameLength = 12	; Ustvestia text pointer character length
@@ -944,63 +973,67 @@ hw_port_2_control =  $A1000B
 hw_expansion_control =  $A1000D
 
 ; RAM
-ram_start =  $FFFF0000
+; Make sure RAM address constants work in both 16-bit and 32-bit addressing modes
+ramaddr function x,-(-x)&$FFFFFFFF
 
-window_art_buffer =  $FFFF8000	; used to store art tiles for windows; mainly for dynamic windows
 
-character_data_buffer =  $FFFFC000
+ram_start =  ramaddr($FFFF0000)
 
-enemy_stat_buffer =  $FFFFC200
+window_art_buffer =  ramaddr($FFFF8000)	; used to store art tiles for windows; mainly for dynamic windows
 
-party_members_num =  $FFFFC600		; current number of party members
-party_members_joined =  $FFFFC604		; number of party members that joined (incremented when going home to recruit new character)
-party_member_join_next =  $FFFFC606	; incremented when you reach a new town, so when you go to Rolf's house, it will use this variable to determine the event
-party_member_id =  $FFFFC608		; ID's for the current party members; so if Rolf is leading, the first ID value is 0; if Nei is leading, then the first value is 1, etc...
+character_stats =  ramaddr($FFFFC000)
 
-money_owned =  $FFFFC620			; amount of money that you own at the moment
+enemy_stats =  ramaddr($FFFFC200)
 
-chosen_letter_position =  $FFFFC63A	; position of the cursor when you choose letters for characters' names 
+party_members_num =  ramaddr($FFFFC600)		; current number of party members
+party_members_joined =  ramaddr($FFFFC604)		; number of party members that joined (incremented when going home to recruit new character)
+party_member_join_next =  ramaddr($FFFFC606)	; incremented when you reach a new town, so when you go to Rolf's house, it will use this variable to determine the event
+party_member_id =  ramaddr($FFFFC608)		; ID's for the current party members; so if Rolf is leading, the first ID value is 0; if Nei is leading, then the first value is 1, etc...
 
-level_index =  $FFFFC640			; index of the level map you are in
-level_y_pos =  $FFFFC642
-level_x_pos =  $FFFFC644
+money_owned =  ramaddr($FFFFC620)			; amount of money that you own at the moment
 
-jet_scooter_flag =  $FFFFC652		; flag: 0 = not on jet scooter; 1 = on jet scooter
+chosen_letter_position =  ramaddr($FFFFC63A)	; position of the cursor when you choose letters for characters' names 
 
-planet_index =  $FFFFC658			; 0 = Motavia; 1 = Dezolis
+map_index =  ramaddr($FFFFC640)			; index of the map you are in
+map_y_pos =  ramaddr($FFFFC642)
+map_x_pos =  ramaddr($FFFFC644)
 
-character_names =  $FFFFC660
+jet_scooter_flag =  ramaddr($FFFFC652)		; flag: 0 = not on jet scooter; 1 = on jet scooter
 
-event_flags =  $FFFFC710
-treasure_chest_flags =  $FFFFC780	; space where open/close flags for treasure chests are 
+planet_index =  ramaddr($FFFFC658)			; 0 = Motavia; 1 = Dezolis
 
-battle_character_data_buffer =  $FFFFC900	; save all characters data so that you can retrieve it after the end of a battle 
+character_names =  ramaddr($FFFFC660)
 
-enemy_data_buffer =  $FFFFCB00
+event_flags =  ramaddr($FFFFC710)
+treasure_chest_flags =  ramaddr($FFFFC780)	; space where open/close flags for treasure chests are 
 
-battle_main_routine_index =  $FFFFCC00
-fight_active_flag =  $FFFFCC02		; flag: determines if you chose option "FIGHT" in battle; 0 = not fighting; 1 = fighting
-fight_interrupted_flag =  $FFFFCC04	; flag: determines if you want to interrupt the fight and select other commands; 0 = continue fight; 1 = interrupt fight
-battle_script_id = 	$FFFFCC0C
-battle_command_used =  $FFFFCC0E
-char_battle_command_index =  $FFFFCC10	; word - values: 0 = attack command; 1 = technique command; 2 = item command; 3 = defense command --- 16 bytes for every character
+battle_character_stats =  ramaddr($FFFFC900)	; save all characters data so that you can retrieve it after the end of a battle 
 
-script_id =  $FFFFCD00
-window_active_flag =  $FFFFCD10
-text_buffer_pointer = $FFFFCD12
-text_buffer = $FFFFCD40
+enemy_data_buffer =  ramaddr($FFFFCB00)
 
-sound_ram =  $FFFFD000
+battle_main_routine_index =  ramaddr($FFFFCC00)
+fight_active_flag =  ramaddr($FFFFCC02)		; flag: determines if you chose option "FIGHT" in battle; 0 = not fighting; 1 = fighting
+fight_interrupted_flag =  ramaddr($FFFFCC04)	; flag: determines if you want to interrupt the fight and select other commands; 0 = continue fight; 1 = interrupt fight
+battle_script_id =	ramaddr($FFFFCC0C)
+battle_command_used =  ramaddr($FFFFCC0E)
+char_battle_command_index =  ramaddr($FFFFCC10)	; word - values: 0 = attack command; 1 = technique command; 2 = item command; 3 = defense command --- 16 bytes for every character
+
+script_id =  ramaddr($FFFFCD00)
+window_active_flag =  ramaddr($FFFFCD10)
+text_buffer_pointer =	ramaddr($FFFFCD12)
+text_buffer =  ramaddr($FFFFCD40)
+
+sound_ram =  ramaddr($FFFFD000)
 
 coord_flag_e0 = $FFD000
 tempo_timeout =  $FFD001
 init_tempo_value =  $FFD002
 play_sound_id =  $FFD003
-sound_queue = $FFFFD004
+sound_queue =  ramaddr($FFFFD004)
 current_sfx_priority =  $FFD008
-track_timer =  $FFFFD009
+track_timer =  ramaddr($FFFFD009)
 special_fm3_notes =  $FFD00A
-paused_mode =  $FFFFD012
+paused_mode =  ramaddr($FFFFD012)
 communication_byte = $FFD014
 fade_out_remain = $FFD016
 fade_timeout = $FFD017
@@ -1009,69 +1042,69 @@ music_tracks = $FFD030
 sfx_tracks = $FFD150
 special_sfx_tracks = $FFD1E0
 
-current_active_objects_num =  $FFFFDE04		; number of objects that were populated in the object ram
+current_active_objects_num =  ramaddr($FFFFDE04)		; number of objects that were populated in the object ram
 
-window_index =  $FFFFDE10		; type of window to open
+window_index =  ramaddr($FFFFDE10)		; type of window to open
 
-window_index_saved =  $FFFFDE54
-window_routine = $FFFFDE56
+window_index_saved =  ramaddr($FFFFDE54)
+window_routine =  ramaddr($FFFFDE56)
 
 
-event_routine = 	$FFFFDE58			; index for offset tables
-event_routine_sub = 	$FFFFDE5A		; index for offset tables in child tables
-event_routine_sub_2 =  $FFFFDE5C
+event_routine =  ramaddr($FFFFDE58)			; index for offset tables
+event_routine_sub =  ramaddr($FFFFDE5A)		; index for offset tables in child tables
+event_routine_sub_2 =  ramaddr($FFFFDE5C)
 
-character_index =  $FFFFDE60		; id for the characters; 0 = Rolf; 1 = Nei; 2 = Rudo; 3 = Amy; 4 = Hugh; 5 = Anna; 6 = Kain; 7 = Shir
-character_index_2 =  $FFFFDE62		; same as above. Seems to be used when character gets something from another character (e.g. healing technique)
-enemy_index =  $FFFFDE64		; id for the enemies
-technique_index =  $FFFFDE66		; id for the techniques
-tech_tp_consumption =  $FFFFDE67	; holds the value of the TP consumption for techniques
-item_index = 	$FFFFDE68
-meseta_value =  $FFFFDE6A			; price for items, services, etc...
-exp_points_buffer =  $FFFFDE6A		; used to hold the value for exp points, such as when you defeat all enemies and you want to display text containing the value
+character_index =  ramaddr($FFFFDE60)		; id for the characters; 0 = Rolf; 1 = Nei; 2 = Rudo; 3 = Amy; 4 = Hugh; 5 = Anna; 6 = Kain; 7 = Shir
+character_index_2 =  ramaddr($FFFFDE62)		; same as above. Seems to be used when character gets something from another character (e.g. healing technique)
+enemy_index =  ramaddr($FFFFDE64)		; id for the enemies
+technique_index =  ramaddr($FFFFDE66)		; id for the techniques
+tech_tp_consumption =  ramaddr($FFFFDE67)	; holds the value of the TP consumption for techniques
+item_index =  ramaddr($FFFFDE68)
+meseta_value =  ramaddr($FFFFDE6A)			; price for items, services, etc...
+exp_points_buffer =  ramaddr($FFFFDE6A)		; used to hold the value for exp points, such as when you defeat all enemies and you want to display text containing the value
 
-yes_no_input =  $FFFFDE90			; 0 = yes; 1 = no
+yes_no_input =  ramaddr($FFFFDE90)			; 0 = yes; 1 = no
 
-object_ram =  $FFFFE000
-push_start_button_text = 	$FFFFE000	; blinking text in Title Screen
-copyright_text =  $FFFFE040			; text apperearing at bottom right corner of the Title Screen
+object_ram =  ramaddr($FFFFE000)
+push_start_button_text =  ramaddr($FFFFE000)	; blinking text in Title Screen
+copyright_text =  ramaddr($FFFFE040)			; text apperearing at bottom right corner of the Title Screen
 
-decom_buffer = $FFFFF400
+decom_buffer =  ramaddr($FFFFF400)
 
-game_screen =  $FFFFF600		; index for the screen
+game_screen =  ramaddr($FFFFF600)		; index for the screen
 
-joypad_held =  $FFFFF602		
-joypad_pressed =  $FFFFF603
+joypad_held =  ramaddr($FFFFF602)		
+joypad_pressed =  ramaddr($FFFFF603)
 
-vdp_reg1_values =  $FFFFF610
+vdp_reg1_values =  ramaddr($FFFFF610)
 
-sprite_count =  $FFFFF618		; number of sprite counter. Starts from 80 and when it reaches 0, you cannot create more sprites
+sprite_count =  ramaddr($FFFFF618)		; number of sprite counter. Starts from 80 and when it reaches 0, you cannot create more sprites
 
-demo_timer =  $FFFFF61A			; general timer for events
+demo_timer =  ramaddr($FFFFF61A)			; general timer for events
 
-vblank_routine =  $FFFFF62A
+vblank_routine =  ramaddr($FFFFF62A)
 
-sprite_link_field_count = 	$FFFFF62C		; counter for link field Sprite attribute
+sprite_link_field_count =  ramaddr($FFFFF62C)		; counter for link field Sprite attribute
 
-rng_seed =  $FFFFF636
+rng_seed =  ramaddr($FFFFF636)
 
-paused_flag =  $FFFFF63A		; flag: 0 = not paused; 1 = paused 
+paused_flag =  ramaddr($FFFFF63A)		; flag: 0 = not paused; 1 = paused 
 
-screen_changed_flag =  $FFFFF734
+screen_changed_flag =  ramaddr($FFFFF734)
 
-demo_flag = 	$FFFFF750			; flag: determines if there are events and CPU input should be handled; 0 = not in demo; 1 = in demo
-demo_index = 	$FFFFF752			; determines what demo should be run
-demo_input_index = 	$FFFFF754		; determines what joypad command should be run
+demo_flag =  ramaddr($FFFFF750)			; flag: determines if there are events and CPU input should be handled; 0 = not in demo; 1 = in demo
+demo_index =  ramaddr($FFFFF752)			; determines what demo should be run
+demo_input_index =  ramaddr($FFFFF754)		; determines what joypad command should be run
 
-building_index =  $FFFFF760		
-portrait_index =  $FFFFF762
+building_index =  ramaddr($FFFFF760)		
+portrait_index =  ramaddr($FFFFF762)
 
-sprite_table =  $FFFFF800
+sprite_table =  ramaddr($FFFFF800)
 
-palette_table =  $FFFFFB00
+palette_table =  ramaddr($FFFFFB00)
 
-system_stack =  $FFFFFE00
+system_stack =  ramaddr($FFFFFE00)
 
-controls_locked =  $FFFFFFF0		; flag: determines whether you can control character or not; 0 = can control characters; 1 = cannot control characters
+controls_locked =  ramaddr($FFFFFFF0)		; flag: determines whether you can control character or not; 0 = can control characters; 1 = cannot control characters
 
-checksum_four_cc =  $FFFFFFFC 		; four bytes: string that is checked for the checksum routine.
+checksum_four_cc =  ramaddr($FFFFFFFC) 		; four bytes: string that is checked for the checksum routine.
