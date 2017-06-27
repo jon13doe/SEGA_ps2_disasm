@@ -85,12 +85,12 @@ ObjID_NameDestinationTile =  id(PtrObj_NameDestinationTile)		; 3
 ObjID_RedCursorBattle =  id(PtrObj_RedRectCursBattle)				; 4
 ObjID_CharSelectTriangleCursor =  id(PtrObj_TriCursCharSelect)		; 5
 ObjID_CommandSelectTriangleCursor =  id(PtrObj_TriCursCommSelect)	; 6
-ObjID_MonitorExplosion =  id(PtrObj_ExpTylerSpaceship)				; 7
+ObjID_MonitorExplosion =  id(PtrObj_MonitorExplosion)				; 7
 ObjID_EndingUFO =  id(PtrObj_EndingUFO)								; 8
 ObjID_Null1 =  id(PtrObj_Null1)										; 9
-ObjID_CharactersBattle =  id(PtrObj_CharactersBattle)				; $A
+ObjID_BattleCharacter =  id(PtrObj_BattleCharacter)				; $A
 ObjID_Null2 =  id(PtrObj_Null2)										; $E
-ObjID_EnemiesBattle =  id(PtrObj_EnemiesBattle)						; $F
+ObjID_BattleEnemy =  id(PtrObj_BattleEnemy)						; $F
 ObjID_MapCharacters =  id(PtrObj_MapCharacters)					; $14
 ObjID_FollowingCharacters =  id(PtrObj_FollowingChars)				; $15
 ObjID_MotaYoungMan =  id(PtrObj_MotaYoungMan)						; $16
@@ -107,7 +107,7 @@ ObjID_MotaChild2 =  id(PtrObj_MotaChild2)							; $21
 ObjID_JetScooter =  id(PtrObj_JetScooter)							; $22
 ObjID_Darum =  id(PtrObj_Darum)										; $29
 ObjID_Teim =  id(PtrObj_Teim)										; $2A
-ObjID_RandomExplosion =  id(PtrObj_RandomExplosion)					; $2D
+ObjID_Explosion =  id(PtrObj_Explosion)					; $2D
 ObjID_Esper =  id(PtrObj_Esper)										; $2E
 ObjID_DeadBody =  id(PtrObj_DeadBody)								; $2F
 ObjID_MovingEsper =  id(PtrObj_MovingEsper)							; $30
@@ -273,7 +273,7 @@ PortraitID_MotaTeleportEmployer  =  id(PtrPortrait_MotaTeleportEmployer)	; $1E
 
 ; Palettes
 pal_id_sega =  (PtrPal_Sega-PalettePtrs)/8
-pal_id_tit_scr =  (PtrPal_TitleScr-PalettePtrs)/8
+pal_id_title =  (PtrPal_Title-PalettePtrs)/8
 
 pal_id_rolf_port =  (PtrPal_RolfPort-PalettePtrs)/8
 pal_id_nei_port =  (PtrPal_NeiPort-PalettePtrs)/8
@@ -990,7 +990,7 @@ party_members_joined =  ramaddr($FFFFC604)		; number of party members that joine
 party_member_join_next =  ramaddr($FFFFC606)	; incremented when you reach a new town, so when you go to Rolf's house, it will use this variable to determine the event
 party_member_id =  ramaddr($FFFFC608)		; ID's for the current party members; so if Rolf is leading, the first ID value is 0; if Nei is leading, then the first value is 1, etc...
 
-money_owned =  ramaddr($FFFFC620)			; amount of money that you own at the moment
+current_money =  ramaddr($FFFFC620)			; amount of money that you own at the moment
 
 chosen_letter_position =  ramaddr($FFFFC63A)	; position of the cursor when you choose letters for characters' names 
 
@@ -1071,7 +1071,7 @@ copyright_text =  ramaddr($FFFFE040)			; text apperearing at bottom right corner
 
 decom_buffer =  ramaddr($FFFFF400)
 
-game_screen =  ramaddr($FFFFF600)		; index for the screen
+game_mode_index =  ramaddr($FFFFF600)
 
 joypad_held =  ramaddr($FFFFF602)		
 joypad_pressed =  ramaddr($FFFFF603)

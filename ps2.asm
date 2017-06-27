@@ -135,11 +135,11 @@ GameInit:
 	bsr.w	VDPSetupGame
 	bsr.w	LoadPCMDrums
 	bsr.w	JoypadInit
-	move.b	#GameModeID_Sega, (game_screen).w	; start from Sega screen
+	move.b	#GameModeID_Sega, (game_mode_index).w	; start from Sega screen
 	
 
 MainGameLoop:
-	move.b	(game_screen).w, d0	; get screen id
+	move.b	(game_mode_index).w, d0	; get screen id
 	andi.w	#$1C, d0			
 	lsl.w	#1, d0		
 	jsr	GameModeTable(pc,d0.w)
@@ -490,27 +490,27 @@ PtrObj_NameDestinationTile:	bra.w	Obj_NameDestinationTile				; 3 - one blue tile
 PtrObj_RedRectCursBattle:	bra.w	Obj_RedRectCursorBattle				; 4 - red cursor used in battles
 PtrObj_TriCursCharSelect:	bra.w	Obj_TriangleCursCharSelection		; 5 - triangular cursor used when selecting characters' actions in battle
 PtrObj_TriCursCommSelect:	bra.w	Obj_TriangleCursCommSelect			; 6 - triangular cursor when select a command for a character
-PtrObj_ExpTylerSpaceship:	bra.w	Obj_ExplosionTylerSpaceship			; 7 - Palm explosion seen in monitor on Tyler's spaceship
-PtrObj_EndingUFO:			bra.w	Obj_EndingUFO						; 8 - The UFO which shows up in half a second after the credits
+PtrObj_MonitorExplosion:	bra.w	Obj_MonitorExplosion				; 7 - Palm explosion seen in monitor on Tyler's spaceship
+PtrObj_EndingUFO:			bra.w	Obj_EndingUFO						; 8 - The UFO which shows up for half a second after the credits
 PtrObj_Null1:				bra.w	Obj_Null1							; 9 - does nothing; just returns
-PtrObj_CharactersBattle:	bra.w	Obj_CharactersBattle				; $A - all properties and behaviours for the characters in battle
-	bra.w	loc_289E													; $B
-	bra.w	loc_28F2													; $C
-	bra.w	loc_292A													; $D
+PtrObj_BattleCharacter:		bra.w	Obj_BattleCharacter					; $A - all properties and behaviours for the characters in battle
+	bra.w	Obj_BattleLongRangeAttack									; $B
+	bra.w	Obj_BattleCloseRangeAttack									; $C
+	bra.w	Obj_BattleTechnique											; $D
 PtrObj_Null2:				bra.w	Obj_Null2							; $E - does nothing; just returns
-PtrObj_EnemiesBattle:		bra.w	Obj_EnemiesBattle					; $F - all properties and behaviours for the enemies in battle
-	bra.w	loc_3166													; $10
-	bra.w	loc_31BC													; $11
+PtrObj_BattleEnemy:		bra.w	Obj_BattleEnemy							; $F - all properties and behaviours for the enemies in battle
+	bra.w	Obj_EnemyAttack												; $10
+	bra.w	Obj_EnemySkill												; $11
 	bra.w	loc_321E													; $12
 	bra.w	loc_3250													; $13
-PtrObj_MapCharacters:		bra.w	Obj_MapCharacters				; $14 - characters' sprites in the map screen
-PtrObj_FollowingChars:		bra.w	Obj_FollowingChars					; $15 - the characters behind the lead characters
+PtrObj_MapCharacters:		bra.w	Obj_MapCharacters					; $14 - characters' sprites in the map
+PtrObj_FollowingChars:		bra.w	Obj_FollowingChars					; $15 - the characters behind the leading character
 PtrObj_MotaYoungMan:		bra.w	Obj_MotaYoungMan					; $16 - random young man in towns on Motavia
 PtrObj_MotaYoungWoman:		bra.w	Obj_MotaYoungWoman					; $17 
 PtrObj_MotaOldMan:			bra.w	Obj_MotaOldMan						; $18
 PtrObj_MotaChild:			bra.w	Obj_MotaChild						; $19
 PtrObj_Dezolian:			bra.w	Obj_Dezolian						; $1A
-	bra.w	loc_4288													; $1B
+	bra.w	Obj_Motavian												; $1B
 PtrObj_MuskCat:				bra.w	Obj_MuskCat							; $1C
 PtrObj_MotaYoungMan2:		bra.w	Obj_MotaYoungMan2					; $1D
 PtrObj_MotaYoungMan3:		bra.w	Obj_MotaYoungMan2					; $1E
@@ -518,33 +518,33 @@ PtrObj_MotaYoungWoman2:		bra.w	Obj_MotaYoungWoman2					; $1F
 PtrObj_MotaOldMan2:			bra.w	Obj_MotaOldMan2						; $20
 PtrObj_MotaChild2:			bra.w	Obj_MotaChild2						; $21
 PtrObj_JetScooter:			bra.w	Obj_JetScooter						; $22
-	bra.w	loc_4B28													; $23
-	bra.w	loc_4BB0													; $24
-	bra.w	loc_4C38													; $25
-	bra.w	loc_4CC0													; $26
-	bra.w	loc_4CFC													; $27
+	bra.w	Obj_CryogenicsChamberPart1									; $23
+	bra.w	Obj_CryogenicsChamberPart2									; $24
+	bra.w	Obj_CryogenicsChamberPart3									; $25
+	bra.w	Obj_CryogenicsChamberPart4									; $26
+	bra.w	Obj_CryogenicsChamberPart5									; $27
 	bra.w	loc_4DD8													; $28
 PtrObj_Darum:				bra.w	Obj_Darum							; $29
 PtrObj_Teim:				bra.w	Obj_Teim							; $2A
 	bra.w	loc_504C													; $2B
 	bra.w	loc_50AE													; $2C
-PtrObj_RandomExplosion:		bra.w	Obj_RandomExplosion					; $2D - shows up in Climatrol after defeating Neifirst
+PtrObj_Explosion:			bra.w	Obj_Explosion						; $2D - shows up in Climatrol after defeating Neifirst
 PtrObj_Esper:				bra.w	Obj_Esper							; $2E
 PtrObj_DeadBody:			bra.w	Obj_DeadBody						; $2F - dead body of the scoundrels on the top floor in Shure
 PtrObj_MovingEsper:			bra.w	Obj_MovingEsper						; $30 - two espers that move after talking to them at the entrance of the Esper Mansion
-	bra.w	loc_5408													; $31
+	bra.w	Obj_LutzChair												; $31
 PtrObj_Neifirst:			bra.w	Obj_Neifirst						; $32
-	bra.w	loc_549A													; $33
+	bra.w	Obj_Lutz													; $33
 	bra.w	loc_54FA													; $34
 	bra.w	loc_5532													; $35
 	bra.w	loc_556A													; $36
-PtrObj_InvisibleBlock:		bra.w	Obj_InvisibleBlock					; $37 - block used for actions for the Records and the Gaila control panel
+PtrObj_InvisibleBlock:		bra.w	Obj_InvisibleBlock					; $37 - block used for actions for the Recorder and the Gaila control panel
 PtrObj_InvisibleBlock2:		bra.w	Obj_InvisibleBlock2					; $38 - block used for many actions
 PtrObj_DezoTreasureChest:	bra.w	Obj_DezoTreasureChest				; $39
 PtrObj_MotaTreasureChest:	bra.w	Obj_MotaTreasureChest				; $3A
 PtrObj_OpenableDoor:		bra.w	Obj_OpenableDoor					; $3B - doors opened by cards or keys
 PtrObj_DestroyableDoor:		bra.w	Obj_DestroyableDoor					; $3C - doors that can be destroyed through dynamites
-	bra.w	loc_580A													; $3D
+	bra.w	Obj_PouringWater											; $3D - Water pouring out of Climatrol after Neifirst dies
 PtrObj_PushStartButton1:	bra.w	Obj_PushStartButton					; $3E - Push Start Button string showing up on the title screen after you press any button;  doesn't seem to be referenced
 PtrObj_PushStartButton2:	bra.w	Obj_PushStartButton					; $3F - doesn't seem to be referenced
 PtrObj_PushStartButton3:	bra.w	Obj_PushStartButton					; $40 - doesn't seem to be referenced
@@ -797,16 +797,16 @@ EnemyXPosArray:
 
 	
 Map_LoadObjects:
-	lea	(LevelSpriteData).l, a2
+	lea	(MapObjectData).l, a2
 	move.w	(map_index).w, d0
 	lsl.w	#1, d0
 	adda.w	(a2,d0.w), a2
 	lea	($FFFFE800).w, a3
 	move.w	#$40, d0	; object length (64 bytes)
-	move.w	#$1F, d1	; maximum of 32 sprites per level
+	move.w	#$1F, d1	; maximum of 32 objects per map
 -
 	tst.w	(a2)
-	beq.s	+			; if we reached the end of the sprites to load, branch
+	beq.s	+			; if we reached the end of the objects to load, branch
 	move.b	(a2), d2
 	lsr.b	#2, d2
 	andi.w	#$3F, d2
@@ -940,127 +940,126 @@ SkipDarumTeimEvent:
 	
 ; ============================================================
 ; Offset table with a list of maps pointing to a list of
-; sprites that will be populated in the level
+; sprites that will be populated in the map
 ; ============================================================
-LevelSpriteData:
-	dc.w	SpriteData_MotaWorldMap-LevelSpriteData		; 0
-	dc.w	SpriteData_SkureB2-LevelSpriteData			; 1
-	dc.w	SpriteData_SkureB1-LevelSpriteData			; 2
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; 3
-	dc.w	SpriteData_Paseo-LevelSpriteData				; 4
-	dc.w	SpriteData_Arima-LevelSpriteData				; 5
-	dc.w	SpriteData_Oputa-LevelSpriteData				; 6
-	dc.w	SpriteData_Zema-LevelSpriteData				; 7
-	dc.w	SpriteData_Kueri-LevelSpriteData				; 8
-	dc.w	SpriteData_Piata-LevelSpriteData				; 9
-	dc.w	SpriteData_Aukba-LevelSpriteData				; $A
-	dc.w	SpriteData_Zosa-LevelSpriteData				; $B
-	dc.w	SpriteData_Ryuon-LevelSpriteData				; $C
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $D
-	dc.w	SpriteData_MotaPassageDarum-LevelSpriteData	; $E
-	dc.w	SpriteData_MotaPassageDoor-LevelSpriteData	; $F
-	dc.w	SpriteData_EspMansionB1-LevelSpriteData		; $10
-	dc.w	SpriteData_EspMansion-LevelSpriteData			; $11
-	dc.w	SpriteData_Uzo-LevelSpriteData    			; $12
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $13
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $14
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $15
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $16
-	dc.w	SpriteData_ShureGroundF-LevelSpriteData		; $17
-	dc.w	SpriteData_ShureF1-LevelSpriteData			; $18
-	dc.w	SpriteData_ShureF2-LevelSpriteData			; $19
-	dc.w	SpriteData_ShureF3-LevelSpriteData			; $1A
-	dc.w	SpriteData_NidoGroundF-LevelSpriteData		; $1B
-	dc.w	SpriteData_NidoF1-LevelSpriteData				; $1C
-	dc.w	SpriteData_NidoF2-LevelSpriteData				; $1D
-	dc.w	SpriteData_RoronF5-LevelSpriteData						; $1E
-	dc.w	SpriteData_RoronF4-LevelSpriteData						; $1F
-	dc.w	SpriteData_RoronF3-LevelSpriteData						; $20
-	dc.w	SpriteData_RoronF2-LevelSpriteData						; $21
-	dc.w	SpriteData_RoronF1-LevelSpriteData						; $22
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $23
-	dc.w	SpriteData_YellowDamGroundF-LevelSpriteData						; $24
-	dc.w	SpriteData_YellowDamF1-LevelSpriteData						; $25
-	dc.w	SpriteData_YellowDamF2-LevelSpriteData						; $26
-	dc.w	SpriteData_YellowDamF3-LevelSpriteData						; $27
-	dc.w	SpriteData_RedDamGroundF-LevelSpriteData						; $28
-	dc.w	SpriteData_RedDamF1-LevelSpriteData						; $29
-	dc.w	SpriteData_RedDamF2-LevelSpriteData						; $2A
-	dc.w	SpriteData_BlueDamGroundF-LevelSpriteData						; $2B
-	dc.w	SpriteData_BlueDamF1-LevelSpriteData						; $2C
-	dc.w	SpriteData_BlueDamF2-LevelSpriteData						; $2D
-	dc.w	SpriteData_BlueDamF3-LevelSpriteData						; $2E
-	dc.w	SpriteData_BlueDamF4-LevelSpriteData						; $2F
-	dc.w	SpriteData_GreenDamGroundF-LevelSpriteData						; $30
-	dc.w	SpriteData_GreenDamF1-LevelSpriteData						; $31
-	dc.w	SpriteData_BiosystemsLabB1-LevelSpriteData						; $32
-	dc.w	SpriteData_BiosystemsLabGroundF-LevelSpriteData						; $33
-	dc.w	SpriteData_BiosystemsLabF1-LevelSpriteData						; $34
-	dc.w	SpriteData_BiosystemsLabF2-LevelSpriteData						; $35
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $36
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $37
-	dc.w	SpriteData_ClimatrolF2-LevelSpriteData						; $38
-	dc.w	SpriteData_ClimatrolF3-LevelSpriteData						; $39
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $3A
-	dc.w	SpriteData_ClimatrolF5-LevelSpriteData						; $3B
-	dc.w	SpriteData_ClimatrolF6-LevelSpriteData						; $3C
-	dc.w	SpriteData_ClimatrolF7-LevelSpriteData		; $3D
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $3E
-	dc.w	SpriteData_ControlTowerF1-LevelSpriteData						; $3F
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $40
-	dc.w	SpriteData_Gaira-LevelSpriteData				; $41
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $42
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $43
-	dc.w	SpriteData_NavalF1-LevelSpriteData						; $44
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $45
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $46
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $47
-	dc.w	SpriteData_MenobeGroundF-LevelSpriteData						; $48
-	dc.w	SpriteData_MenobeF1-LevelSpriteData						; $49
-	dc.w	SpriteData_MenobeF2-LevelSpriteData						; $4A
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $4B
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $4C
-	dc.w	SpriteData_IkutoB5-LevelSpriteData						; $4D
-	dc.w	SpriteData_IkutoB4-LevelSpriteData						; $4E
-	dc.w	SpriteData_IkutoB3-LevelSpriteData						; $4F
-	dc.w	SpriteData_IkutoB2-LevelSpriteData						; $50
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $51
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $52
-	dc.w	SpriteData_GuaronGroundF-LevelSpriteData						; $53
-	dc.w	SpriteData_GuaronF1-LevelSpriteData						; $54
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $55
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $56
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $57
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $58
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $59
-	dc.w	SpriteData_GuaronF7-LevelSpriteData						; $5A
-	dc.w	SpriteData_GuaronF8-LevelSpriteData						; $5B
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $5C
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $5D
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $5E
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $5F
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $60
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $61
-	dc.w	SpriteData_GuaronF15-LevelSpriteData						; $62
-	dc.w	SpriteData_NoSprites-LevelSpriteData			; $63
-	dc.w	SpriteData_NoahF1-LevelSpriteData						; $64
-	
-; For scrapped levels perhaps?
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
-	dc.w	SpriteData_NoSprites-LevelSpriteData
+MapObjectData:
+	dc.w	ObjectData_MotaWorldMap-MapObjectData		; 0
+	dc.w	ObjectData_SkureB2-MapObjectData			; 1
+	dc.w	ObjectData_SkureB1-MapObjectData			; 2
+	dc.w	ObjectData_NoSprites-MapObjectData			; 3
+	dc.w	ObjectData_Paseo-MapObjectData				; 4
+	dc.w	ObjectData_Arima-MapObjectData				; 5
+	dc.w	ObjectData_Oputa-MapObjectData				; 6
+	dc.w	ObjectData_Zema-MapObjectData				; 7
+	dc.w	ObjectData_Kueri-MapObjectData				; 8
+	dc.w	ObjectData_Piata-MapObjectData				; 9
+	dc.w	ObjectData_Aukba-MapObjectData				; $A
+	dc.w	ObjectData_Zosa-MapObjectData				; $B
+	dc.w	ObjectData_Ryuon-MapObjectData				; $C
+	dc.w	ObjectData_NoSprites-MapObjectData			; $D
+	dc.w	ObjectData_MotaPassageDarum-MapObjectData	; $E
+	dc.w	ObjectData_MotaPassageDoor-MapObjectData	; $F
+	dc.w	ObjectData_EspMansionB1-MapObjectData		; $10
+	dc.w	ObjectData_EspMansion-MapObjectData			; $11
+	dc.w	ObjectData_Uzo-MapObjectData    			; $12
+	dc.w	ObjectData_NoSprites-MapObjectData			; $13
+	dc.w	ObjectData_NoSprites-MapObjectData			; $14
+	dc.w	ObjectData_NoSprites-MapObjectData			; $15
+	dc.w	ObjectData_NoSprites-MapObjectData			; $16
+	dc.w	ObjectData_ShureGroundF-MapObjectData		; $17
+	dc.w	ObjectData_ShureF1-MapObjectData			; $18
+	dc.w	ObjectData_ShureF2-MapObjectData			; $19
+	dc.w	ObjectData_ShureF3-MapObjectData			; $1A
+	dc.w	ObjectData_NidoGroundF-MapObjectData		; $1B
+	dc.w	ObjectData_NidoF1-MapObjectData				; $1C
+	dc.w	ObjectData_NidoF2-MapObjectData				; $1D
+	dc.w	ObjectData_RoronF5-MapObjectData						; $1E
+	dc.w	ObjectData_RoronF4-MapObjectData						; $1F
+	dc.w	ObjectData_RoronF3-MapObjectData						; $20
+	dc.w	ObjectData_RoronF2-MapObjectData						; $21
+	dc.w	ObjectData_RoronF1-MapObjectData						; $22
+	dc.w	ObjectData_NoSprites-MapObjectData			; $23
+	dc.w	ObjectData_YellowDamGroundF-MapObjectData						; $24
+	dc.w	ObjectData_YellowDamF1-MapObjectData						; $25
+	dc.w	ObjectData_YellowDamF2-MapObjectData						; $26
+	dc.w	ObjectData_YellowDamF3-MapObjectData						; $27
+	dc.w	ObjectData_RedDamGroundF-MapObjectData						; $28
+	dc.w	ObjectData_RedDamF1-MapObjectData						; $29
+	dc.w	ObjectData_RedDamF2-MapObjectData						; $2A
+	dc.w	ObjectData_BlueDamGroundF-MapObjectData						; $2B
+	dc.w	ObjectData_BlueDamF1-MapObjectData						; $2C
+	dc.w	ObjectData_BlueDamF2-MapObjectData						; $2D
+	dc.w	ObjectData_BlueDamF3-MapObjectData						; $2E
+	dc.w	ObjectData_BlueDamF4-MapObjectData						; $2F
+	dc.w	ObjectData_GreenDamGroundF-MapObjectData						; $30
+	dc.w	ObjectData_GreenDamF1-MapObjectData						; $31
+	dc.w	ObjectData_BiosystemsLabB1-MapObjectData						; $32
+	dc.w	ObjectData_BiosystemsLabGroundF-MapObjectData						; $33
+	dc.w	ObjectData_BiosystemsLabF1-MapObjectData						; $34
+	dc.w	ObjectData_BiosystemsLabF2-MapObjectData						; $35
+	dc.w	ObjectData_NoSprites-MapObjectData			; $36
+	dc.w	ObjectData_NoSprites-MapObjectData			; $37
+	dc.w	ObjectData_ClimatrolF2-MapObjectData						; $38
+	dc.w	ObjectData_ClimatrolF3-MapObjectData						; $39
+	dc.w	ObjectData_NoSprites-MapObjectData			; $3A
+	dc.w	ObjectData_ClimatrolF5-MapObjectData						; $3B
+	dc.w	ObjectData_ClimatrolF6-MapObjectData						; $3C
+	dc.w	ObjectData_ClimatrolF7-MapObjectData		; $3D
+	dc.w	ObjectData_NoSprites-MapObjectData			; $3E
+	dc.w	ObjectData_ControlTowerF1-MapObjectData						; $3F
+	dc.w	ObjectData_NoSprites-MapObjectData			; $40
+	dc.w	ObjectData_Gaira-MapObjectData				; $41
+	dc.w	ObjectData_NoSprites-MapObjectData			; $42
+	dc.w	ObjectData_NoSprites-MapObjectData			; $43
+	dc.w	ObjectData_NavalF1-MapObjectData						; $44
+	dc.w	ObjectData_NoSprites-MapObjectData			; $45
+	dc.w	ObjectData_NoSprites-MapObjectData			; $46
+	dc.w	ObjectData_NoSprites-MapObjectData			; $47
+	dc.w	ObjectData_MenobeGroundF-MapObjectData						; $48
+	dc.w	ObjectData_MenobeF1-MapObjectData						; $49
+	dc.w	ObjectData_MenobeF2-MapObjectData						; $4A
+	dc.w	ObjectData_NoSprites-MapObjectData			; $4B
+	dc.w	ObjectData_NoSprites-MapObjectData			; $4C
+	dc.w	ObjectData_IkutoB5-MapObjectData						; $4D
+	dc.w	ObjectData_IkutoB4-MapObjectData						; $4E
+	dc.w	ObjectData_IkutoB3-MapObjectData						; $4F
+	dc.w	ObjectData_IkutoB2-MapObjectData						; $50
+	dc.w	ObjectData_NoSprites-MapObjectData			; $51
+	dc.w	ObjectData_NoSprites-MapObjectData			; $52
+	dc.w	ObjectData_GuaronGroundF-MapObjectData						; $53
+	dc.w	ObjectData_GuaronF1-MapObjectData						; $54
+	dc.w	ObjectData_NoSprites-MapObjectData			; $55
+	dc.w	ObjectData_NoSprites-MapObjectData			; $56
+	dc.w	ObjectData_NoSprites-MapObjectData			; $57
+	dc.w	ObjectData_NoSprites-MapObjectData			; $58
+	dc.w	ObjectData_NoSprites-MapObjectData			; $59
+	dc.w	ObjectData_GuaronF7-MapObjectData						; $5A
+	dc.w	ObjectData_GuaronF8-MapObjectData						; $5B
+	dc.w	ObjectData_NoSprites-MapObjectData			; $5C
+	dc.w	ObjectData_NoSprites-MapObjectData			; $5D
+	dc.w	ObjectData_NoSprites-MapObjectData			; $5E
+	dc.w	ObjectData_NoSprites-MapObjectData			; $5F
+	dc.w	ObjectData_NoSprites-MapObjectData			; $60
+	dc.w	ObjectData_NoSprites-MapObjectData			; $61
+	dc.w	ObjectData_GuaronF15-MapObjectData						; $62
+	dc.w	ObjectData_NoSprites-MapObjectData			; $63
+	dc.w	ObjectData_NoahF1-MapObjectData						; $64
+
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
+	dc.w	ObjectData_NoSprites-MapObjectData
 ; ============================================================
 	
 ; ==================================================================================
-;        Sprite data which gets loaded as you enter a new level/map
+;        Object data which gets loaded as you enter a new map
 ; 
 ; 
 ; Byte 1 = Number which, after some calculation, represents the object and the index that
@@ -1073,14 +1072,14 @@ LevelSpriteData:
 ;			it will branch to location ObjType_TreasureChests; then this 2nd byte is used to pick the
 ;			item contained in the treasure chest
 ;
-; Bytes 3-4 = X position of the sprite
-; Bytes 5-6 = Y position of the sprite
+; Bytes 3-4 = X position
+; Bytes 5-6 = Y position
 ; ==================================================================================
 
-SpriteData_NoSprites:
+ObjectData_NoSprites:
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Paseo:
+ObjectData_Paseo:
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
 	dc.b	$01, $01, $78, $00, $D8
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
@@ -1123,7 +1122,7 @@ SpriteData_Paseo:
 	dc.b	$02, $02, $30, $01, $90
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Arima:
+ObjectData_Arima:
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
 	dc.b	$11, $00, $38, $00, $78
 	dc.b	$2D
@@ -1164,7 +1163,7 @@ SpriteData_Arima:
 	dc.b	$02, $01, $30, $01, $10
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Oputa:
+ObjectData_Oputa:
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
 	dc.b	$1D, $02, $B8, $02, $98
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
@@ -1203,7 +1202,7 @@ SpriteData_Oputa:
 	dc.b	$02, $03, $70, $01, $B0
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Zema:
+ObjectData_Zema:
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
 	dc.b	$2D, $00, $68, $00, $78
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
@@ -1240,7 +1239,7 @@ SpriteData_Zema:
 	dc.b	$02, $01, $F0, $00, $90
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Kueri:
+ObjectData_Kueri:
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
 	dc.b	$3D, $00, $F8, $00, $98
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
@@ -1279,7 +1278,7 @@ SpriteData_Kueri:
 	dc.b	$02, $01, $30, $01, $10
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Piata:
+ObjectData_Piata:
 	dc.b	$90
 	dc.b	$02, $00, $50, $01, $70
 	dc.b	$90
@@ -1328,7 +1327,7 @@ SpriteData_Piata:
 	dc.b	$02, $03, $50, $00, $B0
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Aukba:
+ObjectData_Aukba:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$67, $00, $B8, $00, $78
 	dc.b	(ObjID_Dezolian-$14)<<2+1
@@ -1351,7 +1350,7 @@ SpriteData_Aukba:
 	dc.b	$66, $00, $F8, $01, $88
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Zosa:
+ObjectData_Zosa:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$5D, $01, $38, $00, $B8
 	dc.b	(ObjID_Dezolian-$14)<<2+1
@@ -1370,7 +1369,7 @@ SpriteData_Zosa:
 	dc.b	$64, $01, $08, $01, $B8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Ryuon:
+ObjectData_Ryuon:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$6F, $00, $B8, $00, $78
 	dc.b	(ObjID_Dezolian-$14)<<2+1
@@ -1397,7 +1396,7 @@ SpriteData_Ryuon:
 	dc.b	$7A, $03, $B8, $00, $78
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_SkureB2:
+ObjectData_SkureB2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$01, $04, $98, $02, $98
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1424,7 +1423,7 @@ SpriteData_SkureB2:
 	dc.b	$7C, $03, $18, $02, $A8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_SkureB1:
+ObjectData_SkureB1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$08, $04, $F8, $01, $B8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1451,14 +1450,14 @@ SpriteData_SkureB1:
 	dc.b	$7F, $04, $18, $04, $A8
 	dc.w	0
 ; ------------------------------------------------------------	
-SpriteData_MotaPassageDarum:
+ObjectData_MotaPassageDarum:
 	dc.b	(ObjID_Teim-$14)<<2+3
 	dc.b	$01, $00, $00, $00, $00
 	dc.b	(ObjID_Darum-$14)<<2+3
 	dc.b	$01, $00, $C8, $00, $98
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ShureGroundF:
+ObjectData_ShureGroundF:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$10, $01, $38, $00, $D8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1471,19 +1470,19 @@ SpriteData_ShureGroundF:
 	dc.b	$14, $04, $18, $02, $18
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ShureF1:
+ObjectData_ShureF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$15, $01, $38, $01, $F8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ShureF2:
+ObjectData_ShureF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$16, $01, $B8, $00, $F8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$17, $04, $38, $02, $C8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ShureF3:
+ObjectData_ShureF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$18, $02, $90, $01, $58
 	dc.b	$6C
@@ -1494,7 +1493,7 @@ SpriteData_ShureF3:
 	dc.b	$03, $05, $28, $02, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_NidoF1:
+ObjectData_NidoF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$19, $02, $F8, $02, $B8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1503,7 +1502,7 @@ SpriteData_NidoF1:
 	dc.b	$1B, $02, $78, $02, $38
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_NidoF2:
+ObjectData_NidoF2:
 	dc.b	$58
 	dc.b	$17, $02, $F8, $01, $F8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1512,7 +1511,7 @@ SpriteData_NidoF2:
 	dc.b	$1D, $02, $18, $02, $98
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RoronF5:
+ObjectData_RoronF5:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$1E, $00, $F8, $03, $98
 	dc.b	$1D
@@ -1521,14 +1520,14 @@ SpriteData_RoronF5:
 	dc.b	$87, $01, $38, $03, $A8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RoronF4:
+ObjectData_RoronF4:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$1F, $01, $58, $01, $98
 	dc.b	$1D
 	dc.b	$85, $00, $B8, $01, $98
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RoronF3:
+ObjectData_RoronF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$21, $02, $68, $00, $C0
 	dc.b	$1D
@@ -1537,7 +1536,7 @@ SpriteData_RoronF3:
 	dc.b	$84, $03, $98, $01, $68
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RoronF2:
+ObjectData_RoronF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$20, $02, $28, $01, $B8
 	dc.b	$1D
@@ -1548,19 +1547,19 @@ SpriteData_RoronF2:
 	dc.b	$82, $02, $A8, $01, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RoronF1:
+ObjectData_RoronF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$22, $00, $98, $03, $18
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$23, $02, $B8, $00, $78
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_YellowDamF1:
+ObjectData_YellowDamF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$24, $05, $98, $02, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_YellowDamF2:
+ObjectData_YellowDamF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$25, $01, $F8, $00, $D8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1571,17 +1570,17 @@ SpriteData_YellowDamF2:
 	dc.b	$21, $03, $30, $01, $80
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_YellowDamF3:
+ObjectData_YellowDamF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$28, $02, $D8, $00, $D8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RedDamGroundF:
+ObjectData_RedDamGroundF:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$29, $05, $18, $00, $F8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RedDamF2:
+ObjectData_RedDamF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$2A, $01, $D8, $01, $78
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1590,14 +1589,14 @@ SpriteData_RedDamF2:
 	dc.b	$23, $02, $D0, $01, $40
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BlueDamF1:
+ObjectData_BlueDamF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$2C, $03, $98, $01, $F8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$2D, $00, $B8, $01, $78
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BlueDamF2:
+ObjectData_BlueDamF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$2E, $02, $F8, $02, $18
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1606,7 +1605,7 @@ SpriteData_BlueDamF2:
 	dc.b	$30, $00, $F8, $02, $B8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BlueDamF3:
+ObjectData_BlueDamF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$31, $03, $18, $01, $D8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1615,12 +1614,12 @@ SpriteData_BlueDamF3:
 	dc.b	$1F, $01, $50, $02, $00
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BlueDamF4:
+ObjectData_BlueDamF4:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$33, $02, $18, $01, $B8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GreenDamGroundF:
+ObjectData_GreenDamGroundF:
 	dc.b	(ObjID_OpenableDoor-$14)<<2
 	dc.b	$1C, $05, $F8, $01, $9F
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1631,7 +1630,7 @@ SpriteData_GreenDamGroundF:
 	dc.b	$36, $01, $18, $01, $B8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GreenDamF1:
+ObjectData_GreenDamF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$37, $0A, $38, $01, $38
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1640,7 +1639,7 @@ SpriteData_GreenDamF1:
 	dc.b	$1D, $07, $10, $01, $C0
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BiosystemsLabB1:
+ObjectData_BiosystemsLabB1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$39, $01, $08, $00, $D8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1651,7 +1650,7 @@ SpriteData_BiosystemsLabB1:
 	dc.b	$12, $05, $00, $01, $40
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BiosystemsLabF1:
+ObjectData_BiosystemsLabF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$3C, $02, $F8, $01, $18
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1660,31 +1659,31 @@ SpriteData_BiosystemsLabF1:
 	dc.b	$3E, $01, $88, $02, $D8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BiosystemsLabF2:
+ObjectData_BiosystemsLabF2:
 	dc.b	$A0
 	dc.b	$1A, $02, $F8, $02, $FF
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$3F, $02, $F8, $04, $18
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ClimatrolF2:
+ObjectData_ClimatrolF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$40, $00, $F8, $01, $98
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ClimatrolF3:
+ObjectData_ClimatrolF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$41, $01, $38, $01, $98
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ClimatrolF5:
+ObjectData_ClimatrolF5:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$42, $04, $F8, $01, $78
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$43, $01, $18, $01, $B8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ClimatrolF6:
+ObjectData_ClimatrolF6:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$44, $04, $D8, $01, $D8
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
@@ -1693,7 +1692,7 @@ SpriteData_ClimatrolF6:
 	dc.b	$46, $00, $38, $02, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_NavalF1:
+ObjectData_NavalF1:
 	dc.b	$96
 	dc.b	$47, $02, $38, $00, $B8
 	dc.b	$96
@@ -1710,80 +1709,80 @@ SpriteData_NavalF1:
 	dc.b	$4D, $03, $78, $01, $78
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_MenobeGroundF:
+ObjectData_MenobeGroundF:
 	dc.b	$96
 	dc.b	$4E, $03, $78, $02, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_MenobeF1:
+ObjectData_MenobeF1:
 	dc.b	$96
 	dc.b	$4F, $00, $D8, $02, $F8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_MenobeF2:
+ObjectData_MenobeF2:
 	dc.b	$96
 	dc.b	$50, $02, $98, $02, $F8
 	dc.b	$96
 	dc.b	$51, $03, $98, $02, $F8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_IkutoB5:
+ObjectData_IkutoB5:
 	dc.b	$96
 	dc.b	$52, $05, $38, $04, $D8
 	dc.b	$96
 	dc.b	$53, $02, $58, $00, $F8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_IkutoB4:
+ObjectData_IkutoB4:
 	dc.b	$96
 	dc.b	$54, $05, $38, $03, $78
 	dc.b	$96
 	dc.b	$55, $01, $B8, $05, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_IkutoB3:
+ObjectData_IkutoB3:
 	dc.b	$96
 	dc.b	$56, $00, $D8, $02, $98
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_IkutoB2:
+ObjectData_IkutoB2:
 	dc.b	$96
 	dc.b	$57, $02, $D8, $00, $D8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GuaronGroundF:
+ObjectData_GuaronGroundF:
 	dc.b	$96
 	dc.b	$58, $04, $88, $00, $78
 	dc.b	$96
 	dc.b	$59, $00, $38, $02, $B8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GuaronF1:
+ObjectData_GuaronF1:
 	dc.b	$96
 	dc.b	$5A, $04, $F8, $01, $38
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GuaronF7:
+ObjectData_GuaronF7:
 	dc.b	$96
 	dc.b	$5B, $00, $F8, $01, $58
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GuaronF8:
+ObjectData_GuaronF8:
 	dc.b	$96
 	dc.b	$5C, $01, $F8, $01, $18
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_GuaronF15:
+ObjectData_GuaronF15:
 	dc.b	$96
 	dc.b	$5D, $00, $F8, $00, $F8
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_NoahF1:
+ObjectData_NoahF1:
 	dc.b	$50
 	dc.b	$00, $02, $10, $00, $70
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_ControlTowerF1:
+ObjectData_ControlTowerF1:
 	dc.b	(ObjID_OpenableDoor-$14)<<2
 	dc.b	$24, $02, $F8, $00, $FF
 	dc.b	$90
@@ -1798,37 +1797,37 @@ SpriteData_ControlTowerF1:
 	dc.b	$16, $03, $50, $00, $60
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_MotaPassageDoor:
+ObjectData_MotaPassageDoor:
 	dc.b	(ObjID_OpenableDoor-$14)<<2
 	dc.b	$1B, $00, $98, $00, $FF
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_NidoGroundF:
+ObjectData_NidoGroundF:
 	dc.b	$A0
 	dc.b	$18, $03, $58, $02, $DF
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_YellowDamGroundF:
+ObjectData_YellowDamGroundF:
 	dc.b	(ObjID_OpenableDoor-$14)<<2
 	dc.b	$20, $01, $18, $01, $BF
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_RedDamF1:
+ObjectData_RedDamF1:
 	dc.b	(ObjID_OpenableDoor-$14)<<2
 	dc.b	$22, $02, $F8, $01, $1F
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BlueDamGroundF:
+ObjectData_BlueDamGroundF:
 	dc.b	(ObjID_OpenableDoor-$14)<<2
 	dc.b	$1E, $03, $58, $01, $BF
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_BiosystemsLabGroundF:
+ObjectData_BiosystemsLabGroundF:
 	dc.b	$A0
 	dc.b	$19, $02, $F8, $04, $9F
 	dc.w	0
 ; ------------------------------------------------------------	
-SpriteData_MotaWorldMap:
+ObjectData_MotaWorldMap:
 	dc.b	$38
 	dc.b	$06, $05, $88, $07, $38
 	dc.b	$90
@@ -1841,12 +1840,12 @@ SpriteData_MotaWorldMap:
 	dc.b	$00, $04, $90, $04, $90
 	dc.w	0
 ; ------------------------------------------------------------	
-SpriteData_ClimatrolF7:
+ObjectData_ClimatrolF7:
 	dc.b	$78
 	dc.b	$25, $03, $08, $01, $98
 	dc.w	0
 ; ------------------------------------------------------------	
-SpriteData_Uzo:
+ObjectData_Uzo:
 	dc.b	$90
 	dc.b	$10, $08, $D0, $01, $10
 	dc.b	$90
@@ -1863,7 +1862,7 @@ SpriteData_Uzo:
 	dc.b	$04, $0A, $70, $01, $50
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_EspMansionB1:
+ObjectData_EspMansionB1:
 	dc.b	$3C
 	dc.b	$00, $00, $F8, $00, $87
 	dc.b	$40
@@ -1880,7 +1879,7 @@ SpriteData_EspMansionB1:
 	dc.b	$8F, $01, $38, $00, $98
 	dc.w	0
 ; ------------------------------------------------------------	
-SpriteData_EspMansion:
+ObjectData_EspMansion:
 	dc.b	$71
 	dc.b	$88, $00, $F0, $01, $B8
 	dc.b	$71
@@ -1903,7 +1902,7 @@ SpriteData_EspMansion:
 	dc.b	$00, $01, $10, $00, $FF
 	dc.w	0
 ; ------------------------------------------------------------
-SpriteData_Gaira:
+ObjectData_Gaira:
 	dc.b	$8C
 	dc.b	$2F, $03, $60, $01, $A0
 	dc.w	0
@@ -2468,7 +2467,7 @@ loc_19E4:
 ; ---------------------------------------------------------------
 ; Object - Explosion seen in monitor on Tyler's spaceship
 ; ---------------------------------------------------------------	
-Obj_ExplosionTylerSpaceship:
+Obj_MonitorExplosion:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	ObjETS_Index(pc,d0.w)
@@ -2545,7 +2544,7 @@ Obj_Null1:
 ; ---------------------------------------------------------------
 ; Object - Characters in battle
 ; ---------------------------------------------------------------
-Obj_CharactersBattle:
+Obj_BattleCharacter:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	ObjCB_Index(pc,d0.w)
@@ -3790,7 +3789,7 @@ loc_2898:
 	
 	
 ; ---------------------------------------------------------------
-loc_289E:
+Obj_BattleLongRangeAttack:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_28AA(pc,d0.w)
@@ -3823,7 +3822,7 @@ loc_28E6:
 	rts
 	
 ; ---------------------------------------------------------------	
-loc_28F2:
+Obj_BattleCloseRangeAttack:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_28FE(pc,d0.w)
@@ -3845,7 +3844,7 @@ loc_291E:
 	rts
 ; ---------------------------------------------------------------	
 
-loc_292A:
+Obj_BattleTechnique:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_2936(pc,d0.w)
@@ -3876,7 +3875,7 @@ Obj_Null2:
 ; ---------------------------------------------------------------
 ; Object - Enemies in battle
 ; ---------------------------------------------------------------	
-Obj_EnemiesBattle:
+Obj_BattleEnemy:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	ObjEnmBattle_Index(pc,d0.w)
@@ -4620,7 +4619,7 @@ loc_3164:
 ; ---------------------------------------------------------------
 	
 	
-loc_3166:
+Obj_EnemyAttack:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_3172(pc,d0.w)
@@ -4648,7 +4647,7 @@ loc_31B0:
 ; ---------------------------------------------------------------
 
 	
-loc_31BC:
+Obj_EnemySkill:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_31C8(pc,d0.w)
@@ -5129,7 +5128,7 @@ loc_36B0:
 	rts
 	
 ; --------------------------------------------------------------
-; Object - Character Sprites in level
+; Object - Character Sprites in the map
 ; --------------------------------------------------------------
 	
 Obj_MapCharacters:
@@ -5219,7 +5218,7 @@ loc_3786:
 	bpl.s	loc_381A
 	cmpi.b	#$FF, d0
 	bne.s	loc_37EC
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
@@ -5387,7 +5386,7 @@ loc_39D0:
 	rts
 	
 ; =======================================
-; Sprite mappings index in level
+; Sprite mappings index in the map
 Map_SpriteMappingsArray:
 	dc.b	$00
 	dc.b	$01
@@ -6270,7 +6269,7 @@ loc_4286:
 	rts
 ; --------------------------------------------------------------
 
-loc_4288:
+Obj_Motavian:
 	tst.b	3(a0)
 	bne.s	loc_4298
 	move.w	$22(a0), d0
@@ -6933,7 +6932,7 @@ loc_4B18:
 	rts
 ; ------------------------------------------------------
 
-loc_4B28:
+Obj_CryogenicsChamberPart1:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4B34(pc,d0.w)
@@ -6980,7 +6979,7 @@ loc_4BAE:
 ; ------------------------------------------------------
 
 
-loc_4BB0:
+Obj_CryogenicsChamberPart2:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4BBC(pc,d0.w)
@@ -7026,7 +7025,7 @@ loc_4C36:
 	rts
 ; --------------------------------------------------------------
 	
-loc_4C38:
+Obj_CryogenicsChamberPart3:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4C44(pc,d0.w)
@@ -7072,7 +7071,7 @@ loc_4CBE:
 	rts
 ; --------------------------------------------------------------
 
-loc_4CC0:
+Obj_CryogenicsChamberPart4:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4CCC(pc,d0.w)
@@ -7094,7 +7093,7 @@ loc_4CFA:
 	rts
 ; --------------------------------------------------------------
 
-loc_4CFC:
+Obj_CryogenicsChamberPart5:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4D08(pc,d0.w)
@@ -7158,7 +7157,7 @@ loc_4DBE:
 	bpl.s	loc_4DD6
 	move.w	#BuildingID_EsperMansion, (building_index).w
 	move.w	#$39, (portrait_index).w
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 loc_4DD6:
 	rts
 ; --------------------------------------------------------------
@@ -7506,7 +7505,7 @@ loc_51A0:
 	dc.b	$00
 ; ==============================================================	
 	
-Obj_RandomExplosion:
+Obj_Explosion:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_51C2(pc,d0.w)
@@ -7673,7 +7672,7 @@ loc_5404:
 	rts
 loc_5406:
 	rts
-loc_5408:
+Obj_LutzChair:
 	tst.b	3(a0)
 	bne.s	loc_5418
 	move.w	$22(a0), d0
@@ -7726,7 +7725,7 @@ ObjNeifirst_Main:
 	rts
 	
 
-loc_549A:
+Obj_Lutz:
 	tst.b	3(a0)
 	bne.s	loc_54AA
 	move.w	$22(a0), d0
@@ -8010,7 +8009,7 @@ loc_57FC:
 	move.w	#0, $2C(a0)
 	move.w	#0, $2E(a0)
 	rts
-loc_580A:
+Obj_PouringWater:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_5816(pc,d0.w)
@@ -10260,7 +10259,7 @@ loc_6EE6:
 	move.w	d0, $FFFFF764.w
 	move.b	(a1), d0
 	move.w	d0, $FFFFF766.w
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 	move.w	$FFFFE40E.w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
@@ -10625,7 +10624,7 @@ GameMode_Sega:
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w	; check start press
 	beq.s	-				
 +
-	move.b	#GameModeID_Title, (game_screen).w	; move to Title screen
+	move.b	#GameModeID_Title, (game_mode_index).w	; move to Title screen
 	rts
 	
 ; ------------------------------------------------------------
@@ -10676,7 +10675,7 @@ GameMode_Title:
 	moveq	#$1B, d2
 	bsr.w	DrawArtTiles
 	
-	moveq	#pal_id_tit_scr, d0
+	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	move.b	#$81, d0		; Phantasy music
 	bsr.w	UpdateSoundQueue
@@ -10775,14 +10774,14 @@ GameMode_TitleLoop:
 
 MoveToGameMode_Intro:
 	move.w	#0, (controls_locked).w		; unlock controls
-	move.b	#GameModeID_Intro, (game_screen).w		
+	move.b	#GameModeID_Intro, (game_mode_index).w		
 	move.w	#BuildingID_RolfHouseStart, (building_index).w		
 	rts
 	
 
 MoveToOpeningScreen:
 	move.w	#1, (controls_locked).w
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 	move.w	#MapID_MotaviaOutside, (map_index).w
 	move.w	#$520, (map_y_pos).w
 	move.w	#$5B0, (map_x_pos).w
@@ -10838,7 +10837,7 @@ loc_764C:
 	move.l	d7, (a6)+
 	dbf	d6, loc_764C
 	
-	moveq	#pal_id_tit_scr, d0
+	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	lea	$FFFFFBE0.w, a0
 	moveq	#0, d0
@@ -10980,7 +10979,7 @@ loc_785C:
 	beq.s	loc_785C
 	
 	move.w	#$9001, (vdp_control_port).l
-	move.b	#GameModeID_Sega, (game_screen).w	; Sega screen
+	move.b	#GameModeID_Sega, (game_mode_index).w	; Sega screen
 	rts
 	
 loc_787E:
@@ -11476,13 +11475,13 @@ loc_7DCE:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#ButtonStart_Mask, d0			; start press
 	beq.s	loc_7DF6	; branch if start was not pressed
-	move.b	#GameModeID_Title, (game_screen).w	; Title screen index
+	move.b	#GameModeID_Title, (game_mode_index).w	; Title screen index
 loc_7DEC:
-	cmpi.b	#GameModeID_Sega, (game_screen).w
+	cmpi.b	#GameModeID_Sega, (game_mode_index).w
 	beq.w	GameOverScreen	; branch if all characters are dead
 loc_7DF6:
-	cmpi.b	#GameModeID_Map, (game_screen).w
-	beq.w	GameMode_MapLoop	; branch if we are on the Level screen
+	cmpi.b	#GameModeID_Map, (game_mode_index).w
+	beq.w	GameMode_MapLoop	; branch if we are in the map
 loc_7E00:
 	rts
 	
@@ -11798,7 +11797,7 @@ loc_81E6:
 	cmp.w	(a1)+, d0
 	bne.s	loc_821E
 	move.w	#$101, (enemy_data_buffer).w		; Army Eye boss battle
-	move.b	#GameModeID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_mode_index).w
 loc_821E:
 	move.w	#0, (event_flags).w
 loc_8224:
@@ -11907,7 +11906,7 @@ loc_834C:
 	bne.s	loc_834C
 	move.w	#$8F02, (a6)
 	addq.w	#1, (event_routine).w
-	moveq	#pal_id_tit_scr, d0
+	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	bra.s	loc_839A
 	
@@ -11955,7 +11954,7 @@ GameMode_BuildingLoop:
 	bsr.w	loc_66F6
 	tst.w	(screen_changed_flag).w
 	bne.s	loc_8406
-	cmpi.b	#GameModeID_Building, (game_screen).w
+	cmpi.b	#GameModeID_Building, (game_mode_index).w
 	beq.s	GameMode_BuildingLoop
 loc_8406:
 	rts
@@ -12244,10 +12243,10 @@ GameMode_BattleLoop:
 	beq.s	+
 	move.w	#1, (fight_interrupted_flag).w	; interrupt fight if we pressed a button
 +
-	cmpi.b	#GameModeID_Battle, (game_screen).w
+	cmpi.b	#GameModeID_Battle, (game_mode_index).w
 	beq.s	GameMode_BattleLoop
 	
-	cmpi.b	#GameModeID_Sega, (game_screen).w
+	cmpi.b	#GameModeID_Sega, (game_mode_index).w
 	beq.s	GameOverScreen
 	rts
 	
@@ -12287,7 +12286,7 @@ GameOverScreen:
 	moveq	#$1B, d2
 	bsr.w	DrawArtTiles
 	move	#$2500, sr
-	moveq	#pal_id_tit_scr, d0
+	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	move.w	#$4514, d0
 	move.w	d0, $FFFFCD16.w
@@ -12378,7 +12377,7 @@ loc_8950:
 	move.l	d7, (a6)+
 	dbf	d6, -
 	
-	moveq	#pal_id_tit_scr, d0
+	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	lea	($FFFFDE00).w, a6
 	moveq	#0, d7
@@ -12412,13 +12411,13 @@ GameMode_IntroLoop:
 	tst.w	(screen_changed_flag).w
 	bmi.s	loc_89E6
 	bne.s	loc_89E4
-	cmpi.b	#GameModeID_Intro, (game_screen).w
+	cmpi.b	#GameModeID_Intro, (game_mode_index).w
 	beq.s	GameMode_IntroLoop
 loc_89E4:
 	rts
 	
 loc_89E6:
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 	rts
 	
 loc_89EE:
@@ -12448,7 +12447,7 @@ loc_8A08:
 	move.w	#0, (party_members_num).w
 	move.w	#0, (party_members_joined).w
 	move.w	#1, (party_member_join_next).w
-	move.l	#$C8, (money_owned).w		; start with 200 meseta
+	move.l	#$C8, (current_money).w		; start with 200 meseta
 	move.l	#$80808080, $FFFFC790.w		; this makes the treasure chests in Shure locked
 	move.w	#$101, ($FFFFC78E).w
 	
@@ -13228,7 +13227,7 @@ loc_9060:
 	
 Map_LoadData:
 	lea	(MapData).l, a1
-	move.w	(map_index).w, d0	; get Level index
+	move.w	(map_index).w, d0
 	mulu.w	#$14, d0
 	adda.w	d0, a1
 	lea	(loc_9342).l, a4
@@ -13437,7 +13436,7 @@ loc_92CC:
 	bne.s	loc_92EE
 	moveq	#ItemID_Prism, d2
 	bsr.w	CheckItemExistInventory
-	bne.s	loc_92EC					; no Prism? Then, don't load Dezolis dungeons art in level
+	bne.s	loc_92EC					; no Prism? Then, don't load Dezolis dungeons art
 	moveq	#$63, d1
 	move.b	d1, $FFFF9096.w
 	move.b	d1, $FFFF90EC.w
@@ -14894,7 +14893,7 @@ Visiphone_ItemSelected:
 	move.w	#9, (portrait_index).w
 	move.w	#0, $FFFFF764.w
 	move.w	#1, $FFFFF766.w
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 	move.w	$FFFFE40E.w, d0		; get characters' y position
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w ; and save it
@@ -16106,7 +16105,7 @@ Building_CheckRoutine:
 	bne.s	loc_AF02
 	move.w	(event_routine).w, d1
 	bne.s	loc_AF04
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 loc_AF02:
 	rts
 	
@@ -17562,7 +17561,7 @@ loc_BF26:
 	bsr.w	loc_AE2E
 	bsr.w	RemoveItemFromInventory
 	move.l	(meseta_value).w, d0
-	bsr.w	AddToMoneyOwned
+	bsr.w	AddToCurrentMoney
 	move.w	#$80C, (script_id).w
 	move.w	#((6<<8)|WinID_StoreMeseta), (window_index+2).w
 	rts
@@ -18143,7 +18142,7 @@ SpaceShipLoop:
 	jsr	(BuildSprites).l
 	tst.w	(demo_timer).w
 	bne.s	SpaceShipLoop
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 	move.b	#SFXID_SpaceshipLanded, (sound_queue).w
 	rts
 	
@@ -18928,7 +18927,7 @@ loc_CE6E:
 	move.w	#MapID_Paseo, (map_index).w
 	move.w	#$170, (map_y_pos).w
 	move.w	#$3D0, (map_x_pos).w
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 	move.w	#0, (jet_scooter_flag).w
 	move.w	#BuildingID_CentralTowerGovernor, (building_index).w
 	move.w	#$17, (portrait_index).w
@@ -19043,19 +19042,19 @@ NeiEquipmentArrayEnd:
 
 	even
 	
-AddToMoneyOwned:
-	add.l	d0, (money_owned).w
+AddToCurrentMoney:
+	add.l	d0, (current_money).w
 	cmpi.l	#$5F5E0FF, d0
 	bcs.s	loc_D01A
-	move.l	#$5F5E0FF, (money_owned).w	; cap at 99,999,999
+	move.l	#$5F5E0FF, (current_money).w	; cap at 99,999,999
 loc_D01A:
 	rts
 	
 	
 CheckSubtractMoney:
-	sub.l	d0, (money_owned).w
+	sub.l	d0, (current_money).w
 	bcc.s	+
-	add.l	d0, (money_owned).w
+	add.l	d0, (current_money).w
 	moveq	#-1, d0					; not enough money
 	rts
 	
@@ -19217,22 +19216,22 @@ IntroScr_CheckRoutine:
 	tst.w	(window_active_flag).w
 	bne.s	loc_D158
 	move.w	(event_routine).w, d1
-	bne.s	IntroScr_RunRoutine
-	move.b	#GameModeID_Title, (game_screen).w	
+	bne.s	Intro_RunRoutine
+	move.b	#GameModeID_Title, (game_mode_index).w	
 loc_D158:
 	rts
 	
-IntroScr_RunRoutine:
+Intro_RunRoutine:
 	move.w	(building_index).w, d0
 	lsl.w	#2, d0
 	andi.w	#4, d0
 	jmp	IntroScr_EventIndex(pc,d0.w)
 ; --------------------------------------------------------
 IntroScr_EventIndex:
-	bra.w	IntroScr_EventSelectGame
-	bra.w	IntroScr_EventStartGame
+	bra.w	Intro_EventSelectGame
+	bra.w	Intro_EventStartGame
 ; --------------------------------------------------------
-IntroScr_EventSelectGame:
+Intro_EventSelectGame:
 	lsl.w	#2, d1
 	andi.w	#$7C, d1
 	jmp	loc_D17A-4(pc,d1.w)
@@ -19364,7 +19363,7 @@ loc_D2E4:
 	addq.w	#7, (event_routine).w
 	rts
 loc_D2EA:
-	move.b	#GameModeID_Title, (game_screen).w
+	move.b	#GameModeID_Title, (game_mode_index).w
 	rts
 loc_D2F2:
 	move.w	#WinID_ScriptMessage2, (window_index).w
@@ -19452,7 +19451,7 @@ loc_D3B6:
 	move.w	#$10, (portrait_index).w	
 +
 	move.w	#1, $FFFFF764.w
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 	rts
 loc_D412:
 	move.w	#$130A, (script_id).w		; "There is no data for that number. Enter a different number."
@@ -19526,7 +19525,7 @@ loc_D4EA:
 	move.w	#$8002, d1
 	bra.w	CloseCurrentWindow
 ; --------------------------------------------------------
-IntroScr_EventStartGame:
+Intro_EventStartGame:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	loc_D502-4(pc,d1.w)
@@ -20253,7 +20252,7 @@ loc_DD06:
 loc_DD12:
 	addq.w	#1, ($FFFFDE72).w
 	move.w	#$100, (enemy_data_buffer).w		; Neifirst boss battle
-	move.b	#GameModeID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_mode_index).w
 	move.w	#$100, (event_flags).w
 	move.l	(party_member_id).w, $FFFFC618.w
 	move.l	$FFFFC60C.w, $FFFFC61C.w
@@ -20286,7 +20285,7 @@ loc_DD7A:
 	move.w	#-1, (screen_changed_flag).w	
 	rts	
 loc_DD9A:
-	move.b	#GameModeID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_mode_index).w
 	rts
 	
 loc_DDA2:
@@ -20372,7 +20371,7 @@ loc_DE52:
 	lea	($FFFFEC00).w, a1
 	move.w	#$F, d2
 loc_DE62:
-	_move.w	#ObjID_RandomExplosion, 0(a1)
+	_move.w	#ObjID_Explosion, 0(a1)
 	moveq	#0, d0
 	move.b	(a2)+, d0
 	lsl.w	#4, d0
@@ -20514,7 +20513,7 @@ loc_DFE6:
 	move.b	#1, (a0)
 	move.w	#BuildingID_GairaControlPanel, (building_index).w
 	move.w	#$1B, (portrait_index).w
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 	rts
 	
 loc_DFFE:
@@ -20539,7 +20538,7 @@ loc_E026:
 	tst.w	(a2,d1.w)	
 	bne.s	loc_E03C	
 	dbf	d0, loc_E026	
-	move.b	#GameModeID_Sega, (game_screen).w	
+	move.b	#GameModeID_Sega, (game_mode_index).w	
 loc_E03C:
 	addq.w	#1, ($FFFFDE72).w	
 	rts	
@@ -20579,7 +20578,7 @@ loc_E0A2:
 loc_E0AA:
 	move.w	#BuildingID_EsperMansion, (building_index).w
 	move.w	#$39, (portrait_index).w
-	move.b	#GameModeID_Building, (game_screen).w
+	move.b	#GameModeID_Building, (game_mode_index).w
 	bra.s	loc_E0D8
 loc_E0BE:
 	tst.w	d2
@@ -20612,7 +20611,7 @@ loc_E0FE:
 	rts
 loc_E114:
 	move.w	#$102, (enemy_data_buffer).w		; Dark Force boss battle
-	move.b	#GameModeID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_mode_index).w
 	rts
 loc_E122:
 	tst.w	d2
@@ -20671,7 +20670,7 @@ loc_E1B6:
 	bne.s	loc_E1D2
 	move.b	#1, (a0)
 	move.w	#$103, (enemy_data_buffer).w		; Mother Brain boss battle
-	move.b	#GameModeID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_mode_index).w
 	move.w	#$F00, (event_flags).w
 	rts
 loc_E1D2:
@@ -20887,7 +20886,7 @@ loc_E456:
 	rts
 loc_E458:
 	addq.w	#1, ($FFFFDE72).w
-	move.b	#GameModeID_Ending, (game_screen).w
+	move.b	#GameModeID_Ending, (game_mode_index).w
 	rts
 	
 ; ==========================================
@@ -20939,7 +20938,7 @@ loc_E4E4:
 	bsr.s	loc_E48C
 	tst.w	(demo_timer).w
 	bne.s	loc_E4F6
-	move.b	#GameModeID_Sega, (game_screen).w
+	move.b	#GameModeID_Sega, (game_mode_index).w
 loc_E4F6:
 	rts
 ; -------------------------------------------------------------	
@@ -21416,7 +21415,7 @@ loc_E804:
 	beq.w	loc_E8B4
 	ext.l	d0
 	move.l	d0, (meseta_value).w
-	bsr.w	AddToMoneyOwned
+	bsr.w	AddToCurrentMoney
 	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.b	#1, (a0)
 	move.w	#$1701, (script_id).w
@@ -21487,99 +21486,99 @@ loc_E8B4:
 ; other values = Meseta value
 ; ===============================================
 TreasureChestContentArray:
-	dc.w	$3A98
-	dc.w	$8000|ItemID_MogicCap
-	dc.w	$4650
-	dc.w	$8000|ItemID_MagicCap
-	dc.w	$1E78
-	dc.w	$8000|ItemID_LaconChest
-	dc.w	$15E0
-	dc.w	$8000|ItemID_GardaBoots
-	dc.w	$2198
-	dc.w	$8000|ItemID_MagicCap
-	dc.w	$2EE0
-	dc.w	$1900
-	dc.w	$C8
-	dc.w	$8000|ItemID_Prism
-	dc.w	$8000|ItemID_NeiSword
-	dc.w	$8000|ItemID_Monomate
-	dc.w	$96
-	dc.w	$8000|ItemID_Dynamite
-	dc.w	$8000|ItemID_Dynamite
-	dc.w	$28
-	dc.w	$8000|ItemID_Dimate
-	dc.w	$8000|ItemID_Headgear
-	dc.w	$C8
-	dc.w	$8000|ItemID_SilRibbon
-	dc.w	$14
-	dc.w	$64
-	dc.w	$8000|ItemID_Dimate
-	dc.w	$8000|ItemID_Trimate
-	dc.w	$3C
-	dc.w	0
-	dc.w	0
-	dc.w	$8000|ItemID_CeramBar
-	dc.w	0
-	dc.w	$8000|ItemID_Cannon
-	dc.w	0
-	dc.w	$8000|ItemID_Escapipe
-	dc.w	$8000|ItemID_Crystanish
-	dc.w	$8000|ItemID_CrystCape
-	dc.w	$8000|ItemID_CrystChest
-	dc.w	$8000|ItemID_AmberRobe
-	dc.w	$8000|ItemID_SwdOfAnger
-	dc.w	$8000|ItemID_FireSlshr
-	dc.w	$8000|ItemID_FireStaff
-	dc.w	$8000|ItemID_Antidote
-	dc.w	$8000|ItemID_Crescegear
-	dc.w	$8000|ItemID_SnowCrown
-	dc.w	$8000|ItemID_StarMist
-	dc.w	$8000|ItemID_WindScarf
-	dc.w	$8000|ItemID_ColorScarf
-	dc.w	$8000|ItemID_Trimate
-	dc.w	$8000|ItemID_StormGear
-	dc.w	$8000|ItemID_StarMist
-	dc.w	$8000|ItemID_Aegis
-	dc.w	$8000|ItemID_Telepipe
-	dc.w	$8000|ItemID_GrSleeves
-	dc.w	$8000|ItemID_TruthSlvs
-	dc.w	$8000|ItemID_Trimate
-	dc.w	$8000|ItemID_Antidote
-	dc.w	$8000|ItemID_PoisonShot
-	dc.w	$8000|ItemID_Antidote
-	dc.w	$8000|ItemID_Scalpel
-	dc.w	$8000|ItemID_StarMist
-	dc.w	$8000|ItemID_Dynamite
-	dc.w	$8000|ItemID_JwlRibbon
-	dc.w	$8000|ItemID_FiberVest
-	dc.w	$8000|ItemID_KnifeBoots
-	dc.w	$8000|ItemID_SilRibbon
-	dc.w	$8000|ItemID_Sandals
-	dc.w	$8000|ItemID_LaserBar
-	dc.w	$8000|ItemID_CeramBar
-	dc.w	$8000|ItemID_NeiShield
-	dc.w	$8000|ItemID_NeiEmel
-	dc.w	$8000|ItemID_TruthSlvs
-	dc.w	$8000|ItemID_Trimate
-	dc.w	$8000|ItemID_MirEmel
-	dc.w	$8000|ItemID_LaconEmel
-	dc.w	$8000|ItemID_GrSleeves
-	dc.w	$8000|ItemID_NeiCrown
-	dc.w	$8000|ItemID_StormGear
-	dc.w	$8000|ItemID_Neimet
-	dc.w	$8000|ItemID_ColorScarf
-	dc.w	$8000|ItemID_NeiSlasher
-	dc.w	$8000|ItemID_NeiShot
-	dc.w	$8000|ItemID_FireStaff
-	dc.w	$8000|ItemID_LacnMace
-	dc.w	$8000|ItemID_PlsCannon
-	dc.w	$8000|ItemID_LacDagger
-	dc.w	$8000|ItemID_AmberRobe
-	dc.w	$8000|ItemID_Laconinish
-	dc.w	$8000|ItemID_CrystChest
-	dc.w	$8000|ItemID_NeiCape
-	dc.w	$8000|ItemID_CrystCape
-	dc.w	$8000|ItemID_NeiArmor
+	dc.w	15000					; 1 - Skure B2
+	dc.w	$8000|ItemID_MogicCap	; 2 - Skure B2
+	dc.w	18000					; 3 - Skure B2
+	dc.w	$8000|ItemID_MagicCap	; 4 - Skure B2
+	dc.w	7800					; 5 - Skure B2
+	dc.w	$8000|ItemID_LaconChest	; 6 - Skure B2
+	dc.w	5600					; 7 - Skure B2
+	dc.w	$8000|ItemID_GardaBoots	; 8 - Skure B1
+	dc.w	8600					; 9 - Red Dam F1
+	dc.w	$8000|ItemID_MagicCap	; $A - Red Dam F1
+	dc.w	12000					; $B - Red Dam F1
+	dc.w	6400					; $C - Red Dam F1
+	dc.w	200						; $D
+	dc.w	$8000|ItemID_Prism		; $E - Esper Mansion
+	dc.w	$8000|ItemID_NeiSword	; $F - Esper Mansion
+	dc.w	$8000|ItemID_Monomate	; $10 - Shure
+	dc.w	150						; $11 - Shure
+	dc.w	$8000|ItemID_Dynamite	; $12 - Shure
+	dc.w	$8000|ItemID_Dynamite	; $13 - Shure
+	dc.w	40						; $14 - Shure
+	dc.w	$8000|ItemID_Dimate		; $15 - Shure F1
+	dc.w	$8000|ItemID_Headgear	; $16 - Shure F2
+	dc.w	200						; $17 - Shure F2
+	dc.w	$8000|ItemID_SilRibbon	; $18 - Shure F3
+	dc.w	20						; $19 - Nido F1
+	dc.w	100						; $1A - Nido F1
+	dc.w	$8000|ItemID_Dimate		; $1B - Nido F1
+	dc.w	$8000|ItemID_Trimate	; $1C - Nido F2
+	dc.w	60						; $1D - Nido F2
+	dc.w	0						; $1E - Roron B3 (bottom side)
+	dc.w	0						; $1F - Roron B3 (top side)
+	dc.w	$8000|ItemID_CeramBar	; $20 - Roron B2 (top side)
+	dc.w	0						; $21 - Roron B2 (bottom side)
+	dc.w	$8000|ItemID_Cannon		; $22 - Roron B1
+	dc.w	0						; $23 - Roron B1
+	dc.w	$8000|ItemID_Escapipe	; $24 - Yellow Dam F1
+	dc.w	$8000|ItemID_Crystanish	; $25 - Yellow Dam F2
+	dc.w	$8000|ItemID_CrystCape	; $26 - Yellow Dam F2
+	dc.w	$8000|ItemID_CrystChest	; $27 - Yellow Dam F2
+	dc.w	$8000|ItemID_AmberRobe	; $28 - Yellow Dam F3
+	dc.w	$8000|ItemID_SwdOfAnger	; $29 - Red Dam B1
+	dc.w	$8000|ItemID_FireSlshr	; $2A - Red Dam F1
+	dc.w	$8000|ItemID_FireStaff	; $2B - Red Dam F1
+	dc.w	$8000|ItemID_Antidote	; $2C - Blue Dam F1
+	dc.w	$8000|ItemID_Crescegear	; $2D - Blue Dam F1
+	dc.w	$8000|ItemID_SnowCrown	; $2E - Blue Dam F2
+	dc.w	$8000|ItemID_StarMist	; $2F - Blue Dam F2
+	dc.w	$8000|ItemID_WindScarf	; $30 - Blue Dam F2
+	dc.w	$8000|ItemID_ColorScarf	; $31 - Blue Dam F3
+	dc.w	$8000|ItemID_Trimate	; $32 - Blue Dam F3
+	dc.w	$8000|ItemID_StormGear	; $33 - Blue Dam F4
+	dc.w	$8000|ItemID_StarMist	; $34 - Green Dam
+	dc.w	$8000|ItemID_Aegis		; $35 - Green Dam
+	dc.w	$8000|ItemID_Telepipe	; $36 - Green Dam
+	dc.w	$8000|ItemID_GrSleeves	; $37 - Green Dam F1
+	dc.w	$8000|ItemID_TruthSlvs	; $38 - Green Dam F1
+	dc.w	$8000|ItemID_Trimate	; $39 - Biosystem Labs basement
+	dc.w	$8000|ItemID_Antidote	; $3A - Biosystem Labs basement
+	dc.w	$8000|ItemID_PoisonShot	; $3B - Biosystem Labs basement
+	dc.w	$8000|ItemID_Antidote	; $3C - Biosystem Labs F1
+	dc.w	$8000|ItemID_Scalpel	; $3D - Biosystem Labs F1
+	dc.w	$8000|ItemID_StarMist	; $3E - Biosystem Labs F1
+	dc.w	$8000|ItemID_Dynamite	; $3F - Biosystem Labs F2
+	dc.w	$8000|ItemID_JwlRibbon	; $40 - Climatrol F2
+	dc.w	$8000|ItemID_FiberVest	; $41 - Climatrol F3
+	dc.w	$8000|ItemID_KnifeBoots	; $42 - Climatrol F5
+	dc.w	$8000|ItemID_SilRibbon	; $43 - Climatrol F5
+	dc.w	$8000|ItemID_Sandals	; $44 - Climatrol F6
+	dc.w	$8000|ItemID_LaserBar	; $45 - Climatrol F6
+	dc.w	$8000|ItemID_CeramBar	; $46 - Climatrol F6
+	dc.w	$8000|ItemID_NeiShield	; $47
+	dc.w	$8000|ItemID_NeiEmel	; $48
+	dc.w	$8000|ItemID_TruthSlvs	; $49
+	dc.w	$8000|ItemID_Trimate	; $4A
+	dc.w	$8000|ItemID_MirEmel	; $4B
+	dc.w	$8000|ItemID_LaconEmel	; $4C
+	dc.w	$8000|ItemID_GrSleeves	; $4D
+	dc.w	$8000|ItemID_NeiCrown	; $4E
+	dc.w	$8000|ItemID_StormGear	; $4F
+	dc.w	$8000|ItemID_Neimet		; $50
+	dc.w	$8000|ItemID_ColorScarf	; $51
+	dc.w	$8000|ItemID_NeiSlasher	; $52
+	dc.w	$8000|ItemID_NeiShot	; $53
+	dc.w	$8000|ItemID_FireStaff	; $54
+	dc.w	$8000|ItemID_LacnMace	; $55
+	dc.w	$8000|ItemID_PlsCannon	; $56
+	dc.w	$8000|ItemID_LacDagger	; $57
+	dc.w	$8000|ItemID_AmberRobe	; $58
+	dc.w	$8000|ItemID_Laconinish	; $59
+	dc.w	$8000|ItemID_CrystChest	; $5A
+	dc.w	$8000|ItemID_NeiCape	; $5B
+	dc.w	$8000|ItemID_CrystCape	; $5C
+	dc.w	$8000|ItemID_NeiArmor	; $5D
 ; ===============================================
 
 
@@ -22399,10 +22398,10 @@ loc_F24E:
 	cmpi.w	#$100, (enemy_data_buffer).w
 	bne.s	loc_F24C			; branch if not Neifirst boss battle
 	move.b	#$87, $FFFFF640.w
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 	bra.w	RestoreCharDataAfterBattle
 loc_F266:
-	move.b	#GameModeID_Sega, (game_screen).w
+	move.b	#GameModeID_Sega, (game_mode_index).w
 	bra.w	RestoreCharDataAfterBattle
 loc_F270:
 	tst.w	$FFFFCC94.w
@@ -22459,7 +22458,7 @@ loc_F302:
 loc_F308:
 	move.w	#$1213, (script_id).w
 	move.l	(enemy_data_buffer+$34).w, d0	; get enemy's total meseta
-	add.l	d0, (money_owned).w			; add it to your money
+	add.l	d0, (current_money).w			; add it to your money
 	move.l	d0, (meseta_value).w		; move it so that it's displayed later in the victory message
 	move.w	#0, ($FFFFC602).w
 	addq.w	#1, (event_routine).w
@@ -22563,7 +22562,7 @@ loc_F41E:
 	rts
 	
 loc_F428:
-	move.b	#GameModeID_Map, (game_screen).w
+	move.b	#GameModeID_Map, (game_mode_index).w
 	rts
 
 ; ----------------------------------	
@@ -22603,7 +22602,7 @@ Run_EventIndex_TryRun:
 	rts
 	
 Run_EventIndex_RunSuccessful:
-	move.b	#GameModeID_Map, (game_screen).w	; exit battle screen
+	move.b	#GameModeID_Map, (game_mode_index).w	; exit battle screen
 	bra.w	RestoreCharDataAfterBattle
 
 Run_EventIndex_RunFailed:
@@ -23500,7 +23499,7 @@ Win_MenuMeseta:
 	bra.w	loc_11064
 loc_FD8C:
 	lea	(window_art_buffer+WinArt_Meseta-DynamicWindowsStart+$E).w, a1
-	move.l	(money_owned).w, d0
+	move.l	(current_money).w, d0
 	bra.w	Meseta_ConvertToDecimal
 ; ----------------------------------------
 ; loc_FD98
@@ -24094,7 +24093,7 @@ loc_1038A:
 ; loc_10394
 Win_StoreMeseta:
 	lea	(window_art_buffer+WinArt_Meseta-DynamicWindowsStart+$E).w, a1
-	move.l	(money_owned).w, d0
+	move.l	(current_money).w, d0
 	bsr.w	Meseta_ConvertToDecimal
 	move.w	#0, (window_index_saved).w
 	rts
@@ -25577,7 +25576,7 @@ LoadDigitInRAMLoop:
 	move.l	(a3)+, d3
 -
 	sub.l	d3, d0		; subtract the money we currently own with the range number
-	bcs.s	+			; if it's less than the owned money, branch
+	bcs.s	+			; if it's less than current money, branch
 	addq.b	#1, d2		; advance digit counter in the text buffer
 	bra.s	-			; subtract again
 +
@@ -25743,7 +25742,7 @@ DrawDigitInVRAMLoop:
 	move.l	(a2)+, d3
 -
 	sub.w	d3, d0		; subtract the money we currently own with the range number
-	bcs.s	+			; if it's less than the owned money, branch
+	bcs.s	+			; if it's less than current money, branch
 	addq.b	#1, d2		; advance digit counter in VRAM
 	bra.s	-			; subtract again
 +
@@ -25786,7 +25785,7 @@ DrawDigitInVRAMLoop2:
 	move.l	(a2)+, d3
 -
 	sub.l	d3, d0		; subtract the money we currently own with the range number
-	bcs.s	+			; if it's less than the owned money, branch
+	bcs.s	+			; if it's less than current money, branch
 	addq.b	#1, d2		; advance digit counter in VRAM
 	bra.s	-			; subtract again
 +
@@ -26630,7 +26629,7 @@ loc_117B0:
 	move.w	(enemy_data_buffer+8).w, d2
 +
 	tst.w	d2
-	beq.s	+		; no enemies in the current level, so return
+	beq.s	+		; no enemies, so return
 	addq.w	#2, (enemy_data_buffer+$C).w
 loc_117C6:
 	andi.w	#$FF, (enemy_data_buffer+$C).w
@@ -26650,7 +26649,7 @@ loc_117C6:
 	moveq	#0, d1
 	move.b	(a1), d1
 	move.w	d1, (enemy_data_buffer).w	; put formation ID here (this will determine which entry will be used in the EnemyBattleFormationData table)
-	move.b	#GameModeID_Battle, (game_screen).w
+	move.b	#GameModeID_Battle, (game_mode_index).w
 +
 	rts
 	
@@ -26820,8 +26819,8 @@ PalettePtrs:
 
 PtrPal_Sega:		dc.l	Pal_Sega
 					dc.w	$FB00, (Pal_SegaEnd-Pal_Sega)/4-1
-PtrPal_TitleScr:	dc.l	Pal_TitleScr
-					dc.w	$FB00, (Pal_TitleScrEnd-Pal_TitleScr)/4-1
+PtrPal_Title:	dc.l	Pal_Title
+					dc.w	$FB00, (Pal_TitleScrEnd-Pal_Title)/4-1
 					
 					dc.l	loc_11D04
 					dc.w	$FB00, $F
@@ -27023,7 +27022,7 @@ Pal_SegaEnd:
 ; --------------------------------
 
 ; --------------------------------
-Pal_TitleScr:
+Pal_Title:
 	dc.l	$00000EEE
 	dc.l	$00000AAE
 	dc.l	$088E0AAA
