@@ -484,75 +484,75 @@ loc_572:
 ; ===========================================================
 ObjectTable:
 
-PtrObj_RedRectCurs:			bra.w	Obj_RedRectangleCursor				; 1 - red cursor for windows
-PtrObj_InputWinBlinkCurs:	bra.w	Obj_InputWindowBlinkCursor			; 2	- blue tiles which appear and disappear and used over text to create a blinking effect 
-PtrObj_NameDestinationTile:	bra.w	Obj_NameDestinationTile				; 3 - one blue tile which appears and disappears over a letter in the section where characters' names are written
-PtrObj_RedRectCursBattle:	bra.w	Obj_RedRectCursorBattle				; 4 - red cursor used in battles
-PtrObj_TriCursCharSelect:	bra.w	Obj_TriangleCursCharSelection		; 5 - triangular cursor used when selecting characters' actions in battle
-PtrObj_TriCursCommSelect:	bra.w	Obj_TriangleCursCommSelect			; 6 - triangular cursor when select a command for a character
-PtrObj_MonitorExplosion:	bra.w	Obj_MonitorExplosion				; 7 - Palm explosion seen in monitor on Tyler's spaceship
-PtrObj_EndingUFO:			bra.w	Obj_EndingUFO						; 8 - The UFO which shows up for half a second after the credits
-PtrObj_Null1:				bra.w	Obj_Null1							; 9 - does nothing; just returns
-PtrObj_BattleCharacter:		bra.w	Obj_BattleCharacter					; $A - all properties and behaviours for the characters in battle
-	bra.w	Obj_BattleLongRangeAttack									; $B
-	bra.w	Obj_BattleCloseRangeAttack									; $C
-	bra.w	Obj_BattleTechnique											; $D
-PtrObj_Null2:				bra.w	Obj_Null2							; $E - does nothing; just returns
-PtrObj_BattleEnemy:		bra.w	Obj_BattleEnemy							; $F - all properties and behaviours for the enemies in battle
-	bra.w	Obj_EnemyAttack												; $10
-	bra.w	Obj_EnemySkill												; $11
-	bra.w	loc_321E													; $12
-	bra.w	loc_3250													; $13
-PtrObj_MapCharacters:		bra.w	Obj_MapCharacters					; $14 - characters' sprites in the map
-PtrObj_FollowingChars:		bra.w	Obj_FollowingChars					; $15 - the characters behind the leading character
-PtrObj_MotaYoungMan:		bra.w	Obj_MotaYoungMan					; $16 - random young man in towns on Motavia
-PtrObj_MotaYoungWoman:		bra.w	Obj_MotaYoungWoman					; $17 
-PtrObj_MotaOldMan:			bra.w	Obj_MotaOldMan						; $18
-PtrObj_MotaChild:			bra.w	Obj_MotaChild						; $19
-PtrObj_Dezolian:			bra.w	Obj_Dezolian						; $1A
-	bra.w	Obj_Motavian												; $1B
-PtrObj_MuskCat:				bra.w	Obj_MuskCat							; $1C
-PtrObj_MotaYoungMan2:		bra.w	Obj_MotaYoungMan2					; $1D
-PtrObj_MotaYoungMan3:		bra.w	Obj_MotaYoungMan2					; $1E
-PtrObj_MotaYoungWoman2:		bra.w	Obj_MotaYoungWoman2					; $1F
-PtrObj_MotaOldMan2:			bra.w	Obj_MotaOldMan2						; $20
-PtrObj_MotaChild2:			bra.w	Obj_MotaChild2						; $21
-PtrObj_JetScooter:			bra.w	Obj_JetScooter						; $22
-	bra.w	Obj_CryogenicsChamberPart1									; $23
-	bra.w	Obj_CryogenicsChamberPart2									; $24
-	bra.w	Obj_CryogenicsChamberPart3									; $25
-	bra.w	Obj_CryogenicsChamberPart4									; $26
-	bra.w	Obj_CryogenicsChamberPart5									; $27
-	bra.w	loc_4DD8													; $28
-PtrObj_Darum:				bra.w	Obj_Darum							; $29
-PtrObj_Teim:				bra.w	Obj_Teim							; $2A
-	bra.w	loc_504C													; $2B
-	bra.w	loc_50AE													; $2C
-PtrObj_Explosion:			bra.w	Obj_Explosion						; $2D - shows up in Climatrol after defeating Neifirst
-PtrObj_Esper:				bra.w	Obj_Esper							; $2E
-PtrObj_DeadBody:			bra.w	Obj_DeadBody						; $2F - dead body of the scoundrels on the top floor in Shure
-PtrObj_MovingEsper:			bra.w	Obj_MovingEsper						; $30 - two espers that move after talking to them at the entrance of the Esper Mansion
-	bra.w	Obj_LutzChair												; $31
-PtrObj_Neifirst:			bra.w	Obj_Neifirst						; $32
-	bra.w	Obj_Lutz													; $33
-	bra.w	loc_54FA													; $34
-	bra.w	loc_5532													; $35
-	bra.w	loc_556A													; $36
-PtrObj_InvisibleBlock:		bra.w	Obj_InvisibleBlock					; $37 - block used for actions for the Recorder and the Gaila control panel
-PtrObj_InvisibleBlock2:		bra.w	Obj_InvisibleBlock2					; $38 - block used for many actions
-PtrObj_DezoTreasureChest:	bra.w	Obj_DezoTreasureChest				; $39
-PtrObj_MotaTreasureChest:	bra.w	Obj_MotaTreasureChest				; $3A
-PtrObj_OpenableDoor:		bra.w	Obj_OpenableDoor					; $3B - doors opened by cards or keys
-PtrObj_DestroyableDoor:		bra.w	Obj_DestroyableDoor					; $3C - doors that can be destroyed through dynamites
-	bra.w	Obj_PouringWater											; $3D - Water pouring out of Climatrol after Neifirst dies
-PtrObj_PushStartButton1:	bra.w	Obj_PushStartButton					; $3E - Push Start Button string showing up on the title screen after you press any button;  doesn't seem to be referenced
-PtrObj_PushStartButton2:	bra.w	Obj_PushStartButton					; $3F - doesn't seem to be referenced
-PtrObj_PushStartButton3:	bra.w	Obj_PushStartButton					; $40 - doesn't seem to be referenced
-PtrObj_PushStartButton4:	bra.w	Obj_PushStartButton					; $41 - doesn't seem to be referenced
-PtrObj_PushStartButton5:	bra.w	Obj_PushStartButton					; $42 - this one's referenced
-PtrObj_CopyrightText:		bra.w	Obj_CopyrightText					; $43 - copyright string that turns up at the bottom right corner of the screen 
-PtrObj_Spaceship:			bra.w	Obj_Spaceship						; $44 - spaceship used when travelling to Dezolis/Motavia
-	bra.w	loc_59FA													; $45
+PtrObj_RedCursor:				bra.w	Obj_RedCursor						; 1 - red cursor for windows
+PtrObj_InputWindowCursor:		bra.w	Obj_InputWindowCursor				; 2	- blue tiles which appear and disappear and used over text to create a blinking effect 
+PtrObj_NameDestinationTile:		bra.w	Obj_NameDestinationTile				; 3 - one blue tile which appears and disappears over a letter in the section where characters' names are written
+PtrObj_BattleCursor:			bra.w	Obj_BattleCursor					; 4 - red cursor used in battles
+PtrObj_CharSelectCursor:		bra.w	Obj_CharSelectCursor				; 5 - triangular cursor used when selecting characters' actions in battle
+PtrObj_CommandSelectCursor:		bra.w	Obj_CommandSelectCursor				; 6 - triangular cursor when select a command for a character
+PtrObj_MonitorExplosion:		bra.w	Obj_MonitorExplosion				; 7 - Palm explosion seen in monitor on Tyler's spaceship
+PtrObj_EndingSpaceship:			bra.w	Obj_EndingSpaceship					; 8 - The spaceship which shows up for half a second after the credits
+PtrObj_Null1:					bra.w	Obj_Null1							; 9 - does nothing; just returns
+PtrObj_BattleCharacter:			bra.w	Obj_BattleCharacter					; $A - all properties and behaviours for the characters in battle
+PtrObj_BattleLongRangeAttack:	bra.w	Obj_BattleLongRangeAttack			; $B
+PtrObj_BattleCloseRangeAttack:	bra.w	Obj_BattleCloseRangeAttack			; $C
+PtrObj_BattleTechnique:			bra.w	Obj_BattleTechnique					; $D
+PtrObj_Null2:					bra.w	Obj_Null2							; $E - does nothing; just returns
+PtrObj_BattleEnemy:				bra.w	Obj_BattleEnemy						; $F - all properties and behaviours for the enemies in battle
+PtrObj_EnemyAttack:				bra.w	Obj_EnemyAttack						; $10
+PtrObj_EnemySkill:				bra.w	Obj_EnemySkill						; $11
+	bra.w	loc_321E														; $12
+	bra.w	loc_3250														; $13
+PtrObj_MapCharacter:			bra.w	Obj_MapCharacter					; $14 - characters' sprites in the map
+PtrObj_FollowingCharacter:		bra.w	Obj_FollowingCharacter				; $15 - the characters behind the leading character
+PtrObj_MotaYoungMan:			bra.w	Obj_MotaYoungMan					; $16 - random young man in towns on Motavia
+PtrObj_MotaYoungWoman:			bra.w	Obj_MotaYoungWoman					; $17 
+PtrObj_MotaOldMan:				bra.w	Obj_MotaOldMan						; $18
+PtrObj_MotaChild:				bra.w	Obj_MotaChild						; $19
+PtrObj_Dezolian:				bra.w	Obj_Dezolian						; $1A
+PtrObj_Motavian:				bra.w	Obj_Motavian						; $1B
+PtrObj_MuskCat:					bra.w	Obj_MuskCat							; $1C
+PtrObj_MotaYoungMan2:			bra.w	Obj_MotaYoungMan2					; $1D
+PtrObj_MotaYoungMan3:			bra.w	Obj_MotaYoungMan2					; $1E
+PtrObj_MotaYoungWoman2:			bra.w	Obj_MotaYoungWoman2					; $1F
+PtrObj_MotaOldMan2:				bra.w	Obj_MotaOldMan2						; $20
+PtrObj_MotaChild2:				bra.w	Obj_MotaChild2						; $21
+PtrObj_JetScooter:				bra.w	Obj_JetScooter						; $22
+PtrObj_CryogenicChamberPart1:	bra.w	Obj_CryogenicChamberPart1			; $23
+PtrObj_CryogenicChamberPart2:	bra.w	Obj_CryogenicChamberPart2			; $24
+PtrObj_CryogenicChamberPart3:	bra.w	Obj_CryogenicChamberPart3			; $25
+PtrObj_CryogenicChamberPart4:	bra.w	Obj_CryogenicChamberPart4			; $26
+PtrObj_CryogenicChamberPart5:	bra.w	Obj_CryogenicChamberPart5			; $27
+PtrObj_Earthman:				bra.w	Obj_Earthman						; $28
+PtrObj_Darum:					bra.w	Obj_Darum							; $29
+PtrObj_Teim:					bra.w	Obj_Teim							; $2A
+PtrObj_DarumTeimExplosion:		bra.w	Obj_DarumTeimExplosion				; $2B
+PtrObj_MotherBrain:				bra.w	Obj_MotherBrain						; $2C
+PtrObj_Explosion:				bra.w	Obj_Explosion						; $2D - shows up in Climatrol after defeating Neifirst
+PtrObj_Esper:					bra.w	Obj_Esper							; $2E
+PtrObj_DeadBody:				bra.w	Obj_DeadBody						; $2F - dead body of the scoundrels on the top floor in Shure
+PtrObj_MovingEsper:				bra.w	Obj_MovingEsper						; $30 - two espers that move after talking to them at the entrance of the Esper Mansion
+PtrObj_LutzChair:				bra.w	Obj_LutzChair						; $31
+PtrObj_Neifirst:				bra.w	Obj_Neifirst						; $32
+PtrObj_Lutz:					bra.w	Obj_Lutz							; $33
+	bra.w	loc_54FA														; $34
+	bra.w	loc_5532														; $35
+	bra.w	loc_556A														; $36
+PtrObj_InvisibleBlock:			bra.w	Obj_InvisibleBlock					; $37 - block used for actions for the Recorder and the Gaila control panel
+PtrObj_InvisibleBlock2:			bra.w	Obj_InvisibleBlock2					; $38 - block used for many actions
+PtrObj_DezoTreasureChest:		bra.w	Obj_DezoTreasureChest				; $39
+PtrObj_MotaTreasureChest:		bra.w	Obj_MotaTreasureChest				; $3A
+PtrObj_Door:					bra.w	Obj_Door							; $3B - doors opened by cards or keys
+PtrObj_BreakableDoor:			bra.w	Obj_BreakableDoor					; $3C - doors that can be destroyed through dynamites
+PtrObj_PouringWater:			bra.w	Obj_PouringWater					; $3D - Water pouring out of Climatrol after Neifirst dies
+PtrObj_PushStartButton1:		bra.w	Obj_PushStartButton					; $3E - Push Start Button string showing up on the title screen after you press any button;  doesn't seem to be referenced
+PtrObj_PushStartButton2:		bra.w	Obj_PushStartButton					; $3F - doesn't seem to be referenced
+PtrObj_PushStartButton3:		bra.w	Obj_PushStartButton					; $40 - doesn't seem to be referenced
+PtrObj_PushStartButton4:		bra.w	Obj_PushStartButton					; $41 - doesn't seem to be referenced
+PtrObj_PushStartButton5:		bra.w	Obj_PushStartButton					; $42 - this one's referenced
+PtrObj_CopyrightText:			bra.w	Obj_CopyrightText					; $43 - copyright string that turns up at the bottom right corner of the screen 
+PtrObj_Spaceship:				bra.w	Obj_Spaceship						; $44 - spaceship used when travelling to Dezolis/Motavia
+PtrObj_EyeBeam:					bra.w	Obj_EyeBeam							; $45 - Beams coming out of Mother Brain's eyes
 ; ===========================================================
 	
 loc_796:
@@ -583,7 +583,7 @@ loc_796:
 	andi.w	#$180, d1
 	lsr.w	#5, d1
 	adda.w	d1, a2
-	move.w	#$A, (a4)
+	move.w	#ObjID_BattleCharacter, (a4)
 	move.w	(a2)+, $A(a4)
 	move.w	(a2), $E(a4)
 	move.w	d5, 8(a4)
@@ -943,107 +943,107 @@ SkipDarumTeimEvent:
 ; sprites that will be populated in the map
 ; ============================================================
 MapObjectData:
-	dc.w	ObjectData_MotaWorldMap-MapObjectData		; 0
-	dc.w	ObjectData_SkureB2-MapObjectData			; 1
-	dc.w	ObjectData_SkureB1-MapObjectData			; 2
-	dc.w	ObjectData_NoSprites-MapObjectData			; 3
-	dc.w	ObjectData_Paseo-MapObjectData				; 4
-	dc.w	ObjectData_Arima-MapObjectData				; 5
-	dc.w	ObjectData_Oputa-MapObjectData				; 6
-	dc.w	ObjectData_Zema-MapObjectData				; 7
-	dc.w	ObjectData_Kueri-MapObjectData				; 8
-	dc.w	ObjectData_Piata-MapObjectData				; 9
-	dc.w	ObjectData_Aukba-MapObjectData				; $A
-	dc.w	ObjectData_Zosa-MapObjectData				; $B
-	dc.w	ObjectData_Ryuon-MapObjectData				; $C
-	dc.w	ObjectData_NoSprites-MapObjectData			; $D
-	dc.w	ObjectData_MotaPassageDarum-MapObjectData	; $E
-	dc.w	ObjectData_MotaPassageDoor-MapObjectData	; $F
-	dc.w	ObjectData_EspMansionB1-MapObjectData		; $10
-	dc.w	ObjectData_EspMansion-MapObjectData			; $11
-	dc.w	ObjectData_Uzo-MapObjectData    			; $12
-	dc.w	ObjectData_NoSprites-MapObjectData			; $13
-	dc.w	ObjectData_NoSprites-MapObjectData			; $14
-	dc.w	ObjectData_NoSprites-MapObjectData			; $15
-	dc.w	ObjectData_NoSprites-MapObjectData			; $16
-	dc.w	ObjectData_ShureGroundF-MapObjectData		; $17
-	dc.w	ObjectData_ShureF1-MapObjectData			; $18
-	dc.w	ObjectData_ShureF2-MapObjectData			; $19
-	dc.w	ObjectData_ShureF3-MapObjectData			; $1A
-	dc.w	ObjectData_NidoGroundF-MapObjectData		; $1B
-	dc.w	ObjectData_NidoF1-MapObjectData				; $1C
-	dc.w	ObjectData_NidoF2-MapObjectData				; $1D
-	dc.w	ObjectData_RoronF5-MapObjectData						; $1E
-	dc.w	ObjectData_RoronF4-MapObjectData						; $1F
-	dc.w	ObjectData_RoronF3-MapObjectData						; $20
-	dc.w	ObjectData_RoronF2-MapObjectData						; $21
-	dc.w	ObjectData_RoronF1-MapObjectData						; $22
-	dc.w	ObjectData_NoSprites-MapObjectData			; $23
-	dc.w	ObjectData_YellowDamGroundF-MapObjectData						; $24
-	dc.w	ObjectData_YellowDamF1-MapObjectData						; $25
-	dc.w	ObjectData_YellowDamF2-MapObjectData						; $26
-	dc.w	ObjectData_YellowDamF3-MapObjectData						; $27
-	dc.w	ObjectData_RedDamGroundF-MapObjectData						; $28
-	dc.w	ObjectData_RedDamF1-MapObjectData						; $29
-	dc.w	ObjectData_RedDamF2-MapObjectData						; $2A
-	dc.w	ObjectData_BlueDamGroundF-MapObjectData						; $2B
-	dc.w	ObjectData_BlueDamF1-MapObjectData						; $2C
-	dc.w	ObjectData_BlueDamF2-MapObjectData						; $2D
-	dc.w	ObjectData_BlueDamF3-MapObjectData						; $2E
-	dc.w	ObjectData_BlueDamF4-MapObjectData						; $2F
-	dc.w	ObjectData_GreenDamGroundF-MapObjectData						; $30
-	dc.w	ObjectData_GreenDamF1-MapObjectData						; $31
-	dc.w	ObjectData_BiosystemsLabB1-MapObjectData						; $32
-	dc.w	ObjectData_BiosystemsLabGroundF-MapObjectData						; $33
-	dc.w	ObjectData_BiosystemsLabF1-MapObjectData						; $34
-	dc.w	ObjectData_BiosystemsLabF2-MapObjectData						; $35
-	dc.w	ObjectData_NoSprites-MapObjectData			; $36
-	dc.w	ObjectData_NoSprites-MapObjectData			; $37
-	dc.w	ObjectData_ClimatrolF2-MapObjectData						; $38
-	dc.w	ObjectData_ClimatrolF3-MapObjectData						; $39
-	dc.w	ObjectData_NoSprites-MapObjectData			; $3A
-	dc.w	ObjectData_ClimatrolF5-MapObjectData						; $3B
-	dc.w	ObjectData_ClimatrolF6-MapObjectData						; $3C
-	dc.w	ObjectData_ClimatrolF7-MapObjectData		; $3D
-	dc.w	ObjectData_NoSprites-MapObjectData			; $3E
-	dc.w	ObjectData_ControlTowerF1-MapObjectData						; $3F
-	dc.w	ObjectData_NoSprites-MapObjectData			; $40
-	dc.w	ObjectData_Gaira-MapObjectData				; $41
-	dc.w	ObjectData_NoSprites-MapObjectData			; $42
-	dc.w	ObjectData_NoSprites-MapObjectData			; $43
-	dc.w	ObjectData_NavalF1-MapObjectData						; $44
-	dc.w	ObjectData_NoSprites-MapObjectData			; $45
-	dc.w	ObjectData_NoSprites-MapObjectData			; $46
-	dc.w	ObjectData_NoSprites-MapObjectData			; $47
-	dc.w	ObjectData_MenobeGroundF-MapObjectData						; $48
-	dc.w	ObjectData_MenobeF1-MapObjectData						; $49
-	dc.w	ObjectData_MenobeF2-MapObjectData						; $4A
-	dc.w	ObjectData_NoSprites-MapObjectData			; $4B
-	dc.w	ObjectData_NoSprites-MapObjectData			; $4C
-	dc.w	ObjectData_IkutoB5-MapObjectData						; $4D
-	dc.w	ObjectData_IkutoB4-MapObjectData						; $4E
-	dc.w	ObjectData_IkutoB3-MapObjectData						; $4F
-	dc.w	ObjectData_IkutoB2-MapObjectData						; $50
-	dc.w	ObjectData_NoSprites-MapObjectData			; $51
-	dc.w	ObjectData_NoSprites-MapObjectData			; $52
-	dc.w	ObjectData_GuaronGroundF-MapObjectData						; $53
-	dc.w	ObjectData_GuaronF1-MapObjectData						; $54
-	dc.w	ObjectData_NoSprites-MapObjectData			; $55
-	dc.w	ObjectData_NoSprites-MapObjectData			; $56
-	dc.w	ObjectData_NoSprites-MapObjectData			; $57
-	dc.w	ObjectData_NoSprites-MapObjectData			; $58
-	dc.w	ObjectData_NoSprites-MapObjectData			; $59
-	dc.w	ObjectData_GuaronF7-MapObjectData						; $5A
-	dc.w	ObjectData_GuaronF8-MapObjectData						; $5B
-	dc.w	ObjectData_NoSprites-MapObjectData			; $5C
-	dc.w	ObjectData_NoSprites-MapObjectData			; $5D
-	dc.w	ObjectData_NoSprites-MapObjectData			; $5E
-	dc.w	ObjectData_NoSprites-MapObjectData			; $5F
-	dc.w	ObjectData_NoSprites-MapObjectData			; $60
-	dc.w	ObjectData_NoSprites-MapObjectData			; $61
-	dc.w	ObjectData_GuaronF15-MapObjectData						; $62
-	dc.w	ObjectData_NoSprites-MapObjectData			; $63
-	dc.w	ObjectData_NoahF1-MapObjectData						; $64
+	dc.w	ObjectData_MotaWorldMap-MapObjectData			; 0
+	dc.w	ObjectData_SkureB2-MapObjectData				; 1
+	dc.w	ObjectData_SkureB1-MapObjectData				; 2
+	dc.w	ObjectData_NoSprites-MapObjectData				; 3
+	dc.w	ObjectData_Paseo-MapObjectData					; 4
+	dc.w	ObjectData_Arima-MapObjectData					; 5
+	dc.w	ObjectData_Oputa-MapObjectData					; 6
+	dc.w	ObjectData_Zema-MapObjectData					; 7
+	dc.w	ObjectData_Kueri-MapObjectData					; 8
+	dc.w	ObjectData_Piata-MapObjectData					; 9
+	dc.w	ObjectData_Aukba-MapObjectData					; $A
+	dc.w	ObjectData_Zosa-MapObjectData					; $B
+	dc.w	ObjectData_Ryuon-MapObjectData					; $C
+	dc.w	ObjectData_NoSprites-MapObjectData				; $D
+	dc.w	ObjectData_MotaPassageDarum-MapObjectData		; $E
+	dc.w	ObjectData_MotaPassageDoor-MapObjectData		; $F
+	dc.w	ObjectData_EspMansionB1-MapObjectData			; $10
+	dc.w	ObjectData_EspMansion-MapObjectData				; $11
+	dc.w	ObjectData_Uzo-MapObjectData    				; $12
+	dc.w	ObjectData_NoSprites-MapObjectData				; $13
+	dc.w	ObjectData_NoSprites-MapObjectData				; $14
+	dc.w	ObjectData_NoSprites-MapObjectData				; $15
+	dc.w	ObjectData_NoSprites-MapObjectData				; $16
+	dc.w	ObjectData_ShureGroundF-MapObjectData			; $17
+	dc.w	ObjectData_ShureF1-MapObjectData				; $18
+	dc.w	ObjectData_ShureF2-MapObjectData				; $19
+	dc.w	ObjectData_ShureF3-MapObjectData				; $1A
+	dc.w	ObjectData_NidoGroundF-MapObjectData			; $1B
+	dc.w	ObjectData_NidoF1-MapObjectData					; $1C
+	dc.w	ObjectData_NidoF2-MapObjectData					; $1D
+	dc.w	ObjectData_RoronF5-MapObjectData				; $1E
+	dc.w	ObjectData_RoronF4-MapObjectData				; $1F
+	dc.w	ObjectData_RoronF3-MapObjectData				; $20
+	dc.w	ObjectData_RoronF2-MapObjectData				; $21
+	dc.w	ObjectData_RoronF1-MapObjectData				; $22
+	dc.w	ObjectData_NoSprites-MapObjectData				; $23
+	dc.w	ObjectData_YellowDamGroundF-MapObjectData		; $24
+	dc.w	ObjectData_YellowDamF1-MapObjectData			; $25
+	dc.w	ObjectData_YellowDamF2-MapObjectData			; $26
+	dc.w	ObjectData_YellowDamF3-MapObjectData			; $27
+	dc.w	ObjectData_RedDamGroundF-MapObjectData			; $28
+	dc.w	ObjectData_RedDamF1-MapObjectData				; $29
+	dc.w	ObjectData_RedDamF2-MapObjectData				; $2A
+	dc.w	ObjectData_BlueDamGroundF-MapObjectData			; $2B
+	dc.w	ObjectData_BlueDamF1-MapObjectData				; $2C
+	dc.w	ObjectData_BlueDamF2-MapObjectData				; $2D
+	dc.w	ObjectData_BlueDamF3-MapObjectData				; $2E
+	dc.w	ObjectData_BlueDamF4-MapObjectData				; $2F
+	dc.w	ObjectData_GreenDamGroundF-MapObjectData		; $30
+	dc.w	ObjectData_GreenDamF1-MapObjectData				; $31
+	dc.w	ObjectData_BiosystemsLabB1-MapObjectData		; $32
+	dc.w	ObjectData_BiosystemsLabGroundF-MapObjectData	; $33
+	dc.w	ObjectData_BiosystemsLabF1-MapObjectData		; $34
+	dc.w	ObjectData_BiosystemsLabF2-MapObjectData		; $35
+	dc.w	ObjectData_NoSprites-MapObjectData				; $36
+	dc.w	ObjectData_NoSprites-MapObjectData				; $37
+	dc.w	ObjectData_ClimatrolF2-MapObjectData			; $38
+	dc.w	ObjectData_ClimatrolF3-MapObjectData			; $39
+	dc.w	ObjectData_NoSprites-MapObjectData				; $3A
+	dc.w	ObjectData_ClimatrolF5-MapObjectData			; $3B
+	dc.w	ObjectData_ClimatrolF6-MapObjectData			; $3C
+	dc.w	ObjectData_ClimatrolF7-MapObjectData			; $3D
+	dc.w	ObjectData_NoSprites-MapObjectData				; $3E
+	dc.w	ObjectData_ControlTowerF1-MapObjectData			; $3F
+	dc.w	ObjectData_NoSprites-MapObjectData				; $40
+	dc.w	ObjectData_Gaira-MapObjectData					; $41
+	dc.w	ObjectData_NoSprites-MapObjectData				; $42
+	dc.w	ObjectData_NoSprites-MapObjectData				; $43
+	dc.w	ObjectData_NavalF1-MapObjectData				; $44
+	dc.w	ObjectData_NoSprites-MapObjectData				; $45
+	dc.w	ObjectData_NoSprites-MapObjectData				; $46
+	dc.w	ObjectData_NoSprites-MapObjectData				; $47
+	dc.w	ObjectData_MenobeGroundF-MapObjectData			; $48
+	dc.w	ObjectData_MenobeF1-MapObjectData				; $49
+	dc.w	ObjectData_MenobeF2-MapObjectData				; $4A
+	dc.w	ObjectData_NoSprites-MapObjectData				; $4B
+	dc.w	ObjectData_NoSprites-MapObjectData				; $4C
+	dc.w	ObjectData_IkutoB5-MapObjectData				; $4D
+	dc.w	ObjectData_IkutoB4-MapObjectData				; $4E
+	dc.w	ObjectData_IkutoB3-MapObjectData				; $4F
+	dc.w	ObjectData_IkutoB2-MapObjectData				; $50
+	dc.w	ObjectData_NoSprites-MapObjectData				; $51
+	dc.w	ObjectData_NoSprites-MapObjectData				; $52
+	dc.w	ObjectData_GuaronGroundF-MapObjectData			; $53
+	dc.w	ObjectData_GuaronF1-MapObjectData				; $54
+	dc.w	ObjectData_NoSprites-MapObjectData				; $55
+	dc.w	ObjectData_NoSprites-MapObjectData				; $56
+	dc.w	ObjectData_NoSprites-MapObjectData				; $57
+	dc.w	ObjectData_NoSprites-MapObjectData				; $58
+	dc.w	ObjectData_NoSprites-MapObjectData				; $59
+	dc.w	ObjectData_GuaronF7-MapObjectData				; $5A
+	dc.w	ObjectData_GuaronF8-MapObjectData				; $5B
+	dc.w	ObjectData_NoSprites-MapObjectData				; $5C
+	dc.w	ObjectData_NoSprites-MapObjectData				; $5D
+	dc.w	ObjectData_NoSprites-MapObjectData				; $5E
+	dc.w	ObjectData_NoSprites-MapObjectData				; $5F
+	dc.w	ObjectData_NoSprites-MapObjectData				; $60
+	dc.w	ObjectData_NoSprites-MapObjectData				; $61
+	dc.w	ObjectData_GuaronF15-MapObjectData				; $62
+	dc.w	ObjectData_NoSprites-MapObjectData				; $63
+	dc.w	ObjectData_NoahF1-MapObjectData					; $64
 
 	dc.w	ObjectData_NoSprites-MapObjectData
 	dc.w	ObjectData_NoSprites-MapObjectData
@@ -1081,589 +1081,1065 @@ ObjectData_NoSprites:
 ; ------------------------------------------------------------
 ObjectData_Paseo:
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$01, $01, $78, $00, $D8
+	dc.b	$01
+	dc.w	$0178, $00D8
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$02, $03, $A8, $00, $C8
+	dc.b	$02
+	dc.w	$03A8, $00C8
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$03, $00, $D8, $00, $38
+	dc.b	$03
+	dc.w	$00D8, $0038
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$04, $03, $38, $01, $38
+	dc.b	$04
+	dc.w	$0338, $0138
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$05, $00, $B8, $01, $D8
+	dc.b	$05
+	dc.w	$00B8, $01D8
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$06, $02, $98, $01, $48
-	dc.b	$2D
-	dc.b	$07, $01, $18, $00, $48
+	dc.b	$06
+	dc.w	$0298, $0148
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$07
+	dc.w	$0118, $0048
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$08, $03, $B8, $00, $38
-	dc.b	$2D
-	dc.b	$09, $01, $08, $01, $78
-	dc.b	$2D
-	dc.b	$0A, $02, $F8, $01, $B8
+	dc.b	$08
+	dc.w	$03B8, $0038
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$09
+	dc.w	$0108, $0178
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$0A
+	dc.w	$02F8, $01B8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$0B, $02, $48, $00, $F8
-	dc.b	$31
-	dc.b	$0C, $03, $18, $01, $D8
-	dc.b	$35
-	dc.b	$0D, $02, $F8, $00, $D8
-	dc.b	$35
-	dc.b	$0E, $00, $D8, $00, $F8
-	dc.b	$35
-	dc.b	$0F, $03, $D8, $00, $F8
+	dc.b	$0B
+	dc.w	$0248, $00F8
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$0C
+	dc.w	$0318, $01D8
+
+	dc.b	(ObjID_MotaChild2-$14)<<2+1
+	dc.b	$0D
+	dc.w	$02F8, $00D8
+
+	dc.b	(ObjID_MotaChild2-$14)<<2+1
+	dc.b	$0E
+	dc.w	$00D8, $00F8
+
+	dc.b	(ObjID_MotaChild2-$14)<<2+1
+	dc.b	$0F
+	dc.w	$03D8, $00F8
+
 	dc.b	(ObjID_MotaChild-$14)<<2+1
-	dc.b	$10, $01, $58, $00, $B8
-	dc.b	$90
-	dc.b	$02, $01, $D0, $00, $50
-	dc.b	$90
-	dc.b	$02, $02, $30, $00, $50
-	dc.b	$90
-	dc.b	$02, $01, $D0, $01, $90
-	dc.b	$90
-	dc.b	$02, $02, $30, $01, $90
+	dc.b	$10
+	dc.w	$0158, $00B8
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$01D0, $0050
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0230, $0050
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$01D0, $0190
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0230, $0190
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Arima:
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$11, $00, $38, $00, $78
-	dc.b	$2D
-	dc.b	$12, $01, $58, $00, $D8
+	dc.b	$11
+	dc.w	$0038, $0078
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$12
+	dc.w	$0158, $00D8
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$13, $00, $D8, $01, $38
-	dc.b	$2D
-	dc.b	$14, $01, $78, $01, $58
+	dc.b	$13
+	dc.w	$00D8, $0138
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$14
+	dc.w	$0178, $0158
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$15, $01, $B8, $00, $48
-	dc.b	$31
-	dc.b	$16, $01, $08, $00, $C8
+	dc.b	$15
+	dc.w	$01B8, $0048
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$16
+	dc.w	$0108, $00C8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$17, $01, $48, $01, $28
-	dc.b	$31
-	dc.b	$18, $00, $88, $01, $B8
-	dc.b	$31
-	dc.b	$19, $00, $68, $01, $D8
+	dc.b	$17
+	dc.w	$0148, $0128
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$18
+	dc.w	$0088, $01B8
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$19
+	dc.w	$0068, $01D8
+
 	dc.b	(ObjID_MotaChild-$14)<<2+1
-	dc.b	$1A, $00, $B8, $00, $98
-	dc.b	$35
-	dc.b	$1B, $00, $78, $01, $58
+	dc.b	$1A
+	dc.w	$00B8, $0098
+
+	dc.b	(ObjID_MotaChild2-$14)<<2+1
+	dc.b	$1B
+	dc.w	$0078, $0158
+
 	dc.b	(ObjID_MotaChild-$14)<<2+1
-	dc.b	$1C, $01, $18, $01, $78
-	dc.b	$90
-	dc.b	$01, $00, $98, $00, $70
-	dc.b	$90
-	dc.b	$01, $01, $18, $00, $70
-	dc.b	$90
-	dc.b	$01, $01, $B8, $00, $90
-	dc.b	$90
-	dc.b	$01, $00, $98, $01, $30
-	dc.b	$90
-	dc.b	$01, $00, $B8, $01, $B0
-	dc.b	$90
-	dc.b	$01, $01, $98, $01, $B0
-	dc.b	$90
-	dc.b	$02, $01, $30, $01, $10
+	dc.b	$1C
+	dc.w	$0118, $0178
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$01
+	dc.w	$0098, $0070
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$01
+	dc.w	$0118, $0070
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$01
+	dc.w	$01B8, $0090
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$01
+	dc.w	$0098, $0130
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$01
+	dc.w	$00B8, $01B0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$01
+	dc.w	$0198, $01B0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0130, $0110
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Oputa:
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$1D, $02, $B8, $02, $98
+	dc.b	$1D
+	dc.w	$02B8, $0298
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$1E, $02, $38, $00, $98
+	dc.b	$1E
+	dc.w	$0238, $0098
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$1F, $03, $98, $01, $B8
+	dc.b	$1F
+	dc.w	$0398, $01B8
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$20, $02, $D8, $02, $08
+	dc.b	$20
+	dc.w	$02D8, $0208
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$21, $02, $48, $02, $58
+	dc.b	$21
+	dc.w	$0248, $0258
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$22, $03, $58, $02, $78
+	dc.b	$22
+	dc.w	$0358, $0278
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$23, $01, $A8, $00, $D8
-	dc.b	$2D
-	dc.b	$24, $02, $C8, $00, $D8
+	dc.b	$23
+	dc.w	$01A8, $00D8
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$24
+	dc.w	$02C8, $00D8
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$25, $03, $38, $02, $78
+	dc.b	$25
+	dc.w	$0338, $0278
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$26, $01, $58, $00, $58 
-	dc.b	$31
-	dc.b	$27, $01, $E8, $00, $B8
+	dc.b	$26
+	dc.w	$0158, $0058
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$27
+	dc.w	$01E8, $00B8
+
 	dc.b	(ObjID_MotaChild-$14)<<2+1
-	dc.b	$28, $02, $58, $00, $88
+	dc.b	$28
+	dc.w	$0258, $0088
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$29, $03, $18, $01, $D8
-	dc.b	$1D
-	dc.b	$2A, $01, $18, $00, $78
-	dc.b	$1D
-	dc.b	$2B, $02, $F8, $00, $B8
-	dc.b	$1D
-	dc.b	$2C, $02, $E8, $01, $98
-	dc.b	$90
-	dc.b	$02, $02, $90, $01, $B0
-	dc.b	$90
-	dc.b	$02, $03, $70, $01, $B0
+	dc.b	$29
+	dc.w	$0318, $01D8
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$2A
+	dc.w	$0118, $0078
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$2B
+	dc.w	$02F8, $00B8
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$2C
+	dc.w	$02E8, $0198
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0290, $01B0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0370, $01B0
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Zema:
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$2D, $00, $68, $00, $78
-	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$2E, $02, $F8, $00, $88
-	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$2F, $01, $28, $00, $D8
 	dc.b	$2D
-	dc.b	$30, $03, $18, $00, $28
+	dc.w	$0068, $0078
+
+	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
+	dc.b	$2E
+	dc.w	$02F8, $0088
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$31, $03, $78, $00, $68
+	dc.b	$2F
+	dc.w	$0128, $00D8
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$30
+	dc.w	$0318, $0028
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$32, $03, $68, $00, $B8
-	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$33, $00, $98, $00, $28
 	dc.b	$31
-	dc.b	$34, $00, $A8, $00, $D8
+	dc.w	$0378, $0068
+
+	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
+	dc.b	$32
+	dc.w	$0368, $00B8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$35, $01, $08, $00, $98
+	dc.b	$33
+	dc.w	$0098, $0028
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$34
+	dc.w	$00A8, $00D8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$36, $01, $88, $00, $38
-	dc.b	$31
-	dc.b	$37, $01, $E8, $00, $B8
+	dc.b	$35
+	dc.w	$0108, $0098
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$38, $02, $68, $00, $48
+	dc.b	$36
+	dc.w	$0188, $0038
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$37
+	dc.w	$01E8, $00B8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$39, $02, $88, $00, $98
-	dc.b	$31
-	dc.b	$3A, $02, $E8, $00, $D8
+	dc.b	$38
+	dc.w	$0268, $0048
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$3B, $03, $88, $00, $A8
+	dc.b	$39
+	dc.w	$0288, $0098
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$3A
+	dc.w	$02E8, $00D8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$3C, $03, $A8, $00, $C8
-	dc.b	$90
-	dc.b	$02, $01, $F0, $00, $90
+	dc.b	$3B
+	dc.w	$0388, $00A8
+
+	dc.b	(ObjID_MotaOldMan-$14)<<2+1
+	dc.b	$3C
+	dc.w	$03A8, $00C8
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$01F0, $0090
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Kueri:
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$3D, $00, $F8, $00, $98
+	dc.b	$3D
+	dc.w	$00F8, $0098
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$3E, $01, $18, $01, $18
+	dc.b	$3E
+	dc.w	$0118, $0118
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$3F, $01, $88, $01, $D8
+	dc.b	$3F
+	dc.w	$0188, $01D8
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$40, $00, $28, $02, $38
-	dc.b	$2D
-	dc.b	$41, $00, $C8, $00, $68
+	dc.b	$40
+	dc.w	$0028, $0238
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$41
+	dc.w	$00C8, $0068
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$42, $01, $68, $00, $B8
-	dc.b	$2D
-	dc.b	$43, $00, $A8, $01, $38
+	dc.b	$42
+	dc.w	$0168, $00B8
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$43
+	dc.w	$00A8, $0138
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$44, $00, $78, $02, $78
+	dc.b	$44
+	dc.w	$0078, $0278
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$45, $01, $38, $01, $D8
+	dc.b	$45
+	dc.w	$0138, $01D8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$46, $01, $98, $02, $48
-	dc.b	$1D
-	dc.b	$47, $00, $68, $00, $78
-	dc.b	$1D
-	dc.b	$48, $01, $98, $00, $E8
-	dc.b	$1D
-	dc.b	$49, $00, $E8, $01, $08
-	dc.b	$1D
-	dc.b	$4A, $00, $78, $01, $A8
-	dc.b	$1D
-	dc.b	$4B, $01, $88, $01, $A8
-	dc.b	$1D
-	dc.b	$4C, $01, $28, $02, $58
-	dc.b	$90
-	dc.b	$02, $00, $D0, $01, $10
-	dc.b	$90
-	dc.b	$02, $01, $30, $01, $10
+	dc.b	$46
+	dc.w	$0198, $0248
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$47
+	dc.w	$0068, $0078
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$48
+	dc.w	$0198, $00E8
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$49
+	dc.w	$00E8, $0108
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$4A
+	dc.w	$0078, $01A8
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$4B
+	dc.w	$0188, $01A8
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$4C
+	dc.w	$0128, $0258
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$00D0, $0110
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0130, $0110
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Piata:
-	dc.b	$90
-	dc.b	$02, $00, $50, $01, $70
-	dc.b	$90
-	dc.b	$02, $00, $90, $01, $70
-	dc.b	$90
-	dc.b	$02, $00, $D0, $01, $70
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0050, $0170
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0090, $0170
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$00D0, $0170
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$4D, $03, $78, $00, $78
+	dc.b	$4D
+	dc.w	$0378, $0078
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$4E, $03, $18, $00, $B8
+	dc.b	$4E
+	dc.w	$0318, $00B8
+
 	dc.b	(ObjID_MotaYoungMan3-$14)<<2+1
-	dc.b	$4F, $02, $F8, $00, $78
+	dc.b	$4F
+	dc.w	$02F8, $0078
+
 	dc.b	(ObjID_MotaYoungMan-$14)<<2+1
-	dc.b	$50, $03, $78, $01, $38
-	dc.b	$2D
-	dc.b	$51, $03, $58, $00, $68
+	dc.b	$50
+	dc.w	$0378, $0138
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$51
+	dc.w	$0358, $0068
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$52, $03, $48, $00, $C8
-	dc.b	$2D
-	dc.b	$53, $02, $68, $01, $68
+	dc.b	$52
+	dc.w	$0348, $00C8
+
+	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
+	dc.b	$53
+	dc.w	$0268, $0168
+	
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
-	dc.b	$54, $03, $78, $02, $78
-	dc.b	$31
-	dc.b	$55, $03, $18, $00, $38
+	dc.b	$54
+	dc.w	$0378, $0278
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$55
+	dc.w	$0318, $0038
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$56, $00, $D8, $01, $28
-	dc.b	$31
-	dc.b	$57, $01, $58, $01, $D8
+	dc.b	$56
+	dc.w	$00D8, $0128
+
+	dc.b	(ObjID_MotaOldMan2-$14)<<2+1
+	dc.b	$57
+	dc.w	$0158, $01D8
+
 	dc.b	(ObjID_MotaOldMan-$14)<<2+1
-	dc.b	$58, $03, $28, $02, $B8
+	dc.b	$58
+	dc.w	$0328, $02B8
+
 	dc.b	(ObjID_MotaChild-$14)<<2+1
-	dc.b	$59, $03, $98, $00, $D8
-	dc.b	$35
-	dc.b	$5A, $02, $D8, $01, $78
-	dc.b	$1D
-	dc.b	$5B, $01, $98, $01, $98
-	dc.b	$1D
-	dc.b	$5C, $03, $48, $02, $38
-	dc.b	$90
-	dc.b	$02, $00, $50, $01, $70
-	dc.b	$90
-	dc.b	$02, $00, $D0, $01, $70
-	dc.b	$90
-	dc.b	$02, $03, $50, $00, $50
-	dc.b	$90
-	dc.b	$02, $03, $50, $00, $B0
+	dc.b	$59
+	dc.w	$0398, $00D8
+
+	dc.b	(ObjID_MotaChild2-$14)<<2+1
+	dc.b	$5A
+	dc.w	$02D8, $0178
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$5B
+	dc.w	$0198, $0198
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$5C
+	dc.w	$0348, $0238
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0050, $0170
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$00D0, $0170
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0350, $0050
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$02
+	dc.w	$0350, $00B0
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Aukba:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$67, $00, $B8, $00, $78
+	dc.b	$67
+	dc.w	$00B8, $0078
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$68, $01, $58, $00, $88
+	dc.b	$68
+	dc.w	$0158, $0088
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$69, $01, $88, $00, $98
+	dc.b	$69
+	dc.w	$0188, $0098
+	
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$6A, $01, $18, $00, $B8
+	dc.b	$6A
+	dc.w	$0118, $00B8
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$6B, $00, $B8, $00, $D8
+	dc.b	$6B
+	dc.w	$00B8, $00D8
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$6C, $01, $68, $01, $18
+	dc.b	$6C
+	dc.w	$0168, $0118
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$6D, $01, $08, $01, $38
+	dc.b	$6D
+	dc.w	$0108, $0138
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$6E, $00, $B8, $01, $58
+	dc.b	$6E
+	dc.w	$00B8, $0158
+	
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$65, $01, $58, $01, $58
+	dc.b	$65
+	dc.w	$0158, $0158
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$66, $00, $F8, $01, $88
+	dc.b	$66
+	dc.w	$00F8, $0188
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Zosa:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$5D, $01, $38, $00, $B8
+	dc.b	$5D
+	dc.w	$0138, $00B8
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$5E, $00, $48, $00, $D8
+	dc.b	$5E
+	dc.w	$0048, $00D8
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$5F, $01, $98, $01, $18
+	dc.b	$5F
+	dc.w	$0198, $0118
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$60, $00, $A8, $01, $38
+	dc.b	$60
+	dc.w	$00A8, $0138
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$61, $00, $98, $01, $78
+	dc.b	$61
+	dc.w	$0098, $0178
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$62, $00, $48, $01, $98
+	dc.b	$62
+	dc.w	$0048, $0198
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$63, $00, $88, $01, $B8
+	dc.b	$63
+	dc.w	$0088, $01B8
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$64, $01, $08, $01, $B8
+	dc.b	$64
+	dc.w	$0108, $01B8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Ryuon:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$6F, $00, $B8, $00, $78
+	dc.b	$6F
+	dc.w	$00B8, $0078
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$70, $01, $18, $00, $98
+	dc.b	$70
+	dc.w	$0118, $0098
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$71, $01, $88, $00, $98
+	dc.b	$71
+	dc.w	$0188, $0098
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$72, $01, $B8, $00, $38
+	dc.b	$72
+	dc.w	$01B8, $0038
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$73, $01, $C8, $00, $78
+	dc.b	$73
+	dc.w	$01C8, $0078
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$74, $02, $48, $00, $38
+	dc.b	$74
+	dc.w	$0248, $0038
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$75, $02, $88, $00, $78
+	dc.b	$75
+	dc.w	$0288, $0078
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$76, $03, $08, $00, $78
+	dc.b	$76
+	dc.w	$0308, $0078
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$77, $03, $28, $00, $98
+	dc.b	$77
+	dc.w	$0328, $0098
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$78, $03, $98, $00, $58
+	dc.b	$78
+	dc.w	$0398, $0058
+	
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$79, $03, $A8, $00, $B8
+	dc.b	$79
+	dc.w	$03A8, $00B8
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
-	dc.b	$7A, $03, $B8, $00, $78
+	dc.b	$7A
+	dc.w	$03B8, $0078
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_SkureB2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$01, $04, $98, $02, $98
+	dc.b	$01
+	dc.w	$0498, $0298
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$02, $02, $78, $01, $B8
+	dc.b	$02
+	dc.w	$0278, $01B8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$03, $01, $B8, $04, $38
+	dc.b	$03
+	dc.w	$01B8, $0438
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$04, $02, $B8, $01, $B8
+	dc.b	$04
+	dc.w	$02B8, $01B8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$05, $01, $18, $02, $78
+	dc.b	$05
+	dc.w	$0118, $0278
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$06, $03, $18, $02, $98
+	dc.b	$06
+	dc.w	$0318, $0298
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$07, $02, $98, $01, $78
+	dc.b	$07
+	dc.w	$0298, $0178
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$0C, $02, $B8, $01, $78
+	dc.b	$0C
+	dc.w	$02B8, $0178
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$0D, $02, $78, $01, $78
+	dc.b	$0D
+	dc.w	$0278, $0178
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$0E, $02, $98, $01, $B8
+	dc.b	$0E
+	dc.w	$0298, $01B8
+
 	dc.b	(ObjID_MuskCat-$14)<<2+1
-	dc.b	$7B, $02, $98, $01, $98
+	dc.b	$7B
+	dc.w	$0298, $0198
+
 	dc.b	(ObjID_MuskCat-$14)<<2+1
-	dc.b	$7C, $03, $18, $02, $A8
+	dc.b	$7C
+	dc.w	$0318, $02A8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_SkureB1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$08, $04, $F8, $01, $B8
+	dc.b	$08
+	dc.w	$04F8, $01B8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$09, $03, $58, $01, $58
+	dc.b	$09
+	dc.w	$0358, $0158
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$0A, $02, $98, $01, $58
+	dc.b	$0A
+	dc.w	$0298, $0158
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$0B, $01, $78, $04, $58
+	dc.b	$0B
+	dc.w	$0178, $0458
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$0C, $03, $B8, $03, $38
+	dc.b	$0C
+	dc.w	$03B8, $0338
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$08, $02, $F8, $02, $D8
+	dc.b	$08
+	dc.w	$02F8, $02D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$09, $01, $98, $03, $18
+	dc.b	$09
+	dc.w	$0198, $0318
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$0A, $01, $98, $04, $58
+	dc.b	$0A
+	dc.w	$0198, $0458
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2
-	dc.b	$0B, $04, $18, $04, $98
+	dc.b	$0B
+	dc.w	$0418, $0498
+
 	dc.b	(ObjID_MuskCat-$14)<<2+1
-	dc.b	$7D, $01, $78, $04, $78
+	dc.b	$7D
+	dc.w	$0178, $0478
+
 	dc.b	(ObjID_MuskCat-$14)<<2+1
-	dc.b	$7E, $01, $98, $04, $78
+	dc.b	$7E
+	dc.w	$0198, $0478
+
 	dc.b	(ObjID_MuskCat-$14)<<2+1
-	dc.b	$7F, $04, $18, $04, $A8
+	dc.b	$7F
+	dc.w	$0418, $04A8
+
 	dc.w	0
 ; ------------------------------------------------------------	
 ObjectData_MotaPassageDarum:
 	dc.b	(ObjID_Teim-$14)<<2+3
-	dc.b	$01, $00, $00, $00, $00
+	dc.b	$01
+	dc.w	0, 0
+
 	dc.b	(ObjID_Darum-$14)<<2+3
-	dc.b	$01, $00, $C8, $00, $98
+	dc.b	$01
+	dc.w	$00C8, $0098
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ShureGroundF:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$10, $01, $38, $00, $D8
+	dc.b	$10
+	dc.w	$0138, $00D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$11, $04, $98, $00, $F8
+	dc.b	$11
+	dc.w	$0498, $00F8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$12, $01, $18, $02, $18
+	dc.b	$12
+	dc.w	$0118, $0218
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$13, $04, $B8, $02, $18
+	dc.b	$13
+	dc.w	$04B8, $0218
+	
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$14, $04, $18, $02, $18
+	dc.b	$14
+	dc.w	$0418, $0218
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ShureF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$15, $01, $38, $01, $F8
+	dc.b	$15
+	dc.w	$0138, $01F8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ShureF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$16, $01, $B8, $00, $F8
+	dc.b	$16
+	dc.w	$01B8, $00F8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$17, $04, $38, $02, $C8
+	dc.b	$17
+	dc.w	$0438, $02C8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ShureF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$18, $02, $90, $01, $58
-	dc.b	$6C
-	dc.b	$11, $01, $58, $02, $38
-	dc.b	$6C
-	dc.b	$03, $03, $98, $02, $18
-	dc.b	$6C
-	dc.b	$03, $05, $28, $02, $58
+	dc.b	$18
+	dc.w	$0290, $0158
+
+	dc.b	(ObjID_DeadBody-$14)<<2
+	dc.b	$11
+	dc.w	$0158, $0238
+
+	dc.b	(ObjID_DeadBody-$14)<<2
+	dc.b	$03
+	dc.w	$0398, $0218
+
+	dc.b	(ObjID_DeadBody-$14)<<2
+	dc.b	$03
+	dc.w	$0528, $0258
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_NidoF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$19, $02, $F8, $02, $B8
+	dc.b	$19
+	dc.w	$02F8, $02B8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$1A, $04, $98, $01, $18
+	dc.b	$1A
+	dc.w	$0498, $0118
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$1B, $02, $78, $02, $38
+	dc.b	$1B
+	dc.w	$0278, $0238
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_NidoF2:
-	dc.b	$58
-	dc.b	$17, $02, $F8, $01, $F8
+	dc.b	(ObjID_Teim-$14)<<2
+	dc.b	$17
+	dc.w	$02F8, $01F8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$1C, $03, $D8, $00, $78
+	dc.b	$1C
+	dc.w	$03D8, $0078
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$1D, $02, $18, $02, $98
+	dc.b	$1D
+	dc.w	$0218, $0298
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RoronF5:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$1E, $00, $F8, $03, $98
-	dc.b	$1D
-	dc.b	$86, $00, $B8, $03, $98
-	dc.b	$1D
-	dc.b	$87, $01, $38, $03, $A8
+	dc.b	$1E
+	dc.w	$00F8, $0398
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$86
+	dc.w	$00B8, $0398
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$87
+	dc.w	$0138, $03A8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RoronF4:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$1F, $01, $58, $01, $98
-	dc.b	$1D
-	dc.b	$85, $00, $B8, $01, $98
+	dc.b	$1F
+	dc.w	$0158, $0198
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$85
+	dc.w	$00B8, $0198
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RoronF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$21, $02, $68, $00, $C0
-	dc.b	$1D
-	dc.b	$83, $02, $58, $01, $38
-	dc.b	$1D
-	dc.b	$84, $03, $98, $01, $68
+	dc.b	$21
+	dc.w	$0268, $00C0
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$83
+	dc.w	$0258, $0138
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$84
+	dc.w	$0398, $0168
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RoronF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$20, $02, $28, $01, $B8
-	dc.b	$1D
-	dc.b	$80, $02, $88, $00, $78
-	dc.b	$1D
-	dc.b	$81, $04, $D8, $00, $98
-	dc.b	$1D
-	dc.b	$82, $02, $A8, $01, $58
+	dc.b	$20
+	dc.w	$0228, $01B8
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$80
+	dc.w	$0288, $0078
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$81
+	dc.w	$04D8, $0098
+
+	dc.b	(ObjID_Motavian-$14)<<2+1
+	dc.b	$82
+	dc.w	$02A8, $0158
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RoronF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$22, $00, $98, $03, $18
+	dc.b	$22
+	dc.w	$0098, $0318
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$23, $02, $B8, $00, $78
+	dc.b	$23
+	dc.w	$02B8, $0078
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_YellowDamF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$24, $05, $98, $02, $58
+	dc.b	$24
+	dc.w	$0598, $0258
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_YellowDamF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$25, $01, $F8, $00, $D8
+	dc.b	$25
+	dc.w	$01F8, $00D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$26, $02, $98, $02, $18
+	dc.b	$26
+	dc.w	$0298, $0218
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$27, $03, $58, $02, $18
-	dc.b	$90
-	dc.b	$21, $03, $30, $01, $80
+	dc.b	$27
+	dc.w	$0358, $0218
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$21
+	dc.w	$0330, $0180
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_YellowDamF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$28, $02, $D8, $00, $D8
+	dc.b	$28
+	dc.w	$02D8, $00D8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RedDamGroundF:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$29, $05, $18, $00, $F8
+	dc.b	$29
+	dc.w	$0518, $00F8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RedDamF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$2A, $01, $D8, $01, $78
+	dc.b	$2A
+	dc.w	$01D8, $0178
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$2B, $04, $08, $01, $38
-	dc.b	$90
-	dc.b	$23, $02, $D0, $01, $40
+	dc.b	$2B
+	dc.w	$0408, $0138
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$23
+	dc.w	$02D0, $0140
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BlueDamF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$2C, $03, $98, $01, $F8
+	dc.b	$2C
+	dc.w	$0398, $01F8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$2D, $00, $B8, $01, $78
+	dc.b	$2D
+	dc.w	$00B8, $0178
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BlueDamF2:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$2E, $02, $F8, $02, $18
+	dc.b	$2E
+	dc.w	$02F8, $0218
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$2F, $01, $18, $03, $98
+	dc.b	$2F
+	dc.w	$0118, $0398
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$30, $00, $F8, $02, $B8
+	dc.b	$30
+	dc.w	$00F8, $02B8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BlueDamF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$31, $03, $18, $01, $D8
+	dc.b	$31
+	dc.w	$0318, $01D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$32, $00, $F8, $02, $F8 
-	dc.b	$90
-	dc.b	$1F, $01, $50, $02, $00
+	dc.b	$32
+	dc.w	$00F8, $02F8
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$1F
+	dc.w	$0150, $0200
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BlueDamF4:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$33, $02, $18, $01, $B8
+	dc.b	$33
+	dc.w	$0218, $01B8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GreenDamGroundF:
-	dc.b	(ObjID_OpenableDoor-$14)<<2
-	dc.b	$1C, $05, $F8, $01, $9F
+	dc.b	(ObjID_Door-$14)<<2
+	dc.b	$1C
+	dc.w	$05F8, $019F
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$34, $09, $98, $00, $B8
+	dc.b	$34
+	dc.w	$0998, $00B8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$35, $0B, $58, $02, $98
+	dc.b	$35
+	dc.w	$0B58, $0298
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$36, $01, $18, $01, $B8
+	dc.b	$36
+	dc.w	$0118, $01B8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GreenDamF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$37, $0A, $38, $01, $38
+	dc.b	$37
+	dc.w	$0A38, $0138
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$38, $04, $A8, $01, $78
-	dc.b	$90
-	dc.b	$1D, $07, $10, $01, $C0
+	dc.b	$38
+	dc.w	$04A8, $0178
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$1D
+	dc.w	$0710, $01C0
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BiosystemsLabB1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$39, $01, $08, $00, $D8
+	dc.b	$39
+	dc.w	$0108, $00D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$3A, $00, $F8, $03, $D8
+	dc.b	$3A
+	dc.w	$00F8, $03D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$3B, $05, $18, $04, $18
-	dc.b	$8C
-	dc.b	$12, $05, $00, $01, $40
+	dc.b	$3B
+	dc.w	$0518, $0418
+
+	dc.b	(ObjID_InvisibleBlock-$14)<<2
+	dc.b	$12
+	dc.w	$0500, $0140
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BiosystemsLabF1:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$3C, $02, $F8, $01, $18
+	dc.b	$3C
+	dc.w	$02F8, $0118
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$3D, $05, $58, $02, $38
+	dc.b	$3D
+	dc.w	$0558, $0238
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$3E, $01, $88, $02, $D8
+	dc.b	$3E
+	dc.w	$0188, $02D8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BiosystemsLabF2:
-	dc.b	$A0
-	dc.b	$1A, $02, $F8, $02, $FF
+	dc.b	(ObjID_BreakableDoor-$14)<<2
+	dc.b	$1A
+	dc.w	$02F8, $02FF
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$3F, $02, $F8, $04, $18
+	dc.b	$3F
+	dc.w	$02F8, $0418
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ClimatrolF2:
@@ -1673,238 +2149,384 @@ ObjectData_ClimatrolF2:
 ; ------------------------------------------------------------
 ObjectData_ClimatrolF3:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$41, $01, $38, $01, $98
+	dc.b	$41
+	dc.w	$0138, $0198
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ClimatrolF5:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$42, $04, $F8, $01, $78
+	dc.b	$42
+	dc.w	$04F8, $0178
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$43, $01, $18, $01, $B8
+	dc.b	$43
+	dc.w	$0118, $01B8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ClimatrolF6:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$44, $04, $D8, $01, $D8
+	dc.b	$44
+	dc.w	$04D8, $01D8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$45, $04, $18, $01, $F8
+	dc.b	$45
+	dc.w	$0418, $01F8
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
-	dc.b	$46, $00, $38, $02, $58
+	dc.b	$46
+	dc.w	$0038, $0258
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_NavalF1:
-	dc.b	$96
-	dc.b	$47, $02, $38, $00, $B8
-	dc.b	$96
-	dc.b	$48, $02, $38, $02, $38
-	dc.b	$96
-	dc.b	$49, $01, $18, $01, $78
-	dc.b	$96
-	dc.b	$4A, $00, $F8, $01, $78
-	dc.b	$96
-	dc.b	$4B, $03, $38, $01, $B8 
-	dc.b	$96
-	dc.b	$4C, $03, $58, $01, $98
-	dc.b	$96
-	dc.b	$4D, $03, $78, $01, $78
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$47
+	dc.w	$0238, $00B8
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$48
+	dc.w	$0238, $0238
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$49
+	dc.w	$0118, $0178
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$4A
+	dc.w	$00F8, $0178
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$4B
+	dc.w	$0338, $01B8
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$4C
+	dc.w	$0358, $0198
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$4D
+	dc.w	$0378, $0178
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_MenobeGroundF:
-	dc.b	$96
-	dc.b	$4E, $03, $78, $02, $58
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$4E
+	dc.w	$0378, $0258
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_MenobeF1:
-	dc.b	$96
-	dc.b	$4F, $00, $D8, $02, $F8
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$4F
+	dc.w	$00D8, $02F8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_MenobeF2:
-	dc.b	$96
-	dc.b	$50, $02, $98, $02, $F8
-	dc.b	$96
-	dc.b	$51, $03, $98, $02, $F8
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$50
+	dc.w	$0298, $02F8
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$51
+	dc.w	$0398, $02F8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_IkutoB5:
-	dc.b	$96
-	dc.b	$52, $05, $38, $04, $D8
-	dc.b	$96
-	dc.b	$53, $02, $58, $00, $F8
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$52
+	dc.w	$0538, $04D8
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$53
+	dc.w	$0258, $00F8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_IkutoB4:
-	dc.b	$96
-	dc.b	$54, $05, $38, $03, $78
-	dc.b	$96
-	dc.b	$55, $01, $B8, $05, $58
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$54
+	dc.w	$0538, $0378
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$55
+	dc.w	$01B8, $0558
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_IkutoB3:
-	dc.b	$96
-	dc.b	$56, $00, $D8, $02, $98
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$56
+	dc.w	$00D8, $0298
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_IkutoB2:
-	dc.b	$96
-	dc.b	$57, $02, $D8, $00, $D8
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$57
+	dc.w	$02D8, $00D8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GuaronGroundF:
-	dc.b	$96
-	dc.b	$58, $04, $88, $00, $78
-	dc.b	$96
-	dc.b	$59, $00, $38, $02, $B8
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$58
+	dc.w	$0488, $0078
+
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$59
+	dc.w	$0038, $02B8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GuaronF1:
-	dc.b	$96
-	dc.b	$5A, $04, $F8, $01, $38
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$5A
+	dc.w	$04F8, $0138
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GuaronF7:
-	dc.b	$96
-	dc.b	$5B, $00, $F8, $01, $58
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$5B
+	dc.w	$00F8, $0158
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GuaronF8:
-	dc.b	$96
-	dc.b	$5C, $01, $F8, $01, $18
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$5C
+	dc.w	$01F8, $0118
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_GuaronF15:
-	dc.b	$96
-	dc.b	$5D, $00, $F8, $00, $F8
+	dc.b	(ObjID_DezoTreasureChest-$14)<<2+2
+	dc.b	$5D
+	dc.w	$00F8, $00F8
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_NoahF1:
-	dc.b	$50
-	dc.b	$00, $02, $10, $00, $70
+	dc.b	(ObjID_Earthman-$14)<<2
+	dc.b	$00
+	dc.w	$0210, $0070
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_ControlTowerF1:
-	dc.b	(ObjID_OpenableDoor-$14)<<2
-	dc.b	$24, $02, $F8, $00, $FF
-	dc.b	$90
-	dc.b	$07, $03, $08, $01, $A0
-	dc.b	$90
-	dc.b	$13, $02, $90, $00, $60
-	dc.b	$90
-	dc.b	$14, $02, $D0, $00, $60
-	dc.b	$90
-	dc.b	$15, $03, $10, $00, $60
-	dc.b	$90
-	dc.b	$16, $03, $50, $00, $60
+	dc.b	(ObjID_Door-$14)<<2
+	dc.b	$24
+	dc.w	$02F8, $00FF
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$07
+	dc.w	$0308, $01A0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$13
+	dc.w	$0290, $0060
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$14
+	dc.w	$02D0, $0060
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$15
+	dc.w	$0310, $0060
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$16
+	dc.w	$0350, $0060
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_MotaPassageDoor:
-	dc.b	(ObjID_OpenableDoor-$14)<<2
-	dc.b	$1B, $00, $98, $00, $FF
+	dc.b	(ObjID_Door-$14)<<2
+	dc.b	$1B
+	dc.w	$0098, $00FF
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_NidoGroundF:
-	dc.b	$A0
-	dc.b	$18, $03, $58, $02, $DF
+	dc.b	(ObjID_BreakableDoor-$14)<<2
+	dc.b	$18
+	dc.w	$0358, $02DF
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_YellowDamGroundF:
-	dc.b	(ObjID_OpenableDoor-$14)<<2
-	dc.b	$20, $01, $18, $01, $BF
+	dc.b	(ObjID_Door-$14)<<2
+	dc.b	$20
+	dc.w	$0118, $01BF
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_RedDamF1:
-	dc.b	(ObjID_OpenableDoor-$14)<<2
-	dc.b	$22, $02, $F8, $01, $1F
+	dc.b	(ObjID_Door-$14)<<2
+	dc.b	$22
+	dc.w	$02F8, $011F
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BlueDamGroundF:
-	dc.b	(ObjID_OpenableDoor-$14)<<2
-	dc.b	$1E, $03, $58, $01, $BF
+	dc.b	(ObjID_Door-$14)<<2
+	dc.b	$1E
+	dc.w	$0358, $01BF
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_BiosystemsLabGroundF:
-	dc.b	$A0
-	dc.b	$19, $02, $F8, $04, $9F
+	dc.b	(ObjID_BreakableDoor-$14)<<2
+	dc.b	$19
+	dc.w	$02F8, $049F
+
 	dc.w	0
 ; ------------------------------------------------------------	
 ObjectData_MotaWorldMap:
-	dc.b	$38
-	dc.b	$06, $05, $88, $07, $38
-	dc.b	$90
-	dc.b	$0F, $09, $F0, $00, $C0
-	dc.b	$90
-	dc.b	$0F, $09, $F0, $00, $D0
-	dc.b	$90
-	dc.b	$2B, $0A, $D0, $06, $08
-	dc.b	$A4
-	dc.b	$00, $04, $90, $04, $90
+	dc.b	(ObjID_JetScooter-$14)<<2
+	dc.b	$06
+	dc.w	$0588, $0738
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$0F
+	dc.w	$09F0, $00C0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$0F
+	dc.w	$09F0, $00D0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$2B
+	dc.w	$0AD0, $0608
+
+	dc.b	(ObjID_PouringWater-$14)<<2
+	dc.b	$00
+	dc.w	$0490, $0490
+
 	dc.w	0
 ; ------------------------------------------------------------	
 ObjectData_ClimatrolF7:
-	dc.b	$78
-	dc.b	$25, $03, $08, $01, $98
+	dc.b	(ObjID_Neifirst-$14)<<2
+	dc.b	$25
+	dc.w	$0308, $0198
+
 	dc.w	0
 ; ------------------------------------------------------------	
 ObjectData_Uzo:
-	dc.b	$90
-	dc.b	$10, $08, $D0, $01, $10
-	dc.b	$90
-	dc.b	$04, $01, $F0, $01, $90
-	dc.b	$90
-	dc.b	$04, $03, $50, $01, $10
-	dc.b	$90
-	dc.b	$04, $05, $70, $00, $90
-	dc.b	$90
-	dc.b	$04, $06, $F0, $00, $B0
-	dc.b	$90
-	dc.b	$04, $09, $B0, $01, $30
-	dc.b	$90
-	dc.b	$04, $0A, $70, $01, $50
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$10
+	dc.w	$08D0, $0110
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$04
+	dc.w	$01F0, $0190
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$04
+	dc.w	$0350, $0110
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$04
+	dc.w	$0570, $0090
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$04
+	dc.w	$06F0, $00B0
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$04
+	dc.w	$09B0, $0130
+
+	dc.b	(ObjID_InvisibleBlock2-$14)<<2
+	dc.b	$04
+	dc.w	$0A70, $0150
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_EspMansionB1:
-	dc.b	$3C
-	dc.b	$00, $00, $F8, $00, $87
-	dc.b	$40
-	dc.b	$00, $01, $08, $00, $87
-	dc.b	$44
-	dc.b	$00, $01, $00, $00, $7D
-	dc.b	$48
-	dc.b	$00, $01, $00, $00, $7C
-	dc.b	$4D
-	dc.b	$00, $00, $F8, $00, $7A
-	dc.b	$69
-	dc.b	$8F, $00, $C8, $00, $98
-	dc.b	$69
-	dc.b	$8F, $01, $38, $00, $98
+	dc.b	(ObjID_CryogenicChamberPart1-$14)<<2
+	dc.b	$00
+	dc.w	$00F8, $0087
+
+	dc.b	(ObjID_CryogenicChamberPart2-$14)<<2
+	dc.b	$00
+	dc.w	$0108, $0087
+
+	dc.b	(ObjID_CryogenicChamberPart3-$14)<<2
+	dc.b	$00
+	dc.w	$0100, $007D
+
+	dc.b	(ObjID_CryogenicChamberPart4-$14)<<2
+	dc.b	$00
+	dc.w	$0100, $007C
+
+	dc.b	(ObjID_CryogenicChamberPart5-$14)<<2+1
+	dc.b	$00
+	dc.w	$00F8, $007A
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8F
+	dc.w	$00C8, $0098
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8F
+	dc.w	$0138, $0098
+
 	dc.w	0
 ; ------------------------------------------------------------	
 ObjectData_EspMansion:
-	dc.b	$71
-	dc.b	$88, $00, $F0, $01, $B8
-	dc.b	$71
-	dc.b	$88, $01, $10, $01, $B8 
-	dc.b	$69
-	dc.b	$89, $00, $B8, $01, $38 
-	dc.b	$69
-	dc.b	$8A, $00, $E8, $01, $38 
-	dc.b	$69
-	dc.b	$8B, $01, $18, $01, $38
-	dc.b	$69
-	dc.b	$8C, $01, $48, $01, $38
-	dc.b	$69
-	dc.b	$8D, $00, $D8, $01, $58
-	dc.b	$69
-	dc.b	$8E, $01, $28, $01, $58
-	dc.b	$7C
-	dc.b	$34, $01, $10, $00, $FF
-	dc.b	$74
-	dc.b	$00, $01, $10, $00, $FF
+	dc.b	(ObjID_MovingEsper-$14)<<2+1
+	dc.b	$88
+	dc.w	$00F0, $01B8
+
+	dc.b	(ObjID_MovingEsper-$14)<<2+1
+	dc.b	$88
+	dc.w	$0110, $01B8
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$89
+	dc.w	$00B8, $0138
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8A
+	dc.w	$00E8, $0138
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8B
+	dc.w	$0118, $0138
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8C
+	dc.w	$0148, $0138
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8D
+	dc.w	$00D8, $0158
+
+	dc.b	(ObjID_Esper-$14)<<2+1
+	dc.b	$8E
+	dc.w	$0128, $0158
+
+	dc.b	(ObjID_Lutz-$14)<<2
+	dc.b	$34
+	dc.w	$0110, $00FF
+
+	dc.b	(ObjID_LutzChair-$14)<<2
+	dc.b	$00
+	dc.w	$0110, $00FF
+
 	dc.w	0
 ; ------------------------------------------------------------
 ObjectData_Gaira:
-	dc.b	$8C
-	dc.b	$2F, $03, $60, $01, $A0
+	dc.b	(ObjID_InvisibleBlock-$14)<<2
+	dc.b	$2F
+	dc.w	$0360, $01A0
+
 	dc.w	0
 ; ============================================================
 	
@@ -1912,17 +2534,17 @@ ObjectData_Gaira:
 ; Object - Blinking red cursor for selection
 ; --------------------------------------------------------------
 	
-Obj_RedRectangleCursor:
+Obj_RedCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjRRC_Index(pc,d0.w)
+	jsr	RedCursorRoutines(pc,d0.w)
 	rts
 ; --------------------------------------------------------------
-ObjRRC_Index:
-	bra.w	ObjRRC_Init
-	bra.w	ObjRRC_Main
+RedCursorRoutines:
+	bra.w	RedCursor_Init
+	bra.w	RedCursor_Main
 ; --------------------------------------------------------------
-ObjRRC_Init:
+RedCursor_Init:
 	move.w	$E(a0), $2A(a0)
 	moveq	#0, d1
 	move.b	$32(a0), d1
@@ -1935,7 +2557,7 @@ ObjRRC_Init:
 	move.w	#1, $22(a0)
 	move.w	#0, ($FFFFDE50).w
 ; --------------------------------------------------------------
-ObjRRC_Main:
+RedCursor_Main:
 	tst.w	(window_index).w
 	bne.s	Obj01_ShowCursor
 	move.w	(window_index_saved).w, d0
@@ -2017,17 +2639,17 @@ loc_15CA:
 ; Object - Tiles used to cover letters in input window (blinking effect)
 ; ----------------------------------------------------------------------------
 
-Obj_InputWindowBlinkCursor:
+Obj_InputWindowCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjIWBC_Index(pc,d0.w)
+	jsr	InputWindowCursorRoutines(pc,d0.w)
 	rts
 ; ----------------------------------------------------------------------------
-ObjIWBC_Index:
-	bra.w	ObjIWBC_Init
-	bra.w	ObjIWBC_Main
+InputWindowCursorRoutines:
+	bra.w	InputWindowCursor_Init
+	bra.w	InputWindowCursor_Main
 ; ----------------------------------------------------------------------------
-ObjIWBC_Init:
+InputWindowCursor_Init:
 	move.w	#$100, $A(a0)
 	move.w	#$B0, $E(a0)
 	move.b	#$30, 2(a0)
@@ -2038,7 +2660,7 @@ ObjIWBC_Init:
 	move.w	#1, $24(a0)
 	move.w	#1, $22(a0)
 ; ----------------------------------------------------------------------------
-ObjIWBC_Main:
+InputWindowCursor_Main:
 	tst.w	(window_index).w
 	bne.s	loc_163E
 	move.w	(window_index_saved).w, d0
@@ -2207,14 +2829,14 @@ loc_1772:
 Obj_NameDestinationTile:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjQMBC_Index(pc,d0.w)
+	jsr	NameDestinationTileRoutines(pc,d0.w)
 	rts
 ; --------------------------------------------------------------------------
-ObjQMBC_Index:
-	bra.w	ObjQMBC_Init
-	bra.w	ObjQMBC_Main
+NameDestinationTileRoutines:
+	bra.w	NameDestinationTile_Init
+	bra.w	NameDestinationTile_Main
 ; --------------------------------------------------------------------------
-ObjQMBC_Init:
+NameDestinationTile_Init:
 	move.w	#$130, $A(a0)
 	move.w	#$98, $E(a0)
 	move.b	#$30, 2(a0)
@@ -2224,7 +2846,7 @@ ObjQMBC_Init:
 	move.w	#4, $24(a0)
 	move.w	#1, $22(a0)
 ; --------------------------------------------------------------------------
-ObjQMBC_Main:
+NameDestinationTile_Main:
 	tst.w	(window_index).w
 	bne.s	+
 	move.w	(window_index_saved).w, d0
@@ -2254,17 +2876,17 @@ ObjQMBC_Main:
 ; ---------------------------------------------------
 ; Object - cursor for selection in battle
 ; ---------------------------------------------------
-Obj_RedRectCursorBattle:
+Obj_BattleCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjRRCB_Index(pc,d0.w)
+	jsr	BattleCursorRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------
-ObjRRCB_Index:
-	bra.w	ObjRRCB_Init
-	bra.w	ObjRRCB_Main
+BattleCursorRoutines:
+	bra.w	BattleCursor_Init
+	bra.w	BattleCursor_Main
 ; ---------------------------------------------------
-ObjRRCB_Init:
+BattleCursor_Init:
 	move.w	$E(a0), $2A(a0)
 	moveq	#0, d1
 	move.b	$32(a0), d1
@@ -2276,7 +2898,7 @@ ObjRRCB_Init:
 	move.l	#Map_Cursors, 4(a0)
 	move.w	#1, $22(a0)
 ; ---------------------------------------------------
-ObjRRCB_Main:
+BattleCursor_Main:
 	tst.w	(window_index).w
 	bne.s	loc_1862
 	move.w	(window_index_saved).w, d0
@@ -2299,17 +2921,17 @@ loc_187C:
 ; -------------------------------------------------------------------
 ; Object - Triangular cursor for character selection in battle
 ; -------------------------------------------------------------------
-Obj_TriangleCursCharSelection:
+Obj_CharSelectCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjTCCSel_Index(pc,d0.w)
+	jsr	CharSelectCursorRoutines(pc,d0.w)
 	rts
 ; -------------------------------------------------------------------	
-ObjTCCSel_Index:
-	bra.w	ObjTCCSel_Init
-	bra.w	ObjTCCSel_Main
+CharSelectCursorRoutines:
+	bra.w	CharSelectCursor_Init
+	bra.w	CharSelectCursor_Main
 ; -------------------------------------------------------------------
-ObjTCCSel_Init:
+CharSelectCursor_Init:
 	bsr.s	loc_18E4
 	move.b	#$30, 2(a0)
 	move.w	#$8522, 8(a0)
@@ -2317,7 +2939,7 @@ ObjTCCSel_Init:
 	move.w	#3, $24(a0)
 	move.w	#1, $22(a0)
 ; -------------------------------------------------------------------
-ObjTCCSel_Main:
+CharSelectCursor_Main:
 	move.w	(current_active_objects_num).w, d0
 	addq.w	#1, d0
 	lsl.w	#6, d0
@@ -2411,17 +3033,17 @@ ObjTCCSel_XPosArray:
 ; ---------------------------------------------------------------
 ; Object - Triangular cursor for command selection in battle	
 ; ---------------------------------------------------------------
-Obj_TriangleCursCommSelect:
+Obj_CommandSelectCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjTCCS_Index(pc,d0.w)
+	jsr	CommandSelectCursorRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------------------	
-ObjTCCS_Index:
-	bra.w	ObjTCCS_Init
-	bra.w	ObjTCCS_Main
+CommandSelectCursorRoutines:
+	bra.w	CommandSelectCursor_Init
+	bra.w	CommandSelectCursor_Main
 ; ---------------------------------------------------------------
-ObjTCCS_Init:
+CommandSelectCursor_Init:
 	move.w	$A(a0), $2A(a0)
 	moveq	#0, d1
 	move.b	$32(a0), d1
@@ -2434,7 +3056,7 @@ ObjTCCS_Init:
 	move.w	#3, $24(a0)
 	move.w	#1, $22(a0)
 ; ---------------------------------------------------------------
-ObjTCCS_Main:
+CommandSelectCursor_Main:
 	tst.w	(window_index).w
 	bne.s	loc_19CA
 	move.w	(window_index_saved).w, d0
@@ -2470,14 +3092,14 @@ loc_19E4:
 Obj_MonitorExplosion:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjETS_Index(pc,d0.w)
+	jsr	MonitorExplosionRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------------------	
-ObjETS_Index:
-	bra.w	ObjETS_Init
-	bra.w	ObjETS_Main
+MonitorExplosionRoutines:
+	bra.w	MonitorExplosion_Init
+	bra.w	MonitorExplosion_Main
 ; ---------------------------------------------------------------	
-ObjETS_Init:
+MonitorExplosion_Init:
 	move.w	#$118, $A(a0)
 	move.w	#$98, $E(a0)
 	move.b	#$30, 2(a0)
@@ -2486,7 +3108,7 @@ ObjETS_Init:
 	move.w	#3, $26(a0)		; timer before changing sprite mappings
 	move.w	#1, $22(a0)
 ; ---------------------------------------------------------------	
-ObjETS_Main:
+MonitorExplosion_Main:
 	subq.w	#1, $26(a0)
 	bpl.s	loc_1A5A		; return if timer is still positive (use same sprite mappings)
 	move.w	#3, $26(a0)			; reset timer
@@ -2499,19 +3121,19 @@ loc_1A5A:
 ; ---------------------------------------------------------------	
 
 ; ---------------------------------------------------------------
-; Object - Object flying out of Parma at the Ending Screen
+; Object - Spaceship flying out of Parma at the Ending Screen
 ; ---------------------------------------------------------------
-Obj_EndingUFO:
+Obj_EndingSpaceship:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjEU_Index(pc,d0.w)
+	jsr	EndingSpaceshipRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------------------
-ObjEU_Index:
-	bra.w	ObjEU_Init
-	bra.w	ObjEU_Main
+EndingSpaceshipRoutines:
+	bra.w	EndingSpaceship_Init
+	bra.w	EndingSpaceship_Main
 ; ---------------------------------------------------------------
-ObjEU_Init:
+EndingSpaceship_Init:
 	move.w	#$156, $A(a0)
 	move.w	#$100, $E(a0)
 	move.b	#$32, 2(a0)
@@ -2521,7 +3143,7 @@ ObjEU_Init:
 	move.w	#$1C, $26(a0)
 	move.w	#1, $22(a0)
 ; ---------------------------------------------------------------
-ObjEU_Main:
+EndingSpaceship_Main:
 	subq.w	#1, $26(a0)
 	bpl.s	loc_1AC6
 	move.w	#1, $26(a0)
@@ -2547,16 +3169,16 @@ Obj_Null1:
 Obj_BattleCharacter:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjCB_Index(pc,d0.w)
+	jsr	BattleCharacterRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------------------
-ObjCB_Index:
-	bra.w	ObjCB_Init
+BattleCharacterRoutines:
+	bra.w	BattleCharacter_Init
 	bra.w	loc_1B2E
 	bra.w	loc_26B4
-	bra.w	ObjCB_Dead
+	bra.w	BattleCharacter_Dead
 ; ---------------------------------------------------------------
-ObjCB_Init:
+BattleCharacter_Init:
 	move.b	#$12, 2(a0)
 	move.w	$A(a0), $C(a0)
 	move.w	$E(a0), $10(a0)
@@ -2571,7 +3193,7 @@ ObjCB_Init:
 	adda.w	d0, a3
 	tst.w	(a3)
 	bne.s	loc_1B2C		; branch if character is not dead
-	move.w	#3, $22(a0)			; routine = ObjCB_Dead	
+	move.w	#3, $22(a0)			; routine = BattleCharacter_Dead	
 loc_1B2C:
 	rts
 ; ---------------------------------------------------------------
@@ -2595,7 +3217,7 @@ loc_1B4E:
 	bpl.s	loc_1BA8
 	btst	#5, 3(a0)
 	beq.s	loc_1B9C
-	move.w	#3, $22(a0)		; routine = ObjCB_Dead
+	move.w	#3, $22(a0)		; routine = BattleCharacter_Dead
 	bclr	#3, 3(a0)
 	bne.s	loc_1B9C
 	move.w	$36(a0), (character_index).w
@@ -3594,7 +4216,7 @@ loc_26CC:
 loc_26E0:
 	rts
 ; ---------------------------------------------------------------
-ObjCB_Dead:
+BattleCharacter_Dead:
 	move.b	#$12, 2(a0)
 	rts
 	
@@ -3878,17 +4500,17 @@ Obj_Null2:
 Obj_BattleEnemy:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjEnmBattle_Index(pc,d0.w)
+	jsr	BattleEnemyRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------------------
-ObjEnmBattle_Index:
-	bra.w	ObjEnmBattle_Init
+BattleEnemyRoutines:
+	bra.w	BattleEnemy_Init
 	bra.w	loc_29A4
 	bra.w	loc_30E8
 	bra.w	loc_3102
-	bra.w	ObjEnmBattle_Dead
+	bra.w	BattleEnemy_Dead
 ; ---------------------------------------------------------------
-ObjEnmBattle_Init:
+BattleEnemy_Init:
 	move.b	#$10, 2(a0)
 	move.w	$A(a0), $C(a0)
 	move.w	$E(a0), $10(a0)
@@ -4594,7 +5216,7 @@ loc_3102:
 loc_311A:
 	rts
 ; ---------------------------------------------------------------
-ObjEnmBattle_Dead:
+BattleEnemy_Dead:
 	move.b	#2, 2(a0)
 	btst	#6, 3(a0)
 	beq.s	loc_3164
@@ -5131,7 +5753,7 @@ loc_36B0:
 ; Object - Character Sprites in the map
 ; --------------------------------------------------------------
 	
-Obj_MapCharacters:
+Obj_MapCharacter:
 	tst.w	(map_index).w
 	bne.s	loc_36D8
 	tst.w	(jet_scooter_flag).w
@@ -5139,7 +5761,7 @@ Obj_MapCharacters:
 loc_36D8:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjCL_Index(pc,d0.w)
+	jsr	MapCharacterRoutines(pc,d0.w)
 	rts
 	
 loc_36E4:
@@ -5147,12 +5769,12 @@ loc_36E4:
 	rts
 	
 ; --------------------------------------------------------------
-ObjCL_Index:
-	bra.w	ObjCL_Init
-	bra.w	ObjCL_Main
+MapCharacterRoutines:
+	bra.w	MapCharacter_Init
+	bra.w	MapCharacter_Main
 ; --------------------------------------------------------------
 
-ObjCL_Init:
+MapCharacter_Init:
 	addq.w	#8, $A(a0)
 	addq.w	#8, $E(a0)
 	move.l	#loc_12B06, 4(a0)
@@ -5182,7 +5804,7 @@ loc_3746:
 	
 ; --------------------------------------------------------------
 
-ObjCL_Main:
+MapCharacter_Main:
 	cmpi.w	#MapID_Gaira, (map_index).w
 	bne.s	+
 	move.l	4(a0), d0
@@ -5678,7 +6300,7 @@ loc_3AD8:
 ; --------------------------------------------------------------
 ; Object - Characters following the leading character
 ; --------------------------------------------------------------	
-Obj_FollowingChars:
+Obj_FollowingCharacter:
 	tst.w	(map_index).w
 	bne.s	loc_3AFA
 	tst.w	(jet_scooter_flag).w
@@ -5686,23 +6308,23 @@ Obj_FollowingChars:
 loc_3AFA:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjFlwngChar_Index(pc,d0.w)
+	jsr	FollowingCharacterRoutines(pc,d0.w)
 	rts
 
 loc_3B06:
 	move.b	#2, 2(a0)
 	rts
 ; --------------------------------------------------------------
-ObjFlwngChar_Index:
-	bra.w	ObjFlwngChar_Init
-	bra.w	ObjFlwngChar_Main
-	bra.w	ObjFlwngChar_Return
+FollowingCharacterRoutines:
+	bra.w	FollowingCharacter_Init
+	bra.w	FollowingCharacter_Main
+	bra.w	FollowingCharacter_Return
 ; --------------------------------------------------------------
-ObjFlwngChar_Init:
+FollowingCharacter_Init:
 	move.w	#4, $2C(a0)
 	move.w	#1, $22(a0)
 ; --------------------------------------------------------------
-ObjFlwngChar_Main:
+FollowingCharacter_Main:
 	move.l	-$3C(a0), 4(a0)		; get same sprite mappings as leading character
 	move.l	($FFFFE400).w, d1
 	sub.l	a0, d1
@@ -5754,7 +6376,7 @@ loc_3BB0:
 loc_3BB2:
 	move.w	$2A(a0), $24(a0)
 ; --------------------------------------------------------------
-ObjFlwngChar_Return:
+FollowingCharacter_Return:
 	rts
 ; --------------------------------------------------------------	
 	
@@ -5763,11 +6385,11 @@ Obj_MotaYoungMan:
 	bne.s	loc_3BCA
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjMtYngMan_index(pc,d0.w)
+	jsr	MotaYoungManRoutines(pc,d0.w)
 loc_3BCA:
 	rts
 ; --------------------------------------------------------------	
-ObjMtYngMan_index:
+MotaYoungManRoutines:
 	bra.w	loc_3BD8
 	bra.w	loc_3C06
 	bra.w	loc_3D30
@@ -5899,11 +6521,11 @@ Obj_MotaYoungWoman:
 	bne.s	loc_3D8E
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjMtYngWoman_index(pc,d0.w)
+	jsr	MotaYoungWomanRoutines(pc,d0.w)
 loc_3D8E:
 	rts
 ; --------------------------------------------------------------
-ObjMtYngWoman_index:
+MotaYoungWomanRoutines:
 	bra.w	loc_3D9C
 	bra.w	loc_3DCA
 	bra.w	loc_3EF4
@@ -6034,11 +6656,11 @@ Obj_MotaOldMan:
 	bne.s	loc_3F52
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjMtOldMan_Index(pc,d0.w)
+	jsr	MotaOldManRoutines(pc,d0.w)
 loc_3F52:
 	rts
 ; --------------------------------------------------------------
-ObjMtOldMan_Index:
+MotaOldManRoutines:
 	bra.w	loc_3F60
 	bra.w	loc_3DCA
 	bra.w	loc_3EF4
@@ -6059,11 +6681,11 @@ Obj_MotaChild:
 	bne.s	loc_3F9E
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjMtChild_Index(pc,d0.w)
+	jsr	MotaChildRoutines(pc,d0.w)
 loc_3F9E:
 	rts
 ; --------------------------------------------------------------
-ObjMtChild_Index:
+MotaChildRoutines:
 	bra.w	loc_3FAC
 	bra.w	loc_3C06
 	bra.w	loc_3D30
@@ -6483,11 +7105,11 @@ Obj_MuskCat:
 	bne.s	loc_455E
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjMuskCat_Index(pc,d0.w)
+	jsr	MuskCatRoutines(pc,d0.w)
 loc_455E:
 	rts
 ; --------------------------------------------------------------
-ObjMuskCat_Index:
+MuskCatRoutines:
 	bra.w	loc_456C
 	bra.w	loc_45A0
 	bra.w	loc_475C
@@ -6768,11 +7390,11 @@ Obj_JetScooter:
 	bne.s	loc_490A
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjJetSctr_Index(pc,d0.w)
+	jsr	JetScooterRoutines(pc,d0.w)
 loc_490A:
 	rts
 ; ------------------------------------------------------
-ObjJetSctr_Index:
+JetScooterRoutines:
 	bra.w	ObjJetSctr_Init
 	bra.w	ObjJetSctr_Main
 ; ------------------------------------------------------
@@ -6932,7 +7554,7 @@ loc_4B18:
 	rts
 ; ------------------------------------------------------
 
-Obj_CryogenicsChamberPart1:
+Obj_CryogenicChamberPart1:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4B34(pc,d0.w)
@@ -6979,7 +7601,7 @@ loc_4BAE:
 ; ------------------------------------------------------
 
 
-Obj_CryogenicsChamberPart2:
+Obj_CryogenicChamberPart2:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4BBC(pc,d0.w)
@@ -7025,7 +7647,7 @@ loc_4C36:
 	rts
 ; --------------------------------------------------------------
 	
-Obj_CryogenicsChamberPart3:
+Obj_CryogenicChamberPart3:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4C44(pc,d0.w)
@@ -7071,7 +7693,7 @@ loc_4CBE:
 	rts
 ; --------------------------------------------------------------
 
-Obj_CryogenicsChamberPart4:
+Obj_CryogenicChamberPart4:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4CCC(pc,d0.w)
@@ -7093,7 +7715,7 @@ loc_4CFA:
 	rts
 ; --------------------------------------------------------------
 
-Obj_CryogenicsChamberPart5:
+Obj_CryogenicChamberPart5:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_4D08(pc,d0.w)
@@ -7162,7 +7784,7 @@ loc_4DD6:
 	rts
 ; --------------------------------------------------------------
 
-loc_4DD8:
+Obj_Earthman:
 	tst.b	3(a0)
 	bne.s	loc_4DE8
 	move.w	$22(a0), d0
@@ -7191,11 +7813,11 @@ Obj_Darum:
 	bne.s	loc_4E14
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjDarum_Index(pc,d0.w)
+	jsr	DarumRoutines(pc,d0.w)
 loc_4E14:
 	rts
 ; --------------------------------------------------------------
-ObjDarum_Index:
+DarumRoutines:
 	bra.w	loc_4E2A
 	bra.w	loc_4E5E
 	bra.w	loc_4EAC
@@ -7281,11 +7903,11 @@ Obj_Teim:
 	bne.s	loc_4F18
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjTeim_Index(pc,d0.w)
+	jsr	TeimRoutines(pc,d0.w)
 loc_4F18:
 	rts
 ; --------------------------------------------------------------	
-ObjTeim_Index:
+TeimRoutines:
 	bra.w	loc_4F36
 	bra.w	loc_4F6E
 	bra.w	loc_4F8E
@@ -7364,7 +7986,7 @@ loc_501C:
 loc_501E:
 	subq.w	#1, $34(a0)
 	bpl.s	loc_504A
-	move.w	#$2B, $FFFFE880.w
+	move.w	#ObjID_DarumTeimExplosion, $FFFFE880.w
 	move.w	$FFFFE84E.w, $FFFFE88E.w
 	move.w	$FFFFE84A.w, d0
 	addq.w	#4, d0
@@ -7377,7 +7999,7 @@ loc_504A:
 	
 ; --------------------------------------------------------------------------
 
-loc_504C:
+Obj_DarumTeimExplosion:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_5058(pc,d0.w)
@@ -7406,7 +8028,7 @@ loc_50AC:
 	rts
 ; --------------------------------------------------------------
 
-loc_50AE:
+Obj_MotherBrain:
 	tst.b	3(a0)
 	bne.s	loc_50BE
 	move.w	$22(a0), d0
@@ -7700,12 +8322,12 @@ Obj_Neifirst:
 	bne.s	loc_545C
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjNeifirst_Index(pc,d0.w)
+	jsr	NeifirstRoutines(pc,d0.w)
 loc_545C:
 	rts
 	
 
-ObjNeifirst_Index:
+NeifirstRoutines:
 	bra.w	ObjNeifirst_Init
 	bra.w	ObjNeifirst_Main
 
@@ -7911,7 +8533,7 @@ loc_5690:
 loc_56C0:
 	bra.s	loc_5656
 ; ----------------------------------------------------------------
-Obj_OpenableDoor:
+Obj_Door:
 	tst.b	3(a0)
 	bne.s	loc_56D2
 	move.w	$22(a0), d0
@@ -7957,7 +8579,7 @@ loc_5750:
 	move.w	#0, $2C(a0)
 	move.w	#0, $2E(a0)
 	rts
-Obj_DestroyableDoor:
+Obj_BreakableDoor:
 	tst.b	3(a0)
 	bne.s	loc_576E
 	move.w	$22(a0), d0
@@ -8073,14 +8695,14 @@ loc_58AC:
 Obj_PushStartButton:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjPSB_Index(pc,d0.w)
+	jsr	PushStartButtonRoutines(pc,d0.w)
 	rts
 	
-ObjPSB_Index:
-	bra.w	ObjPSB_Init
-	bra.w	ObjPSB_Main
+PushStartButtonRoutines:
+	bra.w	PushStartButton_Init
+	bra.w	PushStartButton_Main
 	
-ObjPSB_Init:
+PushStartButton_Init:
 	move.w	#$FD, $A(a0)
 	move.w	#$140, $E(a0)
 	move.w	#$2300, 8(a0)
@@ -8095,7 +8717,7 @@ ObjPSB_Init:
 loc_5902:
 	rts
 	
-ObjPSB_Main:
+PushStartButton_Main:
 	move.b	#$10, 2(a0)
 	subq.w	#1, $26(a0)		
 	bpl.s	loc_5918
@@ -8115,14 +8737,14 @@ loc_5926:
 Obj_CopyrightText:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
-	jsr	ObjCT_Index(pc,d0.w)
+	jsr	CopyrightTextRoutines(pc,d0.w)
 	rts
 	
-ObjCT_Index:
-	bra.w	ObjCT_Init
-	bra.w	ObjCT_Main
+CopyrightTextRoutines:
+	bra.w	CopyrightText_Init
+	bra.w	CopyrightText_Main
 	
-ObjCT_Init:
+CopyrightText_Init:
 	move.w	#$160, $A(a0)
 	move.w	#$150, $E(a0)
 	move.w	#$2300, 8(a0)
@@ -8131,7 +8753,7 @@ ObjCT_Init:
 	move.w	#1, $22(a0)
 	rts
 	
-ObjCT_Main:
+CopyrightText_Main:
 	rts
 	
 Obj_Spaceship:
@@ -8186,7 +8808,7 @@ loc_59E4:
 	dc.b	$B0, $48
 ; ==============================================================
 
-loc_59FA:
+Obj_EyeBeam:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_5A06(pc,d0.w)
@@ -9826,7 +10448,7 @@ loc_6AE0:
 	move.w	($FFFFF632).w, d0
 	bmi.s	loc_6B0E
 	bne.s	loc_6AFA
-	move.w	#8, (object_ram).w
+	move.w	#ObjID_EndingSpaceship, (object_ram).w
 loc_6AFA:
 	subq.w	#8, ($FFFFF632).w
 	lea	(loc_6B10).l, a0
@@ -11386,7 +12008,7 @@ loc_7CAA:
 	
 	tst.w	(controls_locked).w
 	bne.s	loc_7CCE
-	move.w	#ObjID_MapCharacters,($FFFFE400).w
+	move.w	#ObjID_MapCharacter,($FFFFE400).w
 	move.w	#3,($FFFFE424).w
 	move.w	(map_x_pos).w,($FFFFE40A).w
 	move.w	(map_y_pos).w,($FFFFE40E).w
@@ -11404,7 +12026,7 @@ loc_7CCE:
 	subq.w	#1, d0
 	bmi.s	loc_7D08
 loc_7CF6:
-	move.w	#ObjID_FollowingCharacters, (a0)
+	move.w	#ObjID_FollowingCharacter, (a0)
 	move.w	d1, 8(a0)
 	addq.w	#8, d1
 	adda.w	#$40, a0
@@ -11636,11 +12258,11 @@ loc_8028:
 	bne.s	loc_8070
 	move.w	#0, $FFFFE424.w
 	addi.w	#$10, $FFFFE40E.w
-	move.w	#$2C, ($FFFFEC00).w
-	move.w	#$45, $FFFFEC40.w
+	move.w	#ObjID_MotherBrain, ($FFFFEC00).w
+	move.w	#ObjID_EyeBeam, $FFFFEC40.w
 	move.w	#$20C, $FFFFEC4A.w
 	move.w	#$1B1, $FFFFEC4E.w
-	move.w	#$45, $FFFFEC80.w
+	move.w	#ObjID_EyeBeam, $FFFFEC80.w
 	move.w	#$214, $FFFFEC8A.w
 	move.w	#$1B1, $FFFFEC8E.w
 	move.w	#1, $FFFFDE70.w
@@ -19104,7 +19726,7 @@ ProcessStealItem_Continue:
 	cmpi.w	#StealItemArray_Room-StealItemArray, d2
 	bne.s	+			; if we didn't get out of Central Tower Room, branch (don't bother checking Shir's level)
 	cmpi.w	#$A, ($FFFFC1CA).w	
-	bcs.s	-			; if Shir's level is lower than 10, return (Sorry no Visiphone for you!)
+	bcs.s	-			; if Shir's level is lower than 10, return
 +
 	tst.w	($FFFFC1C2).w
 	beq.s	-			; return if Shir is dead
@@ -19123,7 +19745,7 @@ ProcessStealItem_Continue:
 	move.l	#0, ($FFFFC610).w
 	lea	(party_member_id).w, a1
 -
-	cmpi.w	#CharID_Shir, (a1)+		; Get Shir because we want to remove her from party
+	cmpi.w	#CharID_Shir, (a1)+		; Get Shir because we want to remove her from the party
 	bne.s	-
 	move.w	(a1), -(a1)
 	addq.w	#4, a1
@@ -20847,7 +21469,7 @@ loc_E3BE:
 	move.w	#$308, d1
 	moveq	#5, d0
 loc_E3D6:
-	move.w	#ObjID_FollowingCharacters, (a0)
+	move.w	#ObjID_FollowingCharacter, (a0)
 	move.l	#loc_12B06, 4(a0)
 	move.w	d1, 8(a0)
 	move.w	#2, $22(a0)
@@ -21498,7 +22120,7 @@ TreasureChestContentArray:
 	dc.w	$8000|ItemID_MagicCap	; $A - Red Dam F1
 	dc.w	12000					; $B - Red Dam F1
 	dc.w	6400					; $C - Red Dam F1
-	dc.w	200						; $D
+	dc.w	200						; $D - Unused
 	dc.w	$8000|ItemID_Prism		; $E - Esper Mansion
 	dc.w	$8000|ItemID_NeiSword	; $F - Esper Mansion
 	dc.w	$8000|ItemID_Monomate	; $10 - Shure
@@ -21556,29 +22178,29 @@ TreasureChestContentArray:
 	dc.w	$8000|ItemID_Sandals	; $44 - Climatrol F6
 	dc.w	$8000|ItemID_LaserBar	; $45 - Climatrol F6
 	dc.w	$8000|ItemID_CeramBar	; $46 - Climatrol F6
-	dc.w	$8000|ItemID_NeiShield	; $47
-	dc.w	$8000|ItemID_NeiEmel	; $48
-	dc.w	$8000|ItemID_TruthSlvs	; $49
-	dc.w	$8000|ItemID_Trimate	; $4A
-	dc.w	$8000|ItemID_MirEmel	; $4B
-	dc.w	$8000|ItemID_LaconEmel	; $4C
-	dc.w	$8000|ItemID_GrSleeves	; $4D
-	dc.w	$8000|ItemID_NeiCrown	; $4E
-	dc.w	$8000|ItemID_StormGear	; $4F
-	dc.w	$8000|ItemID_Neimet		; $50
-	dc.w	$8000|ItemID_ColorScarf	; $51
-	dc.w	$8000|ItemID_NeiSlasher	; $52
-	dc.w	$8000|ItemID_NeiShot	; $53
-	dc.w	$8000|ItemID_FireStaff	; $54
-	dc.w	$8000|ItemID_LacnMace	; $55
-	dc.w	$8000|ItemID_PlsCannon	; $56
-	dc.w	$8000|ItemID_LacDagger	; $57
-	dc.w	$8000|ItemID_AmberRobe	; $58
-	dc.w	$8000|ItemID_Laconinish	; $59
-	dc.w	$8000|ItemID_CrystChest	; $5A
-	dc.w	$8000|ItemID_NeiCape	; $5B
-	dc.w	$8000|ItemID_CrystCape	; $5C
-	dc.w	$8000|ItemID_NeiArmor	; $5D
+	dc.w	$8000|ItemID_NeiShield	; $47 - Naval F1
+	dc.w	$8000|ItemID_NeiEmel	; $48 - Naval F1
+	dc.w	$8000|ItemID_TruthSlvs	; $49 - Naval F1
+	dc.w	$8000|ItemID_Trimate	; $4A - Naval F1
+	dc.w	$8000|ItemID_MirEmel	; $4B - Naval F1
+	dc.w	$8000|ItemID_LaconEmel	; $4C - Naval F1
+	dc.w	$8000|ItemID_GrSleeves	; $4D - Naval F1
+	dc.w	$8000|ItemID_NeiCrown	; $4E - Menobe
+	dc.w	$8000|ItemID_StormGear	; $4F - Menobe F1
+	dc.w	$8000|ItemID_Neimet		; $50 - Menobe F2
+	dc.w	$8000|ItemID_ColorScarf	; $51 - Menobe F2
+	dc.w	$8000|ItemID_NeiSlasher	; $52 - Ikuto B5
+	dc.w	$8000|ItemID_NeiShot	; $53 - Ikuto B5
+	dc.w	$8000|ItemID_FireStaff	; $54 - Ikuto B4
+	dc.w	$8000|ItemID_LacnMace	; $55 - Ikuto B4
+	dc.w	$8000|ItemID_PlsCannon	; $56 - Ikuto B3
+	dc.w	$8000|ItemID_LacDagger	; $57 - Ikuto B2
+	dc.w	$8000|ItemID_AmberRobe	; $58 - Guaron
+	dc.w	$8000|ItemID_Laconinish	; $59 - Guaron
+	dc.w	$8000|ItemID_CrystChest	; $5A - Guaron F1
+	dc.w	$8000|ItemID_NeiCape	; $5B - Guaron F7
+	dc.w	$8000|ItemID_CrystCape	; $5C - Guaron F8
+	dc.w	$8000|ItemID_NeiArmor	; $5D - Guaron F15
 ; ===============================================
 
 
@@ -21781,7 +22403,7 @@ loc_EB78:
 	addq.w	#1, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#ObjID_CharSelectTriangleCursor, (a0)
+	move.w	#ObjID_CharSelectCursor, (a0)
 	move.w	#0, $22(a0)
 	move.w	(party_members_num).w, $32(a0)
 	move.w	#$90, $A(a0)
@@ -22095,7 +22717,7 @@ CommandAction_ItemSelectCharacter:
 	addq.w	#1, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#ObjID_CharSelectTriangleCursor, (a0)
+	move.w	#ObjID_CharSelectCursor, (a0)
 	move.w	#0, $22(a0)
 	move.w	(party_members_num).w, $32(a0)
 	move.w	#$90, $A(a0)
@@ -24111,7 +24733,7 @@ loc_103AE:
 	subq.w	#1, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#ObjID_NamingWindowCursor, (a0)
+	move.w	#ObjID_InputWindowCursor, (a0)
 	move.w	#0, $22(a0)
 	adda.w	#$40, a0
 	move.w	#ObjID_NameDestinationTile, (a0)
@@ -24766,7 +25388,7 @@ loc_109D8:
 	move.w	(current_active_objects_num).w, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#4, (a0)
+	move.w	#ObjID_BattleCursor, (a0)
 	move.w	#0, $22(a0)
 	move.w	#1, $32(a0)
 	move.w	#$118, $A(a0)
@@ -24799,7 +25421,7 @@ loc_10A2E:
 	move.w	(current_active_objects_num).w, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#ObjID_RedCursorBattle, (a0)
+	move.w	#ObjID_BattleCursor, (a0)
 	move.w	#0, $22(a0)
 	move.w	#1, $32(a0)
 	move.w	#$118, $A(a0)
@@ -24849,7 +25471,7 @@ loc_10AB2:
 	subq.w	#1, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#ObjID_CommandSelectTriangleCursor, (a0)
+	move.w	#ObjID_CommandSelectCursor, (a0)
 	move.w	#0, $22(a0)
 	move.w	#3, $32(a0)
 	move.w	#$A8, $A(a0)
@@ -25711,7 +26333,7 @@ LoadCursorInWindows:
 	subq.w	#1, d3
 	lsl.w	#6, d3
 	adda.w	d3, a0
-	move.w	#ObjID_RedRectangleCursor, (a0)
+	move.w	#ObjID_RedCursor, (a0)
 	move.w	#0, $22(a0)
 	move.w	d0, $32(a0)
 	move.w	d1, $A(a0)
