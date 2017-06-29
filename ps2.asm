@@ -814,9 +814,9 @@ Map_LoadObjects:
 	_move.w	d2, 0(a3)
 	move.w	(a2)+, d2
 	andi.w	#$3FF, d2
-	move.w	d2, $2E(a3)
-	move.w	(a2)+, $A(a3)
-	move.w	(a2)+, $E(a3)
+	move.w	d2, type(a3)
+	move.w	(a2)+, x_pos(a3)
+	move.w	(a2)+, y_pos(a3)
 	adda.w	d0, a3
 	dbf	d1, -
 	
@@ -913,28 +913,28 @@ Map_LoadObjects:
 SkipDarumTeimEvent:
 	cmpi.w	#$11, d0
 	bne.s	++
-	tst.b	($FFFFC78E).w
+	tst.b	(treasure_chest_flags+Chest_Prism).w
 	bne.s	+
-	_move.w	#$39, 0(a3)
-	move.w	#$20E, $2E(a3)
-	move.w	#$D8, $A(a3)
-	move.w	#$F8, $E(a3)
+	_move.w	#ObjID_DezoTreasureChest, 0(a3)
+	move.w	#$20E, type(a3)
+	move.w	#$D8, x_pos(a3)
+	move.w	#$F8, y_pos(a3)
 +
-	tst.b	($FFFFC78F).w
+	tst.b	(treasure_chest_flags+Chest_NeiSword).w
 	bne.s	+
-	_move.w	#$39, 0(a3)
-	move.w	#$20F, $2E(a3)
-	move.w	#$D8, $A(a3)
-	move.w	#$F8, $E(a3)
+	_move.w	#ObjID_DezoTreasureChest, 0(a3)
+	move.w	#$20F, type(a3)
+	move.w	#$D8, x_pos(a3)
+	move.w	#$F8, y_pos(a3)
 +
 	cmpi.w	#$63, d0
 	bne.s	+
 	tst.b	($FFFFC745).w
 	bne.s	+
-	_move.w	#$39, 0(a3)
-	move.w	#$35, $2E(a3)
-	move.w	#$210, $A(a3)
-	move.w	#$D8, $E(a3)
+	_move.w	#ObjID_DezoTreasureChest, 0(a3)
+	move.w	#$35, type(a3)
+	move.w	#$210, x_pos(a3)
+	move.w	#$D8, y_pos(a3)
 +
 	rts
 	
@@ -5759,7 +5759,7 @@ Obj_MapCharacter:
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_36E4
 loc_36D8:
-	move.w	$22(a0), d0
+	move.w	routine(a0), d0
 	asl.b	#2, d0
 	jsr	MapCharacterRoutines(pc,d0.w)
 	rts
@@ -5775,9 +5775,9 @@ MapCharacterRoutines:
 ; --------------------------------------------------------------
 
 MapCharacter_Init:
-	addq.w	#8, $A(a0)
-	addq.w	#8, $E(a0)
-	move.l	#loc_12B06, 4(a0)
+	addq.w	#8, x_pos(a0)
+	addq.w	#8, y_pos(a0)
+	move.l	#loc_12B06, mappings(a0)
 	cmpi.w	#1, ($FFFFF710).w
 	bne.s	loc_372C
 	moveq	#0, d4
@@ -5788,16 +5788,16 @@ MapCharacter_Init:
 	bcs.s	loc_372C
 	cmpi.w	#$23, d3
 	bhi.s	loc_372C
-	move.l	#loc_12B1E, 4(a0)
+	move.l	#loc_12B1E, mappings(a0)
 loc_372C:
 	move.w	$24(a0), $2A(a0)
 	move.w	#4, $2C(a0)
-	move.w	#1, $22(a0)
+	move.w	#1, routine(a0)
 	lea	($FFFFDD00).w, a2
 	move.w	#$3F, d0
 loc_3746:
-	move.w	$A(a0), (a2)+
-	move.w	$E(a0), (a2)+
+	move.w	x_pos(a0), (a2)+
+	move.w	y_pos(a0), (a2)+
 	dbf	d0, loc_3746
 	
 	rts
@@ -5807,15 +5807,15 @@ loc_3746:
 MapCharacter_Main:
 	cmpi.w	#MapID_Gaira, (map_index).w
 	bne.s	+
-	move.l	4(a0), d0
-	move.l	#loc_12B06, 4(a0)
+	move.l	mappings(a0), d0
+	move.l	#loc_12B06, mappings(a0)
 	cmpi.l	#loc_12B36, d0
 	beq.s	+
-	move.l	#loc_12B36, 4(a0)
+	move.l	#loc_12B36, mappings(a0)
 +
-	tst.w	$28(a0)
+	tst.w	step_duration(a0)
 	beq.s	loc_3786
-	subq.w	#1, $28(a0)
+	subq.w	#1, step_duration(a0)
 	bpl.w	loc_390E
 	
 loc_3786:
@@ -5841,10 +5841,10 @@ loc_3786:
 	cmpi.b	#$FF, d0
 	bne.s	loc_37EC
 	move.b	#GameModeID_Building, (game_mode_index).w
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_x_pos).w
 	move.w	#0, (joypad_held).w
@@ -5875,74 +5875,74 @@ loc_381A:
 loc_382A:
 	move.w	d0, ($FFFFF756).w
 	bsr.w	loc_6F56
-	move.w	#0, $14(a0)
-	move.w	#0, $18(a0)
+	move.w	#0, x_moving_flag(a0)
+	move.w	#0, y_moving_flag(a0)
 	lea	(joypad_held).w, a3
-	move.w	$E(a0), d3
-	move.w	$18(a0), d1
+	move.w	y_pos(a0), d3
+	move.w	y_moving_flag(a0), d1
 	
-; CharSprites_CheckMoveUp
+; MapChar_CheckMoveUp
 	btst	#ButtonUp, (a3)
-	beq.s	CharSprites_ChkMoveDown
-	move.w	#0, $2A(a0)
+	beq.s	MapChar_ChkMoveDown
+	move.w	#0, facing_dir(a0)
 	move.w	#$FFF0, d4
 	move.w	#0, d5
 	moveq	#0, d6
-	bsr.w	Sprites_ChkCanMove
-	bne.s	CharSprites_ChkMoveDown
-	move.w	#-1, $18(a0)
+	bsr.w	Obj_Move
+	bne.s	MapChar_ChkMoveDown
+	move.w	#-1, y_moving_flag(a0)
 	bra.w	loc_38FC
 	
 
-CharSprites_ChkMoveDown:
+MapChar_ChkMoveDown:
 	btst	#ButtonDown, (a3)
-	beq.s	CharSprites_ChkMoveLeft
-	move.w	#3, $2A(a0)
+	beq.s	MapChar_ChkMoveLeft
+	move.w	#3, facing_dir(a0)
 	move.w	#$10, d4
 	move.w	#0, d5
 	moveq	#1, d6
-	bsr.w	Sprites_ChkCanMove
-	bne.s	CharSprites_ChkMoveLeft
-	move.w	#1, $18(a0)
+	bsr.w	Obj_Move
+	bne.s	MapChar_ChkMoveLeft
+	move.w	#1, y_moving_flag(a0)
 	bra.s	loc_38FC
 	
 
-CharSprites_ChkMoveLeft:
+MapChar_ChkMoveLeft:
 	btst	#ButtonLeft, (a3)
-	beq.s	CharSprites_ChkMoveRight
-	move.w	#6, $2A(a0)
+	beq.s	MapChar_ChkMoveRight
+	move.w	#6, facing_dir(a0)
 	move.w	#0, d4
 	move.w	#$FFF0, d5
 	moveq	#2, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	beq.s	loc_38C6
 	cmpi.b	#$FE, d4
-	bne.s	CharSprites_ChkMoveRight
+	bne.s	MapChar_ChkMoveRight
 	cmpi.b	#3, $2E(a1)
-	bne.s	CharSprites_ChkMoveRight
+	bne.s	MapChar_ChkMoveRight
 	move.w	#$40, (joypad_held).w
 	bra.s	loc_38F4
 loc_38C6:
-	move.w	#-1, $14(a0)
+	move.w	#-1, x_moving_flag(a0)
 	bra.w	loc_38FC
 	
-CharSprites_ChkMoveRight:
+MapChar_ChkMoveRight:
 	btst	#ButtonRight, (a3)
 	beq.s	loc_38F4
-	move.w	#9, $2A(a0)
+	move.w	#9, facing_dir(a0)
 	move.w	#0, d4
 	move.w	#$10, d5
 	moveq	#3, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_38F4
-	move.w	#1, $14(a0)
+	move.w	#1, x_moving_flag(a0)
 	bra.s	loc_38FC
 loc_38F4:
-	move.w	$2A(a0), $24(a0)
+	move.w	facing_dir(a0), frame_index(a0)
 	rts
 	
 loc_38FC:
-	move.w	#$F, $28(a0)		; update character's position for 15 frames
+	move.w	#$F, step_duration(a0)		; update character's position for 15 frames
 	move.w	#1, ($FFFFCB0A).w
 	move.w	#1, $30(a0)
 	
@@ -5951,50 +5951,50 @@ loc_390E:
 	adda.w	($FFFFF740).w, a2
 	addq.w	#4, ($FFFFF740).w
 	andi.w	#$FF, ($FFFFF740).w
-	move.w	$A(a0), (a2)+
-	move.w	$E(a0), (a2)
-	subq.w	#1, $26(a0)
+	move.w	x_pos(a0), (a2)+
+	move.w	y_pos(a0), (a2)
+	subq.w	#1, frame_duration(a0)
 	bpl.w	loc_3956
-	move.w	#7, $26(a0)		; keep same sprite mappings for 7 frames
-	move.w	$32(a0), d0		; sprite mappings index
-	addq.w	#1, $32(a0)		; new mappings
-	andi.w	#3, $32(a0)		; force to 4 values
+	move.w	#7, frame_duration(a0)
+	move.w	anim_index(a0), d0
+	addq.w	#1, anim_index(a0)
+	andi.w	#3, anim_index(a0)
 	
 	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
-	add.w	$2A(a0), d0
-	move.w	d0, $24(a0)
+	add.w	facing_dir(a0), d0
+	move.w	d0, frame_index(a0)
 loc_3956:
 	move.w	#0, ($FFFFF726).w
 	move.w	#0, ($FFFFF724).w
 	btst	#4, $FFFFF756.w
 	bne.s	loc_397A
-	cmpi.w	#$C8, $1E(a0)
+	cmpi.w	#$C8, y_screen_pos(a0)
 	bhi.s	loc_3980
-	cmpi.w	#0, $2A(a0)
+	cmpi.w	#0, facing_dir(a0)
 	bne.s	loc_3980
 loc_397A:
 	move.w	#-1, ($FFFFF724).w
 loc_3980:
-	cmpi.w	#$118, $1E(a0)
+	cmpi.w	#$118, y_screen_pos(a0)
 	bcs.s	loc_3996
-	cmpi.w	#3, $2A(a0)
+	cmpi.w	#3, facing_dir(a0)
 	bne.s	loc_3996
 	move.w	#1, ($FFFFF724).w
 loc_3996:
 	btst	#6, $FFFFF756.w
 	bne.s	loc_39AE
-	cmpi.w	#$D8, $20(a0)
+	cmpi.w	#$D8, x_screen_pos(a0)
 	bhi.s	loc_39B4
-	cmpi.w	#6, $2A(a0)
+	cmpi.w	#6, facing_dir(a0)
 	bne.s	loc_39B4
 loc_39AE:
 	move.w	#-1, ($FFFFF726).w
 loc_39B4:
-	cmpi.w	#$168, $20(a0)
+	cmpi.w	#$168, x_screen_pos(a0)
 	bcs.s	loc_39CA
-	cmpi.w	#9, $2A(a0)
+	cmpi.w	#9, facing_dir(a0)
 	bne.s	loc_39CA
 	move.w	#1, ($FFFFF726).w
 loc_39CA:
@@ -6002,9 +6002,9 @@ loc_39CA:
 	rts
 	
 loc_39D0:
-	move.w	$2A(a0), $24(a0)
-	move.w	#0, $14(a0)
-	move.w	#0, $18(a0)
+	move.w	facing_dir(a0), frame_index(a0)
+	move.w	#0, x_moving_flag(a0)
+	move.w	#0, y_moving_flag(a0)
 	rts
 	
 ; =======================================
@@ -6451,7 +6451,7 @@ loc_3C84:
 	move.w	#$FFF0, d4
 	move.w	#0, d5
 	moveq	#0, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_3D12
 	move.w	#$F, $28(a0)
 	move.w	#$FFFF, $18(a0)
@@ -6472,7 +6472,7 @@ loc_3CD2:
 	move.w	#$10, d4
 	move.w	#0, d5
 	moveq	#1, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_3D12
 	move.w	#$F, $28(a0)
 	move.w	#1, $18(a0)
@@ -6587,7 +6587,7 @@ loc_3E48:
 	move.w	#0, d4
 	move.w	#$FFF0, d5
 	moveq	#2, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_3ED6
 	move.w	#$F, $28(a0)
 	move.w	#$FFFF, $14(a0)
@@ -6608,7 +6608,7 @@ loc_3E96:
 	move.w	#0, d4
 	move.w	#$10, d5
 	moveq	#3, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_3ED6
 	move.w	#$F, $28(a0)
 	move.w	#1, $14(a0)
@@ -6777,7 +6777,7 @@ loc_40AC:
 	move.w	#$FFF0, d4
 	move.w	#0, d5
 	moveq	#0, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_4216
 	move.w	#$F, $28(a0)
 	move.w	#$FFFF, $18(a0)
@@ -6798,7 +6798,7 @@ loc_4112:
 	move.w	#$10, d4
 	move.w	#0, d5
 	moveq	#1, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_4216
 	move.w	#$F, $28(a0)
 	move.w	#1, $18(a0)
@@ -6815,12 +6815,12 @@ loc_4164:
 	beq.w	loc_4216
 	move.w	#$FFF0, d4
 	move.w	#$FFF0, d5
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_4216
 	move.w	#0, d4
 	move.w	#$FFF0, d5
 	moveq	#2, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_4216
 	move.w	#6, $2A(a0)
 	cmpi.b	#$FB, $34(a0)
@@ -6840,12 +6840,12 @@ loc_41C8:
 	beq.s	loc_4216
 	move.w	#$FFF0, d4
 	move.w	#$10, d5
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_4216
 	move.w	#0, d4
 	move.w	#$10, d5
 	moveq	#3, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_4216
 	move.w	#9, $2A(a0)
 	cmpi.b	#5, $34(a0)
@@ -6979,7 +6979,7 @@ loc_4388:
 	move.w	#$FFF0, d4
 	move.w	#0, d5
 	moveq	#0, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_44D8
 	move.w	#$F, $28(a0)
 	move.w	#$FFFF, $18(a0)
@@ -7002,7 +7002,7 @@ loc_43E8:
 	move.w	#$10, d4
 	move.w	#0, d5
 	moveq	#1, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_44D8
 	move.w	#$F, $28(a0)
 	move.w	#1, $18(a0)
@@ -7023,7 +7023,7 @@ loc_4444:
 	move.w	#0, d4
 	move.w	#$FFF0, d5
 	moveq	#2, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_44D8
 	move.w	#$F, $28(a0)
 	move.w	#$FFFF, $14(a0)
@@ -7044,7 +7044,7 @@ loc_4498:
 	move.w	#0, d4
 	move.w	#$10, d5
 	moveq	#3, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_44D8
 	move.w	#$F, $28(a0)
 	move.w	#1, $14(a0)
@@ -7168,7 +7168,7 @@ loc_4614:
 	move.w	#$FFF0, d4
 	move.w	#0, d5
 	moveq	#0, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_473E
 	move.w	#0, $2A(a0)
 	move.w	#$F, $28(a0)
@@ -7186,7 +7186,7 @@ loc_4660:
 	move.w	#$10, d4
 	move.w	#0, d5
 	moveq	#1, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_473E
 	move.w	#3, $2A(a0)
 	move.w	#$F, $28(a0)
@@ -7204,7 +7204,7 @@ loc_46AC:
 	move.w	#0, d4
 	move.w	#$FFF0, d5
 	moveq	#2, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.w	loc_473E
 	move.w	#$D, $2A(a0)
 	move.w	#$F, $28(a0)
@@ -7222,7 +7222,7 @@ loc_46F8:
 	move.w	#0, d4
 	move.w	#$10, d5
 	moveq	#3, d6
-	bsr.w	Sprites_ChkCanMove
+	bsr.w	Obj_Move
 	bne.s	loc_473E
 	move.w	#$11, $2A(a0)
 	move.w	#$F, $28(a0)
@@ -7531,8 +7531,8 @@ loc_4ADE:
 	bsr.w	loc_8BBA
 	
 loc_4AE2:
-	move.w	($FFFFE80E).w, ($FFFFE40E).w	; update characters' Y position to be the same as that of the Jet Scooter
-	move.w	($FFFFE80A).w, ($FFFFE40A).w	; update characters' X position to be the same as that of the Jet Scooter
+	move.w	($FFFFE80E).w, (characters_ram+y_pos).w	; update characters' Y position to be the same as that of the Jet Scooter
+	move.w	($FFFFE80A).w, (characters_ram+x_pos).w	; update characters' X position to be the same as that of the Jet Scooter
 	move.w	($FFFFE82A).w, ($FFFFE42A).w	; same facing direction
 	
 loc_4AF4:
@@ -10721,7 +10721,7 @@ loc_6D92:
 	endm
 	rts
 	
-Sprites_ChkCanMove:
+Obj_Move:
 	bsr.s	loc_6DA4
 	beq.w	Map_ChkTargetInteract
 	rts
@@ -10882,10 +10882,10 @@ loc_6EE6:
 	move.b	(a1), d0
 	move.w	d0, $FFFFF766.w
 	move.b	#GameModeID_Building, (game_mode_index).w
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_x_pos).w
 	rts
@@ -10896,10 +10896,10 @@ loc_6F1C:
 	cmpi.b	#$10, (a1)
 	bcs.s	loc_6F4E
 	move.w	d0, $FFFFC64C.w
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, $FFFFC64E.w
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, $FFFFC650.w
 	move.w	#0, $FFFFCB0E.w
@@ -10975,7 +10975,7 @@ loc_7008:
 	subq.w	#1, (map_index).w
 	move.w	#$220, (map_y_pos).w
 	move.w	#$2C0, (map_x_pos).w
-	cmpi.w	#$100, $FFFFE40E.w
+	cmpi.w	#$100, (characters_ram+y_pos).w
 	bcc.s	loc_7032
 	move.w	#$A0, (map_y_pos).w	
 	move.w	#$340, (map_x_pos).w	
@@ -11019,14 +11019,14 @@ loc_7082:
 	move.b	(a1)+, d1
 	ext.w	d1
 	lsl.w	#5, d1
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	add.w	d1, d0
 	move.w	d0, (map_y_pos).w
 	move.b	(a1), d1
 	ext.w	d1
 	lsl.w	#5, d1
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$FFF0, d0
 	add.w	d1, d0
 	move.w	d0, (map_x_pos).w
@@ -11034,11 +11034,11 @@ loc_7082:
 	move.b	#SFXID_FellInHole, (sound_queue).w
 	rts
 loc_70D6:
-	cmpi.w	#$218, $FFFFE40E.w
+	cmpi.w	#$218, (characters_ram+y_pos).w
 	bhi.s	loc_7102
 	tst.b	$FFFFC747.w
 	bne.s	loc_7102
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
 	move.w	#$210, (map_x_pos).w
@@ -12010,8 +12010,8 @@ loc_7CAA:
 	bne.s	loc_7CCE
 	move.w	#ObjID_MapCharacter,($FFFFE400).w
 	move.w	#3,($FFFFE424).w
-	move.w	(map_x_pos).w,($FFFFE40A).w
-	move.w	(map_y_pos).w,($FFFFE40E).w
+	move.w	(map_x_pos).w,(characters_ram+x_pos).w
+	move.w	(map_y_pos).w,(characters_ram+y_pos).w
 	
 loc_7CCE:
 	move.w	#$300,($FFFFE408).w
@@ -12257,7 +12257,7 @@ loc_8028:
 	subq.b	#1, d1
 	bne.s	loc_8070
 	move.w	#0, $FFFFE424.w
-	addi.w	#$10, $FFFFE40E.w
+	addi.w	#$10, (characters_ram+y_pos).w
 	move.w	#ObjID_MotherBrain, ($FFFFEC00).w
 	move.w	#ObjID_EyeBeam, $FFFFEC40.w
 	move.w	#$20C, $FFFFEC4A.w
@@ -12688,10 +12688,10 @@ loc_850C:
 	bne.s	loc_850C
 	
 	move.w	#$8F02, (a6)
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_x_pos).w
 	move.l	#$60000002, (vdp_control_port).l
@@ -13071,7 +13071,7 @@ loc_8A08:
 	move.w	#1, (party_member_join_next).w
 	move.l	#$C8, (current_money).w		; start with 200 meseta
 	move.l	#$80808080, $FFFFC790.w		; this makes the treasure chests in Shure locked
-	move.w	#$101, ($FFFFC78E).w
+	move.w	#$101, (treasure_chest_flags+Chest_Prism).w
 	
 	lea	(CharInitialSetup).l, a0
 	lea	(character_stats+equipment).w, a1
@@ -15516,10 +15516,10 @@ Visiphone_ItemSelected:
 	move.w	#0, $FFFFF764.w
 	move.w	#1, $FFFFF766.w
 	move.b	#GameModeID_Building, (game_mode_index).w
-	move.w	$FFFFE40E.w, d0		; get characters' y position
+	move.w	(characters_ram+y_pos).w, d0		; get characters' y position
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w ; and save it
-	move.w	$FFFFE40A.w, d0		; get characters' x position
+	move.w	(characters_ram+x_pos).w, d0		; get characters' x position
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_x_pos).w ; and save it
 	rts	
@@ -19582,7 +19582,7 @@ loc_CF0A:
 	move.l	#$190B190E, (script_id).w
 	addq.w	#4, (event_routine).w
 	move.w	#0, (event_flags).w
-	move.b	#0, ($FFFFC78E).w
+	move.b	#0, (treasure_chest_flags+Chest_Prism).w
 	rts
 loc_CF38:
 	tst.b	$FFFFC744.w
@@ -19604,7 +19604,7 @@ loc_CF58:
 	move.b	#1, $FFFFC744.w
 	move.w	#$1690, (script_id).w		; this instruction causes a bug: when this piece of text gets loaded in memory it overwrites the sound ram and other stuff (Music Freeze bug).
 											; split the text in the script section by putting a C4 and replace the 'move.w	#$1690' with 'move.l	#$16901693', or '#$16901692'
-	move.b	#0, ($FFFFC78F).w
+	move.b	#0, (treasure_chest_flags+Chest_NeiSword).w
 loc_CF74:
 	addq.w	#1, (event_routine_sub).w
 	rts
@@ -20582,11 +20582,11 @@ loc_D9DA:
 	add.w	d0, d0
 	move.b	(a1,d0.w), d4
 	ext.w	d4
-	add.w	d4, $FFFFE40E.w
+	add.w	d4, (characters_ram+y_pos).w
 	addq.w	#1, d0
 	move.b	(a1,d0.w), d5
 	ext.w	d5
-	add.w	d5, $FFFFE40A.w
+	add.w	d5, (characters_ram+x_pos).w
 	
 	lea	(loc_29B64).l, a1
 	move.l	a1, $FFFFF72E.w
@@ -21212,10 +21212,10 @@ loc_E0CE:
 	move.b	#1, (a0)
 	move.w	#$B00, (event_flags).w
 loc_E0D8:
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_y_pos).w
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_x_pos).w
 	move.w	#-1, (screen_changed_flag).w
@@ -22116,10 +22116,10 @@ TreasureChestContentArray:
 	dc.w	$8000|ItemID_LaconChest	; 6 - Skure B2
 	dc.w	5600					; 7 - Skure B2
 	dc.w	$8000|ItemID_GardaBoots	; 8 - Skure B1
-	dc.w	8600					; 9 - Red Dam F1
-	dc.w	$8000|ItemID_MagicCap	; $A - Red Dam F1
-	dc.w	12000					; $B - Red Dam F1
-	dc.w	6400					; $C - Red Dam F1
+	dc.w	8600					; 9 - Skure B1
+	dc.w	$8000|ItemID_MagicCap	; $A - Skure B1
+	dc.w	12000					; $B - Skure B1
+	dc.w	6400					; $C - Skure B1
 	dc.w	200						; $D - Unused
 	dc.w	$8000|ItemID_Prism		; $E - Esper Mansion
 	dc.w	$8000|ItemID_NeiSword	; $F - Esper Mansion
@@ -22247,8 +22247,8 @@ loc_E9DC:
 	bne.s	loc_EA0A
 	move.w	#$1803, (script_id).w		; "I'm going to go meet my father; don't go anywhere."
 	move.w	#ObjID_Teim, ($FFFFE800).w
-	move.w	$FFFFE40E.w, $FFFFE80E.w
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+y_pos).w, $FFFFE80E.w
+	move.w	(characters_ram+x_pos).w, d0
 	subi.w	#$10, d0
 	move.w	d0, $FFFFE80A.w
 	move.w	#1, $FFFFE824.w
@@ -27170,11 +27170,11 @@ ProcessRandomBattle:
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_11700
 loc_116E6:
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	addq.w	#8, d0
 	andi.w	#$F, d0
 	bne.s	loc_116FE
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	addq.w	#8, d0
 	andi.w	#$F, d0
 	beq.s	loc_11716
@@ -27182,10 +27182,10 @@ loc_116FE:
 	rts
 	
 loc_11700:
-	move.w	$FFFFE40E.w, d0
+	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$F, d0
 	bne.s	loc_116FE
-	move.w	$FFFFE40A.w, d0
+	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$F, d0
 	beq.s	loc_11716
 	rts	
@@ -27202,13 +27202,13 @@ loc_11716:
 	beq.s	+
 	adda.w	#loc_23C9A-loc_23C3A, a1
 +
-	move.w	$FFFFE40E.w, d1
+	move.w	(characters_ram+y_pos).w, d1
 	andi.w	#$700, d1
 	lsr.w	#6, d1
 	move.w	d1, d2
 	lsl.w	#1, d1
 	add.w	d2, d1
-	move.w	$FFFFE40A.w, d2
+	move.w	(characters_ram+x_pos).w, d2
 	andi.w	#$F00, d2
 	lsr.w	#8, d2
 	add.w	d2, d1
@@ -27229,10 +27229,10 @@ loc_11778:
 	cmpi.w	#MapID_DezolisSkure, d1
 	bne.s	loc_117B0
 	lea	(loc_23DBA).l, a1
-	move.w	$FFFFE40E.w, d1
+	move.w	(characters_ram+y_pos).w, d1
 	andi.w	#$700, d1
 	lsr.w	#5, d1
-	move.w	$FFFFE40A.w, d2
+	move.w	(characters_ram+x_pos).w, d2
 	andi.w	#$700, d2
 	lsr.w	#8, d2
 	add.w	d2, d1

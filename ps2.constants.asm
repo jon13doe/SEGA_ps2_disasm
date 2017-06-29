@@ -146,6 +146,26 @@ ObjID_EyeBeam =  id(PtrObj_EyeBeam)									; $45
 
 ObjectSize = 64
 
+
+; ---------------------------------------------------------------------------
+; Global properties and constants applicable to objects
+obj_id = 0	; word
+mappings = 4	; longword
+x_pos = $A	; longword
+y_pos = $E	; longword
+x_moving_flag = $14	; word
+y_moving_flag = $18	; word
+y_screen_pos = $1E	; word ; y position relative to the screen 
+x_screen_pos = $20 ; word ; x position relative to the screen
+routine = $22	; word
+frame_index = $24	; word
+frame_duration = $26	; word
+step_duration = $28	; word ; determines how many frames characters can move at a single press of a button
+facing_dir = $2A	; word	; 0 = UP; 3 = DOWN; 6 = LEFT; 9 = RIGHT
+type = $2E	; byte
+subtype = $2F	; byte
+anim_index = $32	; word
+
 ; Maps
 offset	:=	MapData
 ptrsize	:=	20
@@ -936,6 +956,100 @@ SFXID_Unpause =  id(PtrSFX_Unpause)	; $D6
 
 SoundtrackNameLength = 12	; Ustvestia text pointer character length
 
+; Chest Flags
+Chest_Skure15000Meseta = 1
+Chest_SkureMogicCap = 2
+Chest_Skure18000Meseta = 3
+Chest_SkureMagicCap = 4
+Chest_Skure7800Meseta = 5
+Chest_SkureLaconChest = 6
+Chest_Skure5600Meseta = 7
+Chest_SkureGardaBoots = 8
+Chest_Skure8600 = 9
+Chest_SkureMagicCap2 = $A
+Chest_Skure12000 = $B
+Chest_Skure6400 = $C
+Chest_Unknown200Meseta = $D
+Chest_Prism = $E
+Chest_NeiSword = $F
+Chest_ShureMonomate = $10
+Chest_Shure150Meseta = $11
+Chest_ShureDynamite = $12
+Chest_ShureDynamite2 = $13
+Chest_Shure40Meseta = $14
+Chest_ShureDimate = $15
+Chest_ShureHeadgear = $16
+Chest_Shure200Meseta = $17
+Chest_ShureSilRibbon = $18
+Chest_Nido20Meseta = $19
+Chest_Nido100Meseta = $1A
+Chest_NidoDimate = $1B
+Chest_NidoTrimate = $1C
+Chest_Nido60Meseta = $1D
+Chest_RoronGarbage = $1E
+Chest_RoronGarbage2 = $1F
+Chest_RoronCeramBar = $20
+Chest_RoronGarbage3 = $21
+Chest_RoronCannon = $22
+Chest_RoronGarbage4 = $23
+Chest_YellowDamEscapipe = $24
+Chest_YellowDamCrystanish = $25
+Chest_YellowDamCrystCape = $26
+Chest_YellowDamCrystChest = $27
+Chest_YellowDamAmberRobe = $28
+Chest_RedDamSwdOfAnger = $29
+Chest_RedDamFireSlshr = $2A
+Chest_RedDamFireStaff = $2B
+Chest_BlueDamAntidote = $2C
+Chest_BlueDamCresceGear = $2D
+Chest_BlueDamSnowCrown = $2E
+Chest_BlueDamStarMist = $2F
+Chest_BlueDamWindScarf = $30
+Chest_BlueDamColorScarf = $31
+Chest_BlueDamTrimate = $32
+Chest_BlueDamStormGear = $33
+Chest_GreenDamStarMist = $34
+Chest_GreenDamAegis = $35
+Chest_GreenDamTelepipe = $36
+Chest_GreenDamGrSleeves = $37
+Chest_GreenDamTruthSlvs = $38
+Chest_BiosystemTrimate = $39
+Chest_BiosystemAntidote = $3A
+Chest_BiosystemPoisonShot = $3B
+Chest_BiosystemAntidote2 = $3C
+Chest_BiosystemScalpel = $3D
+Chest_BiosystemStarMist = $3E
+Chest_BiosystemDynamite = $3F
+Chest_ClimatrolJwlRibbon = $40
+Chest_ClimatrolFiberVest = $41
+Chest_ClimatrolKnifeBoots = $42
+Chest_ClimatrolSilRibbon = $43
+Chest_ClimatrolSandals = $44
+Chest_ClimatrolLaserBar = $45
+Chest_ClimatrolCeramBar = $46
+Chest_NeiShield = $47
+Chest_NeiEmel = $48
+Chest_NavalTruthSlvs = $49
+Chest_NavalTrimate = $4A
+Chest_NavalMirEmel = $4B
+Chest_NavalLaconEmel = $4C
+Chest_NavalGrSleeves = $4D
+Chest_NeiCrown = $4E
+Chest_MenobeStormGear = $4F
+Chest_Neimet = $50
+Chest_MenobeColorScarf = $51
+Chest_NeiSlasher = $52
+Chest_NeiShot = $53
+Chest_IkutoFireStaff = $54
+Chest_IkutoLacnMace = $55
+Chest_IkutoPlsCannon = $56
+Chest_IkutoLacDagger = $57
+Chest_GuaronAmberRobe = $58
+Chest_GuaronLaconinish = $59
+Chest_GuaronCrystChest = $5A
+Chest_NeiCape = $5B
+Chest_GuaronCrystCape = $5C
+Chest_NeiArmor = $5D
 
 ; ---------------------------------------------------------------------------
 ; Controller Buttons
@@ -1086,6 +1200,7 @@ yes_no_input =  ramaddr($FFFFDE90)			; 0 = yes; 1 = no
 object_ram =  ramaddr($FFFFE000)
 push_start_button_text =  ramaddr($FFFFE000)	; blinking text in Title Screen
 copyright_text =  ramaddr($FFFFE040)			; text apperearing at bottom right corner of the Title Screen
+characters_ram = ramaddr($FFFFE400)
 
 decom_buffer =  ramaddr($FFFFF400)
 
