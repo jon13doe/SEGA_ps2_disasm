@@ -4,6 +4,8 @@
 
 ; Character statistics
 ; 'mod' means a stat modified by equipment
+status = 0	; byte
+paralyze_timer = 1	; byte
 curr_hp = 2	; word
 max_hp = 4	; word
 curr_tp = 6	; word
@@ -30,6 +32,20 @@ item_num = $27	; byte
 items = $28
 items_2 = $30
 name = $38	; 2 longwords ; the 1st longword contains spaces only; the 2nd longword is the character's name
+
+; ---------------------------------------------------------------------------
+; Character status
+StatusDefend = 0
+StatusDeban = 1
+StatusAsleep = 6
+StatusPoison = 7
+
+; Status masks
+StatusDefend_Mask =  1<<StatusDefend	; $01
+StatusDeban_Mask =  1<<StatusDeban	; $02
+StatusAsleep_Mask =  1<<StatusAsleep	; $40
+StatusPoison_Mask =  1<<StatusPoison	; $80
+; ---------------------------------------------------------------------------
 
 ; function to determine the id in a table
 ; ptr = address of pointer in the table
@@ -96,6 +112,8 @@ ObjID_Null2 =  id(PtrObj_Null2)										; $E
 ObjID_BattleEnemy =  id(PtrObj_BattleEnemy)							; $F
 ObjID_EnemyAttack =  id(PtrObj_EnemyAttack)							; $10
 ObjID_EnemySkill =  id(PtrObj_EnemySkill)							; $11
+ObjID_EnemySkill2 =  id(PtrObj_EnemySkill2)							; $12
+ObjID_EnemyAttack2 =  id(PtrObj_EnemyAttack2)						; $13
 ObjID_MapCharacter =  id(PtrObj_MapCharacter)						; $14
 ObjID_FollowingCharacter =  id(PtrObj_FollowingCharacter)			; $15
 ObjID_MotaYoungMan =  id(PtrObj_MotaYoungMan)						; $16
@@ -148,16 +166,20 @@ ObjectSize = 64
 
 
 ; ---------------------------------------------------------------------------
-; Global properties and constants applicable to objects
+; Global properties and constants for objects
 obj_id = 0	; word
+render_flags = 2	; byte
 mappings = 4	; longword
 x_pos = $A	; longword
 y_pos = $E	; longword
+routine = $22	; word
+
+; ---------------------------------------------------------------------------
+; Properties and constants applicable to map objects
 x_moving_flag = $14	; word
 y_moving_flag = $18	; word
 y_screen_pos = $1E	; word ; y position relative to the screen 
 x_screen_pos = $20 ; word ; x position relative to the screen
-routine = $22	; word
 frame_index = $24	; word
 frame_duration = $26	; word
 step_duration = $28	; word ; determines how many frames characters can move at a single press of a button
@@ -165,6 +187,10 @@ facing_dir = $2A	; word	; 0 = UP; 3 = DOWN; 6 = LEFT; 9 = RIGHT
 type = $2E	; byte
 subtype = $2F	; byte
 anim_index = $32	; word
+
+; ---------------------------------------------------------------------------
+; Properties and constants applicable to battle objects
+fighter_id = $36
 
 ; Maps
 offset	:=	MapData
@@ -1148,8 +1174,14 @@ fight_active_flag =  ramaddr($FFFFCC02)		; flag: determines if you chose option 
 fight_interrupted_flag =  ramaddr($FFFFCC04)	; flag: determines if you want to interrupt the fight and select other commands; 0 = continue fight; 1 = interrupt fight
 battle_script_id =	ramaddr($FFFFCC0C)
 battle_command_used =  ramaddr($FFFFCC0E)
-char_battle_command_index =  ramaddr($FFFFCC10)	; word - values: 0 = attack command; 1 = technique command; 2 = item command; 3 = defense command --- 16 bytes for every character
+char_battle_command_index =  ramaddr($FFFFCC10)	; word ; 16 bytes per character;
+												; bytes 1-2 = Command index; 0 = attack; 1 = technique; 2 = item; 3 = defense
+												; bytes 3-4 = ID of technique or item if those commands are used
+												; bytes 5-6 = ID of target
 
+battle_turn_index = ramaddr($FFFFCC90)	; word
+battle_turn_order = ramaddr($FFFFCCA0)	; 4 bytes per fighter; bytes 1-2 = ID of fighter; bytes 3-4 = agility
+												
 script_id =  ramaddr($FFFFCD00)
 window_active_flag =  ramaddr($FFFFCD10)
 text_buffer_pointer =	ramaddr($FFFFCD12)

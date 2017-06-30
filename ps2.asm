@@ -501,8 +501,8 @@ PtrObj_Null2:					bra.w	Obj_Null2							; $E - does nothing; just returns
 PtrObj_BattleEnemy:				bra.w	Obj_BattleEnemy						; $F - all properties and behaviours for the enemies in battle
 PtrObj_EnemyAttack:				bra.w	Obj_EnemyAttack						; $10
 PtrObj_EnemySkill:				bra.w	Obj_EnemySkill						; $11
-	bra.w	loc_321E														; $12
-	bra.w	loc_3250														; $13
+PtrObj_EnemySkill2:				bra.w	Obj_EnemySkill2						; $12
+PtrObj_EnemyAttack2:			bra.w	Obj_EnemyAttack2					; $13
 PtrObj_MapCharacter:			bra.w	Obj_MapCharacter					; $14 - characters' sprites in the map
 PtrObj_FollowingCharacter:		bra.w	Obj_FollowingCharacter				; $15 - the characters behind the leading character
 PtrObj_MotaYoungMan:			bra.w	Obj_MotaYoungMan					; $16 - random young man in towns on Motavia
@@ -649,7 +649,7 @@ loc_796:
 	move.w	(enemy_data_buffer+$10).w, d7
 	addq.w	#1, d7
 	move.w	d7, (enemy_data_buffer+2).w
-	lea	($FFFFCC14).w, a1
+	lea	(char_battle_command_index+4).w, a1
 	moveq	#7, d0
 -
 	tst.w	(a1)
@@ -3167,48 +3167,48 @@ Obj_Null1:
 ; Object - Characters in battle
 ; ---------------------------------------------------------------
 Obj_BattleCharacter:
-	move.w	$22(a0), d0
+	move.w	routine(a0), d0
 	asl.b	#2, d0
 	jsr	BattleCharacterRoutines(pc,d0.w)
 	rts
 ; ---------------------------------------------------------------
 BattleCharacterRoutines:
 	bra.w	BattleCharacter_Init
-	bra.w	loc_1B2E
-	bra.w	loc_26B4
+	bra.w	BattleCharacter_Wait
+	bra.w	BattleCharacter_Act
 	bra.w	BattleCharacter_Dead
 ; ---------------------------------------------------------------
 BattleCharacter_Init:
-	move.b	#$12, 2(a0)
-	move.w	$A(a0), $C(a0)
-	move.w	$E(a0), $10(a0)
+	move.b	#$12, render_flags(a0)
+	move.w	x_pos(a0), $C(a0)
+	move.w	y_pos(a0), $10(a0)
 	move.w	#$FFE8, $1C(a0)
-	move.w	$36(a0), $16(a0)
+	move.w	fighter_id(a0), $16(a0)
 	move.w	#0, $1A(a0)
 	move.w	#3, $28(a0)
-	move.w	#1, $22(a0)
+	move.w	#1, routine(a0)
 	lea	(character_stats+curr_hp).w, a3		
-	move.w	$36(a0), d0			; get character index
+	move.w	fighter_id(a0), d0			; get character index
 	lsl.w	#6, d0
 	adda.w	d0, a3
 	tst.w	(a3)
 	bne.s	loc_1B2C		; branch if character is not dead
-	move.w	#3, $22(a0)			; routine = BattleCharacter_Dead	
+	move.w	#3, routine(a0)			; => BattleCharacter_Dead	
 loc_1B2C:
 	rts
 ; ---------------------------------------------------------------
-loc_1B2E:
+BattleCharacter_Wait:
 	tst.w	(fight_active_flag).w
 	bne.s	loc_1B4E
-	move.w	$C(a0), $A(a0)
-	move.w	$10(a0), $E(a0)
-	move.b	#$10, 2(a0)		; display sprites
+	move.w	$C(a0), x_pos(a0)
+	move.w	$10(a0), y_pos(a0)
+	move.b	#$10, render_flags(a0)		; display sprites
 	move.w	#0, $24(a0)		; get first sprite mappings
 	rts
 	
 loc_1B4E:
-	move.w	#$128, $E(a0)	; Y position for characters
-	move.b	#$12, 2(a0)		; don't display sprites
+	move.w	#$128, y_pos(a0)	; Y position for characters
+	move.b	#$12, render_flags(a0)		; don't display sprites
 	btst	#7, 3(a0)
 	beq.w	loc_1C1C
 	btst	#6, 3(a0)
@@ -3217,10 +3217,10 @@ loc_1B4E:
 	bpl.s	loc_1BA8
 	btst	#5, 3(a0)
 	beq.s	loc_1B9C
-	move.w	#3, $22(a0)		; routine = BattleCharacter_Dead
+	move.w	#3, routine(a0)		; => BattleCharacter_Dead
 	bclr	#3, 3(a0)
 	bne.s	loc_1B9C
-	move.w	$36(a0), (character_index).w
+	move.w	fighter_id(a0), (character_index).w
 	move.w	#WinID_BattleMessage, (window_index).w
 	move.w	#$1206, (script_id).w		; "'Character' is dead!"
 loc_1B9C:
@@ -3260,16 +3260,16 @@ loc_1BE4:
 	move.w	d0, (palette_table).w
 loc_1C0E:
 	move.w	#0, $24(a0)
-	move.b	#$10, 2(a0)		; display sprites
+	move.b	#$10, render_flags(a0)		; display sprites
 loc_1C1A:
 	rts
 	
 loc_1C1C:
-	move.w	$C(a0), $A(a0)
+	move.w	$C(a0), x_pos(a0)
 	btst	#0, 3(a0)
 	beq.s	loc_1C1A
 	lea	(character_stats).w, a3
-	move.w	$36(a0), d0
+	move.w	fighter_id(a0), d0
 	move.w	d0, (character_index).w
 	lsl.w	#6, d0
 	adda.w	d0, a3
@@ -3277,11 +3277,11 @@ loc_1C1C:
 	tst.b	d0
 	beq.w	loc_1D2E
 	lea	(char_battle_command_index).w, a5
-	move.w	$36(a0), d1
+	move.w	fighter_id(a0), d1
 	lsl.w	#4, d1
 	adda.w	d1, a5
 	tst.w	(a5)
-	bne.s	+
+	bne.s	+			; branch if command is not attack
 	addq.w	#1, 4(a5)
 	andi.w	#1, 4(a5)
 	bne.w	loc_1F62
@@ -3299,7 +3299,7 @@ loc_1C1C:
 	lea	(character_stats).w, a1
 	moveq	#7, d1
 -
-	andi.w	#$FBE0, (a1)	; restore characters' status to normal
+	andi.w	#$FBE0, (a1)
 	adda.w	#$40, a1
 	dbf	d1, -
 	
@@ -3337,7 +3337,7 @@ loc_1CDA:
 	move.w	#0, $14(a3)	
 	
 loc_1CF2:
-	move.w	$36(a0), $2C(a0)
+	move.w	fighter_id(a0), $2C(a0)
 	bset	#7, 3(a0)
 	bset	#4, 3(a0)
 	move.w	#$D, $16(a0)
@@ -3358,7 +3358,7 @@ loc_1D2E:
 	bne.s	loc_1D2A
 loc_1D34:
 	lea	(char_battle_command_index).w, a5
-	move.w	$36(a0), d0		; get index for character
+	move.w	fighter_id(a0), d0		; get index for character
 	lsl.w	#4, d0			; get character we just selected
 	adda.w	d0, a5
 	move.w	(a5)+, d0		
@@ -3401,7 +3401,7 @@ loc_1D9E:
 	subi.w	#ItemID_Knife, d0
 	bcs.w	loc_1F62		; branch if item is before "Knife" in the inventory
 	cmpi.w	#$42, d0
-	bhi.w	loc_1F62		; not sure if this ever branches since subtracting $56 (item_id knife) from d0 never yields a result higher than $42!
+	bhi.w	loc_1F62
 	move.w	d0, $56(a0)
 	mulu.w	#$C, d0
 	adda.w	d0, a6
@@ -4202,7 +4202,7 @@ CommandUsed_Defense:
 	bclr	#0, 3(a0)
 	rts	
 ; ---------------------------------------------------------------
-loc_26B4:
+BattleCharacter_Act:
 	lea	(CharBattle_AnimOffsets).l, a1
 	bsr.w	Battle_AnimateSprites
 	cmpi.w	#8, $16(a0)
@@ -4505,9 +4505,9 @@ Obj_BattleEnemy:
 ; ---------------------------------------------------------------
 BattleEnemyRoutines:
 	bra.w	BattleEnemy_Init
-	bra.w	loc_29A4
-	bra.w	loc_30E8
-	bra.w	loc_3102
+	bra.w	BattleEnemy_Wait
+	bra.w	BattleEnemy_Act
+	bra.w	BattleEnemy_Skill
 	bra.w	BattleEnemy_Dead
 ; ---------------------------------------------------------------
 BattleEnemy_Init:
@@ -4518,7 +4518,7 @@ BattleEnemy_Init:
 	move.w	#1, $22(a0)
 	rts
 ; ---------------------------------------------------------------
-loc_29A4:
+BattleEnemy_Wait:
 	lea	(enemy_stats).w, a3
 	move.w	a0, d0
 	subi.w	#$E800, d0
@@ -5198,7 +5198,7 @@ loc_30E0:
 	move.w	#3, $22(a0)
 	rts
 ; ---------------------------------------------------------------
-loc_30E8:
+BattleEnemy_Act:
 	lea	(loc_26118).l, a1
 	bsr.w	Battle_AnimateSprites
 	btst	#0, 3(a0)
@@ -5207,7 +5207,7 @@ loc_30E8:
 loc_3100:
 	rts
 ; ---------------------------------------------------------------
-loc_3102:
+BattleEnemy_Skill:
 	lea	(loc_26216).l, a1
 	bsr.w	Battle_AnimateSprites
 	btst	#0, 3(a0)
@@ -5301,7 +5301,7 @@ loc_3212:
 ; ---------------------------------------------------------------
 
 
-loc_321E:
+Obj_EnemySkill2:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_322A(pc,d0.w)
@@ -5323,7 +5323,7 @@ loc_3244:
 ; ---------------------------------------------------------------
 
 
-loc_3250:
+Obj_EnemyAttack2:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_325C(pc,d0.w)
@@ -12854,7 +12854,7 @@ GameMode_BattleLoop:
 	
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
-	bsr.w	GameMode_Battle_CheckRoutine
+	bsr.w	Battle_CheckRoutines
 	bsr.w	CheckPrepareWindows
 	bsr.w	loc_5F74
 	bsr.w	loc_67B8
@@ -22332,7 +22332,7 @@ loc_EAC2:
 
 
 	
-GameMode_Battle_CheckRoutine:
+Battle_CheckRoutines:
 	tst.w	(window_index).w
 	bne.s	+
 	tst.w	(window_index_saved).w
@@ -22342,14 +22342,14 @@ GameMode_Battle_CheckRoutine:
 	tst.w	($FFFFCC06).w
 	bne.s	+
 	move.w	(event_routine).w, d1
-	bne.s	GameMode_Battle_RunRoutine
+	bne.s	Battle_RunRoutines
 	move.w	#1, (event_routine).w
 	move.w	#0, (event_routine_sub).w
 	move.w	#0, (event_routine_sub_2).w
 +
 	rts
 	
-GameMode_Battle_RunRoutine:
+Battle_RunRoutines:
 	moveq	#0, d0
 	move.b	(battle_main_routine_index).w, d0
 	lsl.w	#2, d0
@@ -22806,13 +22806,13 @@ BattleEvent_Fighting_Routines:
 	bra.w	loc_F428
 ; -----------------------------------------
 loc_F004:
-	lea	$FFFFCCA0.w, a0
+	lea	(battle_turn_order).w, a0
 	moveq	#$F, d3
 -
 	move.l	#0, (a0)+
 	dbf	d3, -
 
-	lea	$FFFFCCA0.w, a0
+	lea	(battle_turn_order).w, a0
 	tst.w	$FFFFCC0A.w
 	bne.s	loc_F060
 	lea	(party_member_id).w, a1
@@ -22859,7 +22859,7 @@ loc_F060:
 	addq.w	#1, d4
 	dbf	d3, -
 
-	lea	$FFFFCCA0.w, a0
+	lea	(battle_turn_order).w, a0
 	moveq	#$D, d3
 loc_F096:
 	movea.l	a0, a1
@@ -22879,7 +22879,7 @@ loc_F09C:
 	addq.w	#4, a0
 	dbf	d3, loc_F096	; next position
 
-	move.w	#0, $FFFFCC90.w
+	move.w	#0, (battle_turn_index).w
 	addq.w	#1, (event_routine).w
 	rts
 	
@@ -22955,8 +22955,8 @@ loc_F186:
 	rts
 	
 loc_F188:
-	lea	$FFFFCCA0.w, a0
-	move.w	$FFFFCC90.w, d0
+	lea	(battle_turn_order).w, a0
+	move.w	(battle_turn_index).w, d0
 	lsl.w	#2, d0
 	adda.w	d0, a0
 	move.l	(a0), d0
@@ -22968,8 +22968,8 @@ loc_F19E:
 	lea	($FFFFE400).w, a0
 	lsl.w	#7, d0
 	adda.w	d0, a0
-	addq.w	#1, $FFFFCC90.w
-	andi.w	#$F, $FFFFCC90.w
+	addq.w	#1, (battle_turn_index).w
+	andi.w	#$F, (battle_turn_index).w
 	tst.w	(a0)
 	beq.s	loc_F1CE
 	cmpi.w	#3, $22(a0)
@@ -23052,7 +23052,7 @@ loc_F2A4:
 	dbf	d1, loc_F2A4
 
 	tst.w	d2
-	beq.s	loc_F302	; Hmm... I don't think this can ever be 0, since at least 1 character must be alive to finish the battle
+	beq.s	loc_F302
 	move.l	(enemy_data_buffer+$30).w, d0	; get EXP
 	divu.w	d2, d0		; divide the EXP by the number of characters alive
 	andi.l	#$FFFF, d0
@@ -45352,7 +45352,7 @@ loc_27364:
 	dc.w	loc_2761E-loc_27364
 	dc.w	loc_27638-loc_27364
 	dc.w	loc_27648-loc_27364
-	dc.w	(loc_274C6+6)-loc_27364
+	dc.w	loc_274CC-loc_27364
 	dc.w	loc_27656-loc_27364
 	dc.w	loc_27666-loc_27364
 	dc.w	loc_27676-loc_27364
@@ -45588,6 +45588,8 @@ loc_274C6:
 	dc.b	$02
 	dc.b	$03, $03
 	dc.b	$04, $04
+	
+loc_274CC:
 	dc.b	$05
 	dc.b	$06
 	dc.b	$07
