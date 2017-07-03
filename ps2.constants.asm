@@ -1215,8 +1215,8 @@ window_routine =  ramaddr($FFFFDE56)
 
 
 event_routine =  ramaddr($FFFFDE58)			; index for offset tables
-event_routine_sub =  ramaddr($FFFFDE5A)		; index for offset tables in child tables
-event_routine_sub_2 =  ramaddr($FFFFDE5C)
+event_routine_2 =  ramaddr($FFFFDE5A)		; index for offset tables in child tables
+event_routine_3 =  ramaddr($FFFFDE5C)
 
 character_index =  ramaddr($FFFFDE60)		; id for the characters; 0 = Rolf; 1 = Nei; 2 = Rudo; 3 = Amy; 4 = Hugh; 5 = Anna; 6 = Kain; 7 = Shir
 character_index_2 =  ramaddr($FFFFDE62)		; same as above. Seems to be used when character gets something from another character (e.g. healing technique)
