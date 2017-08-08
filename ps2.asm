@@ -3289,7 +3289,7 @@ loc_1C1C:
 	btst	#4, d0
 	beq.w	loc_1D18
 	move.w	d0, d2
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$F, d0
 	bne.s	loc_1C9A			; if the random number is 0, the Nei Sword will cure Dark Force's status anomalies
 	move.w	#$122A, (battle_script_id).w
@@ -4244,7 +4244,7 @@ loc_270C:
 	bsr.s	loc_2736
 	
 loc_270E:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
 	lea	(enemy_stats).w, a1
 	move.w	d0, d1
@@ -4299,7 +4299,7 @@ CalculateHitRate:
 loc_2790:
 	tst.w	d2
 	beq.s	+		; branch if hit rate is 0 -- always fails
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$FF, d0
 	cmp.w	d0, d2
 	bcc.s	++		; return if successful (d2 higher than RNG)
@@ -4328,7 +4328,7 @@ loc_27C8:
 	bra.s	loc_2790
 	
 CalculateAttackDamage:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$1F, d0	; random value from 0 to 31
 	addi.w	#$54, d0	; add 84 to it
 	add.w	$1A(a3), d0	; add the attack value for character
@@ -4361,7 +4361,7 @@ CheckEnemyAlive:
 	rts
 	
 CalculateTechniqueDamage:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$1F, d0	; random value from 0 to 31
 	addi.w	#$54, d0	; add 84 to it
 	mulu.w	d6, d0		; multiply this by the technique attack rate
@@ -4370,7 +4370,7 @@ CalculateTechniqueDamage:
 	
 	
 loc_284C:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$F, d0
 	addi.w	#$5C, d0
 	mulu.w	d6, d0
@@ -4594,7 +4594,7 @@ loc_2A7C:
 	move.b	$26(a3), d2
 	cmpi.b	#$FF, d2	; is technique use rate $FF (must always be used)?
 	beq.w	Enemy_ProcessTechnique	; if so, branch
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	cmp.b	d0, d2		; is technique rate higher than random generated number?
 	bhi.w	Enemy_ProcessTechnique	; if so, branch
 loc_2A98:
@@ -4603,7 +4603,7 @@ loc_2A9C:
 	move.w	#2, $22(a0)
 	move.b	$3D(a0), (sound_queue).w	; enemy sound when attacking
 loc_2AA8:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$3F, d0
 	addi.w	#$44, d0
 	add.w	$1C(a3), d0
@@ -4631,7 +4631,7 @@ loc_2AF2:
 	_btst	#4, 0(a3)
 	beq.s	loc_2B0C
 	move.w	d0, d2
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$FF, d0
 	cmpi.w	#$80, d0
 	bcc.s	loc_2AE8
@@ -4645,7 +4645,7 @@ loc_2B1E:
 	rts
 	
 Enemy_PickCharToAttack:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
 	lea	(Battle_CharTargetChances).l, a1
 	adda.w	d0, a1
@@ -4704,7 +4704,7 @@ loc_2B94:
 	beq.s	loc_2BA4
 	move.w	(enemy_data_buffer+2).w, d5	
 loc_2BA4:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
 	lea	(enemy_stats).w, a1
 	move.w	d0, d1
@@ -4726,7 +4726,7 @@ loc_2BA4:
 	
 	
 Enemy_CalculateAttackDamage:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$1F, d0
 	addi.w	#$54, d0
 	mulu.w	d6, d0
@@ -4768,7 +4768,7 @@ loc_2C28:
 	beq.s	+
 	lsr.w	#1, d2
 +
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$FF, d0
 	cmp.w	d0, d2
 	bhi.s	+	; return if enemy's technique will be successful
@@ -4901,7 +4901,7 @@ EnemyTechnique_Paralyze:
 	rts
 	
 loc_2D64:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	moveq	#1, d1
 	cmpi.b	#$4C, d0
 	bcs.s	+
@@ -4994,7 +4994,7 @@ loc_2E46:
 ; -----------------------------------------------------------
 loc_2E82:
 	moveq	#$5A, d6
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.w	d0, d5
 	andi.w	#3, d0
 	beq.w	loc_2D08
@@ -5666,11 +5666,11 @@ loc_3596:
 	move.w	8(a0), 8(a3)
 	move.l	4(a0), 4(a3)
 	move.w	#$7F, $16(a3)
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$F8, d0
 	addi.w	#$A0, d0
 	move.w	d0, $A(a3)
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$38, d0
 	addi.w	#$B0, d0
 	move.w	d0, $E(a3)
@@ -6407,7 +6407,7 @@ loc_3BD8:
 loc_3C06:
 	subq.w	#1, $28(a0)
 	bpl.w	loc_3D2E
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.l	d0, d5
 	andi.b	#$F, d5
 	cmpi.w	#3, $2A(a0)
@@ -6543,7 +6543,7 @@ loc_3D9C:
 loc_3DCA:
 	subq.w	#1, $28(a0)
 	bpl.w	loc_3EF2
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.l	d0, d5
 	andi.b	#$F, d5
 	cmpi.w	#3, $2A(a0)
@@ -6729,7 +6729,7 @@ loc_3FF8:
 loc_402C:
 	subq.w	#1, $28(a0)
 	bpl.w	loc_4232
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.l	d0, d5
 	andi.b	#$F, d5
 	cmpi.w	#3, $2A(a0)
@@ -6929,7 +6929,7 @@ loc_42F6:
 loc_42F8:
 	subq.w	#1, $28(a0)
 	bpl.w	loc_44F4
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.l	d0, d5
 	andi.b	#$F, d5
 	cmpi.w	#0, $2A(a0)
@@ -7128,7 +7128,7 @@ loc_456C:
 loc_45A0:
 	subq.w	#1, $28(a0)
 	bpl.w	loc_475A
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.l	d0, d5
 	andi.b	#$F, d5
 	cmpi.w	#0, $2A(a0)
@@ -8156,17 +8156,17 @@ loc_5218:
 	addq.w	#1, $24(a0)
 	cmpi.w	#5, $24(a0)
 	bne.s	loc_5264
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$1F, d0
 	subi.w	#$F, d0
 	add.w	$C(a0), d0
 	move.w	d0, $A(a0)
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$1F, d0
 	subi.w	#$F, d0
 	add.w	$10(a0), d0
 	move.w	d0, $E(a0)
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$1F, d0
 	move.w	d0, $26(a0)
 	move.w	#$FFFF, $24(a0)
@@ -8888,7 +8888,7 @@ VBlank:
 
 VBlankExit:
 	jsr	(SoundDriverInput).l
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.b	#0, (vblank_routine).w
 	movem.l	(sp)+,d0-a6
 	rte
@@ -10513,12 +10513,12 @@ WaitForVBlank:
 	
 	
 ; ---------------------------------------------------------------------------
-; Subroutine to generate a pseudo-random number in d0
+; Subroutine to generate a pseudo-random number
 ; d0 = (RNG & $FFFF0000) | ((RNG*41 & $FFFF) + ((RNG*41 & $FFFF0000) >> 16))
 ; RNG = ((RNG*41 + ((RNG*41 & $FFFF) << 16)) & $FFFF0000) | (RNG*41 & $FFFF)
 ; ---------------------------------------------------------------------------	
 	
-GenerateRandomNumber:
+UpdateRNGSeed:
 	move.l	(rng_seed).w, d1
 	bne.s	+
 	move.l	#$2A6D365A, d1	; reset number if RNG is 0
@@ -12312,13 +12312,13 @@ loc_80D4:
 	bne.s	loc_810E
 	move.w	$FFFFF71C.w, d2
 	andi.l	#$FF, d2
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$10001, d0
 	add.l	d2, d0
 	move.l	d0, ($FFFFF61C).w
 	move.w	$FFFFF71E.w, d2
 	andi.l	#$1FF, d2
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.l	#$10001, d0
 	add.l	d2, d0
 	move.l	d0, ($FFFFF620).w
@@ -12426,7 +12426,7 @@ loc_8224:
 	rts
 	
 loc_8226:
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	move.w	d0, d1
 	andi.w	#7, d0
 	add.w	d2, d0
@@ -12766,7 +12766,7 @@ loc_85D6:
 					; to bcc.s instead of beq.s
 							
 ; very simple logic for the enemy's ambush
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0		; get only number in the range 0-7 from the generated number
 	beq.s	+	; if it's 0, branch and set the lsb to 1, so enemies attack you immediately at the start of the battle
 	moveq	#1, d0		; otherwise set d0 to 1 which will be switched back to 0 right below, meaning you were not ambushed
@@ -19732,10 +19732,10 @@ ProcessStealItem_Continue:
 	beq.s	-			; return if Shir is dead
 	cmpi.b	#$10, ($FFFFC1E7).w	; return if Shir's inventory is full
 	beq.s	-
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$F, d0
 	bne.s	-				; return if random-generated number was not 0
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
 	add.w	d0, d2
 	move.b	StealItemArray(pc,d2.w), (item_index).w
@@ -21002,7 +21002,7 @@ loc_DE62:
 	move.b	(a2)+, d0
 	lsl.w	#4, d0
 	move.w	d0, $E(a1)
-	bsr.w	GenerateRandomNumber
+	bsr.w	UpdateRNGSeed
 	andi.w	#$3F, d0
 	cmpi.w	#$29, d3
 	bne.s	loc_DE8E
@@ -22829,7 +22829,7 @@ loc_F004:
 	move.w	d2, d1
 	lsl.w	#4, d1		; get correct character in RAM
 	adda.w	d1, a5
-	jsr	(GenerateRandomNumber).l
+	jsr	(UpdateRNGSeed).l
 	andi.w	#$F, d0		; random number from 0-15
 	add.w	$14(a2), d0	; add this to the character's agility
 	move.w	d2, (a0)+	; save character ID in RAM
@@ -22850,7 +22850,7 @@ loc_F060:
 	tst.w	2(a2)		; check enemy's HP
 	beq.s	+	; next enemy if this one is dead
 	move.w	d4, (a0)+
-	jsr	(GenerateRandomNumber).l
+	jsr	(UpdateRNGSeed).l
 	andi.w	#$F, d0		; random number from 0-15
 	add.w	$14(a2), d0	; add this to the enemy's agility
 	move.w	d0, (a0)+
@@ -23190,7 +23190,7 @@ loc_F428:
 ; ----------------------------------	
 GenerateRandStatIncrease:
 	ext.w	d2
-	jsr	(GenerateRandomNumber).l	; generate random number
+	jsr	(UpdateRNGSeed).l	; generate random number
 	andi.w	#$FF, d0				; get only least significant byte
 	addi.w	#$80, d0				; add 128 to random number
 	mulu.w	d0, d2					; multiply stat increase by random number
@@ -23213,7 +23213,7 @@ Run_EventIndex_TryRun:
 	move.w	#WinID_BattleMessage, (window_index).w
 	move.w	#$1202, (script_id).w
 	bsr.w	DetectLeadingCharacter	; get character who's in the lead to display name in the message
-	jsr	(GenerateRandomNumber).l
+	jsr	(UpdateRNGSeed).l
 	andi.w	#$FF, d0		; random number from 0-255
 	cmp.w	(enemy_data_buffer+$18).w, d0	; compare random number with escape rate
 	bls.s	+				;  branch to get to the next entry in the table, so you manage to run away -- a little oversight here: if the number generated is 0, you can also escape from boss battles!
@@ -27255,7 +27255,7 @@ loc_117B0:
 	addq.w	#2, (enemy_data_buffer+$C).w
 loc_117C6:
 	andi.w	#$FF, (enemy_data_buffer+$C).w
-	jsr	(GenerateRandomNumber).l
+	jsr	(UpdateRNGSeed).l
 	andi.w	#$FF, d0
 	move.w	(enemy_data_buffer+$C).w, d1
 	lsr.w	#3, d1
