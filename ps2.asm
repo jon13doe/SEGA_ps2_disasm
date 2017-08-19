@@ -54,10 +54,10 @@ VectorTable:
 	                                                                                  
 Header:
 	dc.b	"SEGA MEGA DRIVE " ; Console name
-	dc.b 	"(C)SEGA 1989.JUN" ; Copyright/Date
+	dc.b 	"(C)SEGA 1990.JAN" ; Copyright/Date
 	dc.b 	"PHANTASY STAR 2                                 " ; Domestic name
 	dc.b 	"PHANTASY STAR 2                                 " ; International name
-	dc.b 	"GM 00005501-01"   ; Version
+	dc.b 	"GM 00005501-02"   ; Version
 
 Checksum:
 	dc.w	$3792		; Checksum
@@ -32427,8 +32427,8 @@ length	:=	EnemyNameLength
 	nametxt	"POD HEAD"
 	nametxt	"TERAKITE"
 	nametxt	"REPTILE"
-	nametxt	"FIRE-EYE"	; this string and the one below point to the wrong enemies; just swap them
 	nametxt	"KITEDRGN"
+	nametxt	"FIRE-EYE"
 	nametxt	"GLOWSTIK"
 	nametxt	"FOREST"
 	nametxt	"CATMAN"
