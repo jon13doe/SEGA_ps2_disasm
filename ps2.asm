@@ -2,7 +2,7 @@
 ; |           Phantasy Star II Disassembly for Mega Drive/Genesis           |
 ;  =========================================================================
 ;
-;  Created by lorenzo, <lory2004@gmail.com>
+;  Created by lory1990, <lory2004@gmail.com>
 ;
 ; 	Credits
 ;
