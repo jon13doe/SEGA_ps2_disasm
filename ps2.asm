@@ -29433,10 +29433,10 @@ Tech_UnknownB:
 ; byte 1 = y position
 ; byte 2 = x position (must be even!)
 ; bytes 3-6 = pointer for art
-; byte 7 = number of bytes that form the row for the windows; this byte must be set to
-;          the number of the desired rows + 1
-; byte 8 = number of bytes that form the column for the windows; this byte must be set to
-;          the number of the desired columns - 1
+; byte 7 = columns; this byte must be set to
+;          the number of the desired columns + 1
+; byte 8 = rows; this byte must be set to
+;          the number of the desired rows - 1
 ; see the Player Menu as an example (the first one)
 ; =======================================================================
 WindowArtLayoutPtrs:
@@ -29444,7 +29444,7 @@ WindowArtLayoutPtrs:
 PtrWin_PlayerMenu:
 	dc.b	$40, $82				; Y and X position
 	dc.l	WinArt_PlayerMenu	; pointer to art	(see the example in this address)
-	dc.b	$08, $0A				; 7 rows and 11 columns when drawing the window
+	dc.b	$08, $0A				; 7 columns and 11 rows when drawing the window
 	
 PtrWin_MenuItemChar:
 	dc.b	$44, $88
