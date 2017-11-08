@@ -1,0 +1,33 @@
+= Building on Linux
+
+It should be pretty easy once you have all the dependencies installed and in your $PATH.
+
+ * asl from http://john.ccac.rwth-aachen.de:8000/as/ - dev-lang/asl
+on Gentoo roslin (https://gitlab.com/roslin-uberlay/roslin) overlay
+ * gcc - for automatic compiling of p2bin
+ * gawk >= 4.1.1 - for assembly code "live" patching 
+
+Just make sure build.sh has executable bit, then you can run it.
+`some/path/to/build.sh <file.asm> <out.bin>`
+
+You can place the script wherever you want.
+It should work from anywhere in the filesystem.
+
+If you run bash you can do some fancy tricks like:
+`your-emulator-of-choice <(./build.sh --stdout hacked.asm)`
+And _if_ your emulator can read the ROM trough /dev/fd.
+
+Those who use zsh things look more bright:
+`your-emulator-of-choice =(./build.sh --stdout hacked.asm)`
+This should work any any case, as zsh saves the file temporarily for your emulator.
+
+== Known limitations
+For now Linux users will miss the fixheader.
+Emlators shouldn't care about that.
+But it's needed for creating proper _binary_ patches. 
+
+== Also...
+ * This build script might work with some other disassemblies too.
+It's written that in mind, but *not* tested yet.
+ * Won't magically re-compress parts that need
+http://segaretro.org/Kosinski_compression[Kosinski compression]
