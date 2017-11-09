@@ -106,9 +106,6 @@ cp "$1" "$workdir"
 
 asmfile="${workdir}/${1##*/}"
 
-# Move into the said directory.
-#push "$workdir" # Probably a bad choice. Hard to define absolute paths reliably when output binary is still non-existent.
-
 # Patch and compile the assembly.
 path_patch "$asmfile" && msg "Path patch applied..." || errexit "Patching failed. '$tempdir' -directory is left undeleted."
 asl -xx -c -A -l -shareout "$temp_h" -o "$temp_p" "$asmfile" > "$templog" 2>&1 \
