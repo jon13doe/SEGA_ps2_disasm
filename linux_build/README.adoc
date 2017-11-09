@@ -37,3 +37,7 @@ But it's needed for creating proper _binary_ patches.
 It's written that in mind, but *not* tested yet.
  * Won't magically re-compress parts that need
 http://segaretro.org/Kosinski_compression[Kosinski compression]
+
+
+=== TODO / Milestones
+ * Add switches that enable creation of binary and asm source patches.
