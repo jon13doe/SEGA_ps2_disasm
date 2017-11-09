@@ -75,8 +75,7 @@ do
         --p2bin|--fixheader)
             if [ "$2" ] && [ -x "$2" ]
             then
-                # This is a hack...
-                ${1#--}="$2"
+                [ "${1#--}" = "p2bin" ] && p2bin="$2" || fixheader="$2"
                 shift
             else
                 errexit "Invalid argument to ${1}. Is '${2}' an executable?"
