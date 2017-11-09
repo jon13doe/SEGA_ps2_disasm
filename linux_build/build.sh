@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="0.0.2b"
+version="0.0.3b"
 
 this="${0##*/}"
 
@@ -23,9 +23,12 @@ Also running this script outside of the directory where the assembly is allowed.
 
 $usage
 
-Swithes:
+Switches:
     Location of p2bin.
     --p2bin <p2bin executable>
+
+    See README.adoc 'Known limitations' -section for this.
+    --fixheader <fixheader executable>
 
     Does not delete temporary files.
     --keep-temp
@@ -69,14 +72,19 @@ path_patch() {
 while [ "${1:0:1}" = "-" ]
 do
     case "$1" in
-        --p2bin)
+        --p2bin|--fixheader)
             if [ "$2" ] && [ -x "$2" ]
             then
-                p2bin="$2"
+                # This is a hack...
+                ${1#--}="$2"
                 shift
             else
                 errexit "Invalid argument to ${1}. Is '${2}' an executable?"
             fi
+        ;;
+        # Undocumented. Will use later.
+        --no-header-fix)
+            nohfix=1
         ;;
         --keep-temp)
             keeptemp=1
@@ -151,7 +159,7 @@ then
         else
             rm -r "$workdir"
             warn "Compiling p2bin failed."
-            test -e "$p2bin" && rm "$p2bin"
+            [ -e "$p2bin" ] && rm "$p2bin"
             errexit "Aborting..."
         fi
     fi
@@ -164,9 +172,17 @@ then
     errexit "Aborting..."
 fi
 
+# Rest of the code looks a bit dirty... TODO?
+
 if ! [ "$stdout" ]
 then
     "$p2bin" "$temp_p" "$2" "$temp_h" > /dev/null && msg "Succesfully created '$2'." || errexit "p2bin failed to create the final binary."
+    if [ "$fixheader" ] && [ ! "$nohfix" ]
+    then
+        "$fixheader" "$2" && msg "Fixed the header of '$2'." || warn "Header fixing failed!"
+    else
+        msg "Binary header left unfixed."
+    fi
 else
     # A poor man's stdout method.
     "$p2bin" "$temp_p" "${workdir}/out.bin" "$temp_h" > /dev/null && msg "Succesfully created '$2'." || errexit "p2bin failed to create the final binary."

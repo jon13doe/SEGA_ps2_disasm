@@ -8,6 +8,8 @@ The project is very young at the moment. It may eventually cover more games.
 The most recent (standalone) version can be found from
 https://github.com/Zuccace/mdps-asm-builder
 
+*Patches and issues should be targeted to the project above.*
+
 == Dependencies
 It should be pretty easy once you have all the dependencies installed and in your $PATH.
 
@@ -39,15 +41,19 @@ Those who use zsh things look more bright:
 This should work any any case, as zsh saves the file temporarily for your emulator.
 
 == Known limitations
-For now Linux users will miss the fixheader.
-Emulators shouldn't care about that.
-But it's needed for creating proper _binary_ patches. 
+ * For now Linux users will miss the `fixheader`,
+Unless the executable is provided by `--fixheader` cli switch.
+Emulators shouldn't care about wrong header.
+But it's needed for creating _proper_ _binary_ patches.
+ * Won't magically re-compress parts that need
+http://segaretro.org/Kosinski_compression[Kosinski compression].
+It is totally unknwon at the moment if the feature will ever
+be implemented into this project.
 
 == Also...
  * This build script might work with some other disassemblies too.
 It's written that in mind, but *not* tested yet.
- * Won't magically re-compress parts that need
-http://segaretro.org/Kosinski_compression[Kosinski compression]
+Only Phantasy Star games are being tested.
 
 
 === TODO / Milestones
