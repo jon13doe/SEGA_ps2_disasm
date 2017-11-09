@@ -3,7 +3,10 @@
 This script makes it (super) easy to build the
 assebly of https://en.wikipedia.org/wiki/Phantasy_Star[Phantasy Star
 games] for http://segaretro.org/Sega_Mega_Drive[Mega Drive / Genesis].
-The project is very young at te moment. It may eventually cover more games.
+The project is very young at the moment. It may eventually cover more games.
+
+The most recent (standalone) version can be found from
+https://github.com/Zuccace/mdps-asm-builder
 
 == Dependencies
 It should be pretty easy once you have all the dependencies installed and in your $PATH.
@@ -12,9 +15,9 @@ It should be pretty easy once you have all the dependencies installed and in you
 on Gentoo https://gitlab.com/roslin-uberlay/roslin[roslin overlay]
  * gcc - for automatic compiling of p2bin
  * gawk >= 4.1.1 - for assembly code "live" patching 
- * Assembly sources of said games: https://github.com/lory90/ps2disasm[II] (currently tested),
-https://github.com/lory90/ps3disasm[III] (untested), and
-https://github.com/lory90/ps4disasm[IV] (untested)
+ * Assembly sources of said games: https://github.com/lory90/ps2disasm[II] (most actively tested),
+https://github.com/lory90/ps3disasm[III] (tested once, works), and
+https://github.com/lory90/ps4disasm[IV] (tested once, works)
 
 == Usage
 

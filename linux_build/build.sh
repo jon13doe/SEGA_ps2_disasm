@@ -8,7 +8,7 @@ usage="USAGE: ${this} <assembly file> <output binary>
        ${this} --stdout <assembly file>
        ${this} --help"
 
-help="$this for few disassembled SEGA Mega Drive / Genesis games.
+help="$this for disassembled SEGA Mega Drive / Genesis Phantasy Star games.
 Version ${version}
 By zucca@kahvipannu.com
 License: BSD
