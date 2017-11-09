@@ -1,16 +1,41 @@
 #!/bin/sh
 
-# build.sh for few disassembled mega drive games
-# By zucca@kahvipannu.com
-# License: BSD
-# Major dependencies are
-#     - asl, the macro assembler
-#     - gawk 4.1.1 or newer for inline patching
-#     - gcc only for compiling the p2bin
-#
-# Note that this script may reside anywhere in the filesystem.
-# Also running this script outside of the directory where the assembly is allowed.
+version="0.0.2b"
 
+this="${0##*/}"
+
+usage="USAGE: ${this} <assembly file> <output binary>
+       ${this} --stdout <assembly file>
+       ${this} --help"
+
+help="$this for few disassembled SEGA Mega Drive / Genesis games.
+Version ${version}
+By zucca@kahvipannu.com
+License: BSD
+
+Major dependencies are
+    - asl, the macro assembler
+    - gawk 4.1.1 or newer for inline patching
+    - gcc only for compiling the p2bin
+
+Note that this script may reside anywhere in the filesystem.
+Also running this script outside of the directory where the assembly is allowed.
+
+$usage
+
+Swithes:
+    Location of p2bin.
+    --p2bin <p2bin executable>
+
+    Does not delete temporary files.
+    --keep-temp
+    (${this} still keeps temporary files in some cases where process has failed.)
+
+    Send the final binary to standard output rather than to a specified file.
+    --stdout
+"
+
+# Sets the name of the assembly log file if not set from the environment.
 : ${ASlog:="AS.log"}
 
 # Warning messages. (We may pretty the output later.)
@@ -60,7 +85,7 @@ do
             stdout=1
         ;;
         --help)
-            cat README.adoc || exit 1
+            echo "${help}"
             exit 0
         ;;
         --)
@@ -83,7 +108,7 @@ else
 fi
 
 # Test arguments and existence of provided assembly file.
-[ "$1" ] || errexit "USAGE: ${0##*/} <assembly file> <output binary>\n       ${0##*/} --stdout <assembly file>"
+[ "$1" ] || errexit "${usage}"
 if [ ! "$2" ] && [ ! "$stdout" ]
 then
     errexit "No output file specified."

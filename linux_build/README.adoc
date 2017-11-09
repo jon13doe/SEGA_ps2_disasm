@@ -13,12 +13,15 @@ on Gentoo roslin (https://gitlab.com/roslin-uberlay/roslin) overlay
 Just make sure build.sh has executable bit, then you can run it.
 `some/path/to/build.sh <file.asm> <out.bin>`
 
+To learn more pass the `--help` -switch alone.
+Or alternatively see the source. ;)
+
 You can place the script wherever you want.
 It should work from anywhere in the filesystem.
 
 If you run bash you can do some fancy tricks like:
 `your-emulator-of-choice <(./build.sh --stdout hacked.asm)`
-Also your emulator _needs_ to be ableto read the ROM trough /dev/fd/*.
+Also your emulator _needs_ to be able to read the ROM trough /dev/fd/*.
 
 Those who use zsh things look more bright:
 `your-emulator-of-choice =(./build.sh --stdout hacked.asm)`
