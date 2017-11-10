@@ -1,16 +1,44 @@
 #!/bin/sh
 
-# build.sh for few disassembled mega drive games
-# By zucca@kahvipannu.com
-# License: BSD
-# Major dependencies are
-#     - asl, the macro assembler
-#     - gawk 4.1.1 or newer for inline patching
-#     - gcc only for compiling the p2bin
-#
-# Note that this script may reside anywhere in the filesystem.
-# Also running this script outside of the directory where the assembly is allowed.
+version="0.0.3b"
 
+this="${0##*/}"
+
+usage="USAGE: ${this} <assembly file> <output binary>
+       ${this} --stdout <assembly file>
+       ${this} --help"
+
+help="$this for disassembled SEGA Mega Drive / Genesis Phantasy Star games.
+Version ${version}
+By zucca@kahvipannu.com
+License: BSD
+
+Major dependencies are
+    - asl, the macro assembler
+    - gawk 4.1.1 or newer for inline patching
+    - gcc only for compiling the p2bin
+
+Note that this script may reside anywhere in the filesystem.
+Also running this script outside of the directory where the assembly is allowed.
+
+$usage
+
+Switches:
+    Location of p2bin.
+    --p2bin <p2bin executable>
+
+    See README.adoc 'Known limitations' -section for this.
+    --fixheader <fixheader executable>
+
+    Does not delete temporary files.
+    --keep-temp
+    (${this} still keeps temporary files in some cases where process has failed.)
+
+    Send the final binary to standard output rather than to a specified file.
+    --stdout
+"
+
+# Sets the name of the assembly log file if not set from the environment.
 : ${ASlog:="AS.log"}
 
 # Warning messages. (We may pretty the output later.)
@@ -44,14 +72,18 @@ path_patch() {
 while [ "${1:0:1}" = "-" ]
 do
     case "$1" in
-        --p2bin)
+        --p2bin|--fixheader)
             if [ "$2" ] && [ -x "$2" ]
             then
-                p2bin="$2"
+                [ "${1#--}" = "p2bin" ] && p2bin="$2" || fixheader="$2"
                 shift
             else
                 errexit "Invalid argument to ${1}. Is '${2}' an executable?"
             fi
+        ;;
+        # Undocumented. Will use later.
+        --no-header-fix)
+            nohfix=1
         ;;
         --keep-temp)
             keeptemp=1
@@ -60,7 +92,7 @@ do
             stdout=1
         ;;
         --help)
-            cat README.adoc || exit 1
+            echo "${help}"
             exit 0
         ;;
         --)
@@ -83,7 +115,7 @@ else
 fi
 
 # Test arguments and existence of provided assembly file.
-[ "$1" ] || errexit "USAGE: ${0##*/} <assembly file> <output binary>\n       ${0##*/} --stdout <assembly file>"
+[ "$1" ] || errexit "${usage}"
 if [ ! "$2" ] && [ ! "$stdout" ]
 then
     errexit "No output file specified."
@@ -126,7 +158,7 @@ then
         else
             rm -r "$workdir"
             warn "Compiling p2bin failed."
-            test -e "$p2bin" && rm "$p2bin"
+            [ -e "$p2bin" ] && rm "$p2bin"
             errexit "Aborting..."
         fi
     fi
@@ -139,9 +171,17 @@ then
     errexit "Aborting..."
 fi
 
+# Rest of the code looks a bit dirty... TODO?
+
 if ! [ "$stdout" ]
 then
     "$p2bin" "$temp_p" "$2" "$temp_h" > /dev/null && msg "Succesfully created '$2'." || errexit "p2bin failed to create the final binary."
+    if [ "$fixheader" ] && [ ! "$nohfix" ]
+    then
+        "$fixheader" "$2" && msg "Fixed the header of '$2'." || warn "Header fixing failed!"
+    else
+        msg "Binary header left unfixed."
+    fi
 else
     # A poor man's stdout method.
     "$p2bin" "$temp_p" "${workdir}/out.bin" "$temp_h" > /dev/null && msg "Succesfully created '$2'." || errexit "p2bin failed to create the final binary."
