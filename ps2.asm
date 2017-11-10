@@ -13,6 +13,8 @@
 ;   an exe to compare an original ROM file with the one produced by the disasm, and macros and functions which I used as a base.
 ;
 ; - ValleyBell for his research and disassembly of the Phantasy Star II sound driver
+;
+; - Zuccace for providing a build script for Linux users.
 
 
 
