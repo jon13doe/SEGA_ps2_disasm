@@ -8,8 +8,8 @@
 ;
 ; - Nemesis for making the Exodus emulator with many features including an active disassembler
 ;
-; - Sonic Retro members for providing info and tools to make the whole process much easier. 
-;   Particularly they modified the p2bin source file to make it work with both m68k and z80 in a simple way, 
+; - Sonic Retro members for providing info and tools to make the whole process much easier.
+;   Particularly they modified the p2bin source file to make it work with both m68k and z80 in a simple way,
 ;   an exe to compare an original ROM file with the one produced by the disasm, and macros and functions which I used as a base.
 ;
 ; - ValleyBell for his research and disassembly of the Phantasy Star II sound driver
@@ -21,25 +21,25 @@
 ; 0 address offsets in the form 0(a0) are optimized automatically by the assembler
 ; the value 0 will turn this feature off. This is good for producing a byte-perfect copy of
 ; the original ROM. When hacking, you don't need this so you can set it to 1 if you want
-zeroOffsetOptimization = 0                  
+zeroOffsetOptimization = 0
 
 	cpu 68000
 	include "ps2.macrosetup.asm"
-	
-	
+
+
 	include "ps2.constants.asm"
 	include "ps2.macros.asm"
-	
+
 
 StartOfRom:
 	if (*) <> 0
 		fatal	"Start of ROM is at address $\{*}, but it should be at address 0."
 	endif
-	
+
 VectorTable:
 	dc.l	system_stack&$FFFFFF, EntryPoint, ErrorTrap, ErrorTrap
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
-	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap                                                                 
+	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
@@ -51,9 +51,9 @@ VectorTable:
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
-	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap      
 	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
-	                                                                                  
+	dc.l	ErrorTrap, ErrorTrap, ErrorTrap, ErrorTrap
+
 Header:
 	dc.b	"SEGA MEGA DRIVE " ; Console name
 	dc.b 	"(C)SEGA 1990.JAN" ; Copyright/Date
@@ -72,7 +72,7 @@ ROMEndLoc:
 	dc.l 	$FFFFFF		; RAM End
 	dc.l 	$5241F820		; Backup RAM ID
 	dc.l 	$200001		; Backup RAM start address
-	dc.l 	$203FFF		; Backup RAM end address                                                                                               
+	dc.l 	$203FFF		; Backup RAM end address
 	dc.b 	"            "	; Modem support
 	dc.b 	"                                        "	; Notes
 	dc.b 	"UE              " ; Country
@@ -80,18 +80,18 @@ EndOfHeader:
 	if (*) <> $200
 		fatal	"End of header is at address $\{*}, but it should be at address $200. The header + vector table must be exactly 512 bytes long"
 	endif
-	
+
 ErrorTrap:
 	nop
 	nop
 	nop
-	
+
 EntryPoint:
 	move.b	(hw_version).l, d0	; get hardware version
 	andi.b	#$F, d0		; stored in the lower nibble
 	beq.s	SkipSecurity	; branch if hardware is older than Genesis III
 	move.l	#'SEGA', (security_addr).l	; satisfy the TMSS
-                          
+
 SkipSecurity:
 	btst	#6, (hw_expansion_control).l
 	beq.s	ChecksumTest
@@ -107,46 +107,46 @@ ChecksumTest:
 ChecksumLoop:
 	add.w	(a0)+, d1
 	cmp.l	a0, d0
-	bcc.s	ChecksumLoop        
+	bcc.s	ChecksumLoop
 	movea.l	#Checksum, a1	; read the checksum
 	cmp.w	(a1), d1			; compare correct checksum to the one in ROM
 	bne.w	ChecksumError   ; if they don't match, branch
-	
+
 ; Checksum good
-	lea	($FFFFFE00).w, a6	
+	lea	($FFFFFE00).w, a6
 	moveq	#0, d7
-	
+
 	move.w	#$7F, d6
 -
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	move.b	(hw_version).l, d0
 	andi.b	#$C0, d0				; get video type (NTSC, PAL)
 	move.b	d0, ($FFFFFFF8).w	; and store them
 	move.l	#'init', (checksum_four_cc).w	; Checksum routine successful
-GameInit:                       
+GameInit:
 	lea	(ram_start&$FFFFFF).l, a6	; load ram
-	
+
 	moveq	#0, d7
 	move.w	#$3F7F, d6
--                               
+-
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	bsr.w	VDPSetupGame
 	bsr.w	LoadPCMDrums
 	bsr.w	JoypadInit
 	move.b	#GameModeID_Sega, (game_mode_index).w	; start from Sega screen
-	
+
 
 MainGameLoop:
 	move.b	(game_mode_index).w, d0	; get screen id
-	andi.w	#$1C, d0			
-	lsl.w	#1, d0		
+	andi.w	#$1C, d0
+	lsl.w	#1, d0
 	jsr	GameModeTable(pc,d0.w)
 	bra.s	MainGameLoop
-	
+
 ; ===================================================
 ; Table for every screen in the game
 ; ===================================================
@@ -158,107 +158,107 @@ PtrGameMode_Title:    jmp	(GameMode_Title).l
 	nop
 PtrGameMode_Ending:   jmp	(GameMode_Ending).l
 	nop
-PtrGameMode_Map:    jmp	(GameMode_Map).l	
+PtrGameMode_Map:    jmp	(GameMode_Map).l
 	nop
 PtrGameMode_Building: jmp	(GameMode_Building).l
 	nop
-PtrGameMode_Battle:   jmp	(GameMode_Battle).l	
+PtrGameMode_Battle:   jmp	(GameMode_Battle).l
 	nop
-PtrGameMode_Intro:    jmp	(GameMode_Intro).l	
+PtrGameMode_Intro:    jmp	(GameMode_Intro).l
 	nop
 ; ===================================================
-	
+
 ChecksumError:
 	bsr.w	VDPSetupGame
 	move.l	#$C0000000, (vdp_control_port).l	; write to CRAM
-	
+
 	moveq	#$3F, d7
 -
 	move.w	#$E, (vdp_data_port).l
 	dbf	d7, -
-	
+
 
 ChecksumFailedLoop:
 	bra.s	ChecksumFailedLoop
-	
+
 RunObjects:
 	lea	(object_ram).w, a0
-	
+
 	move.w	#$3F, d7
 -
 	bsr.s	RunObject
 	adda.w	#$40, a0		; process next object
 	dbf	d7, -
-	
+
 	rts
-	
+
 RunObject:
 	move.w	(a0), d0
 	beq.w	RunObjectEnd	; return if there is no object at this address
 	lea	(ObjectTable-4).l, a1
 	lsl.w	#2, d0
 	jsr	(a1,d0.w)
-	
+
 	btst	#0, 2(a0)
 	bne.w	loc_3DC
 	bclr	#7, 2(a0)
 	btst	#3, 2(a0)
-	beq.w	loc_3E4	
+	beq.w	loc_3E4
 	move.l	$14(a0), d0
-	add.l	d0, $A(a0)	
-	move.l	$18(a0), d0	
-	add.l	d0, $E(a0)	
-	move.w	$1C(a0), d0	
-	move.w	$12(a0), d1	
+	add.l	d0, $A(a0)
+	move.l	$18(a0), d0
+	add.l	d0, $E(a0)
+	move.w	$1C(a0), d0
+	move.w	$12(a0), d1
 	add.w	d0, d1
 	cmpi.w	#$400, d1
 	bcs.w	loc_3DC
-	cmpi.w	#$4000, d1	
+	cmpi.w	#$4000, d1
 	bcc.w	loc_3DC
-	move.w	d1, $12(a0)	
-	move.w	$A(a0), d0	
-	move.w	d0, $20(a0)	
-	move.w	$E(a0), d0	
-	subi.w	#$90, d0	
-	muls.w	#$400, d0	
-	divs.w	$12(a0), d0	
+	move.w	d1, $12(a0)
+	move.w	$A(a0), d0
+	move.w	d0, $20(a0)
+	move.w	$E(a0), d0
+	subi.w	#$90, d0
+	muls.w	#$400, d0
+	divs.w	$12(a0), d0
 	neg.w	d0
 	addi.w	#$D0, d0
 	cmpi.w	#$80, d0
 	bls.w	RunObjectEnd
 	bmi.w	RunObjectEnd
-	cmpi.w	#$180, d0	
+	cmpi.w	#$180, d0
 	bcc.w	RunObjectEnd
-	move.w	d0, $1E(a0)	
-	btst	#1, 2(a0)	
+	move.w	d0, $1E(a0)
+	btst	#1, 2(a0)
 	bne.s	RunObjectEnd
-	lea	($FFFFF000).w, a1	
-	moveq	#0, d0	
+	lea	($FFFFF000).w, a1
+	moveq	#0, d0
 	move.b	$12(a0), d0
-	asl.w	#4, d0	
+	asl.w	#4, d0
 	adda.l	d0, a1
 -
 	cmpi.w	#$E, (a1)
 	bcs.s	+
-	adda.w	#$10, a1	
+	adda.w	#$10, a1
 	bra.s	-
-	
+
 +
-	addq.w	#2, (a1)	
-	moveq	#0, d1	
+	addq.w	#2, (a1)
+	moveq	#0, d1
 	move.w	(a1), d1
-	adda.l	d1, a1	
+	adda.l	d1, a1
 	move.w	a0, (a1)
 	bset	#7, 2(a0)
-	
+
 RunObjectEnd:
 	rts
-	
+
 loc_3DC:
 	movea.l	a0, a1
 	moveq	#0, d1
 	bra.w	loc_6D38
-	
+
 loc_3E4:
 	move.w	$A(a0), d0
 	add.w	$14(a0), d0
@@ -269,7 +269,7 @@ loc_3E4:
 	bcc.s	++
 +
 	add.w	($FFFFF722).w, d0
-	
+
 +
 	move.w	d0, $A(a0)
 	move.w	$E(a0), d0
@@ -281,7 +281,7 @@ loc_3E4:
 	bcc.s	++
 +
 	add.w	($FFFFF720).w, d0
-	
+
 +
 	move.w	d0, $E(a0)
 	move.w	$A(a0), d0
@@ -292,7 +292,7 @@ loc_3E4:
 	add.w	($FFFFF722).w, d0
 +
 	addi.w	#$80, d0
-	
+
 +
 	cmpi.w	#$40, d0
 	bls.w	RunObjectEnd
@@ -307,7 +307,7 @@ loc_3E4:
 	add.w	($FFFFF720).w, d0
 +
 	addi.w	#$80, d0
-	
+
 +
 	cmpi.w	#$40, d0
 	bls.w	RunObjectEnd
@@ -341,14 +341,14 @@ loc_3E4:
 	bset	#7, 2(a0)
 +
 	rts
-	
+
 BuildSprites:
 	move.b	#0, (sprite_link_field_count).w
 	move.b	#$50, (sprite_count).w		; sprite limit = 80
-	lea	(sprite_table).w, a1		
+	lea	(sprite_table).w, a1
 	move.l	a1, ($FFFFF608).w
 	lea	($FFFFF000).w, a6
-	
+
 	moveq	#$3F, d7
 loc_4E4:
 	move.w	(a6), d0
@@ -366,21 +366,21 @@ loc_4EA:
 	beq.w	loc_572
 	bmi.w	loc_572
 	bsr.w	loc_526
-	
+
 loc_50C:
 	addq.w	#2, d6		; load next object
 	subq.w	#2, (a6)	; decrement object count
 	bne.s	loc_4EA
-	
+
 loc_512:
 	addq.w	#8, a6
 	addq.w	#8, a6
 	dbf	d7, loc_4E4
-	
+
 	movea.l	($FFFFF608).w, a0		; load sprite table
 	move.l	#0, (a0)
 	rts
-	
+
 loc_526:
 	movea.l	($FFFFF608).w, a2		; load sprite table address
 	moveq	#0, d1
@@ -388,12 +388,12 @@ loc_526:
 	subq.b	#1, d1		; get number of attributes for each mapping
 	move.w	$1E(a0), d2
 	move.w	$20(a0), d3
-	
+
 FillSpriteAttributesLoop:
 	tst.b	(sprite_count).w
 	beq.s	loc_56C		; branch if there are already 80 sprites
 	subq.b	#1, (sprite_count).w	; otherwise subtract 1 and build this sprite
-	
+
 	move.b	(a1)+, d0
 	ext.w	d0
 	add.w	d2, d0
@@ -411,11 +411,11 @@ FillSpriteAttributesLoop:
 	add.w	d3, d0
 	move.w	d0, (a2)+		; set X position
 	dbf	d1, FillSpriteAttributesLoop
-	
+
 loc_56C:
 	move.l	a2, ($FFFFF608).w
 	rts
-	
+
 loc_572:
 	move.w	(a1)+, d0
 	move.w	(a1)+, d1
@@ -444,12 +444,12 @@ loc_572:
 +
 	move.w	d0, (a5)+
 	dbf	d5, -
-	
+
 	addi.w	#$80, d2
 	dbf	d4, --
-	
+
 	bra.w	loc_50C
-	
+
 ; ===========================================================
 ; Unknown data
 ; ===========================================================
@@ -461,7 +461,7 @@ loc_572:
 	dc.b	$08, $08, $08, $08, $08, $08, $08, $08
 	dc.b	$04, $04, $04, $04, $04, $04, $04, $04
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 	dc.b	$24, $24, $24, $24, $24, $24, $24, $20
 	dc.b	$20, $20, $1C, $1C, $1C, $18, $18, $18
 	dc.b	$14, $14, $14, $14, $10, $10, $10, $10
@@ -470,7 +470,7 @@ loc_572:
 	dc.b	$04, $04, $04, $04, $04, $04, $04, $04
 	dc.b	$04, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 	dc.b	$24, $24, $24, $24, $24, $20, $1C, $1C
 	dc.b	$18, $18, $14, $14, $14, $10, $10, $10
 	dc.b	$10, $0C, $0C, $0C, $0C, $0C, $08, $08
@@ -480,14 +480,14 @@ loc_572:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 ; ===========================================================
-	                
+
 ; ===========================================================
 ; Table for every object in the game
 ; ===========================================================
 ObjectTable:
 
 PtrObj_RedCursor:				bra.w	Obj_RedCursor						; 1 - red cursor for windows
-PtrObj_InputWindowCursor:		bra.w	Obj_InputWindowCursor				; 2	- blue tiles which appear and disappear and used over text to create a blinking effect 
+PtrObj_InputWindowCursor:		bra.w	Obj_InputWindowCursor				; 2	- blue tiles which appear and disappear and used over text to create a blinking effect
 PtrObj_NameDestinationTile:		bra.w	Obj_NameDestinationTile				; 3 - one blue tile which appears and disappears over a letter in the section where characters' names are written
 PtrObj_BattleCursor:			bra.w	Obj_BattleCursor					; 4 - red cursor used in battles
 PtrObj_CharSelectCursor:		bra.w	Obj_CharSelectCursor				; 5 - triangular cursor used when selecting characters' actions in battle
@@ -508,7 +508,7 @@ PtrObj_EnemyAttack2:			bra.w	Obj_EnemyAttack2					; $13
 PtrObj_MapCharacter:			bra.w	Obj_MapCharacter					; $14 - characters' sprites in the map
 PtrObj_FollowingCharacter:		bra.w	Obj_FollowingCharacter				; $15 - the characters behind the leading character
 PtrObj_MotaYoungMan:			bra.w	Obj_MotaYoungMan					; $16 - random young man in towns on Motavia
-PtrObj_MotaYoungWoman:			bra.w	Obj_MotaYoungWoman					; $17 
+PtrObj_MotaYoungWoman:			bra.w	Obj_MotaYoungWoman					; $17
 PtrObj_MotaOldMan:				bra.w	Obj_MotaOldMan						; $18
 PtrObj_MotaChild:				bra.w	Obj_MotaChild						; $19
 PtrObj_Dezolian:				bra.w	Obj_Dezolian						; $1A
@@ -552,11 +552,11 @@ PtrObj_PushStartButton2:		bra.w	Obj_PushStartButton					; $3F - doesn't seem to 
 PtrObj_PushStartButton3:		bra.w	Obj_PushStartButton					; $40 - doesn't seem to be referenced
 PtrObj_PushStartButton4:		bra.w	Obj_PushStartButton					; $41 - doesn't seem to be referenced
 PtrObj_PushStartButton5:		bra.w	Obj_PushStartButton					; $42 - this one's referenced
-PtrObj_CopyrightText:			bra.w	Obj_CopyrightText					; $43 - copyright string that turns up at the bottom right corner of the screen 
+PtrObj_CopyrightText:			bra.w	Obj_CopyrightText					; $43 - copyright string that turns up at the bottom right corner of the screen
 PtrObj_Spaceship:				bra.w	Obj_Spaceship						; $44 - spaceship used when travelling to Dezolis/Motavia
 PtrObj_EyeBeam:					bra.w	Obj_EyeBeam							; $45 - Beams coming out of Mother Brain's eyes
 ; ===========================================================
-	
+
 loc_796:
 	lea	(object_ram).w, a6
 	moveq	#0, d7
@@ -564,14 +564,14 @@ loc_796:
 -
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	lea	(enemy_stats).w, a6
 	moveq	#0, d7
 	move.w	#$FF, d6
 -
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	lea	(party_member_id).w, a1
 	move.w	#$200, d5
 	move.w	(party_members_num).w, d6
@@ -589,7 +589,7 @@ loc_796:
 	move.w	(a2)+, $A(a4)
 	move.w	(a2), $E(a4)
 	move.w	d5, 8(a4)
-	
+
 	lea	(Battle_CharObjectPtrs).l, a2
 	move.w	(a1)+, d1
 	move.w	d1, $36(a4)
@@ -608,7 +608,7 @@ loc_796:
 	bsr.w	DecompressArt
 	addi.w	#$80, d5
 	dbf	d6, -
-	
+
 	lea	(EnemyBattleFormationData).l, a1
 	move.w	(enemy_data_buffer).w, d0
 	subq.w	#1, d0
@@ -639,11 +639,11 @@ loc_796:
 	move.w	(enemy_data_buffer+$10).w, d6		; get number of enemies of first group
 	moveq	#0, d7
 	move.w	d7, (enemy_data_buffer+2).w
-	
+
 	lea	($FF0020).l, a4
 	move.w	(enemy_data_buffer+$12).w, d0		; get enemy ID of first group
 	bsr.s	loc_8D4
-	
+
 	lea	($FFFFFBE2).w, a0
 	move.w	#$6100, d5
 	move.w	(enemy_data_buffer+$14).w, d6		; get number of enemies of second group
@@ -660,11 +660,11 @@ loc_796:
 +
 	adda.w	#$10, a1
 	dbf	d0, -
-	
+
 	lea	($FF2020).l, a4
 	move.w	(enemy_data_buffer+$16).w, d0
-	
-	
+
+
 loc_8D4:
 	lea	(EnemyData).l, a1
 	subq.w	#1, d0			; subtract 1 from ID to start from 0
@@ -674,8 +674,8 @@ loc_8D4:
 -
 	move.w	(a1)+, (a0)+
 	dbf	d0, -
-	
-	movea.l	(a1)+, a0		
+
+	movea.l	(a1)+, a0
 	movem.l	d7-a6, -(sp)
 	bsr.w	DecompressArt2
 	movem.l	(sp)+, d7-a6
@@ -683,7 +683,7 @@ loc_8D4:
 	move.w	d6, d0			; loop for every enemy
 -
 	movea.l	a2, a1
-	
+
 	; data of enemies in RAM
 	move.w	(a1)+, $C(a6)	; Experience point
 	move.w	(a1)+, $A(a6)	; Meseta
@@ -696,12 +696,12 @@ loc_8D4:
 	move.w	(a1)+, d1		; HP stat
 	move.w	d1, 2(a6)		; Current HP
 	move.w	d1, 4(a6)		; Max HP
-	move.b	(a1)+, $25(a6)	; Technique index		
+	move.b	(a1)+, $25(a6)	; Technique index
 	move.b	(a1)+, $26(a6)	; Technique use rate
 	move.b	(a1)+, $27(a6)	; Index of success rate
 	adda.w	#$40, a6		; Next enemy
 	dbf	d0, -
-	
+
 	moveq	#0, d0
 	move.b	(a1)+, d0
 	cmp.w	(enemy_data_buffer+$18).w, d0		; check if chances of escape are higher than the other enemy previously loaded
@@ -751,10 +751,10 @@ loc_8D4:
 	move.w	d5, 8(a5)
 	adda.w	#$80, a5
 	dbf	d0, -
-	
+
 loc_9B8:
 	rts
-	
+
 ; ========================================================
 ; x and y position for the four characters in battle
 ; ========================================================
@@ -764,7 +764,7 @@ Battle_CharCoordinates:
 	dc.w	$C8, $130	 ; 3rd character position
 	dc.w	$178, $130	 ; 4th character position
 ; ========================================================
-	
+
 ; ========================================================
 ; Sprite and Art for every character in battle
 ; ========================================================
@@ -778,10 +778,10 @@ Battle_CharObjectPtrs:
 	dc.l	Map_KainBattle, Battle_HughKainArt
 	dc.l	$20000000|Map_ShirBattle, Battle_AmyShirArt
 ; ========================================================
-	
+
 ; ========================================================
 ; X position for a max of five enemies that will show up
-; in battle. The offset is determined by the index 
+; in battle. The offset is determined by the index
 ; present in the enemy formation array (5th byte)
 ; ========================================================
 EnemyXPosArray:
@@ -797,7 +797,7 @@ EnemyXPosArray:
 	dc.w	$A8, $F8, $148, $198, $120
 ; ========================================================
 
-	
+
 Map_LoadObjects:
 	lea	(MapObjectData).l, a2
 	move.w	(map_index).w, d0
@@ -821,7 +821,7 @@ Map_LoadObjects:
 	move.w	(a2)+, y_pos(a3)
 	adda.w	d0, a3
 	dbf	d1, -
-	
+
 +
 	lea	(party_member_join_next).w, a1
 	lea	($FFFFC700).w, a2
@@ -896,12 +896,12 @@ Map_LoadObjects:
 +
 	cmpi.w	#$E, d0
 	bne.s	SkipDarumTeimEvent
-	moveq	#ItemID_Teim, d2		
+	moveq	#ItemID_Teim, d2
 	jsr	(CheckItemExistInventory).l		; search if one of the party member has TEIM
 	bne.s	SkipDarumTeimEvent	; if TEIM was not found, branch
-	
+
 	jsr	(RemoveItemFromInventory).l		; remove TEIM from inventory
-	
+
 ; Set Teim and Darum event in motion
 	move.w	#1, ($FFFFDE70).w
 	move.w	#0, ($FFFFDE72).w
@@ -911,7 +911,7 @@ Map_LoadObjects:
 	move.w	#0, (demo_input_index).w
 	move.b	#$8F, d0			; "A Prologue" music
 	bra.w	UpdateSoundQueue
-	
+
 SkipDarumTeimEvent:
 	cmpi.w	#$11, d0
 	bne.s	++
@@ -939,7 +939,7 @@ SkipDarumTeimEvent:
 	move.w	#$D8, y_pos(a3)
 +
 	rts
-	
+
 ; ============================================================
 ; Offset table with a list of maps pointing to a list of
 ; sprites that will be populated in the map
@@ -1059,11 +1059,11 @@ MapObjectData:
 	dc.w	ObjectData_NoSprites-MapObjectData
 	dc.w	ObjectData_NoSprites-MapObjectData
 ; ============================================================
-	
+
 ; ==================================================================================
 ;        Object data which gets loaded as you enter a new map
-; 
-; 
+;
+;
 ; Byte 1 = Number which, after some calculation, represents the object and the index that
 ;			affects its behaviour. I put the calculation so that it's obvious which object
 ;			gets loaded. The number at the end of the calculation (e.g. +1) is the index of the
@@ -1504,7 +1504,7 @@ ObjectData_Piata:
 	dc.b	(ObjID_MotaYoungWoman2-$14)<<2+1
 	dc.b	$53
 	dc.w	$0268, $0168
-	
+
 	dc.b	(ObjID_MotaYoungWoman-$14)<<2+1
 	dc.b	$54
 	dc.w	$0378, $0278
@@ -1571,7 +1571,7 @@ ObjectData_Aukba:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$69
 	dc.w	$0188, $0098
-	
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$6A
 	dc.w	$0118, $00B8
@@ -1591,7 +1591,7 @@ ObjectData_Aukba:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$6E
 	dc.w	$00B8, $0158
-	
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$65
 	dc.w	$0158, $0158
@@ -1677,7 +1677,7 @@ ObjectData_Ryuon:
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$78
 	dc.w	$0398, $0058
-	
+
 	dc.b	(ObjID_Dezolian-$14)<<2+1
 	dc.b	$79
 	dc.w	$03A8, $00B8
@@ -1789,7 +1789,7 @@ ObjectData_SkureB1:
 	dc.w	$0418, $04A8
 
 	dc.w	0
-; ------------------------------------------------------------	
+; ------------------------------------------------------------
 ObjectData_MotaPassageDarum:
 	dc.b	(ObjID_Teim-$14)<<2+3
 	dc.b	$01
@@ -1817,7 +1817,7 @@ ObjectData_ShureGroundF:
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$13
 	dc.w	$04B8, $0218
-	
+
 	dc.b	(ObjID_MotaTreasureChest-$14)<<2+2
 	dc.b	$14
 	dc.w	$0418, $0218
@@ -2388,7 +2388,7 @@ ObjectData_BiosystemsLabGroundF:
 	dc.w	$02F8, $049F
 
 	dc.w	0
-; ------------------------------------------------------------	
+; ------------------------------------------------------------
 ObjectData_MotaWorldMap:
 	dc.b	(ObjID_JetScooter-$14)<<2
 	dc.b	$06
@@ -2411,14 +2411,14 @@ ObjectData_MotaWorldMap:
 	dc.w	$0490, $0490
 
 	dc.w	0
-; ------------------------------------------------------------	
+; ------------------------------------------------------------
 ObjectData_ClimatrolF7:
 	dc.b	(ObjID_Neifirst-$14)<<2
 	dc.b	$25
 	dc.w	$0308, $0198
 
 	dc.w	0
-; ------------------------------------------------------------	
+; ------------------------------------------------------------
 ObjectData_Uzo:
 	dc.b	(ObjID_InvisibleBlock2-$14)<<2
 	dc.b	$10
@@ -2480,7 +2480,7 @@ ObjectData_EspMansionB1:
 	dc.w	$0138, $0098
 
 	dc.w	0
-; ------------------------------------------------------------	
+; ------------------------------------------------------------
 ObjectData_EspMansion:
 	dc.b	(ObjID_MovingEsper-$14)<<2+1
 	dc.b	$88
@@ -2531,11 +2531,11 @@ ObjectData_Gaira:
 
 	dc.w	0
 ; ============================================================
-	
+
 ; --------------------------------------------------------------
 ; Object - Blinking red cursor for selection
 ; --------------------------------------------------------------
-	
+
 Obj_RedCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -2572,13 +2572,13 @@ RedCursor_Main:
 	addi.w	#$E000, d0
 	cmpa.w	d0, a0
 	beq.s	+
-	
+
 Obj01_ShowCursor:
 	move.b	#$30, 2(a0)			; always display cursor
 	rts
-	
+
 +
-	subq.w	#1, $26(a0)			; subtract 1 from timer 
+	subq.w	#1, $26(a0)			; subtract 1 from timer
 	bpl.s	+
 	move.w	#7, $26(a0)			; blinking timer (alternate between displaying and hiding cursor)
 	bchg	#1, 2(a0)			; either display or hide cursor
@@ -2590,37 +2590,37 @@ loc_1576:
 	move.b	(joypad_pressed).w, d0
 	lsr.b	#1, d0
 	bcc.s	loc_158E		; branch if up was not pressed
-	
+
 ; Up Pressed
 loc_1584:
 	subq.b	#1, d1
 	bpl.s	loc_159C
 	move.b	$33(a0), d1
 	bra.s	loc_159C
-	
+
 loc_158E:
 	lsr.b	#1, d0
 	bcc.s	loc_15BA		; branch if down was not pressed
-	
+
 ; Down Pressed
 loc_1592:
 	addq.b	#1, d1
 	cmp.b	$33(a0), d1
 	bls.s	loc_159C
 	moveq	#0, d1
-	
+
 loc_159C:
 	move.b	d1, $32(a0)
 	mulu.w	d2, d1
 	add.w	$2A(a0), d1
 	move.w	d1, $E(a0)
-	
+
 loc_15AA:
 	move.w	#$1F, $28(a0)
 	move.w	$32(a0), d0
 	move.w	d0, ($FFFFDE50).w
 	rts
-	
+
 loc_15BA:
 	move.b	(joypad_held).w, d0
 	lsr.b	#1, d0
@@ -2628,7 +2628,7 @@ loc_15BA:
 	subq.w	#1, $28(a0)
 	bmi.s	loc_1584
 	rts
-	
+
 loc_15CA:
 	lsr.b	#1, d0
 	bcc.s	loc_15AA		; branch if down is not being held down
@@ -2636,7 +2636,7 @@ loc_15CA:
 	bmi.s	loc_1592
 	rts
 
-	
+
 ; ----------------------------------------------------------------------------
 ; Object - Tiles used to cover letters in input window (blinking effect)
 ; ----------------------------------------------------------------------------
@@ -2676,7 +2676,7 @@ InputWindowCursor_Main:
 loc_163E:
 	move.b	#$30, 2(a0)
 	rts
-	
+
 loc_1646:
 	subq.w	#1, $26(a0)
 	bpl.s	loc_1658
@@ -2686,7 +2686,7 @@ loc_1658:
 	btst	#Button_C, (joypad_held).w
 	beq.s	loc_1662
 	rts
-	
+
 loc_1662:
 	moveq	#0, d1
 	move.b	$32(a0), d1
@@ -2695,18 +2695,18 @@ loc_1662:
 	move.b	(joypad_pressed).w, d0
 	lsr.b	#1, d0
 	bcc.s	loc_1682		; branch if up was not pressed
-	
+
 ; Up pressed
 loc_1676:
 	subi.b	#$11, d1
 	bpl.s	loc_16E6
 	addi.b	#$44, d1
 	bra.s	loc_16E6
-	
+
 loc_1682:
 	lsr.b	#1, d0
 	bcc.s	loc_1696		; branch if down was not pressed
-	
+
 ; Down pressed
 loc_1686:
 	addi.b	#$11, d1
@@ -2714,11 +2714,11 @@ loc_1686:
 	bcs.s	loc_16E6
 	subi.b	#$44, d1
 	bra.s	loc_16E6
-	
+
 loc_1696:
 	lsr.b	#1, d0
 	bcc.s	loc_16AC		; branch if left was not pressed
-	
+
 ; Left pressed
 loc_169A:
 	subq.b	#1, d1
@@ -2728,11 +2728,11 @@ loc_169A:
 	beq.s	loc_16E6
 	addi.b	#$11, d1
 	bra.s	loc_16E6
-	
+
 loc_16AC:
 	lsr.b	#1, d0
 	bcc.w	loc_1744		; branch if right was not pressed
-	
+
 ; Right pressed
 loc_16B2:
 	addq.b	#1, d1
@@ -2745,7 +2745,7 @@ loc_16BE:
 	cmp.w	d2, d3
 	beq.s	loc_16CC
 	subi.b	#$11, d1
-	
+
 loc_16CC:
 	lea	(InputCharacterMap).l, a1
 	adda.w	d1, a1
@@ -2758,7 +2758,7 @@ loc_16D4:
 	bcs.s	loc_16D4
 	moveq	#$33, d1
 	bra.s	loc_16F8
-	
+
 loc_16E6:
 	lea	(InputCharacterMap).l, a1
 	adda.w	d1, a1
@@ -2768,7 +2768,7 @@ loc_16EE:
 	subq.w	#1, a1
 	subq.w	#1, d1
 	bra.s	loc_16EE
-	
+
 loc_16F8:
 	move.b	d1, $32(a0)
 	move.w	d1, ($FFFFDE50).w
@@ -2784,7 +2784,7 @@ loc_16F8:
 	lsl.w	#3, d1
 	addi.w	#$100, d1
 	move.w	d1, $A(a0)
-	
+
 	lea	(InputCharacterMap).l, a1
 	adda.w	d0, a1
 	move.w	#1, $24(a0)
@@ -2794,7 +2794,7 @@ loc_16F8:
 loc_173C:
 	move.w	#$F, $28(a0)
 	rts
-	
+
 loc_1744:
 	move.b	(joypad_held).w, d0
 	lsr.b	#1, d0
@@ -2802,29 +2802,29 @@ loc_1744:
 	subq.w	#1, $28(a0)
 	bmi.w	loc_1676
 	rts
-	
+
 loc_1756:
 	lsr.b	#1, d0
 	bcc.s	loc_1764
 	subq.w	#1, $28(a0)
 	bmi.w	loc_1686
 	rts
-	
+
 loc_1764:
 	lsr.b	#1, d0
 	bcc.s	loc_1772
 	subq.w	#1, $28(a0)
 	bmi.w	loc_169A
 	rts
-	
+
 loc_1772:
 	lsr.b	#1, d0
 	bcc.s	loc_173C
 	subq.w	#1, $28(a0)
 	bmi.w	loc_16B2
 	rts
-	
-	
+
+
 ; --------------------------------------------------------------------------
 ; Object - blinking question mark when choosing name for characters
 ; --------------------------------------------------------------------------
@@ -2861,7 +2861,7 @@ NameDestinationTile_Main:
 +
 	move.b	#1, 2(a0)
 	rts
-	
+
 +
 	subq.w	#1, $26(a0)
 	bpl.s	+
@@ -2873,8 +2873,8 @@ NameDestinationTile_Main:
 	addi.w	#$130, d0
 	move.w	d0, $A(a0)
 	rts
-	
-	
+
+
 ; ---------------------------------------------------
 ; Object - cursor for selection in battle
 ; ---------------------------------------------------
@@ -2910,7 +2910,7 @@ BattleCursor_Main:
 loc_1862:
 	move.b	#$30, 2(a0)			; always display cursor
 	rts
-	
+
 loc_186A:
 	subq.w	#1, $26(a0)
 	bpl.s	loc_187C
@@ -2919,7 +2919,7 @@ loc_186A:
 loc_187C:
 	moveq	#$10, d2
 	bra.w	loc_1576
-	
+
 ; -------------------------------------------------------------------
 ; Object - Triangular cursor for character selection in battle
 ; -------------------------------------------------------------------
@@ -2928,7 +2928,7 @@ Obj_CharSelectCursor:
 	asl.b	#2, d0
 	jsr	CharSelectCursorRoutines(pc,d0.w)
 	rts
-; -------------------------------------------------------------------	
+; -------------------------------------------------------------------
 CharSelectCursorRoutines:
 	bra.w	CharSelectCursor_Init
 	bra.w	CharSelectCursor_Main
@@ -2950,64 +2950,64 @@ CharSelectCursor_Main:
 	beq.s	loc_18D0
 	move.b	#$32, 2(a0)			; hide cursor
 	rts
-	
+
 loc_18D0:
 	subq.w	#1, $26(a0)
-	bpl.s	loc_18E2	
+	bpl.s	loc_18E2
 	move.w	#7, $26(a0)		; blinking timer (alternate between displayed or hidden)
 	bchg	#1, 2(a0)		; either display or hide cursor
 loc_18E2:
 	bsr.s	loc_1906
-	
-	
+
+
 loc_18E4:
 	moveq	#0, d1
 	move.b	$32(a0), d1
-	
+
 	lea	(ObjTCCSel_XPosArray).l, a1
 	cmpi.w	#2, (party_members_num).w
 	bcc.s	loc_18FA
 	addq.w	#2, a1
-	
+
 loc_18FA:
 	add.w	d1, d1
 	adda.w	d1, a1
 	move.w	(a1), d0
 	move.w	d0, $A(a0)
 	rts
-	
+
 loc_1906:
 	moveq	#0, d1
 	move.b	$32(a0), d1
 	move.b	(joypad_pressed).w, d0
 	lsr.b	#3, d0
 	bcc.s	loc_191E		; branch if left was not pressed
-	
+
 loc_1914:
 	subq.b	#1, d1				; subtract index
-	bpl.s	loc_192C		
+	bpl.s	loc_192C
 	move.b	$33(a0), d1
 	bra.s	loc_192C
-	
+
 loc_191E:
 	lsr.b	#1, d0
 	bcc.s	loc_1940		; branch if right was not pressed
-	
+
 loc_1922:
 	addq.b	#1, d1				; add index
 	cmp.b	$33(a0), d1
 	bls.s	loc_192C		; branch if we can still go right
 	moveq	#0, d1				; reset index so that it starts from the farthest left
-	
+
 loc_192C:
 	move.b	d1, $32(a0)			; move new value for index
-	
+
 loc_1930:
 	move.w	#$1F, $28(a0)		; timer for joypad held state
 	move.w	$32(a0), d0
 	move.w	d0, ($FFFFDE50).w		; save index in RAM
 	rts
-	
+
 loc_1940:
 	move.b	(joypad_held).w, d0
 	lsr.b	#3, d0
@@ -3015,14 +3015,14 @@ loc_1940:
 	subq.w	#1, $28(a0)
 	bmi.s	loc_1914		; if less than 0, subtract value
 	rts
-	
+
 loc_1950:
 	lsr.b	#1, d0
 	bcc.s	loc_1930		; branch if right is not being held down
 	subq.w	#1, $28(a0)
 	bmi.s	loc_1922		; if less than 0, add value
 	rts
-	
+
 ; ================================
 ; x position array for the cursor
 ObjTCCSel_XPosArray:
@@ -3031,16 +3031,16 @@ ObjTCCSel_XPosArray:
 	dc.w	$140
 	dc.w	$180
 ; ================================
-	
+
 ; ---------------------------------------------------------------
-; Object - Triangular cursor for command selection in battle	
+; Object - Triangular cursor for command selection in battle
 ; ---------------------------------------------------------------
 Obj_CommandSelectCursor:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	CommandSelectCursorRoutines(pc,d0.w)
 	rts
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 CommandSelectCursorRoutines:
 	bra.w	CommandSelectCursor_Init
 	bra.w	CommandSelectCursor_Main
@@ -3087,20 +3087,20 @@ loc_19E4:
 	move.w	d1, $A(a0)
 	rts
 ; ---------------------------------------------------------------
-	
+
 ; ---------------------------------------------------------------
 ; Object - Explosion seen in monitor on Tyler's spaceship
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 Obj_MonitorExplosion:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	MonitorExplosionRoutines(pc,d0.w)
 	rts
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 MonitorExplosionRoutines:
 	bra.w	MonitorExplosion_Init
 	bra.w	MonitorExplosion_Main
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 MonitorExplosion_Init:
 	move.w	#$118, $A(a0)
 	move.w	#$98, $E(a0)
@@ -3109,7 +3109,7 @@ MonitorExplosion_Init:
 	move.l	#Map_PalmExplosion, 4(a0)
 	move.w	#3, $26(a0)		; timer before changing sprite mappings
 	move.w	#1, $22(a0)
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 MonitorExplosion_Main:
 	subq.w	#1, $26(a0)
 	bpl.s	loc_1A5A		; return if timer is still positive (use same sprite mappings)
@@ -3120,7 +3120,7 @@ MonitorExplosion_Main:
 	move.b	#1, 2(a0)			; mark object as destroyed
 loc_1A5A:
 	rts
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 
 ; ---------------------------------------------------------------
 ; Object - Spaceship flying out of Parma at the Ending Screen
@@ -3155,7 +3155,7 @@ EndingSpaceship_Main:
 	bne.s	loc_1AC6
 	move.b	#1, 2(a0)
 loc_1AC6:
-	rts	
+	rts
 ; ---------------------------------------------------------------
 
 ; ---------------------------------------------------------------
@@ -3164,7 +3164,7 @@ loc_1AC6:
 Obj_Null1:
 	rts
 ; ---------------------------------------------------------------
-	
+
 ; ---------------------------------------------------------------
 ; Object - Characters in battle
 ; ---------------------------------------------------------------
@@ -3189,13 +3189,13 @@ BattleCharacter_Init:
 	move.w	#0, $1A(a0)
 	move.w	#3, $28(a0)
 	move.w	#1, routine(a0)
-	lea	(character_stats+curr_hp).w, a3		
+	lea	(character_stats+curr_hp).w, a3
 	move.w	fighter_id(a0), d0			; get character index
 	lsl.w	#6, d0
 	adda.w	d0, a3
 	tst.w	(a3)
 	bne.s	loc_1B2C		; branch if character is not dead
-	move.w	#3, routine(a0)			; => BattleCharacter_Dead	
+	move.w	#3, routine(a0)			; => BattleCharacter_Dead
 loc_1B2C:
 	rts
 ; ---------------------------------------------------------------
@@ -3207,7 +3207,7 @@ BattleCharacter_Wait:
 	move.b	#$10, render_flags(a0)		; display sprites
 	move.w	#0, $24(a0)		; get first sprite mappings
 	rts
-	
+
 loc_1B4E:
 	move.w	#$128, y_pos(a0)	; Y position for characters
 	move.b	#$12, render_flags(a0)		; don't display sprites
@@ -3229,7 +3229,7 @@ loc_1B9C:
 	move.b	#0, 3(a0)
 	subq.w	#1, ($FFFFCC06).w
 	rts
-	
+
 loc_1BA8:
 	btst	#4, 3(a0)
 	bne.s	loc_1C0E
@@ -3248,7 +3248,7 @@ loc_1BA8:
 	move.l	d0, ($FFFFFB7C).w
 loc_1BE2:
 	rts
-	
+
 loc_1BE4:
 	move.b	#SFXID_DamageRedScreen, (sound_queue).w
 	move.w	#$200, (palette_table).w
@@ -3265,7 +3265,7 @@ loc_1C0E:
 	move.b	#$10, render_flags(a0)		; display sprites
 loc_1C1A:
 	rts
-	
+
 loc_1C1C:
 	move.w	$C(a0), x_pos(a0)
 	btst	#0, 3(a0)
@@ -3297,16 +3297,16 @@ loc_1C1C:
 	move.w	#$122A, (battle_script_id).w
 	move.w	#1, ($FFFFCC98).w
 	move.w	#0, ($FFFFF632).w
-	
+
 	lea	(character_stats).w, a1
 	moveq	#7, d1
 -
 	andi.w	#$FBE0, (a1)
 	adda.w	#$40, a1
 	dbf	d1, -
-	
+
 	bra.s	loc_1CF2
-	
+
 loc_1C9A:
 	move.w	d2, d0
 	andi.w	#7, d0
@@ -3322,22 +3322,22 @@ loc_1C9A:
 	bcc.s	loc_1CF2
 	move.w	#0, $1A(a3)
 	bra.s	loc_1CF2
-	
+
 loc_1CCA:
 	cmpi.b	#5, d2
 	bne.s	loc_1CDA
 	andi.w	#$FFF0, (a3)
 	ori.w	#$400, (a3)
 	bra.s	loc_1CF2
-	
+
 loc_1CDA:
 	cmpi.b	#6, d2
 	bne.s	loc_1CF2
 	andi.w	#$FFF0, (a3)
 	subi.w	#$28, $14(a3)
 	bcc.s	loc_1CF2
-	move.w	#0, $14(a3)	
-	
+	move.w	#0, $14(a3)
+
 loc_1CF2:
 	move.w	fighter_id(a0), $2C(a0)
 	bset	#7, 3(a0)
@@ -3346,15 +3346,15 @@ loc_1CF2:
 	move.w	#2, $22(a0)
 	move.w	#0, (battle_command_used).w
 	rts
-	
+
 loc_1D18:
 	subq.b	#1, 1(a3)
-	bne.s	loc_1D2A	
+	bne.s	loc_1D2A
 	move.w	#WinID_BattleMessage, (window_index).w
 	move.w	#$1222, (script_id).w		; "'Character' is no longer paralyzed!"
 loc_1D2A:
 	bra.w	loc_1F62
-	
+
 loc_1D2E:
 	btst	#$E, d0
 	bne.s	loc_1D2A
@@ -3363,7 +3363,7 @@ loc_1D34:
 	move.w	fighter_id(a0), d0		; get index for character
 	lsl.w	#4, d0			; get character we just selected
 	adda.w	d0, a5
-	move.w	(a5)+, d0		
+	move.w	(a5)+, d0
 	move.w	d0, (battle_command_used).w
 	lsl.w	#2, d0
 	andi.w	#$C, d0
@@ -3389,14 +3389,14 @@ CommandUsed_Attack:
 	move.b	$22(a3), d3		; get left hand weapon
 	move.w	d3, d0
 	lsl.w	#4, d0
-	
+
 	lea	(InventoryData+$C).l, a6
 	adda.w	d0, a6
 	move.b	(a6), d0
 	andi.b	#7, d0
 	cmpi.b	#3, d0
 	beq.w	loc_1F62	; branch if it's a two-handed weapon
-	
+
 loc_1D9E:
 	lea	(WeaponProperties).l, a6
 	move.w	d3, d0
@@ -3429,7 +3429,7 @@ loc_1DDE:
 +
 	bsr.w	loc_288E
 	bra.w	loc_1F30
-	
+
 loc_1E06:
 	bsr.w	loc_2736
 	moveq	#4, d6
@@ -3457,9 +3457,9 @@ loc_1E48:
 	bsr.w	loc_288E
 loc_1E4C:
 	dbf	d6, loc_1E0C
-	
+
 	bra.w	loc_1F30
-	
+
 loc_1E54:
 	move.w	#8, $16(a0)
 	moveq	#0, d4
@@ -3503,7 +3503,7 @@ loc_1ED4:
 	bsr.w	loc_288E
 loc_1ED8:
 	bra.s	loc_1F30
-	
+
 loc_1EDA:
 	move.w	#$B, $16(a0)
 	move.w	#8, $2C(a0)
@@ -3531,7 +3531,7 @@ loc_1F1E:
 	bsr.w	loc_2862
 	bne.s	loc_1F30
 	dbf	d4, loc_1EEC
-	
+
 loc_1F30:
 	move.b	(a6)+, ($FFFFF642).w	; move sound value to RAM
 	addq.w	#1, a6
@@ -3547,7 +3547,7 @@ loc_1F30:
 	move.w	#0, $1A(a0)
 	move.w	#2, $22(a0)
 	rts
-	
+
 loc_1F62:
 	move.w	#0, ($FFFFCC06).w
 	bclr	#0, 3(a0)
@@ -3594,16 +3594,16 @@ loc_1FDA:
 	lsl.w	#2, d0
 	andi.w	#$FC, d0
 	jmp	TechniqueActionIndex-4(pc,d0.w)
-	
+
 loc_1FEA:
-	move.w	$36(a0), d1	
+	move.w	$36(a0), d1
 	jsr	(loc_F4F8).l
 	bra.w	loc_1D34
-	
+
 ; ------------------------------------------
 TechniqueActionIndex:
 	bra.w	TechAction_Foi		; Foi
-	bra.w	TechAction_Foi		; Gifoi	
+	bra.w	TechAction_Foi		; Gifoi
 	bra.w	TechAction_Foi		; Nafoi
 	bra.w	TechAction_Zan		; Zan
 	bra.w	TechAction_Zan		; Gizan
@@ -3632,7 +3632,7 @@ TechniqueActionIndex:
 	bra.w	TechAction_Conte	; Shiza
 	bra.w	TechAction_Doran	; Doran
 	bra.w	TechAction_Rimit	; Rimit
-	bra.w	TechAction_Shinb	; Shinb 
+	bra.w	TechAction_Shinb	; Shinb
 	bra.w	TechAction_Forsa	; Forsa
 	bra.w	TechAction_Rimit	; Rimet
 	bra.w	TechAction_Shu		; Shu
@@ -3692,7 +3692,7 @@ loc_2132:
 	adda.w	#$40, a1
 	adda.w	#$80, a2
 	dbf	d4, loc_2112
-	
+
 	bra.w	loc_251C
 ; ------------------------------------------
 TechAction_Gra:
@@ -3722,7 +3722,7 @@ loc_217C:
 	adda.w	#$40, a1
 	adda.w	#$80, a2
 	dbf	d4, loc_2162
-	
+
 	tst.w	(enemy_data_buffer+$14).w
 	bmi.w	loc_2196
 	move.w	(enemy_data_buffer+$20).w, (enemy_data_buffer+$22).w
@@ -3734,7 +3734,7 @@ loc_21A2:
 	rts
 ; ------------------------------------------
 ; if you want to use it on any party member, check how
-; Shu or Sak code does it as an example 
+; Shu or Sak code does it as an example
 TechAction_Shift:
 	move.w	$36(a0), d0
 	move.w	d0, $2C(a0)		; make sure caster is the target
@@ -3764,7 +3764,7 @@ TechAction_Fanbi:
 	move.w	4(a3), d1
 	cmp.w	2(a3), d1
 	bcc.s	loc_220A
-	move.w	d1, 2(a3)	
+	move.w	d1, 2(a3)
 loc_220A:
 	bsr.w	loc_288E
 	bra.w	loc_251C
@@ -3782,8 +3782,8 @@ TechAction_Forsa:
 	bra.s	loc_223C
 ; ------------------------------------------
 TechAction_Doran:
-	move.w	#$120B, d3	
-	moveq	#4, d4	
+	move.w	#$120B, d3
+	moveq	#4, d4
 loc_2232:
 	bsr.w	loc_270C
 	move.w	$A(a2), $A(a0)
@@ -3808,7 +3808,7 @@ TechAction_Rimit:
 	addq.w	#8, d1
 	move.w	d1, $2C(a0)
 	bset	#7, 3(a2)
-	bsr.w	loc_27AA                                   
+	bsr.w	loc_27AA
 	bmi.s	loc_22B6
 	bset	#4, 3(a2)
 	tst.w	(enemy_data_buffer+$18).w
@@ -3824,7 +3824,7 @@ loc_22AC:
 	move.w	#$120C, (battle_script_id).w		; enemy is paralyzed text
 loc_22B6:
 	bra.w	loc_24D0
-; ------------------------------------------                                                            
+; ------------------------------------------
 TechAction_Shinb:
 	move.w	$36(a0), d0
 	move.w	d0, $2C(a0)
@@ -3835,9 +3835,9 @@ TechAction_Shinb:
 	bsr.w	loc_27AA		; this branches to the wrong location; there's data at that location that doesn't make sense for Shinb, that's why it never works;
 							; branch to this location instead: loc_27C8 --  now Shinb will make you run away with 100% chance
 	bmi.s	loc_22EA
-	move.w	#$1202, (battle_script_id).w	
-	move.b	#2, (battle_main_routine_index).w	
-	move.w	#2, (event_routine).w	
+	move.w	#$1202, (battle_script_id).w
+	move.b	#2, (battle_main_routine_index).w
+	move.w	#2, (event_routine).w
 loc_22EA:
 	bra.w	loc_24D0
 ; ------------------------------------------
@@ -3860,7 +3860,7 @@ loc_22FE:
 	addi.w	#$14, $1E(a1)		; raise Defense by 20
 loc_231C:
 	dbf	d4, loc_22FE
-	
+
 	bra.w	loc_24D0
 ; ------------------------------------------
 TechAction_Deban:
@@ -3876,7 +3876,7 @@ loc_2330:
 	_bset	#1, 0(a1)
 loc_2348:
 	dbf	d4, loc_2330
-	
+
 	bra.w	loc_24D0
 ; ------------------------------------------
 TechAction_Ner:
@@ -3898,7 +3898,7 @@ loc_2360:
 	addi.w	#$A, $14(a1)		; raise Agility by 10
 loc_237E:
 	dbf	d4, loc_2360
-	
+
 	bra.w	loc_24D0
 ; ------------------------------------------
 TechAction_Res:
@@ -3933,7 +3933,7 @@ loc_23A2:
 	move.w	d1, 2(a1)		; force current HP to be the same as max HP
 loc_23D2:
 	dbf	d4, loc_23A2
-	
+
 	tst.w	d3
 	beq.w	loc_1FEA			; branch if target character was dead
 	bra.w	loc_24D0
@@ -3962,7 +3962,7 @@ loc_23F2:
 	move.w	4(a1), 2(a1)
 loc_2416:
 	dbf	d4, loc_23F2
-	
+
 	tst.w	d3
 	beq.w	loc_1FEA
 	move.w	#$120F, (battle_script_id).w
@@ -4010,13 +4010,13 @@ TechAction_Megid:
 	lsr.w	#1, d0
 	move.w	d0, 2(a1)
 	bne.s	+
-	addq.w	#1, 2(a1)	
+	addq.w	#1, 2(a1)
 +
 	dbf	d4, -
-	
+
 	bra.w	loc_251C
-	
-	
+
+
 loc_24D0:
 	cmpi.w	#1, (battle_command_used).w
 	beq.s	loc_24F2				; branch if we used the technique command
@@ -4032,7 +4032,7 @@ loc_24F2:
 	move.w	$36(a0), d1
 	jsr	(loc_F4F8).l
 	bra.s	loc_251C
-	
+
 loc_24FE:
 	lea	(character_stats+items).w, a2		; get first item in the inventory
 	lsl.w	#6, d0
@@ -4046,8 +4046,8 @@ loc_24FE:
 	dbf	d0, -
 +
 	rts
-	
-	
+
+
 loc_251C:
 	cmpi.w	#1, (battle_command_used).w
 	bne.s	loc_2540					; branch if we didn't use the technique command
@@ -4055,11 +4055,11 @@ loc_251C:
 	move.b	(tech_tp_consumption).w, d1
 	sub.w	d1, 6(a3)						; subtract from character's current TP
 	move.w	6(a3), d2						; now get result from subtraction
-	sub.w	d1, d2							
-	bcc.s	loc_2540					; branch if we can still use the same technique in the next turn		
+	sub.w	d1, d2
+	bcc.s	loc_2540					; branch if we can still use the same technique in the next turn
 	move.w	$36(a0), d1						; otherwise switch back to attack icon (or defense if character has no weapon)
 	jsr	(loc_F4F8).l
-	
+
 loc_2540:
 	move.b	(a6)+, ($FFFFF642).w			; move sound value to RAM
 	move.b	(a6), d0
@@ -4084,11 +4084,11 @@ CommandUsed_Item:
 	adda.w	d2, a1
 	btst	#4, (a1)
 	beq.s	ItemUsed_NoEffect		; branch if item is not usable in battle (no effect)
-	
+
 	lea	(ItemUsedIndex-$38).l, a2
 	cmpi.w	#ItemID_Crescegear, d0
 	bcs.s	loc_25FA
-	
+
 	lea	(ItemUsedIndex-$5C).l, a2
 	cmpi.w	#ItemID_AmberRobe, d0
 	bcs.s	loc_25FA
@@ -4122,9 +4122,9 @@ loc_25FA:
 	jmp	(a2,d0.w)
 ; ---------------------------------------------------------------
 ItemUsedIndex:
-	bra.w	ItemUsed_NoEffect	
-	bra.w	ItemUsed_NoEffect	
-	bra.w	ItemUsed_NoEffect	
+	bra.w	ItemUsed_NoEffect
+	bra.w	ItemUsed_NoEffect
+	bra.w	ItemUsed_NoEffect
 	bra.w	ItemUsed_Monomate
 	bra.w	ItemUsed_Dimate
 	bra.w	ItemUsed_Trimate
@@ -4133,7 +4133,7 @@ ItemUsedIndex:
 	bra.w	ItemUsed_MoonDew
 	bra.w	ItemUsed_GiresGear
 	bra.w	ItemUsed_SnowCrown
-	bra.w	ItemUsed_WindScarf	
+	bra.w	ItemUsed_WindScarf
 	bra.w	ItemUsed_ColorScarf
 	bra.w	ItemUsed_StormGear
 ; ---------------------------------------------------------------
@@ -4171,8 +4171,8 @@ ItemUsed_SnowCrown:
 	bra.w	ProcessTechnique
 ; ---------------------------------------------------------------
 ItemUsed_WindScarf:
-	moveq	#TechID_Zan, d3	
-	bra.w	ProcessTechnique	
+	moveq	#TechID_Zan, d3
+	bra.w	ProcessTechnique
 ; ---------------------------------------------------------------
 ItemUsed_ColorScarf:
 	moveq	#TechID_Saner, d3
@@ -4202,7 +4202,7 @@ CommandUsed_Defense:
 	_bset	#0, 0(a3)
 	move.w	#0, ($FFFFCC06).w
 	bclr	#0, 3(a0)
-	rts	
+	rts
 ; ---------------------------------------------------------------
 BattleCharacter_Act:
 	lea	(CharBattle_AnimOffsets).l, a1
@@ -4221,12 +4221,12 @@ loc_26E0:
 BattleCharacter_Dead:
 	move.b	#$12, 2(a0)
 	rts
-	
+
 ; ===============================================================
 ; Unknown data
 	dc.b	$30, $15
 ; ===============================================================
-	
+
 DisplayCharacterWhileFighting:
 	lea	(character_stats).w, a1
 	move.w	d0, d1
@@ -4240,11 +4240,11 @@ DisplayCharacterWhileFighting:
 	bset	#7, 3(a2)		; display character sprite while fighting (generally when casting something, being attacked, etc...)
 loc_270A:
 	rts
-	
-	
+
+
 loc_270C:
 	bsr.s	loc_2736
-	
+
 loc_270E:
 	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
@@ -4260,8 +4260,8 @@ loc_270E:
 	cmp.w	$36(a2), d5
 	bne.s	loc_270E
 	rts
-	
-	
+
+
 loc_2736:
 	move.w	(enemy_data_buffer+$10).w, d0		; get number of enemies of first group
 	move.w	(a5), d5
@@ -4281,7 +4281,7 @@ loc_2736:
 	move.w	(enemy_data_buffer+$16).w, (enemy_index).w
 +
 	rts
-	
+
 CalculateHitRate:
 	moveq	#0, d0
 	move.w	$18(a3), d0		; get character's dexterity
@@ -4310,7 +4310,7 @@ loc_2790:
 	moveq	#-1, d0		; attack failed
 +
 	rts
-	
+
 loc_27AA:
 	tst.w	(enemy_data_buffer+$18).w	;  is escape rate 0 (boss battles)?
 	bne.s	+							; if not, branch
@@ -4326,15 +4326,15 @@ loc_27C0:
 loc_27C8:
 	_btst	#3, 0(a3)
 	beq.s	loc_2790
-	lsr.w	#1, d2	
+	lsr.w	#1, d2
 	bra.s	loc_2790
-	
+
 CalculateAttackDamage:
 	bsr.w	UpdateRNGSeed
 	andi.l	#$1F, d0	; random value from 0 to 31
 	addi.w	#$54, d0	; add 84 to it
 	add.w	$1A(a3), d0	; add the attack value for character
-	lsl.l	#8, d0		; multiply it by 256 
+	lsl.l	#8, d0		; multiply it by 256
 	move.w	$1E(a1), d1	; get enemy's defense
 	mulu.w	#5, d1		; multiply it by 5
 	addi.w	#$64, d1	; add 100 to it
@@ -4361,7 +4361,7 @@ CheckEnemyAlive:
 	add.l	d1, (enemy_data_buffer+$34).w	; add it to the total
 +
 	rts
-	
+
 CalculateTechniqueDamage:
 	bsr.w	UpdateRNGSeed
 	andi.l	#$1F, d0	; random value from 0 to 31
@@ -4369,8 +4369,8 @@ CalculateTechniqueDamage:
 	mulu.w	d6, d0		; multiply this by the technique attack rate
 	divu.w	#$64, d0	; divide the total by 100
 	bra.s	CheckEnemyAlive
-	
-	
+
+
 loc_284C:
 	bsr.w	UpdateRNGSeed
 	andi.l	#$F, d0
@@ -4378,7 +4378,7 @@ loc_284C:
 	mulu.w	d6, d0
 	divu.w	#$64, d0
 	bra.s	CheckEnemyAlive
-	
+
 loc_2862:
 	move.l	a1, -(sp)
 	move.l	a2, -(sp)
@@ -4394,24 +4394,24 @@ loc_287A:
 	adda.w	#$40, a1
 	adda.w	#$80, a2
 	dbf	d1, loc_2870
-	
+
 	moveq	#-1, d1
 loc_2888:
 	movea.l	(sp)+, a2
 	movea.l	(sp)+, a1
 	rts
-	
+
 loc_288E:
 	tst.w	d5
 	bne.s	loc_2898
 	add.w	d0, (enemy_data_buffer+$20).w
 	rts
-	
+
 loc_2898:
 	add.w	d0, (enemy_data_buffer+$22).w
 	rts
-	
-	
+
+
 ; ---------------------------------------------------------------
 Obj_BattleLongRangeAttack:
 	move.w	$22(a0), d0
@@ -4444,8 +4444,8 @@ loc_28E6:
 	lea	(loc_27364).l, a1
 	bsr.w	Battle_AnimateSprites
 	rts
-	
-; ---------------------------------------------------------------	
+
+; ---------------------------------------------------------------
 Obj_BattleCloseRangeAttack:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -4466,7 +4466,7 @@ loc_291E:
 	lea	(loc_27364).l, a1
 	bsr.w	Battle_AnimateSprites
 	rts
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 
 Obj_BattleTechnique:
 	move.w	$22(a0), d0
@@ -4488,7 +4488,7 @@ loc_2956:
 	lea	(loc_27226).l, a1
 	bsr.w	Battle_AnimateSprites
 	rts
-	
+
 ; ---------------------------------------------------------------
 ; Object - Return
 ; ---------------------------------------------------------------
@@ -4498,7 +4498,7 @@ Obj_Null2:
 
 ; ---------------------------------------------------------------
 ; Object - Enemies in battle
-; ---------------------------------------------------------------	
+; ---------------------------------------------------------------
 Obj_BattleEnemy:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -4567,7 +4567,7 @@ loc_2A06:
 	move.b	#$12, 2(a0)
 +
 	rts
-	
+
 loc_2A3A:
 	btst	#0, 3(a0)
 	bne.s	loc_2A58
@@ -4578,7 +4578,7 @@ loc_2A3A:
 loc_2A4E:
 	lea	(loc_2601A).l, a1
 	bra.w	Battle_AnimateSprites
-	
+
 loc_2A58:
 	move.b	#$80, ($FFFFF642).w
 	move.w	#0, (battle_command_used).w
@@ -4589,7 +4589,7 @@ loc_2A58:
 	bclr	#0, 3(a0)
 loc_2A7A:
 	rts
-	
+
 loc_2A7C:
 	move.b	$25(a3), d6
 	beq.s	loc_2A98
@@ -4645,7 +4645,7 @@ loc_2B0C:
 	bset	#5, 3(a2)
 loc_2B1E:
 	rts
-	
+
 Enemy_PickCharToAttack:
 	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
@@ -4670,7 +4670,7 @@ Enemy_PickCharToAttack:
 	lsl.w	#7, d0
 	adda.w	d0, a2
 	move.w	$A(a0), $A(a2)			; make character's x position the same as that of the enemy's
-	bset	#7, 3(a2)				
+	bset	#7, 3(a2)
 	bclr	#6, 3(a2)
 	move.w	#0, $1A(a0)
 	move.w	d1, (character_index).w
@@ -4704,7 +4704,7 @@ loc_2B94:
 	moveq	#0, d5
 	tst.w	$36(a0)
 	beq.s	loc_2BA4
-	move.w	(enemy_data_buffer+2).w, d5	
+	move.w	(enemy_data_buffer+2).w, d5
 loc_2BA4:
 	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0
@@ -4725,8 +4725,8 @@ loc_2BA4:
 	bclr	#6, 3(a2)
 	move.w	#0, $1A(a0)
 	rts
-	
-	
+
+
 Enemy_CalculateAttackDamage:
 	bsr.w	UpdateRNGSeed
 	andi.l	#$1F, d0
@@ -4749,7 +4749,7 @@ loc_2C14:
 	bset	#5, 3(a2)
 +
 	rts
-	
+
 loc_2C28:
 	lea	(EnemyTechSuccessRate).l, a4
 	move.w	$16(a1), d0
@@ -4778,7 +4778,7 @@ loc_2C28:
 	moveq	#-1, d0	; enemy's technique failed
 +
 	rts
-	
+
 ; ===========================================================
 ; The enemy data has a byte which represents the initial index for this
 ; table. This initial index is added to the character's position, thus
@@ -4829,7 +4829,7 @@ EnemyTechSuccessRate:
 	dc.b	$33		; $1E
 	dc.b	$19		; $1F
 ; ===========================================================
-	
+
 Enemy_ProcessTechnique:
 	move.b	$3F(a0), (sound_queue).w	; enemy sound when using techniques
 	ext.w	d6
@@ -4839,7 +4839,7 @@ Enemy_ProcessTechnique:
 	jmp	EnemyTechniqueTable-8(pc,d6.w)
 ; -----------------------------------------------------------
 EnemyTechniqueTable:
-	bra.w	loc_2D08	
+	bra.w	loc_2D08
 	bra.w	EnemyTechnique_Paralyze
 	bra.w	loc_2D7C
 	bra.w	loc_2DA4
@@ -4847,13 +4847,13 @@ EnemyTechniqueTable:
 	bra.w	loc_2E24
 	bra.w	loc_2E82
 	bra.w	loc_2F10
-	bra.w	loc_2F44	
-	bra.w	loc_2F5C	
+	bra.w	loc_2F44
+	bra.w	loc_2F5C
 	bra.w	loc_2F6C
-	bra.w	loc_3004	
+	bra.w	loc_3004
 	bra.w	loc_3014
 	bra.w	loc_302C
-	bra.w	loc_3060	
+	bra.w	loc_3060
 	bra.w	loc_307E
 	bra.w	loc_30A4
 	bra.w	loc_30CA
@@ -4885,7 +4885,7 @@ loc_2D1C:
 	bsr.w	Enemy_CalculateAttackDamage
 loc_2D32:
 	dbf	d4, loc_2D1C
-	
+
 	move.w	#3, $22(a0)
 	rts
 ; -----------------------------------------------------------
@@ -4901,7 +4901,7 @@ EnemyTechnique_Paralyze:
 +
 	move.w	#3, $22(a0)
 	rts
-	
+
 loc_2D64:
 	bsr.w	UpdateRNGSeed
 	moveq	#1, d1
@@ -4983,7 +4983,7 @@ loc_2E46:
 	move.w	(a5)+, d0
 	bsr.w	DisplayCharacterWhileFighting
 	dbf	d4, loc_2E46
-	
+
 	move.w	#$1219, (battle_script_id).w
 	move.b	#2, ($FFFFCC00).w
 	move.w	#2, (event_routine).w
@@ -5016,7 +5016,7 @@ loc_2E9C:
 	move.w	d1, d2
 loc_2EBE:
 	dbf	d4, loc_2E9C
-	
+
 	tst.w	d3
 	bmi.w	loc_2D08
 	lsr.w	#8, d5
@@ -5057,18 +5057,18 @@ loc_2F3C:
 	rts
 ; -----------------------------------------------------------
 loc_2F44:
-	bsr.w	loc_2B86	
-	bsr.w	loc_2C28	
-	bmi.s	loc_2F54	
-	move.w	4(a1), 2(a1)	
+	bsr.w	loc_2B86
+	bsr.w	loc_2C28
+	bmi.s	loc_2F54
+	move.w	4(a1), 2(a1)
 loc_2F54:
-	move.w	#3, $22(a0)	
-	rts	
+	move.w	#3, $22(a0)
+	rts
 ; -----------------------------------------------------------
 loc_2F5C:
-	bsr.w	Enemy_PickCharToAttack	
-	bsr.w	loc_2AA8	
-	move.w	#3, $22(a0)	
+	bsr.w	Enemy_PickCharToAttack
+	bsr.w	loc_2AA8
+	move.w	#3, $22(a0)
 	rts
 ; -----------------------------------------------------------
 loc_2F6C:
@@ -5108,7 +5108,7 @@ loc_2FA4:
 	move.l	(a0,d0.w), (a2,d0.w)
 	addq.w	#4, d0
 	dbf	d1, -
-	
+
 	move.l	d2, $A(a2)
 	move.b	#$80, 3(a2)
 	move.w	#4, $22(a2)
@@ -5118,7 +5118,7 @@ loc_2FA4:
 	move.l	(a3,d0.w), (a1,d0.w)
 	addq.w	#4, d0
 	dbf	d1, -
-	
+
 	moveq	#0, d0
 	rts
 loc_3000:
@@ -5126,9 +5126,9 @@ loc_3000:
 	rts
 ; -----------------------------------------------------------
 loc_3004:
-	bsr.w	Enemy_PickCharToAttack	
-	bsr.w	loc_2AA8	
-	move.w	#3, $22(a0)	
+	bsr.w	Enemy_PickCharToAttack
+	bsr.w	loc_2AA8
+	move.w	#3, $22(a0)
 	rts
 ; -----------------------------------------------------------
 loc_3014:
@@ -5147,33 +5147,33 @@ loc_302C:
 	move.w	#$1220, (battle_script_id).w
 	subi.w	#$14, $1A(a1)
 	bcc.s	loc_304A
-	move.w	#0, $1A(a1)	
+	move.w	#0, $1A(a1)
 loc_304A:
 	subi.w	#$14, $1C(a1)
 	bcc.s	loc_3058
-	move.w	#0, $1C(a1)	
+	move.w	#0, $1C(a1)
 loc_3058:
 	move.w	#3, $22(a0)
 	rts
 ; -----------------------------------------------------------
 loc_3060:
-	bsr.w	Enemy_PickCharToAttack	
-	bsr.w	loc_2C28	
-	bmi.s	loc_3076	
-	move.w	#0, $1E(a1)	
-	move.w	#$121E, (battle_script_id).w	
+	bsr.w	Enemy_PickCharToAttack
+	bsr.w	loc_2C28
+	bmi.s	loc_3076
+	move.w	#0, $1E(a1)
+	move.w	#$121E, (battle_script_id).w
 loc_3076:
-	move.w	#3, $22(a0)	
+	move.w	#3, $22(a0)
 	rts
 ; -----------------------------------------------------------
 loc_307E:
 	bsr.w	Enemy_PickCharToAttack
 	bsr.w	loc_2C28
 	bmi.s	loc_309C
-	move.w	#$121E, (battle_script_id).w	
-	subi.w	#$14, $1E(a1)	
-	bcc.s	loc_309C	
-	move.w	#0, $1E(a1)	
+	move.w	#$121E, (battle_script_id).w
+	subi.w	#$14, $1E(a1)
+	bcc.s	loc_309C
+	move.w	#0, $1E(a1)
 loc_309C:
 	move.w	#3, $22(a0)
 	rts
@@ -5185,7 +5185,7 @@ loc_30A4:
 	move.w	#$121F, (battle_script_id).w
 	subi.w	#$14, $1E(a1)
 	bcc.s	loc_30C2
-	move.w	#0, $1E(a1)	
+	move.w	#0, $1E(a1)
 loc_30C2:
 	move.w	#3, $22(a0)
 	rts
@@ -5224,25 +5224,25 @@ BattleEnemy_Dead:
 	beq.s	loc_3164
 	btst	#4, 3(a0)
 	beq.s	loc_3148
-	move.w	#0, (a0)	
-	move.w	#4, $22(a0)	
-	move.b	#0, 3(a0)	
-	subq.w	#1, ($FFFFCC06).w	
-	rts	
+	move.w	#0, (a0)
+	move.w	#4, $22(a0)
+	move.b	#0, 3(a0)
+	subq.w	#1, ($FFFFCC06).w
+	rts
 loc_3148:
 	move.b	#$10, 2(a0)
 	lea	(enemy_data_buffer+$10).w, a1
 	tst.w	$36(a0)
 	beq.s	loc_315C
-	lea	(enemy_data_buffer+$14).w, a1	
+	lea	(enemy_data_buffer+$14).w, a1
 loc_315C:
 	addq.w	#1, (a1)
 	move.w	#1, $22(a0)
 loc_3164:
 	rts
 ; ---------------------------------------------------------------
-	
-	
+
+
 Obj_EnemyAttack:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -5270,7 +5270,7 @@ loc_31B0:
 	rts
 ; ---------------------------------------------------------------
 
-	
+
 Obj_EnemySkill:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -5367,11 +5367,11 @@ loc_32AC:
 	bset	#1, 2(a0)
 	subq.w	#1, d0
 	bcs.s	loc_32C0			; return if there are no sprite mappings to run
-	bclr	#1, 2(a0)				
+	bclr	#1, 2(a0)
 	move.w	d0, $24(a0)				; run sprite mappings
 loc_32C0:
 	rts
-	
+
 loc_32C2:
 	cmpi.b	#$FF, d0
 	bne.s	loc_32EE			; branch if we're not done with the animation
@@ -5382,25 +5382,25 @@ loc_32C2:
 	bclr	#0, 3(a0)
 loc_32E0:
 	rts
-	
+
 loc_32E2:
 	tst.b	d1
 	bmi.s	loc_32E0
 	addq.w	#1, $1A(a0)
 	move.w	d1, d0
 	bra.s	loc_32AC
-	
+
 loc_32EE:
 	cmpi.b	#$FE, d0
 	bne.s	loc_3300
 	move.b	#1, 2(a0)
 	subq.w	#1, ($FFFFCC06).w
 	rts
-	
+
 loc_3300:
 	cmpi.b	#$FD, d0
 	bne.w	loc_338E
-	
+
 loc_3308:
 	lea	($FFFFE400).w, a2
 	move.w	$2C(a0), d0
@@ -5443,7 +5443,7 @@ loc_3386:
 	move.w	#0, (battle_script_id).w
 loc_338C:
 	rts
-	
+
 loc_338E:
 	cmpi.b	#$FC, d0
 	bne.s	loc_33BE
@@ -5461,7 +5461,7 @@ loc_338E:
 loc_33B8:
 	addq.w	#1, $2C(a0)
 	rts
-	
+
 loc_33BE:
 	cmpi.b	#$FB, d0
 	bne.s	loc_3428
@@ -5498,9 +5498,9 @@ loc_341A:
 	addq.w	#1, $2C(a0)
 	adda.w	#$80, a2
 	dbf	d2, loc_33E8
-	
+
 	rts
-	
+
 loc_3428:
 	cmpi.b	#$FA, d0
 	bne.s	loc_3462
@@ -5520,18 +5520,18 @@ loc_344E:
 	addq.w	#1, $2C(a0)
 	adda.w	#$80, a2
 	dbf	d2, loc_343C
-	
+
 	move.w	#8, $2C(a0)
 	rts
-	
+
 loc_3462:
 	cmpi.b	#$F9, d0
 	bne.w	loc_350A
 	move.w	$2C(a0), d0
 	cmpi.w	#8, d0
 	bcc.s	loc_347A
-	moveq	#0, d0	
-	move.w	d0, $2C(a0)	
+	moveq	#0, d0
+	move.w	d0, $2C(a0)
 loc_347A:
 	lea	($FFFFE400).w, a2
 	lsl.w	#7, d0
@@ -5574,9 +5574,9 @@ loc_34E0:
 	addq.w	#1, $2C(a0)
 	adda.w	#$80, a2
 	dbf	d2, loc_3484
-	
+
 	rts
-	
+
 ; =============================================
 loc_34EE:
 	dc.b	$41
@@ -5608,7 +5608,7 @@ loc_34EE:
 	dc.b	$38
 	dc.b	$38
 ; =============================================
-	
+
 loc_350A:
 	cmpi.b	#$F8, d0
 	bne.s	loc_3520
@@ -5617,9 +5617,9 @@ loc_3512:
 	bsr.w	loc_3308
 	addq.w	#1, $2C(a0)
 	dbf	d2, loc_3512
-	
+
 	rts
-	
+
 loc_3520:
 	cmpi.b	#$F7, d0
 	bne.s	loc_357C
@@ -5630,9 +5630,9 @@ loc_352C:
 	beq.s	loc_353A
 	adda.w	#$40, a3
 	dbf	d1, loc_352C
-	
-	rts	
-	
+
+	rts
+
 loc_353A:
 	addq.w	#1, $1A(a0)
 	moveq	#0, d0
@@ -5649,7 +5649,7 @@ loc_353A:
 	move.w	#1, $28(a3)
 	addq.w	#1, ($FFFFCC06).w
 	rts
-	
+
 loc_357C:
 	cmpi.b	#$F6, d0
 	bne.s	loc_35DE
@@ -5660,9 +5660,9 @@ loc_3588:
 	beq.s	loc_3596
 	adda.w	#$40, a3
 	dbf	d1, loc_3588
-	
-	rts	
-	
+
+	rts
+
 loc_3596:
 	move.w	#$13, (a3)
 	move.w	8(a0), 8(a3)
@@ -5680,7 +5680,7 @@ loc_3596:
 	move.w	#7, $28(a3)
 	addq.w	#1, ($FFFFCC06).w
 	rts
-	
+
 loc_35DE:
 	neg.b	d0
 	move.w	d0, $40(a0)
@@ -5698,7 +5698,7 @@ loc_360A:
 	addq.w	#1, ($FFFFCC06).w
 	move.b	($FFFFF642).w, (sound_queue).w
 	rts
-	
+
 loc_3622:
 	lea	($FFFFEC00).w, a3
 	moveq	#$F, d1
@@ -5707,9 +5707,9 @@ loc_3628:
 	beq.s	loc_3636
 	adda.w	#$40, a3
 	dbf	d1, loc_3628
-	
+
 	rts
-	
+
 loc_3636:
 	move.w	#$B, (a3)
 	move.w	$A(a2), d0
@@ -5750,11 +5750,11 @@ loc_36B0:
 	move.w	#1, $28(a3)
 	addq.w	#1, ($FFFFCC06).w
 	rts
-	
+
 ; --------------------------------------------------------------
 ; Object - Character Sprites in the map
 ; --------------------------------------------------------------
-	
+
 Obj_MapCharacter:
 	tst.w	(map_index).w
 	bne.s	loc_36D8
@@ -5765,11 +5765,11 @@ loc_36D8:
 	asl.b	#2, d0
 	jsr	MapCharacterRoutines(pc,d0.w)
 	rts
-	
+
 loc_36E4:
 	move.b	#2, 2(a0)
 	rts
-	
+
 ; --------------------------------------------------------------
 MapCharacterRoutines:
 	bra.w	MapCharacter_Init
@@ -5801,9 +5801,9 @@ loc_3746:
 	move.w	x_pos(a0), (a2)+
 	move.w	y_pos(a0), (a2)+
 	dbf	d0, loc_3746
-	
+
 	rts
-	
+
 ; --------------------------------------------------------------
 
 MapCharacter_Main:
@@ -5819,7 +5819,7 @@ MapCharacter_Main:
 	beq.s	loc_3786
 	subq.w	#1, step_duration(a0)
 	bpl.w	loc_390E
-	
+
 loc_3786:
 	tst.b	(event_flags).w
 	bne.w	loc_39D0
@@ -5827,10 +5827,10 @@ loc_3786:
 	bne.w	loc_39D0
 	tst.w	(current_active_objects_num).w
 	bne.w	loc_39D0
-	
+
 	move.w	(demo_flag).w, d0
 	beq.w	loc_382A
-	
+
 	lea	(DemoScriptPtrs).l, a1
 	move.w	(demo_index).w, d0
 	lsl.w	#2, d0
@@ -5851,7 +5851,7 @@ loc_3786:
 	move.w	d0, (map_x_pos).w
 	move.w	#0, (joypad_held).w
 	rts
-	
+
 loc_37EC:
 	cmpi.b	#$FE, d0
 	bne.s	loc_37FE
@@ -5867,13 +5867,13 @@ loc_37FE:
 	rts
 loc_3818:
 	rts
-	
+
 loc_381A:
 	lsl.w	#8, d0
 	move.w	d0, (joypad_held).w
 	andi.w	#$F00, (joypad_held).w
 	addq.w	#1, (demo_input_index).w
-	
+
 loc_382A:
 	move.w	d0, ($FFFFF756).w
 	bsr.w	loc_6F56
@@ -5882,7 +5882,7 @@ loc_382A:
 	lea	(joypad_held).w, a3
 	move.w	y_pos(a0), d3
 	move.w	y_moving_flag(a0), d1
-	
+
 ; MapChar_CheckMoveUp
 	btst	#ButtonUp, (a3)
 	beq.s	MapChar_ChkMoveDown
@@ -5894,7 +5894,7 @@ loc_382A:
 	bne.s	MapChar_ChkMoveDown
 	move.w	#-1, y_moving_flag(a0)
 	bra.w	loc_38FC
-	
+
 
 MapChar_ChkMoveDown:
 	btst	#ButtonDown, (a3)
@@ -5907,7 +5907,7 @@ MapChar_ChkMoveDown:
 	bne.s	MapChar_ChkMoveLeft
 	move.w	#1, y_moving_flag(a0)
 	bra.s	loc_38FC
-	
+
 
 MapChar_ChkMoveLeft:
 	btst	#ButtonLeft, (a3)
@@ -5927,7 +5927,7 @@ MapChar_ChkMoveLeft:
 loc_38C6:
 	move.w	#-1, x_moving_flag(a0)
 	bra.w	loc_38FC
-	
+
 MapChar_ChkMoveRight:
 	btst	#ButtonRight, (a3)
 	beq.s	loc_38F4
@@ -5942,12 +5942,12 @@ MapChar_ChkMoveRight:
 loc_38F4:
 	move.w	facing_dir(a0), frame_index(a0)
 	rts
-	
+
 loc_38FC:
 	move.w	#$F, step_duration(a0)		; update character's position for 15 frames
 	move.w	#1, ($FFFFCB0A).w
 	move.w	#1, $30(a0)
-	
+
 loc_390E:
 	lea	($FFFFDD00).w, a2
 	adda.w	($FFFFF740).w, a2
@@ -5961,7 +5961,7 @@ loc_390E:
 	move.w	anim_index(a0), d0
 	addq.w	#1, anim_index(a0)
 	andi.w	#3, anim_index(a0)
-	
+
 	lea	(Map_SpriteMappingsArray).l, a1
 	adda.w	d0, a1
 	move.b	(a1), d0
@@ -6002,13 +6002,13 @@ loc_39B4:
 loc_39CA:
 	bsr.w	loc_8BBA
 	rts
-	
+
 loc_39D0:
 	move.w	facing_dir(a0), frame_index(a0)
 	move.w	#0, x_moving_flag(a0)
 	move.w	#0, y_moving_flag(a0)
 	rts
-	
+
 ; =======================================
 ; Sprite mappings index in the map
 Map_SpriteMappingsArray:
@@ -6034,7 +6034,7 @@ DemoScriptPtrs:
 	dc.l	loc_3AC4
 	dc.l	loc_3AD8
 ; =======================================
-	
+
 ; ---------------------------------------
 Demo_HouseToTower:
 	dc.b	$00
@@ -6059,7 +6059,7 @@ Demo_HouseToTower:
 	dc.b	$FF
 ; --------------------------------------
 
-	
+
 Demo_TowerToHouse:
 	dc.b	$00
 	dc.b	$02
@@ -6083,8 +6083,8 @@ Demo_TowerToHouse:
 	dc.b	$FF
 ; --------------------------------------
 
-	
-Demo_TeimScene:	
+
+Demo_TeimScene:
 	dc.b	$00
 	dc.b	$04
 	dc.b	$44
@@ -6097,7 +6097,7 @@ Demo_TeimScene:
 	dc.b	$FE
 ; --------------------------------------
 
-	
+
 Demo_AfterTeimDeath:
 	dc.b	$00
 	dc.b	$00
@@ -6111,7 +6111,7 @@ Demo_AfterTeimDeath:
 	dc.b	$FE
 ; --------------------------------------
 
-	
+
 Demo_DynamiteUsed:
 	dc.b	$00
 	dc.b	$00
@@ -6137,7 +6137,7 @@ Demo_KeyUsed:
 	dc.b	$FD
 ; --------------------------------------
 
-	
+
 Demo_ClimatrolToCloneLab:
 	dc.b	$00
 	dc.b	$00
@@ -6157,7 +6157,7 @@ Demo_ClimatrolToCloneLab:
 	dc.b	$FF
 ; --------------------------------------
 
-	
+
 Demo_CloneLabToTower:
 	dc.b	$00
 	dc.b	$00
@@ -6271,7 +6271,7 @@ loc_3AC4:
 	dc.b	$FE
 ; --------------------------------------
 
-	
+
 loc_3AD8:
 	dc.b	$00
 	dc.b	$11
@@ -6297,11 +6297,11 @@ loc_3AD8:
 	dc.b	$FE
 ; --------------------------------------
 
-	
-	
+
+
 ; --------------------------------------------------------------
 ; Object - Characters following the leading character
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 Obj_FollowingCharacter:
 	tst.w	(map_index).w
 	bne.s	loc_3AFA
@@ -6374,14 +6374,14 @@ loc_3B7C:
 	move.w	d0, $24(a0)
 loc_3BB0:
 	rts
-	
+
 loc_3BB2:
 	move.w	$2A(a0), $24(a0)
 ; --------------------------------------------------------------
 FollowingCharacter_Return:
 	rts
-; --------------------------------------------------------------	
-	
+; --------------------------------------------------------------
+
 Obj_MotaYoungMan:
 	tst.b	3(a0)
 	bne.s	loc_3BCA
@@ -6390,12 +6390,12 @@ Obj_MotaYoungMan:
 	jsr	MotaYoungManRoutines(pc,d0.w)
 loc_3BCA:
 	rts
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 MotaYoungManRoutines:
 	bra.w	loc_3BD8
 	bra.w	loc_3C06
 	bra.w	loc_3D30
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 loc_3BD8:
 	move.w	#$2431, 8(a0)
 	move.l	#Map_MotaYoungMan, 4(a0)
@@ -6405,7 +6405,7 @@ loc_3BD8:
 	move.b	#0, $35(a0)
 	move.w	#1, $22(a0)
 	rts
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 loc_3C06:
 	subq.w	#1, $28(a0)
 	bpl.w	loc_3D2E
@@ -6489,7 +6489,7 @@ loc_3D20:
 	move.w	$2A(a0), $24(a0)
 	move.w	#2, $22(a0)
 	rts
-	
+
 loc_3D2E:
 	rts
 ; --------------------------------------------------------------
@@ -6501,7 +6501,7 @@ loc_3D30:
 	move.w	$2A(a0), $24(a0)
 	move.w	#1, $22(a0)
 	rts
-	
+
 loc_3D50:
 	subq.w	#1, $26(a0)
 	bpl.s	loc_3D7C
@@ -6516,8 +6516,8 @@ loc_3D50:
 	move.w	#4, $26(a0)
 loc_3D7C:
 	rts
-; --------------------------------------------------------------	
-	
+; --------------------------------------------------------------
+
 Obj_MotaYoungWoman:
 	tst.b	3(a0)
 	bne.s	loc_3D8E
@@ -6625,7 +6625,7 @@ loc_3EE4:
 	move.w	$2A(a0), $24(a0)
 	move.w	#2, $22(a0)
 	rts
-	
+
 loc_3EF2:
 	rts
 ; --------------------------------------------------------------
@@ -6651,8 +6651,8 @@ loc_3F14:
 	move.w	#4, $26(a0)
 loc_3F40:
 	rts
-; --------------------------------------------------------------	
-	
+; --------------------------------------------------------------
+
 Obj_MotaOldMan:
 	tst.b	3(a0)
 	bne.s	loc_3F52
@@ -6676,8 +6676,8 @@ loc_3F60:
 	move.b	#0, $34(a0)
 	move.w	#1, $22(a0)
 	rts
-; --------------------------------------------------------------	
-	
+; --------------------------------------------------------------
+
 Obj_MotaChild:
 	tst.b	3(a0)
 	bne.s	loc_3F9E
@@ -6867,7 +6867,7 @@ loc_4224:
 	rts
 loc_4232:
 	rts
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 loc_4234:
 	subq.w	#1, $28(a0)
 	bpl.s	loc_425A
@@ -6924,7 +6924,7 @@ loc_42A6:
 loc_42E8:
 	cmpi.b	#2, $FFFFC716.w
 	bne.s	loc_42F6
-	move.b	#1, 2(a0)	
+	move.b	#1, 2(a0)
 loc_42F6:
 	rts
 ; --------------------------------------------------------------
@@ -7087,7 +7087,7 @@ loc_451C:
 	move.w	#3, $26(a0)
 loc_4548:
 	rts
-	
+
 ; ===============================
 Map_SpriteMappingsArray2:
 	dc.b	$00
@@ -7284,7 +7284,7 @@ Map_SpriteMappingsArray3:
 	dc.b	$00
 ; ==================================
 
-	
+
 ; --------------------------------------------------------------
 ; Object - 2nd young man in Motavia towns
 ; --------------------------------------------------------------
@@ -7436,7 +7436,7 @@ loc_4978:
 	lea	(joypad_held).w, a3
 	move.w	$E(a0), d3
 	move.w	$18(a0), d1
-	
+
 ; JetScooter_ChkMoveUp
 	btst	#ButtonUp, (a3)
 	beq.s	JetScooter_ChkMoveDown		; branch if we are not moving up
@@ -7451,7 +7451,7 @@ loc_4978:
 	bne.s	JetScooter_ChkMoveDown
 	move.w	#-2, $18(a0)
 	bra.w	loc_4A6E
-	
+
 JetScooter_ChkMoveDown:
 	btst	#ButtonDown, (a3)
 	beq.s	JetScooter_ChkMoveLeft		; branch if we are not moving down
@@ -7466,7 +7466,7 @@ JetScooter_ChkMoveDown:
 	bne.s	JetScooter_ChkMoveLeft
 	move.w	#2, $18(a0)
 	bra.s	loc_4A6E
-	
+
 JetScooter_ChkMoveLeft:
 	btst	#ButtonLeft, (a3)
 	beq.s	JetScooter_ChkMoveRight		; branch if we are not moving left
@@ -7481,7 +7481,7 @@ JetScooter_ChkMoveLeft:
 	bne.s	JetScooter_ChkMoveRight
 	move.w	#-2, $14(a0)
 	bra.w	loc_4A6E
-	
+
 JetScooter_ChkMoveRight:
 	btst	#ButtonRight, (a3)
 	beq.s	loc_4A64		; branch if we are not moving right
@@ -7499,7 +7499,7 @@ JetScooter_ChkMoveRight:
 loc_4A64:
 	move.w	$2A(a0), $24(a0)
 	bra.w	loc_4AE2
-	
+
 loc_4A6E:
 	move.w	#7, $28(a0)
 	move.w	#1, ($FFFFCB0A).w
@@ -7531,12 +7531,12 @@ loc_4AC8:
 	move.w	#2, ($FFFFF726).w
 loc_4ADE:
 	bsr.w	loc_8BBA
-	
+
 loc_4AE2:
 	move.w	($FFFFE80E).w, (characters_ram+y_pos).w	; update characters' Y position to be the same as that of the Jet Scooter
 	move.w	($FFFFE80A).w, (characters_ram+x_pos).w	; update characters' X position to be the same as that of the Jet Scooter
 	move.w	($FFFFE82A).w, ($FFFFE42A).w	; same facing direction
-	
+
 loc_4AF4:
 	move.w	$32(a0), d0
 	subq.w	#1, $26(a0)
@@ -7548,7 +7548,7 @@ loc_4B0A:
 	add.w	$2A(a0), d0
 	move.w	d0, $24(a0)
 	rts
-	
+
 loc_4B18:
 	bsr.s	loc_4AF4
 	move.w	#0, $14(a0)
@@ -7648,7 +7648,7 @@ loc_4C2E:
 loc_4C36:
 	rts
 ; --------------------------------------------------------------
-	
+
 Obj_CryogenicChamberPart3:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -7805,11 +7805,11 @@ loc_4DEE:
 	rts
 ; --------------------------------------------------------------
 
-	
+
 ; --------------------------------------------------------------------------
 ; Object - Darum
 ; --------------------------------------------------------------------------
-	
+
 Obj_Darum:
 	tst.b	3(a0)
 	bne.s	loc_4E14
@@ -7825,7 +7825,7 @@ DarumRoutines:
 	bra.w	loc_4EAC
 	bra.w	loc_4ECC
 	bra.w	loc_4EFA
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 loc_4E2A:
 	move.w	#$248A, 8(a0)
 	move.l	#Map_Darum, 4(a0)
@@ -7835,10 +7835,10 @@ loc_4E2A:
 	move.w	#$27, $28(a0)
 	tst.b	$FFFFC715.w
 	beq.s	loc_4E5C
-	move.b	#1, 2(a0)	
+	move.b	#1, 2(a0)
 loc_4E5C:
 	rts
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 loc_4E5E:
 	subq.w	#1, $28(a0)
 	bpl.s	loc_4E78
@@ -7895,11 +7895,11 @@ loc_4EFA:
 loc_4F06:
 	rts
 ; --------------------------------------------------------------------------
-	
+
 ; --------------------------------------------------------------------------
 ; Object - Teim
 ; --------------------------------------------------------------------------
-	
+
 Obj_Teim:
 	tst.b	3(a0)
 	bne.s	loc_4F18
@@ -7908,7 +7908,7 @@ Obj_Teim:
 	jsr	TeimRoutines(pc,d0.w)
 loc_4F18:
 	rts
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 TeimRoutines:
 	bra.w	loc_4F36
 	bra.w	loc_4F6E
@@ -7917,7 +7917,7 @@ TeimRoutines:
 	bra.w	loc_4FF2
 	bra.w	loc_501C
 	bra.w	loc_501E
-; --------------------------------------------------------------	
+; --------------------------------------------------------------
 loc_4F36:
 	move.w	#$2444, 8(a0)
 	move.l	#Map_Teim, 4(a0)
@@ -7998,7 +7998,7 @@ loc_501E:
 	addq.w	#1, $FFFFDE70.w
 loc_504A:
 	rts
-	
+
 ; --------------------------------------------------------------------------
 
 Obj_DarumTeimExplosion:
@@ -8127,8 +8127,8 @@ loc_51A0:
 	dc.b	$03
 	dc.b	$03
 	dc.b	$00
-; ==============================================================	
-	
+; ==============================================================
+
 Obj_Explosion:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -8317,7 +8317,7 @@ loc_5422:
 	rts
 loc_544A:
 	rts
-	
+
 
 Obj_Neifirst:
 	tst.b	3(a0)
@@ -8327,7 +8327,7 @@ Obj_Neifirst:
 	jsr	NeifirstRoutines(pc,d0.w)
 loc_545C:
 	rts
-	
+
 
 NeifirstRoutines:
 	bra.w	ObjNeifirst_Init
@@ -8347,7 +8347,7 @@ ObjNeifirst_Init:
 	move.b	#1, 2(a0)
 ObjNeifirst_Main:
 	rts
-	
+
 
 Obj_Lutz:
 	tst.b	3(a0)
@@ -8379,14 +8379,14 @@ loc_54F8:
 	rts
 loc_54FA:
 	move.w	$22(a0), d0
-	asl.b	#2, d0	
+	asl.b	#2, d0
 	jsr	loc_5506(pc,d0.w)
 	rts
-	
+
 loc_5506:
 	bra.w	loc_550E
 	bra.w	loc_5530
-	
+
 loc_550E:
 	move.l	#loc_5D1A0, 4(a0)
 	move.w	#$2405, 8(a0)
@@ -8397,17 +8397,17 @@ loc_550E:
 
 loc_5530:
 	rts
-	
+
 loc_5532:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_553E(pc,d0.w)
 	rts
-	
+
 loc_553E:
 	bra.w	loc_5546
 	bra.w	loc_5568
-	
+
 loc_5546:
 	move.w	#0, $12(a0)
 	move.b	#0, 2(a0)
@@ -8415,20 +8415,20 @@ loc_5546:
 	move.l	#loc_5D182, 4(a0)
 	move.w	#1, $22(a0)
 	rts
-	
+
 loc_5568:
 	rts
-	
+
 loc_556A:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	loc_5576(pc,d0.w)
 	rts
-	
+
 loc_5576:
 	bra.w	loc_557E
 	bra.w	loc_55A0
-	
+
 loc_557E:
 	move.b	#0, 2(a0)
 	move.w	#$2400, 8(a0)
@@ -8436,7 +8436,7 @@ loc_557E:
 	move.w	#1, $24(a0)
 	move.w	#1, $22(a0)
 	rts
-	
+
 loc_55A0:
 	rts
 
@@ -8478,7 +8478,7 @@ loc_55F8:
 	rts
 loc_561A:
 	rts
-	
+
 
 Obj_DezoTreasureChest:
 	move.w	$22(a0), d0
@@ -8621,7 +8621,7 @@ loc_57D2:
 	beq.s	loc_57DE
 	adda.w	d0, a1
 	dbf	d1, loc_57D2
-	rts	
+	rts
 loc_57DE:
 	move.w	#$2B, (a1)
 	move.w	$A(a0), $A(a1)
@@ -8679,7 +8679,7 @@ loc_588A:
 	add.w	$2A(a0), d0
 	move.w	d0, $24(a0)
 	rts
-	
+
 ; ==============================================================
 loc_58AC:
 	dc.b	$00
@@ -8690,20 +8690,20 @@ loc_58AC:
 
 
 	rts
-	
+
 ; ----------------------------------------------------------------
-; Object - "Push Start Button" text	
+; Object - "Push Start Button" text
 ; ----------------------------------------------------------------
 Obj_PushStartButton:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
 	jsr	PushStartButtonRoutines(pc,d0.w)
 	rts
-	
+
 PushStartButtonRoutines:
 	bra.w	PushStartButton_Init
 	bra.w	PushStartButton_Main
-	
+
 PushStartButton_Init:
 	move.w	#$FD, $A(a0)
 	move.w	#$140, $E(a0)
@@ -8718,21 +8718,21 @@ PushStartButton_Init:
 	move.w	#1, $22(a0)		; otherwise move to main routine
 loc_5902:
 	rts
-	
+
 PushStartButton_Main:
 	move.b	#$10, 2(a0)
-	subq.w	#1, $26(a0)		
+	subq.w	#1, $26(a0)
 	bpl.s	loc_5918
 	move.w	#$28, $26(a0)	; reset timer value
 	rts
-	
+
 loc_5918:
 	cmpi.w	#$10, $26(a0)
 	bhi.s	loc_5926
 	move.b	#$12, 2(a0)
 loc_5926:
 	rts
-	
+
 ; ---------------------------------------------------------------------------
 ; Object - "© SEGA 1989" text
 ; ---------------------------------------------------------------------------
@@ -8741,11 +8741,11 @@ Obj_CopyrightText:
 	asl.b	#2, d0
 	jsr	CopyrightTextRoutines(pc,d0.w)
 	rts
-	
+
 CopyrightTextRoutines:
 	bra.w	CopyrightText_Init
 	bra.w	CopyrightText_Main
-	
+
 CopyrightText_Init:
 	move.w	#$160, $A(a0)
 	move.w	#$150, $E(a0)
@@ -8754,10 +8754,10 @@ CopyrightText_Init:
 	move.b	#$10, 2(a0)
 	move.w	#1, $22(a0)
 	rts
-	
+
 CopyrightText_Main:
 	rts
-	
+
 Obj_Spaceship:
 	move.w	$22(a0), d0
 	asl.b	#2, d0
@@ -8794,7 +8794,7 @@ loc_59A4:
 	move.b	#1, 2(a0)
 loc_59E2:
 	rts
-	
+
 ; ==============================================================
 loc_59E4:
 	dc.b	$B8, $98
@@ -8854,7 +8854,7 @@ loc_5A62:
 	move.w	#5, $26(a0)
 loc_5A8E:
 	rts
-	
+
 
 VBlank:
 	movem.l	d0-a6, -(sp)
@@ -8875,11 +8875,11 @@ VBlank:
 	move.l	d0, (vdp_data_port).l
 	btst	#6,($FFFFFFF8).w
 	beq.s	+		; branch if NTSC (bit 6 = 0)
-	
+
 	move.w	#$700, d0	; wait for a while (PAL megadrive)
 -
 	dbf	d0, -
-	
+
 +
 	move.b	(vblank_routine).w, d0	; get VBlank index
 	andi.w	#$3C, d0
@@ -8905,7 +8905,7 @@ VBlankIndexTable:
 	bra.w	VBlankSub_1C_24
 	bra.w	loc_5B58
 	bra.w	VBlankSub_1C_24
-	
+
 
 VBlankSub_04_08:
 	bsr.w	VBlankSub_1C_24
@@ -8914,11 +8914,11 @@ VBlankSub_04_08:
 	subq.w	#1,(demo_timer).w	; otherwise subtract 1 to timer
 +
 	rts
-	
+
 loc_5B52:
 	bsr.w	VBlankSub_1C_24
 	rts
-	
+
 loc_5B58:
 	bsr.w	ReadJoypads
 	rts
@@ -8945,12 +8945,12 @@ loc_5B96:
 	jsr	(loc_118F4).l
 	bsr.w	ProcessWindows
 	rts
-	
+
 VBlankSub_14:
 	bsr.w	VBlankSub_1C_24
 	bsr.w	ProcessWindows
 	rts
-	
+
 loc_5BB0:
 	bsr.w	VBlankSub_1C_24
 	lea	(vdp_control_port).l, a6
@@ -8977,11 +8977,11 @@ loc_5BB0:
 	bsr.w	ProcessWindows
 	bsr.w	loc_6018
 	rts
-	
+
 
 VBlankSub_1C_24:
 	bsr.w	ReadJoypads
-	
+
 	; DMA 68k to VDP
 	lea	(vdp_control_port).l, a6
 	move.w	#$9340, (a6)	; 64 words (for color palettes)
@@ -8992,19 +8992,19 @@ VBlankSub_1C_24:
 	move.w	#$C000, (a6) ; write to CRAM
 	move.w	#$80,($FFFFF644).w
 	move.w	($FFFFF644).w, (a6)
-	
+
 	; DMA 68k to VDP
 	lea	(vdp_control_port).l, a6
-	move.w	#$9340, (a6)    
+	move.w	#$9340, (a6)
 	move.w	#$9401, (a6)
 	move.w	#$9500, (a6)
-	move.w	#$96FC, (a6)	
+	move.w	#$96FC, (a6)
 	move.w	#$977F, (a6)	; $FFFFF800 = Sprite table buffer
 	move.w	#$7800, (a6)	; write to Sprite table address
 	move.w	#$82, ($FFFFF644).w
 	move.w	($FFFFF644).w, (a6)
 	rts
-	
+
 
 HBlank:
 	rte
@@ -9016,7 +9016,7 @@ JoypadInit:
 	move.b	d0, (hw_port_2_control).l	; port 2 control
 	move.b	d0, (hw_expansion_control).l	; expansion control
 	rts
-	
+
 
 ReadJoypads:
 	lea	(joypad_held).w, a0	; address where joypad states are written
@@ -9037,10 +9037,10 @@ JoypadRead:
 	move.b	(a1),d1			; read upper byte
 	andi.b	#$3F, d1			; get 00CBRLDU
 	or.b	d1, d0			; merge values from both registers
-	not.b	d0				
-	move.b	d0, d1			
+	not.b	d0
+	move.b	d0, d1
 	move.b	(a0),d2			; store previous joypad state
-	eor.b	d2, d0			
+	eor.b	d2, d0
 	move.b	d1, (a0)+		; held state in RAM
 	and.b	d1, d0
 	move.b	d0, (a0)+		; pressed state in RAM
@@ -9055,29 +9055,29 @@ VDPSetupGame:
 -
 	move.w	(a2)+, (a0)
 	dbf	d7, -	; set the VDP registers
-	
+
 	move.w	(VDPSetupArray+2).l, d0
 	move.w	d0, (vdp_reg1_values).w	; save VDP reg #1 values
 	moveq	#0, d0
-	
+
 	move.l	#$C0000000, (vdp_control_port).l	; write to CRAM
 	move.w	#$3F, d7
 -
 	move.w	d0, (a1)
 	dbf	d7, -
-	
+
 	move.l	#0, ($FFFFF61C).w	; screen y pos = 0
 	move.l	#0, ($FFFFF620).w	; screen x pos = 0
-	
+
 	lea	(vdp_control_port).l, a6
-	
+
 	; clear VRAM
 	move.w	#$8F01, (a6)	; auto increment = 1
-	move.w	#$93FF, (a6) ; DMA length (Low) 
+	move.w	#$93FF, (a6) ; DMA length (Low)
 	move.w	#$94FF, (a6) ; DMA length (High)
-	move.w	#$9780, (a6) 
-	move.w	#$4000, (a6)	
-	move.w	#$80, (a6)		
+	move.w	#$9780, (a6)
+	move.w	#$4000, (a6)
+	move.w	#$80, (a6)
 	move.w	#0, (vdp_data_port).l
 -
 	move.w	(a6), d7	; read VDP status register
@@ -9085,7 +9085,7 @@ VDPSetupGame:
 	bne.b	-	; loop until DMA is done
 	move.w	#$8F02, (a6)	; auto increment = 2
 	rts
-	
+
 ; ==============================================================
 VDPSetupArray:
 	dc.w	$8006	; H-INT disabled
@@ -9108,8 +9108,8 @@ VDPSetupArray:
 	dc.w	$9100	; Disable window
 	dc.w	$9200	; Disable window
 VDPSetupArrayEnd:
-; ==============================================================	
-	
+; ==============================================================
+
 ClearSpriteAndScroll:
 	lea	(vdp_control_port).l, a6
 	move.w	#$8F01, (a6)	; auto increment = 1
@@ -9119,24 +9119,24 @@ ClearSpriteAndScroll:
 	move.w	#$7800, (a6)	; write to Sprite table address
 	move.w	#$82, (a6)
 	move.w	#0, (vdp_data_port).l
-	
+
 -
 	move.w	(a6), d7
 	andi.w	#2, d7	; DMA busy
 	bne.s	-
-	
+
 	move.w	#$8F02, (a6)	; auto increment = 2
 	move.l	#0, ($FFFFF61C).w	; clear screen y position
 	move.l	#0, ($FFFFF620).w	; clear screen x position
 	lea	(sprite_table).w, a6		; load Sprite table buffer
-	
+
 	moveq	#0, d7
 	move.w	#$9F, d6
 loc_5DB0:
 	move.l	d7, (a6)+
 	dbf	d6, loc_5DB0
 	rts
-	
+
 
 LoadPCMDrums:
 	nop
@@ -9144,7 +9144,7 @@ LoadPCMDrums:
 	move.w	#$100, (z80_reset).l	; reset off
 	lea	(PCMDrums).l, a0
 	lea	($A00000).l, a1
-	
+
 	move.w	#(PCMDrumsEnd-PCMDrumsStart)-1, d0
 -
 	move.b	(a0)+, d1
@@ -9165,7 +9165,7 @@ LoadPCMDrums:
 	move.w	#$100, (z80_reset).l	; reset off
 	move.w	#0, (z80_bus_request).l	; bus request off
 	rts
-	
+
 
 UpdateSoundQueue:
 	cmp.b	($FFFFF640).w, d0
@@ -9174,8 +9174,8 @@ UpdateSoundQueue:
 	move.b	d0, ($FFFFF640).w
 +
 	rts
-	
-	
+
+
 CheckGamePause:
 	tst.w	(paused_flag).w
 	bne.s	+		; branch if the game is already paused
@@ -9184,10 +9184,10 @@ CheckGamePause:
 	move.b	#SFXID_Pause, (sound_queue).w	; otherwise play pause sound
 +
 	move.w	#1, (paused_flag).w		; set paused flag
-	
+
 GamePausedLoop:
 	move.b	#$20, (vblank_routine).w	; VBlank index
-	bsr.w	WaitForVBlank	
+	bsr.w	WaitForVBlank
 	btst	#Button_B, (joypad_held).w	; check if B is being held down
 	bne.s	+	; if it is, return to enable slow motion
 	btst	#Button_C, (joypad_pressed).w	; check if C is being pressed
@@ -9199,26 +9199,26 @@ GamePausedLoop:
 	move.b	#0, (paused_mode).w	; resume music
 +
 	rts
-	
+
 
 DrawArtTiles:
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
-	
+
 	move.l	#$800000, d7	; offset
 -
 	move.l	d0, (a2)	; write to control port to draw art
-	
+
 	move.w	d1, d4
 -
 	move.w	(a1)+, (a3)
 	dbf	d4, -
-	
+
 	add.l	d7, d0
 	dbf	d2, --
-	
+
 	rts
-	
+
 
 DecompressArt:
 	lea	($FFFFF7A0).w, a3
@@ -9240,7 +9240,7 @@ DecompressArt:
 	lsl.l	#8, d4
 	move.b	(a0)+, d4
 	or.l	d4, d0
-	
+
 	moveq	#$1F, d7
 -
 	lsl.l	#1, d4
@@ -9249,13 +9249,13 @@ DecompressArt:
 +
 	addq.w	#1, a2
 	dbf	d7, -
-	
+
 	dbf	d2, --
-	
+
 	moveq	#-1, d1
 	eor.l	d0, d1
 	beq.w	loc_5EE6
-	
+
 loc_5ED6:
 	moveq	#$1F, d7
 -
@@ -9265,7 +9265,7 @@ loc_5ED6:
 +
 	addq.w	#1, a3
 	dbf	d7, -
-	
+
 loc_5EE6:
 	lea	($FFFFF7A0).w, a6
 	lea	(vdp_data_port).l, a5
@@ -9276,7 +9276,7 @@ loc_5EE6:
 
 DecompressArtEnd:
 	rts
-	
+
 
 DecompressArt2:
 	lea	($FFFFF7A0).w, a3
@@ -9286,7 +9286,7 @@ DecompressArt2:
 	beq.w	loc_5F4C
 	bmi.w	DecompressArt2End
 	subq.w	#1, d2
-	
+
 -
 	lea	($FFFFF7A0).w, a2
 	movea.l	a2, a3
@@ -9299,7 +9299,7 @@ DecompressArt2:
 	lsl.l	#8, d4
 	move.b	(a0)+, d4
 	or.l	d4, d0
-	
+
 	moveq	#$1F, d7
 -
 	lsl.l	#1, d4
@@ -9308,13 +9308,13 @@ DecompressArt2:
 +
 	addq.l	#1, a2
 	dbf	d7, -
-	
+
 	dbf	d2, --
-	
+
 	moveq	#-1, d1
 	eor.l	d0, d1
 	beq.w	loc_5F5C
-	
+
 loc_5F4C:
 	moveq	#$1F, d7
 -
@@ -9324,7 +9324,7 @@ loc_5F4C:
 +
 	addq.l	#1, a3
 	dbf	d7, -
-	
+
 loc_5F5C:
 	lea	($FFFFF7A0).w, a6
 	rept 8
@@ -9334,7 +9334,7 @@ loc_5F5C:
 
 DecompressArt2End:
 	rts
-	
+
 loc_5F74:
 	tst.l	$FFFFF7C0.w
 	beq.w	loc_600E
@@ -9430,8 +9430,8 @@ loc_606E:
 	bsr.w	loc_6D82
 loc_6088:
 	rts
-	
-	
+
+
 loc_608A:
 	lea	(WeaponTechArtPtrs).l, a1
 	add.w	d0, d0
@@ -9445,22 +9445,22 @@ loc_608A:
 	move.w	(a2)+, d0
 	move.l	d0, (a1)+
 	dbf	d1, -
-	
+
 	rts
-	
-	
+
+
 ; Nemesis decompression to VRAM
 NemDec:
 	movem.l	d0-a1/a3-a5, -(sp)
 	lea	(NemDec_WriteAndStay).l, a3	; write all data to the same location
 	lea	(vdp_data_port).l, a4			; which is the data port
 	bra.s	NemDec_Main
-	
+
 ; Nemesis decompression to RAM	-- doesn't seem to be used
 	movem.l	d0-a1/a3-a5, -(sp)
 	lea	(NemDec_WriteAndAdvance).l, a3 ; advance to the next location after each write
 
-	
+
 NemDec_Main:
 	lea	(decom_buffer).w, a1
 	move.w	(a0)+, d2
@@ -9481,7 +9481,7 @@ NemDec_Main:
 	bsr.s	NemDec_Run
 	movem.l	(sp)+, d0-a1/a3-a5
 	rts
-	
+
 NemDec_Run:
 	move.w	d6, d7
 	subq.w	#8, d7
@@ -9512,18 +9512,18 @@ loc_612E:
 	subq.w	#1, d3
 	bne.s	NemDec_WriteIter_Part2
 	jmp	(a3)
-	
+
 
 NemDec_WriteIter:
 	moveq	#0, d4
 	moveq	#8, d3
-	
+
 
 NemDec_WriteIter_Part2:
 	dbf	d0, loc_612E
-	
+
 	bra.s	NemDec_Run
-	
+
 
 loc_6142:
 	subq.w	#6, d6
@@ -9545,7 +9545,7 @@ loc_6142:
 	asl.w	#8, d5
 	move.b	(a0)+, d5
 	bra.s	loc_612C
-	
+
 ; -------------------------------
 NemDec_WriteAndStay:
 	move.l	d4, (a4)
@@ -9553,7 +9553,7 @@ NemDec_WriteAndStay:
 	move.w	a5, d4
 	bne.s	NemDec_WriteIter
 	rts
-	
+
 NemDec_WriteAndStay_XOR:
 	eor.l	d4, d2
 	move.l	d2, (a4)
@@ -9568,16 +9568,16 @@ NemDec_WriteAndAdvance:
 	move.w	a5, d4
 	bne.s	NemDec_WriteIter
 	rts
-	
+
     if *-NemDec_WriteAndAdvance > NemDec_WriteAndStay_XOR-NemDec_WriteAndStay
 		fatal "the code in NemDec_WriteAndAdvance must not be larger than the code in NemDec_WriteAndStay"
     endif
-    
+
     ; this makes sure that the difference between NemDec_WriteAndAdvance and NemDec_WriteAndAdvance_XOR
     ; is the same as NemDec_WriteAndStay_XOR and NemDec_WriteAndStay (because they share the same code when we
     ; load the addresses at the start of the Nemesis Decompression routine
     org NemDec_WriteAndAdvance+NemDec_WriteAndStay_XOR-NemDec_WriteAndStay
-	
+
 NemDec_WriteAndAdvance_XOR:
 	eor.l	d4, d2
 	move.l	d2, (a4)+
@@ -9586,14 +9586,14 @@ NemDec_WriteAndAdvance_XOR:
 	bne.s	NemDec_WriteIter
 	rts
 ; -------------------------------
-	
+
 NemDec_Prepare:
 	move.b	(a0)+, d0
 -
 	cmpi.b	#$FF, d0
 	bne.s	+
 	rts
-	
+
 +
 	move.w	d0, d7
 
@@ -9627,7 +9627,7 @@ loc_61D4:
 	move.w	d7, (a1,d0.w)
 	addq.w	#2, d0
 	dbf	d5, -
-	
+
 	bra.s	loc_61A6
 
 
@@ -9638,21 +9638,21 @@ loc_61F4:
 	move.w	($FFFFF626).w, d0
 	adda.w	d0, a0
 	moveq	#0, d0
-	
+
 	move.w	($FFFFF628).w, d1
 -
 	move.w	d0, (a0)+
 	dbf	d1, -
-	
+
 	move.w	#$14, d4		; duration
 -
 	move.b	#$24, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	bsr.s	PaletteFadeIn
 	dbf	d4, -
-	
+
 	rts
-	
+
 
 PaletteFadeIn:
 	lea	(palette_table).w, a0	; load palette
@@ -9660,14 +9660,14 @@ PaletteFadeIn:
 	move.w	($FFFFF626).w, d0	; fade start
 	adda.w	d0, a0
 	adda.w	d0, a1
-	
+
 	move.w	($FFFFF628).w, d0	; fade length
 -
 	bsr.s	PaletteAddColor
 	dbf	d0, -
-	
+
 	rts
-	
+
 
 PaletteAddColor:
 	move.w	(a1)+, d2
@@ -9676,11 +9676,11 @@ PaletteAddColor:
 	beq.s	PaletteAddNone
 	move.w	d3, d1
 	addi.w	#$200, d1	; increase blue value
-	cmp.w	d2, d1		
+	cmp.w	d2, d1
 	bhi.s	PaletteAddGreen	; branch if blue reached threshold level
 	move.w	d1, (a0)+		; update palette
 	rts
-	
+
 
 PaletteAddGreen:
 	move.w	d3, d1
@@ -9689,17 +9689,17 @@ PaletteAddGreen:
 	bhi.s	PaletteAddRed	; branch if green reached threshold level
 	move.w	d1, (a0)+	; update palette
 	rts
-	
+
 
 PaletteAddRed:
 	addq.w	#2, (a0)+	; increase red value
 	rts
-	
+
 
 PaletteAddNone:
 	addq.w	#2, a0
 	rts
-	
+
 
 PaletteFadeFrom:
 	move.l	#$3F, ($FFFFF626).w
@@ -9710,19 +9710,19 @@ PaletteFadeFrom:
 	bsr.s	PaletteFadeOut
 	dbf	d4, -
 	rts
-	
+
 
 PaletteFadeOut:
 	lea	(palette_table).w, a0	; load palette
 	move.w	($FFFFF626).w, d0	; get fade start address
 	adda.w	d0, a0	; and add it to address
-	
+
 	move.w	($FFFFF628).w, d0	; get fade length
 -
 	bsr.s	PaletteDecreaseColor
 	dbf	d0, -
 	rts
-	
+
 
 PaletteDecreaseColor:
 	move.w	(a0), d2
@@ -9748,7 +9748,7 @@ PaletteDecreaseColor:
 PaletteDecreaseNone:
 	addq.w	#2, a0
 	rts
-	
+
 loc_62CC:
 	move.l	#$3F, $FFFFF626.w
 	lea	(palette_table).w, a0
@@ -9759,16 +9759,16 @@ loc_62CC:
 -
 	move.w	d0, (a0)+
 	dbf	d1, -
-	
+
 	move.w	#$14, d4
 loc_62F0:
 	move.b	#$24, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	bsr.s	loc_6302
 	dbf	d4, loc_62F0
-	
+
 	rts
-	
+
 loc_6302:
 	lea	(palette_table).w, a0
 	lea	$FFFFFB80.w, a1
@@ -9779,9 +9779,9 @@ loc_6302:
 loc_6316:
 	bsr.s	loc_631E
 	dbf	d0, loc_6316
-	
+
 	rts
-	
+
 loc_631E:
 	move.w	(a1)+, d2
 	move.w	(a0), d3
@@ -9853,7 +9853,7 @@ loc_63AC:
 loc_63BE:
 	addq.w	#2, a0
 	rts
-	
+
 
 PaletteCycle:
 	subq.w	#1,($FFFFF634).w
@@ -9891,10 +9891,10 @@ CyclingPal_SegaLogo:
 	dc.l	$0E400E20
 	dc.l	$0E000C00
 	dc.l	$0A000800
-	
+
 	dc.w	$0600
 ; ==============================
-	
+
 loc_6430:
 	move.w	($FFFFF710).w, d0
 	cmpi.w	#5, d0
@@ -10023,7 +10023,7 @@ loc_65D4:
 	rts
 loc_65D6:
 	rts
-	
+
 ; ===============================================================
 loc_65D8:
 	dc.l	$044E0006
@@ -10043,7 +10043,7 @@ loc_65D8:
 	dc.l	$066E0AAE
 	dc.l	$044E088E
 ; ===============================================================
-	
+
 ; ===============================================================
 loc_6618:
 	dc.w	$0640
@@ -10074,7 +10074,7 @@ loc_6638:
 	dc.w	$0ECA
 	dc.l	$0EC20ECA
 	dc.w	$0EC2
-	
+
 ; ===============================================================
 loc_6650:
 	dc.w	$0EEE, $0A88, $0422
@@ -10102,7 +10102,7 @@ loc_6668:
 	dc.b	$12
 ; ===============================================================
 
-	
+
 loc_6678:
 	dc.l	$08860664, $04420220, $0AAA0888, $06660444
 	dc.w	$0222
@@ -10192,7 +10192,7 @@ loc_6754:
 	move.l	4(a0,d0.w), (a1)
 loc_678E:
 	rts
-	
+
 ; ===============================================================
 loc_6790:
 	dc.w	$04EE
@@ -10329,8 +10329,8 @@ loc_692E:
 loc_6948:
 	rts
 loc_694A:
-	rts	
-	
+	rts
+
 ; ================================================================
 loc_694C:
 	dc.w	$0620
@@ -10442,7 +10442,7 @@ loc_6A8C:
 	dc.l	$06000820, $0C400E60, $0E800EA2
 ; ================================================================
 
-	
+
 loc_6AE0:
 	subq.w	#1, $FFFFF634.w
 	bpl.s	loc_6B0E
@@ -10460,8 +10460,8 @@ loc_6AFA:
 	move.l	(a0)+, (a2)+
 loc_6B0E:
 	rts
-	
-	
+
+
 ; ================================================================
 loc_6B10:
 	dc.l	$0EEC0CCA, $0AA80866
@@ -10478,33 +10478,33 @@ loc_6B10:
 
 PaletteLoad1:
 	lea	(PalettePtrs).l, a1
-	lsl.w	#3, d0		
-	adda.w	d0, a1		
+	lsl.w	#3, d0
+	adda.w	d0, a1
 	movea.l	(a1)+, a2
 	movea.w	(a1)+, a3	; load target address
-	adda.w	#$80, a3		
-	
+	adda.w	#$80, a3
+
 	move.w	(a1)+, d7	; loop counter to load all palettes
 -
 	move.l	(a2)+, (a3)+
 	dbf	d7, -
-	
+
 	rts
-	
+
 
 PaletteLoad2:
 	lea	(PalettePtrs).l, a1
 	lsl.w	#3, d0		; move to next palette index
 	adda.w	d0, a1		; add it to palette address
-	movea.l	(a1)+, a2	
+	movea.l	(a1)+, a2
 	movea.w	(a1)+, a3	; load target address
-	
+
 	move.w	(a1)+, d7	; store number from address to load all palettes
 -
 	move.l	(a2)+, (a3)+
 	dbf	d7,-
 	rts
-	
+
 
 WaitForVBlank:
 	move	#$2500, sr
@@ -10512,19 +10512,19 @@ WaitForVBlank:
 	tst.b	(vblank_routine).w
 	bne.s	-
 	rts
-	
-	
+
+
 ; ---------------------------------------------------------------------------
 ; Subroutine to generate a pseudo-random number
 ; d0 = (RNG & $FFFF0000) | ((RNG*41 & $FFFF) + ((RNG*41 & $FFFF0000) >> 16))
 ; RNG = ((RNG*41 + ((RNG*41 & $FFFF) << 16)) & $FFFF0000) | (RNG*41 & $FFFF)
-; ---------------------------------------------------------------------------	
-	
+; ---------------------------------------------------------------------------
+
 UpdateRNGSeed:
 	move.l	(rng_seed).w, d1
 	bne.s	+
 	move.l	#$2A6D365A, d1	; reset number if RNG is 0
-	
+
 	; set the high word of d0 to be the high word of the RNG
 	; and multiply the RNG by 41
 +
@@ -10533,7 +10533,7 @@ UpdateRNGSeed:
 	add.l	d0, d1
 	asl.l	#3, d1
 	add.l	d0, d1
-	
+
 	; add the low word of the RNG to the high word of the RNG
 	; and set the low word of d0 to be the result
 	move.w	d1, d0
@@ -10541,11 +10541,11 @@ UpdateRNGSeed:
 	add.w	d1, d0
 	move.w	d0, d1
 	swap	d1
-	
+
 	move.l	d1, (rng_seed).w
 	rts
-; ---------------------------------------------------------------------------	
-	
+; ---------------------------------------------------------------------------
+
 loc_6BBE:
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
@@ -10557,11 +10557,11 @@ loc_6BD4:
 	move.b	#$24, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	dbf	d4, loc_6BD4
-	
+
 	bsr.s	FadeArtTiles
 	addq.w	#1, a1
 	dbf	d5, loc_6BD2
-	
+
 	rts
 
 ; ---------------------------------------------------------------------------
@@ -10575,9 +10575,9 @@ loc_6BD4:
 
 FadeArtTiles:
 	lea	(ram_start&$FFFFFF).l, a0	; load address where tiles for fading are written
-	move.l	d0, d4	
+	move.l	d0, d4
 	swap	d4
-	
+
 	move.w	d7, d6
 -
 	move	#$2700,sr
@@ -10586,14 +10586,14 @@ FadeArtTiles:
 	addi.w	#$20, d4
 	adda.w	#$20, a0
 	dbf	d6, -
-	
+
 	rts
-	
+
 
 FadeArtFill:
 	moveq	#0, d1
 	move.l	#$F0F000, d2
-	move.b	(a1), d1		
+	move.b	(a1), d1
 	lsr.w	#1, d1
 	bcc.s	+
 	move.l	#$F0F00, d2
@@ -10620,7 +10620,7 @@ FadeArtFill:
 	or.w	d1, d2	; or value with what was in data port
 	move.w	d2, (a3)	; write new value
 	rts
-	
+
 loc_6C54:
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
@@ -10671,7 +10671,7 @@ loc_6CB8:
 	and.w	d2, d1
 	move.w	d1, (a3)
 	rts
-	
+
 ; =======================================================================
 ; Array of values that will be used in VRAM for fade effects
 FadeEffectArray:
@@ -10685,49 +10685,49 @@ FadeEffectArray:
 	dc.b	$0A, $2E, $0E, $2A, $18, $3C, $1C, $38
 ; =======================================================================
 
-	
+
 loc_6D18:
 	rept 16
 	move.l	d1, (a1)+
 	endm
-	
+
 loc_6D38:
 	rept 16
 	move.l	d1, (a1)+
 	endm
 	rts
-	
+
 loc_6D5A:
 	rept 8
 	move.l	(a0)+, (a1)+
 	endm
-	
+
 loc_6D6A:
 	rept 12
 	move.l	(a0)+, (a1)+
 	endm
-	
+
 loc_6D82:
 	rept 4
 	move.l	(a0)+, (a1)+
 	endm
-	
+
 loc_6D8A:
 	rept 4
 	move.l	(a0)+, (a1)+
 	endm
-	
+
 loc_6D92:
 	rept 4
 	move.l	(a0)+, (a1)+
 	endm
 	rts
-	
+
 Obj_Move:
 	bsr.s	loc_6DA4
 	beq.w	Map_ChkTargetInteract
 	rts
-	
+
 loc_6DA4:
 	movea.w	($FFFFF732).w, a1
 	bsr.s	loc_6DE8
@@ -10735,7 +10735,7 @@ loc_6DA4:
 	bne.s	loc_6DB2
 	moveq	#0, d2
 	rts
-	
+
 loc_6DB2:
 	cmpa.w	#$E800, a0
 	bcc.s	loc_6DCC
@@ -10750,7 +10750,7 @@ loc_6DC4:
 loc_6DCC:
 	moveq	#-1, d2
 	rts
-	
+
 JetScooter_ChkCanMove:
 	movea.w	($FFFFF732).w, a1
 	bsr.s	loc_6DE8
@@ -10758,21 +10758,21 @@ JetScooter_ChkCanMove:
 	bne.s	loc_6DDE
 	moveq	#0, d2
 	rts
-	
+
 loc_6DDE:
 	addq.w	#4, d1
 	btst	d1, (a1)
 	bne.s	loc_6E4E
 	moveq	#-1, d2
 	rts
-	
-	
+
+
 loc_6DE8:
 	add.w	$E(a0), d4		; add y position
 	bpl.s	loc_6DF4
-	add.w	$FFFFF720.w, d4	
-	bra.s	loc_6DFE	
-	
+	add.w	$FFFFF720.w, d4
+	bra.s	loc_6DFE
+
 loc_6DF4:
 	cmp.w	$FFFFF720.w, d4
 	bcs.s	loc_6DFE
@@ -10850,7 +10850,7 @@ loc_6E7E:
 loc_6EA2:
 	moveq	#-1, d4
 	rts
-	
+
 loc_6EA6:
 	moveq	#0, d0
 	move.b	(a1)+, d0
@@ -10866,7 +10866,7 @@ loc_6EA6:
 	move.w	#$303, $FFFFDE6E.w
 	moveq	#-1, d4
 	rts
-	
+
 loc_6ED6:
 	cmpi.b	#$3E, (a1)
 	bne.s	loc_6EE6
@@ -10874,7 +10874,7 @@ loc_6ED6:
 	bne.s	loc_6F1C
 	moveq	#-1, d4
 	rts
-	
+
 loc_6EE6:
 	move.w	d0, (building_index).w
 	move.b	(a1)+, d0
@@ -10908,7 +10908,7 @@ loc_6F1C:
 loc_6F4E:
 	move.b	#SFXID_MapChanged, (sound_queue).w
 	bra.s	loc_6FA6
-	
+
 loc_6F56:
 	moveq	#0, d4
 	moveq	#0, d5
@@ -10922,7 +10922,7 @@ loc_6F6A:
 	btst	d1, (a1)
 	bne.s	loc_6F76
 	rts
-	
+
 loc_6F76:
 	move.w	(map_index).w, d0
 	move.w	($FFFFF710).w, d1
@@ -10979,8 +10979,8 @@ loc_7008:
 	move.w	#$2C0, (map_x_pos).w
 	cmpi.w	#$100, (characters_ram+y_pos).w
 	bcc.s	loc_7032
-	move.w	#$A0, (map_y_pos).w	
-	move.w	#$340, (map_x_pos).w	
+	move.w	#$A0, (map_y_pos).w
+	move.w	#$340, (map_x_pos).w
 loc_7032:
 	move.w	#-1, (screen_changed_flag).w
 	move.b	#SFXID_FellInHole, (sound_queue).w
@@ -11084,15 +11084,15 @@ loc_7162:
 	beq.s	loc_7184
 	subq.w	#1, (a2,d1.w)
 	bne.s	loc_7184
-	move.w	d2, (character_index).w	
-	move.w	#1, $FFFFDE70.w	
-	move.w	#$30, $FFFFDE6E.w	
+	move.w	d2, (character_index).w
+	move.w	#1, $FFFFDE70.w
+	move.w	#$30, $FFFFDE6E.w
 loc_7184:
 	dbf	d0, loc_7162
 loc_7188:
 	rts
 
-	
+
 ; =============================================================
 loc_718A:
 	dc.b	$FF, $00, $00
@@ -11121,8 +11121,8 @@ loc_718A:
 ; =============================================================
 
 	even
-	
-	
+
+
 Map_ChkTargetInteract:
 	move.l	d0, -(sp)
 	lea	(loc_7278).l, a2
@@ -11153,7 +11153,7 @@ loc_7210:
 loc_7216:
 	adda.w	#$40, a1
 	dbf	d6, loc_7210
-	
+
 	move.l	(sp)+, d0
 	moveq	#0, d4
 	rts
@@ -11162,7 +11162,7 @@ loc_7224:
 	beq.s	loc_7216
 	move.w	$2C(a1), d0
 	beq.s	loc_7216
-	
+
 	lea	(loc_7278).l, a2
 	add.w	d0, d0
 	add.w	d0, d0
@@ -11190,7 +11190,7 @@ loc_7224:
 	move.l	(sp)+, d0
 	moveq	#-2, d4
 	rts
-	
+
 ; ============================================================
 loc_7278:
 	dc.b	$F8, $0F, $E8, $0F
@@ -11209,7 +11209,7 @@ loc_7278:
 	dc.b	$F0, $1F, $F8, $0F
 ; ============================================================
 
-	
+
 ; ------------------------------------------------------------
 GameMode_Sega:
 	move.b	#$E0, d0
@@ -11220,7 +11220,7 @@ GameMode_Sega:
 	andi.b	#$BF, d0		; disable display
 	move.w	d0, (vdp_control_port).l
 	bsr.w	ClearSpriteAndScroll
-	
+
 	move.l	#$40000000, (vdp_control_port).l	; write to VRAM
 	lea	(SegaLogoArt).l, a0		; load SEGA logo art
 	bsr.w	DecompressArt
@@ -11229,7 +11229,7 @@ GameMode_Sega:
 	moveq	#$B, d1			; 12 cells wide
 	moveq	#3, d2			; 4 cells tall
 	bsr.w	DrawArtTiles
-	
+
 	moveq	#pal_id_sega, d0
 	bsr.w	PaletteLoad1
 	move.w	#$28,($FFFFF632).w		; set palette cycle timer
@@ -11246,11 +11246,11 @@ GameMode_Sega:
 	tst.w	(demo_timer).w	; check timer
 	beq.w	+	; if timer is 0 move to title screen
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w	; check start press
-	beq.s	-				
+	beq.s	-
 +
 	move.b	#GameModeID_Title, (game_mode_index).w	; move to Title screen
 	rts
-	
+
 ; ------------------------------------------------------------
 GameMode_Title:
 	bsr.w	PaletteFadeFrom
@@ -11259,7 +11259,7 @@ GameMode_Title:
 	andi.b	#$BF, d0		; disable display
 	move.w	d0, (vdp_control_port).l
 	bsr.w	ClearSpriteAndScroll
-	
+
 	; VRAM fill
 	; clear screen
 	lea	(vdp_control_port).l, a6
@@ -11270,12 +11270,12 @@ GameMode_Title:
 	move.w	#$4000, (a6)
 	move.w	#$80, (a6)
 	move.w	#0, (vdp_data_port).l
-	
+
 -
 	move.w	(a6), d7
 	andi.w	#2, d7
 	bne.s	-	; wait for DMA
-	
+
 	move.w	#$8F02, (a6)
 	move	#$2500, sr	; enable V Interrupt
 	move.l	#$40200000, (vdp_control_port).l
@@ -11287,7 +11287,7 @@ GameMode_Title:
 	move.l	#$60000002, (vdp_control_port).l
 	lea	(FontsIconsArt).l, a0
 	bsr.w	DecompressArt
-	
+
 	lea	(TitleScrBGTileInd).l, a1
 	move.l	#$60000003, d0
 	moveq	#$27, d1		; 40 cells wide
@@ -11295,10 +11295,10 @@ GameMode_Title:
 	bsr.w	DrawArtTiles
 	lea	(TitleScrPlaneATileInd).l, a1
 	move.l	#$40000003, d0
-	moveq	#$27, d1	
+	moveq	#$27, d1
 	moveq	#$1B, d2
 	bsr.w	DrawArtTiles
-	
+
 	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	move.b	#$81, d0		; Phantasy music
@@ -11310,14 +11310,14 @@ GameMode_Title:
 	move.w	#$8006, (vdp_control_port).l
 	move.w	#$8B00, (vdp_control_port).l
 	move.w	#$B4,(demo_timer).w		; set timer
-	
+
 	lea	(object_ram).w, a6
 	moveq	#0, d7
 	move.w	#$3FE, d6
 -
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	lea	(ram_start&$FFFFFF).l, a4
 	lea	(TitleScrWomenArt).l, a0
 	bsr.w	DecompressArt2
@@ -11326,7 +11326,7 @@ GameMode_Title:
 	move.w	d0, (vdp_control_port).l
 	move	#$2500,sr			; enable V Interrupt
 	bsr.w	PaletteFadeTo
-	
+
 -
 	move.b	#8, (vblank_routine).w
 	bsr.w	WaitForVBlank
@@ -11336,53 +11336,53 @@ GameMode_Title:
 	bsr.w	BuildSprites
 	tst.w	(demo_timer).w
 	bne.s	-
-	
+
 	move.w	#$6CC,(demo_timer).w
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
-	
+
 	lea	(FadeEffectArray).l, a1
 	moveq	#$3F, d5
 -
 	moveq	#3, d4
-	
+
 -
 	move.b	#8, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w
 	bne.w	MoveToGameMode_Intro
 	dbf	d4, -
-	
+
 	move.l	#$5C200000, d0
-	move.w	#$11E, d7	
+	move.w	#$11E, d7
 	bsr.w	FadeArtTiles
 	addq.w	#1, a1
 	dbf	d5, --
-	
+
 	lea	(ram_start&$FFFFFF).l, a4
 	lea	(TitScrPhantasyStarLogoArt).l, a0
 	bsr.w	DecompressArt2
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
-	
+
 	lea	(FadeEffectArray).l, a1
 	moveq	#$3F, d5
 -
 	moveq	#3, d4
-	
+
 -
 	move.b	#8, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	andi.b	#ButtonStart_Mask, (joypad_pressed).w
 	bne.s	MoveToGameMode_Intro
 	dbf	d4, -
-	
+
 	move.l	#$40000001, d0
 	move.w	#$FF, d7
 	bsr.w	FadeArtTiles
 	addq.w	#1, a1
 	dbf	d5, --
-	
+
 
 GameMode_TitleLoop:
 	move.w	#ObjID_PushStartButton5, (push_start_button_text).w		; part of object ram
@@ -11398,10 +11398,10 @@ GameMode_TitleLoop:
 
 MoveToGameMode_Intro:
 	move.w	#0, (controls_locked).w		; unlock controls
-	move.b	#GameModeID_Intro, (game_mode_index).w		
-	move.w	#BuildingID_RolfHouseStart, (building_index).w		
+	move.b	#GameModeID_Intro, (game_mode_index).w
+	move.w	#BuildingID_RolfHouseStart, (building_index).w
 	rts
-	
+
 
 MoveToOpeningScreen:
 	move.w	#1, (controls_locked).w
@@ -11413,7 +11413,7 @@ MoveToOpeningScreen:
 	move.w	#$3C, ($FFFFF780).w
 	move.b	#$82, ($FFFFF640).w	; keep playing same music
 	rts
-	
+
 ; ------------------------------------------------------------
 GameMode_Ending:
 	move.w	#$93, d0
@@ -11429,7 +11429,7 @@ GameMode_Ending:
 	lea	(FontsIconsArt).l, a0
 	bsr.w	DecompressArt2
 	bsr.w	DrawArtTiles2
-	
+
 	lea	(vdp_control_port).l, a6
 	move.w	#$9300, (a6)
 	move.w	#$940C, (a6)
@@ -11439,7 +11439,7 @@ GameMode_Ending:
 	move.w	#$6000, (a6)
 	move.w	#$82, $FFFFF644.w
 	move.w	$FFFFF644.w, (a6)
-	
+
 	move.l	#$40200000, (vdp_control_port).l
 	lea	(loc_AF82A).l, a0
 	bsr.w	DecompressArt
@@ -11460,7 +11460,7 @@ GameMode_Ending:
 loc_764C:
 	move.l	d7, (a6)+
 	dbf	d6, loc_764C
-	
+
 	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	lea	$FFFFFBE0.w, a0
@@ -11469,7 +11469,7 @@ loc_764C:
 loc_7660:
 	move.l	d0, (a0)+
 	dbf	d1, loc_7660
-	
+
 	move.w	d0, (character_index).w
 	move.w	#$168, (demo_timer).w
 	move.w	#1, (controls_locked).w
@@ -11553,7 +11553,7 @@ loc_77B2:
 	bsr.w	loc_7914
 	addq.w	#8, d3
 	dbf	d5, loc_77B2
-	
+
 	move.w	#$168, (demo_timer).w
 	bsr.w	loc_79D2
 	move.b	#$E0, d0
@@ -11581,7 +11581,7 @@ loc_7824:
 	move.b	#$14, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	dbf	d0, -
-	
+
 	bsr.w	RunObjects
 	bsr.w	BuildSprites
 	bsr.w	loc_6AE0
@@ -11595,17 +11595,17 @@ loc_7824:
 +
 	cmpi.b	#$C5, (a3)
 	bne.s	loc_7824
-	
+
 loc_785C:
 	move.b	#$14, (vblank_routine).w
 	bsr.w	WaitForVBlank
 	andi.b	#Button_B_Mask|Button_C_Mask|Button_A_Mask, (joypad_pressed).w
 	beq.s	loc_785C
-	
+
 	move.w	#$9001, (vdp_control_port).l
 	move.b	#GameModeID_Sega, (game_mode_index).w	; Sega screen
 	rts
-	
+
 loc_787E:
 	move.w	($FFFFF61C).w, d0
 	addi.w	#$100, d0
@@ -11639,9 +11639,9 @@ loc_78AE:
 	move.w	#0, (a2)
 	subq.w	#1, d1
 	dbf	d0, -
-	
+
 	bra.s	loc_78AE
-	
+
 loc_78E2:
 	bclr	#5, d0
 	beq.s	loc_78EC
@@ -11650,11 +11650,11 @@ loc_78EC:
 	addi.w	#$4BF, d0
 	move.w	d0, (a2)
 	dbf	d1, loc_78AE
-	
+
 loc_78F6:
 	move.w	#0, (a2)
 	dbf	d1, loc_78AE
-	
+
 loc_78FE:
 	subq.w	#1, $FFFFF770.w
 	bra.s	loc_790A
@@ -11663,9 +11663,9 @@ loc_7904:
 loc_790A:
 	move.w	#0, (a2)
 	dbf	d1, loc_790A
-	
+
 	rts
-	
+
 loc_7914:
 	lea	(loc_79F2).l, a0
 	adda.w	d0, a0
@@ -11678,7 +11678,7 @@ loc_7914:
 	moveq	#0, d2
 	move.b	(a0)+, d2
 	bra.w	DrawArtTiles
-	
+
 loc_7932:
 	move.w	d1, $FFFFCD16.w
 	move.w	d1, $FFFFCD18.w
@@ -11732,11 +11732,11 @@ loc_79D2:
 	bne.s	loc_79D2
 	move.w	#$168, (demo_timer).w
 	rts
-	
+
 loc_79EA:
 	move.w	#$78, (demo_timer).w
 	bra.s	loc_79D2
-	
+
 ; ======================================================
 loc_79F2:
 	dc.l	loc_B5A2C
@@ -11791,13 +11791,13 @@ loc_79F2:
 	dc.w	$4380
 	dc.b	$27, $0D
 ; ======================================================
-	
-; ======================================================	
+
+; ======================================================
 EndingCredits_Script:
 	dc.b	$11
 	dc.b	$53, $54, $41, $46, $46		; STAFF
 	dc.b	$C4
-	
+
 	dc.b	$09
 	dc.b	$77, $72, $69, $74, $74, $65, $6E			; WRITTEN
 	dc.b	$20
@@ -11811,7 +11811,7 @@ EndingCredits_Script:
 	dc.b	$0F
 	dc.b	$43, $48, $49, $45, $4D, $53, $48, $49		; CHIEMSHI
 	dc.b	$C4
-	
+
 	dc.b	$0A
 	dc.b	$61, $73, $73, $69, $73, $74, $61, $6E, $74	; ASSISTANT
 	dc.b	$20
@@ -11820,7 +11820,7 @@ EndingCredits_Script:
 	dc.b	$10
 	dc.b	$50, $53, $59, $43, $48, $45				; PSYCHE
 	dc.b	$C4
-	
+
 	dc.b	$0D
 	dc.b	$61, $72, $74										; ART
 	dc.b	$20
@@ -11829,7 +11829,7 @@ EndingCredits_Script:
 	dc.b	$0E
 	dc.b	$43, $48, $41, $4F, $54, $49, $43, $4B, $41, $5A	; CHAOTICKAZ
 	dc.b	$C4
-	
+
 	dc.b	$0B
 	dc.b	$63, $68, $61, $72, $61, $63, $74, $65, $72			; CHARACTER
 	dc.b	$20
@@ -11838,7 +11838,7 @@ EndingCredits_Script:
 	dc.b	$0F
 	dc.b	$59, $4F, $53, $48, $49, $42, $4F, $4E				; YOSHIBON
 	dc.b	$C4
-	
+
 	dc.b	$0B
 	dc.b	$6D, $65, $63, $68, $61, $6E, $69, $63, $61, $6C	; MECHANICAL
 	dc.b	$20
@@ -11847,7 +11847,7 @@ EndingCredits_Script:
 	dc.b	$0E
 	dc.b	$4A, $55, $44, $59, $54, $4F, $54, $4F, $59, $41	; JUDYTOTOYA
 	dc.b	$C4
-	
+
 	dc.b	$0F
 	dc.b	$64, $65, $73, $69, $67, $6E, $65, $72, $73					; DESIGNERS
 	dc.b	$C1
@@ -11876,16 +11876,16 @@ EndingCredits_Script:
 	dc.b	$C1
 	dc.b	$12
 	dc.b	$47, $45, $4E, $C4											; GEN
-	
+
 	dc.b	$0B
 	dc.b	$6D, $75, $73, $69, $63, $61, $6C		; MUSICAL
 	dc.b	$20
 	dc.b	$63, $6F, $6D, $70, $6F, $73, $65, $72	; COMPOSER
 	dc.b	$C1
 	dc.b	$12
-	dc.b	$42, $4F								; BO	
+	dc.b	$42, $4F								; BO
 	dc.b	$C4
-	
+
 	dc.b	$0D
 	dc.b	$73, $6F, $75, $6E, $64				; SOUND
 	dc.b	$20
@@ -11897,7 +11897,7 @@ EndingCredits_Script:
 	dc.b	$10
 	dc.b	$54, $41, $52, $4E, $59, $41		; TARNYA
 	dc.b	$C4
-	
+
 	dc.b	$09
 	dc.b	$61, $73, $73, $69, $73, $74, $61, $6E, $74			; ASSISTANT
 	dc.b	$20
@@ -11908,7 +11908,7 @@ EndingCredits_Script:
 	dc.b	$20
 	dc.b	$53, $41, $54										; SAT
 	dc.b	$C4
-	
+
 	dc.b	$09
 	dc.b	$73, $6F, $66, $74, $77, $61, $72, $65				; SOFTWARW
 	dc.b	$20
@@ -11919,7 +11919,7 @@ EndingCredits_Script:
 	dc.b	$20
 	dc.b	$42, $4C, $55, $45									; BLUE
 	dc.b	$C4
-	
+
 	dc.b	$08
 	dc.b	$70, $72, $6F, $64, $75, $63, $65, $64				; PRODUCED
 	dc.b	$20
@@ -11935,7 +11935,7 @@ EndingCredits_Script:
 	dc.b	$20
 	dc.b	$59, $55, $4A, $49									; YUJI
 	dc.b	$C4
-	
+
 	dc.b	$0F
 	dc.b	$50, $52, $45, $53, $45, $4E, $54, $45, $44		; PRESENTED
 	dc.b	$C3
@@ -11945,7 +11945,7 @@ EndingCredits_Script:
 	dc.b	$11
 	dc.b	$53, $45, $47, $41								; SEGA
 	dc.b	$C4
-	
+
 	dc.b	$0F
 	dc.b	$54, $48, $45						; THE
 	dc.b	$20, $20
@@ -11956,17 +11956,17 @@ EndingCredits_Script:
 ; ======================================================
 
 	even
-	
-; ------------------------------------------------------------	
+
+; ------------------------------------------------------------
 GameMode_Map:
 	cmpi.w	#$E00,(event_flags).w
 	beq.s	loc_7C22
 	bsr.w	PaletteFadeFrom
 	bra.s	loc_7C26
-	
+
 loc_7C22:
 	bsr.w	loc_634E
-	
+
 loc_7C26:
 	move	#$2700, sr
 	move.w	(vdp_reg1_values).w, d0
@@ -11974,20 +11974,20 @@ loc_7C26:
 	move.w	d0, (vdp_control_port).l
 	bsr.w	ClearSpriteAndScroll
 	move	#$2500, sr
-	
+
 	lea	($FFFFDE00).w, a6
 	moveq	#0, d7
 	move.w	#$7E, d6
 loc_7C4A:
 	move.l	d7, (a6)+
 	dbf	d6, loc_7C4A
-	
+
 	move.w	#0, (screen_changed_flag).w
 	move.w	#$8500, ($FFFFF72C).w
 	movea.l	#ram_start&$FFFFFF, a0
 	move.l	a0, ($FFFFDE00).w
 	jsr	(LoadDynWindowsInRam).l
-	
+
 	move.w	#0, ($FFFFCB0C).w
 	move.w	#0, (fight_active_flag).w
 	lea	(loc_2B1F0).l, a0
@@ -11999,7 +11999,7 @@ loc_7C4A:
 	beq.s	loc_7CA0
 	move.w	(map_y_pos).w, ($FFFFC654).w
 	move.w	(map_x_pos).w, ($FFFFC656).w
-	
+
 loc_7CA0:
 	lea	(object_ram).w, a6
 	moveq	#0, d7
@@ -12007,14 +12007,14 @@ loc_7CA0:
 loc_7CAA:
 	move.l	d7, (a6)+
 	dbf	d6, loc_7CAA
-	
+
 	tst.w	(controls_locked).w
 	bne.s	loc_7CCE
 	move.w	#ObjID_MapCharacter,($FFFFE400).w
 	move.w	#3,($FFFFE424).w
 	move.w	(map_x_pos).w,(characters_ram+x_pos).w
 	move.w	(map_y_pos).w,(characters_ram+y_pos).w
-	
+
 loc_7CCE:
 	move.w	#$300,($FFFFE408).w
 	bsr.w	Map_LoadData
@@ -12061,7 +12061,7 @@ loc_7D08:
 	bra.s	GameMode_MapLoop
 loc_7D66:
 	bsr.w	loc_62CC
-	
+
 
 GameMode_MapLoop:
 	bsr.w	CheckGamePause
@@ -12108,12 +12108,12 @@ loc_7DF6:
 	beq.w	GameMode_MapLoop	; branch if we are in the map
 loc_7E00:
 	rts
-	
+
 loc_7E02:
 	move.b	(event_flags).w, d1
 	bne.s	+
 	rts
-	
+
 +
 	subq.b	#1, d1
 	bne.s	loc_7E6A
@@ -12167,7 +12167,7 @@ loc_7E6A:
 +
 	move.b	#$87, $FFFFF640.w
 	rts
-	
+
 loc_7EE4:
 	subq.b	#1, d1
 	bne.s	loc_7F14
@@ -12225,11 +12225,11 @@ loc_7FB0:
 loc_7FCE:
 	subq.b	#1, d1
 	bne.s	loc_7FD4
-	rts	
+	rts
 loc_7FD4:
 	subq.b	#1, d1
 	bne.s	loc_7FDA
-	rts	
+	rts
 loc_7FDA:
 	subq.b	#1, d1
 	bne.s	loc_7FF2
@@ -12254,7 +12254,7 @@ loc_8010:
 loc_8022:
 	subq.b	#1, d1
 	bne.s	loc_8028
-	rts	
+	rts
 loc_8028:
 	subq.b	#1, d1
 	bne.s	loc_8070
@@ -12283,15 +12283,15 @@ loc_8082:
 	move.w	#$3B, $FFFFDE6E.w
 	rts
 loc_8094:
-	move.w	#0, (event_flags).w	
-	rts	
+	move.w	#0, (event_flags).w
+	rts
 
-	
+
 loc_809C:
 	move.b	$FFFFC711.w, d1
 	bne.s	+
 	rts
-	
+
 +
 	subq.b	#1, d1
 	bne.s	+
@@ -12308,7 +12308,7 @@ loc_809C:
 	bsr.w	loc_8226
 	move.l	d0, ($FFFFF620).w
 	bra.w	loc_8240
-	
+
 loc_80D4:
 	subq.b	#1, d1
 	bne.s	loc_810E
@@ -12325,7 +12325,7 @@ loc_80D4:
 	add.l	d2, d0
 	move.l	d0, ($FFFFF620).w
 	rts
-	
+
 loc_810E:
 	subq.b	#1, d1
 	bne.s	loc_8130
@@ -12340,16 +12340,16 @@ loc_812E:
 loc_8130:
 	subq.b	#1, d1
 	bne.s	loc_815C
-	tst.w	(window_index).w	
-	bne.w	loc_815A	
-	tst.w	(current_active_objects_num).w	
-	bne.w	loc_815A	
-	move.w	$FFFFC64C.w, (map_index).w	
-	move.w	$FFFFC64E.w, (map_y_pos).w	
-	move.w	$FFFFC650.w, (map_x_pos).w	
-	bra.w	loc_824C	
+	tst.w	(window_index).w
+	bne.w	loc_815A
+	tst.w	(current_active_objects_num).w
+	bne.w	loc_815A
+	move.w	$FFFFC64C.w, (map_index).w
+	move.w	$FFFFC64E.w, (map_y_pos).w
+	move.w	$FFFFC650.w, (map_x_pos).w
+	bra.w	loc_824C
 loc_815A:
-	rts	
+	rts
 loc_815C:
 	subq.b	#1, d1
 	bne.s	loc_8192
@@ -12426,7 +12426,7 @@ loc_821E:
 	move.w	#0, (event_flags).w
 loc_8224:
 	rts
-	
+
 loc_8226:
 	bsr.w	UpdateRNGSeed
 	move.w	d0, d1
@@ -12438,25 +12438,25 @@ loc_8226:
 	andi.w	#3, d0
 	add.w	d2, d0
 	rts
-	
+
 loc_8240:
 	tst.w	(demo_timer).w
 	beq.s	loc_824C
 	subq.w	#1, (demo_timer).w
 	rts
-	
+
 loc_824C:
 	move.b	#0, $FFFFC711.w
 	move.w	#-1, (screen_changed_flag).w
 	rts
-	
-; ------------------------------------------------------------	
+
+; ------------------------------------------------------------
 	move.b	($FFFFF603).w, d0
 	andi.b	#$70, d0
 	bne.s	loc_824C
 	rts
 ; ------------------------------------------------------------
-	
+
 ; ------------------------------------------------------------
 GameMode_Building:
 	bsr.w	PaletteFadeFrom
@@ -12478,7 +12478,7 @@ loc_828E:
 loc_829E:
 	move.l	d7, (a6)+
 	dbf	d6, loc_829E
-	
+
 	move.w	#1, (event_routine).w
 	move.w	#0, (screen_changed_flag).w
 	move.w	#$8500, $FFFFF72C.w
@@ -12495,26 +12495,26 @@ loc_829E:
 	beq.s	loc_8326				; branch if we are on Tyler's spaceship
 	cmpi.w	#BuildingID_EsperMansion, (building_index).w
 	beq.s	loc_8364				; branch if we are in the Esper Mansion
-	
+
 	lea	(RolfPortraitArt).l, a0
 	bsr.w	DecompressArt
 	moveq	#pal_id_rolf_port, d0
 	bsr.w	PaletteLoad1
 	bra.w	loc_8396
-	
+
 loc_8304:
 	lea	(LibrGraphPortArt).l, a0
 	bsr.w	DecompressArt
 	moveq	#pal_id_graph_port, d0
 	bsr.w	PaletteLoad1
 	bra.w	loc_8396
-	
+
 loc_8318:
 	cmpi.w	#MapID_DezolisSkure, (map_index).w
 	bne.s	loc_8396
 	addq.w	#5, (event_routine).w
 	bra.s	loc_8396
-	
+
 loc_8326:
 	lea	(vdp_control_port).l, a6
 	move.w	#$8F01, (a6)
@@ -12533,7 +12533,7 @@ loc_834C:
 	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	bra.s	loc_839A
-	
+
 loc_8364:
 	lea	(LutzPortraitArt).l, a0
 	move.l	#$40200000, (vdp_control_port).l
@@ -12546,7 +12546,7 @@ loc_8364:
 	addq.w	#1, (event_routine).w
 	moveq	#$3B, d0
 	bsr.w	PaletteLoad1
-	
+
 loc_8396:
 	bsr.w	LoadPortraits
 loc_839A:
@@ -12555,7 +12555,7 @@ loc_839A:
 	move.l	d0, ($FFFFF620).w
 	move.l	d0, $FFFFF718.w
 	move.l	d0, $FFFFF71C.w
-	
+
 	lea	(BuildingMusicPtrs).l, a1
 	adda.w	(building_index).w, a1
 	move.b	(a1), d0
@@ -12565,7 +12565,7 @@ loc_839A:
 	move.w	d0, (vdp_control_port).l
 	move	#$2500, sr
 	bsr.w	PaletteFadeTo
-	
+
 
 GameMode_BuildingLoop:
 	bsr.w	CheckGamePause
@@ -12582,7 +12582,7 @@ GameMode_BuildingLoop:
 	beq.s	GameMode_BuildingLoop
 loc_8406:
 	rts
-	
+
 LoadPortraits:
 	lea	(PortraitTable-4).l, a1
 	move.w	(portrait_index).w, d0
@@ -12602,17 +12602,17 @@ LoadPortraits:
 	bsr.w	PaletteLoad2
 loc_843E:
 	rts
-	
+
 ; ===============================================================
 PortraitTable:
 
 PtrPortrait_Nei:	dc.l	(pal_id_nei_port<<$18)|NeiPortraitArt
-PtrPortrait_Rudo:	dc.l	(pal_id_rudo_port<<$18)|RudoPortraitArt	
-PtrPortrait_Amy:	dc.l	(pal_id_amy_port<<$18)|AmyPortraitArt	
-PtrPortrait_Hugh:	dc.l	(pal_id_hugh_port<<$18)|HughPortraitArt	
-PtrPortrait_Anna:	dc.l	(pal_id_anna_port<<$18)|AnnaPortraitArt	
-PtrPortrait_Kain:	dc.l	(pal_id_kain_port<<$18)|KainPortraitArt	
-PtrPortrait_Shir:	dc.l	(pal_id_shir_port<<$18)|ShirPortraitArt	
+PtrPortrait_Rudo:	dc.l	(pal_id_rudo_port<<$18)|RudoPortraitArt
+PtrPortrait_Amy:	dc.l	(pal_id_amy_port<<$18)|AmyPortraitArt
+PtrPortrait_Hugh:	dc.l	(pal_id_hugh_port<<$18)|HughPortraitArt
+PtrPortrait_Anna:	dc.l	(pal_id_anna_port<<$18)|AnnaPortraitArt
+PtrPortrait_Kain:	dc.l	(pal_id_kain_port<<$18)|KainPortraitArt
+PtrPortrait_Shir:	dc.l	(pal_id_shir_port<<$18)|ShirPortraitArt
 PtrPortrait_Librarian:	dc.l	(pal_id_libr_port<<$18)|LibrPortraitArt			; Librarian portrait
 PtrPortrait_MotaSaveEmployer:	dc.l	(pal_id_mot_save_emp_port<<$18)|MotSaveEmplPortArt	; Motavia game save employer portrait
 PtrPortrait_MotaDoctor:	dc.l	(pal_id_mot_doc_port<<$18)|MotDoctorPortraitArt	; Motavia doctor portrait
@@ -12622,7 +12622,7 @@ PtrPortrait_MotaWeaponSeller:	dc.l	(pal_id_mot_wpn_sell_port<<$18)|MotWpnSelPort
 PtrPortrait_MotaArmorSeller:	dc.l	(pal_id_mot_arm_sell_port<<$18)|MotArmSelPortArt	; Motavia armor seller portrait
 PtrPortrait_Ustvestia:	dc.l	(pal_id_ustves_port<<$18)|UstvestiaPortraitArt	; Ustvestia portrait
 PtrPortrait_Dezolian1:	dc.l	(pal_id_misc1_port<<$18)|DezolianPortraitArt	; Dezolis game save employer, armor seller (Aukba), item seller (Ryuon), doctor (Ryuon) portrait
-PtrPortrait_Dezolian2:	dc.l	(pal_id_misc2_port<<$18)|DezolianPortraitArt	; Doctor (Aukba, Zosa), weapon seller (Aukba), armor seller (Zosa) portrait 
+PtrPortrait_Dezolian2:	dc.l	(pal_id_misc2_port<<$18)|DezolianPortraitArt	; Doctor (Aukba, Zosa), weapon seller (Aukba), armor seller (Zosa) portrait
 PtrPortrait_Dezolian3:	dc.l	(pal_id_misc3_port<<$18)|DezolianPortraitArt	; Item seller (Zosa), armor seller (Ryuon) portrait
 PtrPortrait_Dezolian4:	dc.l	(pal_id_misc4_port<<$18)|DezolianPortraitArt	; Dezolis teleport service employer, item seller (Aukba), weapon seller (Zosa, Ryuon) portrait
 PtrPortrait_ItemKeeper:	dc.l	(pal_id_item_keeper_port<<$18)|ItemKeeperPortArt	; Room item keeper portrait
@@ -12665,7 +12665,7 @@ BuildingMusicPtrs:
 ; ===========================================================
 
 	even
-	
+
 ; ------------------------------------------------------------
 GameMode_Battle:
 	bsr.w	loc_634E
@@ -12674,7 +12674,7 @@ GameMode_Battle:
 	andi.b	#$BF, d0
 	move.w	d0, (vdp_control_port).l
 	bsr.w	ClearSpriteAndScroll
-	
+
 	lea	(vdp_control_port).l, a6
 	move.w	#$8F01, (a6)
 	move.w	#$93FF, (a6)
@@ -12683,12 +12683,12 @@ GameMode_Battle:
 	move.w	#$4000, (a6)
 	move.w	#$80, (a6)
 	move.w	#0, (vdp_data_port).l
-	
+
 loc_850C:
 	move.w	(a6), d7
 	andi.w	#2, d7
 	bne.s	loc_850C
-	
+
 	move.w	#$8F02, (a6)
 	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$FFF0, d0
@@ -12724,7 +12724,7 @@ loc_8594:
 loc_85A0:
 	move.l	d7, (a6)+
 	dbf	d6, loc_85A0
-	
+
 	lea	($FF6000).l, a6
 	moveq	#0, d7
 	move.w	#$3FF, d6
@@ -12766,7 +12766,7 @@ loc_85D6:
 	beq.s	++		; branch if we are in Mother Brain boss battle -- interestingly this is the only boss battle where you cannot be ambushed
 					; if you want to do the same for the other boss battles, change the $103 to $100 (Neifirst is the first in the list of formation table) in the line right above and change the condition
 					; to bcc.s instead of beq.s
-							
+
 ; very simple logic for the enemy's ambush
 	bsr.w	UpdateRNGSeed
 	andi.w	#7, d0		; get only number in the range 0-7 from the generated number
@@ -12841,7 +12841,7 @@ loc_8730:
 	bcc.s	GameMode_BattleLoop		; branch if we are in either Dark Force or Mother Brain boss battle (don't show top windows in battle for these two bosses)
 	move.l	#((4<<$18)|(WinID_FirstEnemyName<<$10)|(4<<8)|WinID_SecondEnemyName), (window_index).w
 	move.l	#((4<<$18)|(WinID_FirstEnemyInfo<<$10)|(4<<8)|WinID_SecondEnemyInfo), (window_index+4).w
-	
+
 
 GameMode_BattleLoop:
 	bsr.w	CheckGamePause
@@ -12853,7 +12853,7 @@ GameMode_BattleLoop:
 -
 	bsr.w	loc_6D18
 	dbf	d0, -
-	
+
 	jsr	(RunObjects).l
 	jsr	(BuildSprites).l
 	bsr.w	Battle_CheckRoutines
@@ -12869,11 +12869,11 @@ GameMode_BattleLoop:
 +
 	cmpi.b	#GameModeID_Battle, (game_mode_index).w
 	beq.s	GameMode_BattleLoop
-	
+
 	cmpi.b	#GameModeID_Sega, (game_mode_index).w
 	beq.s	GameOverScreen
 	rts
-	
+
 
 GameOverScreen:
 	move.b	#MusicID_Over, (sound_queue).w		; Game over music
@@ -12925,7 +12925,7 @@ GameOverScreen:
 	move.w	d0, (vdp_control_port).l
 	move	#$2500, sr
 	bsr.w	PaletteFadeTo
-	
+
 
 GameOverScreenLoop:
 	bsr.w	CheckGamePause
@@ -12939,7 +12939,7 @@ GameOverScreenLoop:
 	beq.s	GameOverScreenLoop
 loc_88B2:
 	rts
-	
+
 DrawArtTiles2:
 	lea	(ram_start&$FFFFFF).l, a0
 	move.w	#$1800, d1
@@ -12958,41 +12958,41 @@ loc_88CE:
 loc_88DE:
 	addq.w	#1, a0
 	dbf	d1, loc_88BE
-	
+
 	rts
 ; ------------------------------------------------------------
 GameMode_Intro:
 	bsr.w	PaletteFadeFrom
 	move	#$2700, sr
 	move.w	(vdp_reg1_values).w, d0	; VDP reg #1 values
-	andi.b	#$BF, d0			; disable display		
-	move.w	d0, (vdp_control_port).l		
+	andi.b	#$BF, d0			; disable display
+	move.w	d0, (vdp_control_port).l
 	bsr.w	ClearSpriteAndScroll
-	
+
 	; clear screen
 	lea	(vdp_control_port).l, a6
 	move.w	#$8F01, (a6)
 	move.w	#$93FF, (a6)
-	move.w	#$943F, (a6)		
+	move.w	#$943F, (a6)
 	move.w	#$9780, (a6)
 	move.w	#$4000, (a6)
 	move.w	#$80, (a6)
 	move.w	#0, (vdp_data_port).l
-	
+
 -
 	move.w	(a6), d7
 	andi.w	#2, d7	; wait for DMA
 	bne.s	-
-	
+
 	move.w	#$8F02, (a6)
-	
+
 	move.l	#$60000002, (vdp_control_port).l
 	lea	(FontsIconsArt).l, a0
 	bsr.w	DecompressArt
 	tst.w	(building_index).w
 	bne.s	loc_8950		; branch to skip initialization (this happens when we return to the Intro Screen for various reasons, like soft reset, game over, etc.)
 	bsr.w	loc_89EE
-	
+
 loc_8950:
 	lea	(object_ram).w, a6
 	moveq	#0, d7
@@ -13000,7 +13000,7 @@ loc_8950:
 -
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	moveq	#pal_id_title, d0
 	bsr.w	PaletteLoad1
 	lea	($FFFFDE00).w, a6
@@ -13009,7 +13009,7 @@ loc_8950:
 loc_8970:
 	move.l	d7, (a6)+
 	dbf	d6, loc_8970
-	
+
 	move.w	#1, (event_routine).w
 	move.w	#0, (screen_changed_flag).w
 	move.w	#$8500, $FFFFF72C.w
@@ -13023,8 +13023,8 @@ loc_8970:
 	move.w	d0, (vdp_control_port).l
 	move	#$2500, sr
 	bsr.w	PaletteFadeTo
-	
-	
+
+
 GameMode_IntroLoop:
 	move.b	#$14, (vblank_routine).w
 	bsr.w	WaitForVBlank
@@ -13039,11 +13039,11 @@ GameMode_IntroLoop:
 	beq.s	GameMode_IntroLoop
 loc_89E4:
 	rts
-	
+
 loc_89E6:
 	move.b	#GameModeID_Map, (game_mode_index).w
 	rts
-	
+
 loc_89EE:
 	lea	(character_stats).w, a6
 	moveq	#0, d7
@@ -13051,14 +13051,14 @@ loc_89EE:
 -
 	move.l	d7, (a6)+
 	dbf	d6, -
-	
+
 	lea	($FFFFF700).w, a6
 	moveq	#0, d7
 	move.w	#$13F, d6
 loc_8A08:
 	move.l	d7, (a6)+
 	dbf	d6, loc_8A08
-	
+
 	move.w	#MapID_Paseo, (map_index).w
 	move.w	#$120, (map_y_pos).w
 	move.w	#$2D0, (map_x_pos).w
@@ -13074,7 +13074,7 @@ loc_8A08:
 	move.l	#$C8, (current_money).w		; start with 200 meseta
 	move.l	#$80808080, $FFFFC790.w		; this makes the treasure chests in Shure locked
 	move.w	#$101, (treasure_chest_flags+Chest_Prism).w
-	
+
 	lea	(CharInitialSetup).l, a0
 	lea	(character_stats+equipment).w, a1
 	moveq	#(CharInitialSetupEnd-CharInitialSetup)/16-1, d0	; Loop for each character
@@ -13082,19 +13082,19 @@ loc_8A08:
 	bsr.w	loc_6D92
 	adda.w	#$30, a1	; next character equipment RAM section
 	dbf	d0, -
-	
+
 	lea	(CharNames).l, a0
 	lea	(character_names).w, a1
 	bsr.w	loc_6D8A
-	
+
 	lea	(CopyrightString).l, a0
 	lea	$FFFFC6A0.w, a1
 	bsr.w	loc_6D6A
-	
+
 	bsr.w	SetCharNames
 	bsr.w	SetCharInitialStats
 	bra.w	SetCharEquipment
-	
+
 SetCharInitialStats:
 	moveq	#0, d3
 	moveq	#(CharExperiencePtrsEnd-CharExperiencePtrs)/4-1, d4		; loop for each character
@@ -13102,17 +13102,17 @@ SetCharInitialStats:
 	bsr.s	+
 	addq.w	#1, d3			; next character
 	dbf	d4, -
-	
+
 	rts
-	
+
 +
-	move.w	d3, d1			
+	move.w	d3, d1
 	lea	(CharExperiencePtrs).l, a2
 	lsl.w	#2, d1			; multiply by 4 to get correct pointer
 	adda.w	d1, a2			; increase pointer
 	movea.l	(a2), a2		; load experience table for character in a2
 	move.w	d3, d1
-	lea	(character_stats+level).w, a1		
+	lea	(character_stats+level).w, a1
 	lsl.w	#6, d1
 	adda.w	d1, a1
 	moveq	#0, d0
@@ -13126,7 +13126,7 @@ SetCharInitialStats:
 	move.b	(a2)+, d0		; move TP stat in d0
 	move.w	d0, (a1)+		; save it to RAM
 	move.w	d0, (a1)+		; save TP maximum
-	addq.w	#6, a1			
+	addq.w	#6, a1
 	move.b	(a2)+, d0		; move STRENGTH stat in d0
 	move.w	d0, (a1)+		; save it to RAM
 	move.b	(a2)+, d0		; move MENTAL stat in d0
@@ -13139,18 +13139,18 @@ SetCharInitialStats:
 	move.w	d0, (a1)+		; save it to RAM
 	move.b	(a2)+, d0		; move ATTACK stat in d0
 	move.w	d0, (a1)+		; save it to RAM
-	move.w	d0, (a1)+		
+	move.w	d0, (a1)+
 	move.b	(a2)+, d0		; move DEFENSE stat in d0
 	move.w	d0, (a1)+		; save it to RAM
 	addq.w	#5, a1
 	move.b	(a2)+, d0		; move number of techniques learned in d0
 	move.b	d0, d1			; and store it in d1 as well
 	lsr.b	#4, d0			; get top nibble
-	move.b	d0, (a1)+		; store result in RAM 
+	move.b	d0, (a1)+		; store result in RAM
 	andi.b	#$F, d1			; get low nibble
 	move.b	d1, (a1)+		; and store it in RAM
 	rts
-	
+
 ; ======================================================
 ; Character names
 ; ======================================================
@@ -13159,7 +13159,7 @@ SetCharInitialStats:
 	charset	' ', 0
 
 	outradix 10
-	
+
 ; CharNameLength = 4
 length	:=	CharNameLength
 
@@ -13177,8 +13177,8 @@ CharNamesEnd:
 	outradix 16
 	charset
 ; ======================================================
-	
-	
+
+
 ; ======================================================
 ; Initial setup for the equipment and number of items
 ;
@@ -13209,13 +13209,13 @@ RolfInitialSetup:
 	dc.b	$80|ItemID_Knife
 	dc.b	$80|ItemID_CarbonSuit
 	dc.b	$80|ItemID_Shoes
-	dc.b	$00					
+	dc.b	$00
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
 
-NeiInitialSetup:	
+NeiInitialSetup:
 	dc.b	ItemID_Ribbon
 	dc.b	ItemID_None
 	dc.b	ItemID_None
@@ -13232,7 +13232,7 @@ NeiInitialSetup:
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	
+
 RudoInitialSetup:
 	dc.b	ItemID_Headgear
 	dc.b	ItemID_Bowgun
@@ -13250,7 +13250,7 @@ RudoInitialSetup:
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	
+
 AmyInitialSetup:
 	dc.b	ItemID_None
 	dc.b	ItemID_Scalpel
@@ -13268,7 +13268,7 @@ AmyInitialSetup:
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	
+
 HughInitialSetup:
 	dc.b	ItemID_None
 	dc.b	ItemID_None
@@ -13286,7 +13286,7 @@ HughInitialSetup:
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	
+
 AnnaInitialSetup:
 	dc.b	ItemID_Headgear
 	dc.b	ItemID_Boomerang
@@ -13322,7 +13322,7 @@ KainInitialSetup:
 	dc.b	$00
 	dc.b	$00
 	dc.b	$00
-	
+
 ShirInitialSetup:
 	dc.b	ItemID_None
 	dc.b	ItemID_Dagger
@@ -13342,7 +13342,7 @@ ShirInitialSetup:
 	dc.b	$00
 CharInitialSetupEnd:
 ; ======================================================
-	
+
 loc_8BBA:
 	tst.w	(screen_changed_flag).w
 	beq.s	loc_8BC2
@@ -13424,7 +13424,7 @@ loc_8C72:
 	bpl.s	loc_8C80
 	tst.w	d4
 	beq.s	loc_8C7C
-	move.w	d3, d1	
+	move.w	d3, d1
 loc_8C7C:
 	andi.w	#$FF, d1
 loc_8C80:
@@ -13607,7 +13607,7 @@ loc_8DEC:
 	bset	#3, $FFFFF728.w
 loc_8DFE:
 	rts
-	
+
 loc_8E00:
 	tst.w	$FFFFF712.w
 	bmi.s	loc_8E18
@@ -13762,8 +13762,8 @@ loc_8F86:
 loc_8F92:
 	add.w	(a5), d4
 	bpl.s	loc_8F9A
-	add.w	d3, d4	
-	bra.s	loc_8FA0	
+	add.w	d3, d4
+	bra.s	loc_8FA0
 loc_8F9A:
 	cmp.w	d3, d4
 	bcs.s	loc_8FA0
@@ -13783,8 +13783,8 @@ loc_8FB6:
 loc_8FC2:
 	add.w	2(a5), d5
 	bpl.s	loc_8FCC
-	add.w	d3, d5	
-	bra.s	loc_8FD2	
+	add.w	d3, d5
+	bra.s	loc_8FD2
 loc_8FCC:
 	cmp.w	d3, d5
 	bcs.s	loc_8FD2
@@ -13843,12 +13843,12 @@ loc_902E:
 	dbf	d6, loc_902E
 
 	rts
-	
+
 ; ==================================
 loc_9060:
 	dc.w	0, 0
 ; ==================================
-	
+
 Map_LoadData:
 	lea	(MapData).l, a1
 	move.w	(map_index).w, d0
@@ -14068,7 +14068,7 @@ loc_92CC:
 	move.b	d1, $FFFF9ED0.w
 loc_92EC:
 	rts
-	
+
 loc_92EE:
 	cmpi.w	#$64, d0
 	bne.s	loc_9300
@@ -14101,27 +14101,27 @@ loc_9322:
 	addi.w	#$5F, d1
 loc_9334:
 	dbf	d2, loc_9322
-	
+
 	bra.s	loc_9304
-	
+
 loc_933A:
 	move.b	d0, (a1,d1.w)
 	bra.s	loc_9304
 
 loc_9340:
 	rts
-	
+
 ; =============================================
 loc_9342:
 	dc.l	loc_39EC6, loc_44F2A
 	dc.l	loc_3C6F4, loc_45D56
 	dc.l	loc_3DFE4, loc_46612
 	dc.l	loc_3FFE6, loc_470DE
-	dc.l	loc_412F8, loc_484A2	
+	dc.l	loc_412F8, loc_484A2
 	dc.l	loc_41490, loc_47958
 	dc.l	loc_43CD0, loc_484A2
 ; =============================================
-	
+
 ProcessWindows:
 	move.w	$FFFFDE40.w, d1
 	bne.w	loc_947A
@@ -14207,7 +14207,7 @@ loc_9470:
 	beq.s	loc_947A
 loc_9478:
 	rts
-	
+
 loc_947A:
 	move.w	(window_index).w, d0
 	bmi.w	loc_954C
@@ -14232,8 +14232,8 @@ loc_947A:
 	addq.w	#1, (current_active_objects_num).w
 	andi.w	#$F, (current_active_objects_num).w
 	bne.s	loc_94CC
-	movea.l	#ram_start&$FFFFFF, a0	
-	move.l	a0, $FFFFDE00.w	
+	movea.l	#ram_start&$FFFFFF, a0
+	move.l	a0, $FFFFDE00.w
 loc_94CC:
 	move.l	(window_index+2).w, d0
 	move.l	d0, (window_index).w
@@ -14262,8 +14262,8 @@ loc_94EE:
 	move.w	#0, $FFFFDE44.w
 	btst	#1, (window_index).w
 	beq.s	loc_9530
-	move.w	$FFFFDE46.w, $FFFFDE44.w	
-	move.w	#1, $FFFFDE40.w	
+	move.w	$FFFFDE46.w, $FFFFDE44.w
+	move.w	#1, $FFFFDE40.w
 loc_9530:
 	btst	#2, (window_index).w
 	bne.s	loc_954A
@@ -14297,7 +14297,7 @@ loc_954C:
 	move.w	d0, (window_index).w
 loc_9586:
 	rts
-	
+
 CheckRunScript:
 	move.w	(window_active_flag).w, d1
 	beq.w	loc_96EC		; if no window is open, branch
@@ -14351,7 +14351,7 @@ loc_9608:
 	bcs.s	DrawScriptToVDP
 	move.w	#0, $FFFFCD20.w
 	rts
-	
+
 DrawScriptToVDP:
 	add.w	d1, d1
 	lea	(VDPCharacterMaps).l, a4
@@ -14422,12 +14422,12 @@ loc_96D0:
 	dbf	d2, loc_96CC
 	move.w	#0, $FFFFCD1A.w
 	rts
-	
+
 loc_96EC:
 	tst.w	$FFFFDEA8.w
 	bne.s	loc_96F4
 	rts
-	
+
 loc_96F4:
 	move.w	#0, $FFFFDEA8.w
 	lea	(vdp_control_port).l, a2
@@ -14489,7 +14489,7 @@ loc_977A:
 loc_9782:
 	move.w	#$8526, (a3)
 	dbf	d1, loc_9750
-	rts	
+	rts
 loc_978C:
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
@@ -14570,7 +14570,7 @@ loc_9848:
 	move.b	#$BF, d5
 	move.w	d5, (a3)
 	rts
-	
+
 loc_9858:
 	andi.w	#$EFFF, d0
 	move.w	d0, (a2)
@@ -14581,7 +14581,7 @@ loc_9858:
 	andi.b	#$7F, d0
 	or.b	d6, d0
 	rts
-	
+
 loc_9872:
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
@@ -14608,9 +14608,9 @@ loc_98A8:
 	adda.w	d3, a1
 	add.w	d7, d0
 	dbf	d4, loc_98A8
-	
+
 	rts
-	
+
 loc_98C2:
 	move.l	d0, -(sp)
 	move.w	d3, d5
@@ -14644,7 +14644,7 @@ loc_98FC:
 	adda.w	d3, a1
 	add.w	d7, d0
 	dbf	d4, loc_98FC
-	
+
 	bsr.w	loc_9858
 	move.w	#$85BF, (a3)
 	bsr.w	loc_9858
@@ -14677,7 +14677,7 @@ loc_9954:
 	adda.w	d3, a1
 	add.w	d7, d0
 	dbf	d4, loc_9954
-	
+
 	bsr.w	loc_9858
 	move.w	(a1), (a3)
 	bsr.w	loc_9858
@@ -14694,12 +14694,12 @@ loc_9994:
 	bsr.w	loc_9858
 	move.w	(a1)+, (a3)
 	dbf	d4, loc_9994
-	
+
 	move.w	d5, d0
 	add.l	d7, d0
 	dbf	d2, loc_9990
 	rts
-	
+
 loc_99A8:
 	lea	(vdp_control_port).l, a2
 	lea	(vdp_data_port).l, a3
@@ -14711,13 +14711,13 @@ loc_99BE:
 	bsr.w	loc_9858
 	move.w	(a3), (a1)+
 	dbf	d4, loc_99BE
-	
+
 	move.w	d5, d0
 	add.l	d7, d0
 	dbf	d2, loc_99BA
-	
+
 	rts
-	
+
 
 ProcessPlayerMenu:
 	tst.w	($FFFFDE70).w
@@ -14728,13 +14728,13 @@ ProcessPlayerMenu:
 	bne.s	+	; rts
 	tst.w	(window_active_flag).w
 	bne.s	+	; rts
-	move.w	(event_routine).w, d1 
+	move.w	(event_routine).w, d1
 	bne.s	loc_9A20
 	tst.w	(demo_flag).w
 	bne.s	+	; rts
 	tst.b	(event_flags).w
 	bne.s	+	; rts
-	
+
 	move.b	(joypad_pressed).w, d0
 	btst	#Button_C, d0		; C button pressed
 	beq.s	+	; if not, return
@@ -14744,16 +14744,16 @@ ProcessPlayerMenu:
 	move.w	#0, (event_routine_2).w
 +
 	rts
-	
-	
 
-    
+
+
+
 loc_9A20:
 	move.w	($FFFFDE80).w, d0
 	lsl.w	#2, d0
 	andi.w	#$1C, d0
 	jmp	Menu_FirstWindowEntries(pc,d0.w)
-	
+
 ; -------------------------------------------
 Menu_FirstWindowEntries:
 	bra.w	Menu_ItemEntry
@@ -14762,12 +14762,12 @@ Menu_FirstWindowEntries:
 	bra.w	Menu_StrngEntry
 	bra.w	Menu_EqpEntry
 ; -------------------------------------------
-	
+
 Menu_ItemEntry:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	Menu_Item_RoutineIndex-4(pc,d1.w)
-	
+
 ; ------------------------------------------------
 Menu_Item_RoutineIndex:
 	bra.w	Menu_Item_RoutineOpened
@@ -14780,7 +14780,7 @@ Menu_Item_RoutineOpened:
 	move.w	#WinID_MenuItemChar, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 ; -------------------------------------------
 
 Menu_Item_RoutineCharSelected:
@@ -14796,19 +14796,19 @@ Menu_Item_RoutineCharSelected:
 	move.w	#WinID_ScriptMessage, (window_index).w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_9A92:
 	move.w	#WinID_MenuItemList, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 ; -------------------------------------------
 
 Menu_Item_RoutineItemWindowOpened:
 	move.w	#WinID_ItemAction, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 ; -------------------------------------------
 
 Menu_Item_RoutineItemActionEntries:
@@ -14816,14 +14816,14 @@ Menu_Item_RoutineItemActionEntries:
 	lsl.w	#2, d0
 	andi.w	#$C, d0
 	jmp	ItemActionEntries(pc,d0.w)
-	
+
 ; -------------------------------------------
 ItemActionEntries:
 	bra.w	ItemAction_UseEntry
 	bra.w	ItemAction_GiveEntry
 	bra.w	ItemAction_TossEntry
 ; -------------------------------------------
-	
+
 ItemAction_UseEntry:
 	move.w	(event_routine_2).w, d1
 	bne.s	+
@@ -14841,11 +14841,11 @@ ItemAction_UseEntry:
 	move.w	#6, (script_id).w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 +
 	subq.w	#1, (event_routine_2).w
 	bra.w	JmpTo_CloseCurrentWindow
-	
+
 +
 	moveq	#0, d0
 	move.b	(item_index).w, d0
@@ -14861,11 +14861,11 @@ ItemAction_UseEntry:
 	beq.w	Teim_ItemSelected
 	cmpi.w	#ItemID_Visiphone, d0
 	beq.w	Visiphone_ItemSelected
-	
+
 	lsl.w	#2, d0
 	andi.w	#$1FC, d0
 	jmp	UsedItemActionIndex(pc,d0.w)
-	
+
 ; -------------------------------------------
 UsedItemActionIndex:
 	bra.w	ItemAction_NoAction
@@ -14897,7 +14897,7 @@ ItemAction_NoAction:
 	bne.s	+
 	move.w	#1, (script_id).w		; "'Character' uses 'Item'...."
 	rts
-	
+
 +
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
@@ -14920,19 +14920,19 @@ ItemAction_SmallKey:
 	beq.s	loc_9BE0					; if it's already unlocked, branch
 	move.w	#1, (script_id).w		; "'Character' uses 'Item'...."
 	rts
-	
+
 loc_9BE0:
 	move.w	#$15, (script_id).w		; "It is a key for a small container."
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_9BEC:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
 	move.w	#$17, (script_id).w		; "The container opens."
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_9BFE:
 	lea	($FFFFE400).w, a0
 	move.w	$2A(a0), d6
@@ -14941,7 +14941,7 @@ loc_9BFE:
 +
 	bsr.w	Map_ChkTargetInteract
 	rts
-	
+
 loc_9C12:
 	bsr.w	loc_9BFE
 	beq.s	+
@@ -14977,7 +14977,7 @@ loc_9C4C:
 	bra.w	RemoveItemFromInventory
 loc_9C6E:
 	move.w	#$14, (script_id).w		; "'Character' takes out 'Item' and puts it back."
-	rts	
+	rts
 ; -------------------------------------------
 ItemAction_KeyTube:
 	tst.w	d1
@@ -15030,12 +15030,12 @@ loc_9CD6:
 ItemAction_GreenCard:
 	moveq	#$1C, d0
 	move.w	#$1C, (script_id).w		; "It's a card which shines like a green emerald!"
-	bra.s	loc_9D3E	
+	bra.s	loc_9D3E
 ; -------------------------------------------
 ItemAction_BlueCard:
 	moveq	#$1E, d0
 	move.w	#$1D, (script_id).w		; "It's a card which is a bluish aquamarine color."
-	bra.s	loc_9D3E	
+	bra.s	loc_9D3E
 ; -------------------------------------------
 ItemAction_YellowCard:
 	moveq	#$20, d0
@@ -15092,25 +15092,25 @@ ItemAction_Recorder:
 	bne.w	CloseAllWindows
 	move.l	#$210022, (script_id).w		; "This device records all events in the Biosystems lab."
 												; "If this can be delivered to Paseo, we will know what caused the Biohazards."
-	rts	
+	rts
 ; -------------------------------------------
 ItemAction_MruraLeaf:
 	tst.w	d1
 	bne.w	CloseAllWindows
 	move.w	#$11, (script_id).w		; "This is a leaf from a Maruera tree. It's soft."
-	rts	
+	rts
 ; -------------------------------------------
 ItemAction_PlsmRing:
 	tst.w	d1
 	bne.w	CloseAllWindows
 	move.w	#$F, (script_id).w		; "'Character can't let go of the item!'"
-	rts	
+	rts
 ; -------------------------------------------
 ItemAction_Prism:
 	tst.w	d1
 	bne.w	CloseAllWindows
 	move.w	#7, (script_id).w			; "The prism shines with a strange brilliance."
-	rts	
+	rts
 ; -------------------------------------------
 ItemAction_Telepipe:
 	tst.w	d1
@@ -15123,7 +15123,7 @@ ItemAction_Telepipe:
 	addq.w	#1, (event_routine_2).w
 +
 	rts
-	
+
 loc_9E18:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
@@ -15162,7 +15162,7 @@ loc_9E98:
 	move.b	#SFXID_Teleport, (sound_queue).w
 	tst.w	$FFFFDE80.w
 	bne.w	Map_TechEffect_SubtractTP
-	bra.w	RemoveItemFromInventory	
+	bra.w	RemoveItemFromInventory
 ; -------------------------------------------
 ItemAction_Escapipe:
 	tst.w	d1
@@ -15188,27 +15188,27 @@ loc_9ED8:
 	bra.w	RemoveItemFromInventory
 ; -------------------------------------------
 ItemAction_Hidapipe:
-	tst.w	d1	
-	bne.s	loc_9F2E	
-	move.w	#$13, (script_id).w	
-	move.w	(map_index).w, d0	
-	beq.s	loc_9F2C	
-	cmpi.w	#MapID_DezolisSkure, d0	
-	beq.s	loc_9F2C	
+	tst.w	d1
+	bne.s	loc_9F2E
+	move.w	#$13, (script_id).w
+	move.w	(map_index).w, d0
+	beq.s	loc_9F2C
+	cmpi.w	#MapID_DezolisSkure, d0
+	beq.s	loc_9F2C
 	move.w	#$27, (script_id).w		; "That can't be used here."
-	addq.w	#1, (event_routine_2).w	
+	addq.w	#1, (event_routine_2).w
 loc_9F2C:
-	rts	
+	rts
 loc_9F2E:
-	subq.w	#1, d1	
-	bne.w	CloseAllWindows	
-	move.b	#SFXID_Hidapipe, (sound_queue).w	
-	move.b	#0, (track_timer).w	
+	subq.w	#1, d1
+	bne.w	CloseAllWindows
+	move.b	#SFXID_Hidapipe, (sound_queue).w
+	move.b	#0, (track_timer).w
 -
-	cmpi.b	#$80, (track_timer).w	
-	bne.s	-	
-	move.w	#$FFFF, $FFFFCB0E.w	
-	addq.w	#1, (event_routine_2).w	
+	cmpi.b	#$80, (track_timer).w
+	bne.s	-
+	move.w	#$FFFF, $FFFFCB0E.w
+	addq.w	#1, (event_routine_2).w
 	bra.w	RemoveItemFromInventory
 ; -------------------------------------------
 ItemAction_Monomate:
@@ -15216,7 +15216,7 @@ ItemAction_Monomate:
 	bne.s	loc_9F62
 	move.w	#WinID_ChosenItemChar, (window_index).w
 	rts
-	
+
 loc_9F62:
 	subq.w	#1, d1
 	bne.s	loc_9F92
@@ -15233,7 +15233,7 @@ loc_9F62:
 loc_9F8C:
 	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 loc_9F92:
 	subq.w	#1, d1
 	beq.w	JmpTo_CloseCurrentWindow
@@ -15246,12 +15246,12 @@ loc_9F92:
 	move.w	#2, (script_id).w
 	tst.w	(a2)
 	bpl.s	loc_9FBC
-	move.w	#$10C, (script_id).w	
-	addq.w	#3, (event_routine_2).w	
+	move.w	#$10C, (script_id).w
+	addq.w	#3, (event_routine_2).w
 loc_9FBC:
 	addq.w	#1, (event_routine_2).w
 	bra.w	RemoveItemFromInventory
-	
+
 loc_9FC4:
 	subq.w	#1, d1
 	bne.s	loc_9FDA
@@ -15259,7 +15259,7 @@ loc_9FC4:
 	move.w	#$1E, $FFFFDE5E.w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_9FDA:
 	subq.w	#1, d1
 	bne.s	loc_A02A
@@ -15275,29 +15275,29 @@ loc_9FDA:
 	bne.s	UsedItem_CheckDimate			; branch if we're not using a Monomate
 	addi.w	#$14, d1				; heal character 20 HP
 	bra.s	UsedItem_Heal
-	
+
 UsedItem_CheckDimate:
 	cmpi.b	#ItemID_Dimate, d0
 	bne.s	UsedItem_HealFull			;  branch if we're not using a Dimate
 	addi.w	#$3C, d1				; heal character 60 HP
 	bra.s	UsedItem_Heal
-	
+
 UsedItem_HealFull:
 	move.w	(a2), d1		; get Max HP value to be used for complete recovery
-	
+
 UsedItem_Heal:
 	cmp.w	(a2), d1
 	bcs.s	loc_A016	; branch if the sum of current HP and healing value is lower than max HP
 	move.w	(a2), d1		; if same or higher than max HP, just get max HP directly
-	
+
 loc_A016:
-	move.w	d1, -(a2)		; finally, move the new value into current HP 
+	move.w	d1, -(a2)		; finally, move the new value into current HP
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_2).w
 	move.b	#SFXID_Healed, (sound_queue).w
 loc_A028:
 	rts
-	
+
 loc_A02A:
 	subq.w	#1, d1
 	bne.s	loc_A032
@@ -15322,8 +15322,8 @@ loc_A044:
 	move.w	#1, (script_id).w		; "'Character' uses 'Item'...."
 	tst.w	(a2)
 	bne.s	loc_A06E
-	move.w	#$102, (script_id).w	
-	subq.w	#1, (event_routine_2).w	
+	move.w	#$102, (script_id).w
+	subq.w	#1, (event_routine_2).w
 loc_A06E:
 	addq.w	#2, (event_routine_2).w
 	rts
@@ -15375,46 +15375,46 @@ loc_A0F0:
 	rts
 ; -------------------------------------------
 ItemAction_StarMist:
-	tst.w	d1	
-	bne.s	loc_A104	
-	move.l	#$10010, (script_id).w	
-	rts	
+	tst.w	d1
+	bne.s	loc_A104
+	move.l	#$10010, (script_id).w
+	rts
 loc_A104:
-	subq.w	#1, d1	
-	bne.s	loc_A11E	
-	bsr.w	RemoveItemFromInventory	
-	move.w	#WinID_MenuCharStats, (window_index).w	
-	move.w	#$1E, $FFFFDE5E.w	
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	subq.w	#1, d1
+	bne.s	loc_A11E
+	bsr.w	RemoveItemFromInventory
+	move.w	#WinID_MenuCharStats, (window_index).w
+	move.w	#$1E, $FFFFDE5E.w
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_A11E:
-	subq.w	#1, d1	
-	bne.s	loc_A15A	
-	subq.w	#1, $FFFFDE5E.w	
-	bpl.s	loc_A158	
-	lea	(party_member_id).w, a1	
-	move.w	(party_members_num).w, d0	
+	subq.w	#1, d1
+	bne.s	loc_A15A
+	subq.w	#1, $FFFFDE5E.w
+	bpl.s	loc_A158
+	lea	(party_member_id).w, a1
+	move.w	(party_members_num).w, d0
 loc_A130:
-	lea	(character_stats).w, a2	
-	move.w	(a1)+, d1	
-	lsl.w	#6, d1	
-	adda.w	d1, a2	
-	tst.w	(a2)+	
-	bmi.s	loc_A144	
-	tst.w	(a2)+	
-	beq.s	loc_A144	
-	move.w	(a2), -(a2)	
+	lea	(character_stats).w, a2
+	move.w	(a1)+, d1
+	lsl.w	#6, d1
+	adda.w	d1, a2
+	tst.w	(a2)+
+	bmi.s	loc_A144
+	tst.w	(a2)+
+	beq.s	loc_A144
+	move.w	(a2), -(a2)
 loc_A144:
-	dbf	d0, loc_A130	
-	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w	
-	addq.w	#1, (event_routine_2).w	
+	dbf	d0, loc_A130
+	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
+	addq.w	#1, (event_routine_2).w
 	move.b	#SFXID_Healed, (sound_queue).w
 loc_A158:
-	rts	
+	rts
 loc_A15A:
-	bsr.w	WaitJoypad_B_C_Pressed	
-	bne.w	CloseAllWindows	
-	rts	
+	bsr.w	WaitJoypad_B_C_Pressed
+	bne.w	CloseAllWindows
+	rts
 ; -------------------------------------------
 ItemAction_MoonDew:
 	tst.w	d1
@@ -15472,8 +15472,8 @@ loc_A1F2:
 loc_A1FA:
 	bne.w	CloseAllWindows
 	rts
-	
-	
+
+
 NeiSword_ItemSelected:
 	tst.w	d1
 	bne.s	loc_A21E
@@ -15484,8 +15484,8 @@ NeiSword_ItemSelected:
 	addq.w	#1, (event_routine_2).w
 +
 	rts
-	
-	
+
+
 loc_A21E:
 	subq.w	#1, d1
 	bne.w	CloseAllWindows
@@ -15499,19 +15499,19 @@ loc_A21E:
 	cmpi.b	#$80, (track_timer).w
 	bne.s	-
 	rts
-	
+
 Teim_ItemSelected:
 	tst.w	d1
 	bne.w	CloseAllWindows
 	move.w	#$25, (script_id).w
 	rts
-	
+
 Visiphone_ItemSelected:
 	tst.w	d1
 	bne.w	+		; move to data memory
 	move.w	#$28, (script_id).w
 	rts
-	
+
 +
 	move.w	#BuildingID_DataMemory, (building_index).w
 	move.w	#9, (portrait_index).w
@@ -15524,7 +15524,7 @@ Visiphone_ItemSelected:
 	move.w	(characters_ram+x_pos).w, d0		; get characters' x position
 	andi.w	#$FFF0, d0
 	move.w	d0, (map_x_pos).w ; and save it
-	rts	
+	rts
 ; -------------------------------------------
 ItemAction_GiveEntry:
 	move.w	(event_routine_2).w, d1
@@ -15580,7 +15580,7 @@ loc_A342:
 	lsl.w	#2, d0
 	andi.w	#$C, d0
 	jmp	loc_A350(pc,d0.w)
-	
+
 loc_A350:
 	bra.w	loc_A358
 	bra.w	loc_A368
@@ -15590,7 +15590,7 @@ loc_A358:
 	bsr.w	AddItemToInventory
 	bra.w	CloseAllWindows
 loc_A368:
-	bra.w	JmpTo_CloseCurrentWindow	
+	bra.w	JmpTo_CloseCurrentWindow
 ; -------------------------------------------
 ItemAction_TossEntry:
 	move.w	(event_routine_2).w, d1
@@ -15601,11 +15601,11 @@ ItemAction_TossEntry:
 	adda.w	d0, a2
 	tst.w	(a2)
 	bne.s	loc_A390
-	
-	move.w	#0, ($FFFFDE8C).w	
-	move.w	#6, (script_id).w	
-	bra.s	loc_A3BC	
-	
+
+	move.w	#0, ($FFFFDE8C).w
+	move.w	#6, (script_id).w
+	bra.s	loc_A3BC
+
 loc_A390:
 	moveq	#0, d0
 	move.b	(item_index).w, d0
@@ -15625,7 +15625,7 @@ loc_A3BC:
 	move.w	#WinID_ScriptMessage, (window_index).w
 	move.w	#0, (event_routine_3).w
 	rts
-	
+
 ItemToss_ProcessAction:
 	move.w	($FFFFDE8C).w, d0
 	lsl.w	#2, d0
@@ -15655,7 +15655,7 @@ loc_A3FA:
 loc_A410:
 	addq.w	#1, (event_routine_3).w
 	rts
-	
+
 loc_A416:
 	move.w	#$8002, d1
 	move.w	(yes_no_input).w, d0
@@ -15698,23 +15698,23 @@ loc_A474:
 	move.w	d1, (a0)+					; show windows for every member currently in the party
 	addq.w	#1, d1
 	dbf	d0, loc_A474
-	
+
 	move.w	#WinID_MenuMeseta, (a0)
 	addq.w	#1, (event_routine_2).w
 	rts
 loc_A486:
 	bra.w	CloseAllWindows
-; -----------------------------------	
+; -----------------------------------
 loc_A48A:
 	move.w	(event_routine_2).w, d1
 	bne.s	loc_A4D8
 	tst.w	(party_members_num).w
 	bne.s	+			; branch if Rolf is not alone
-	move.w	#WinID_ScriptMessage, (window_index).w	
+	move.w	#WinID_ScriptMessage, (window_index).w
 	move.w	#$927, (script_id).w		; huh? Wrong pointer here. This is the text "Hey,Shir is coming back!".
-	addq.w	#2, (event_routine_2).w	
+	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 +
 	move.w	#$FFFF, ($FFFFC602).w
 	move.l	#0, $FFFFC610.w
@@ -15733,7 +15733,7 @@ loc_A4E4:
 	move.w	(a0)+, d0
 	bmi.s	loc_A4E4
 	dbf	d1, loc_A4E4
-	
+
 	subq.w	#2, a0
 	bset	#7, (a0)
 	lea	$FFFFC610.w, a0
@@ -15776,7 +15776,7 @@ Menu_TechEntry:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	TechEntry_ActionIndex-4(pc,d1.w)
-; -------------------------------------		
+; -------------------------------------
 TechEntry_ActionIndex:
 	bra.w	loc_A576
 	bra.w	loc_A584
@@ -15786,7 +15786,7 @@ loc_A576:
 	move.l	#((WinID_MenuCharStats<<$10)|WinID_MenuItemChar), (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_A584:
 	move.w	(event_routine_2).w, d1
 	bne.w	JmpTo_CloseCurrentWindow
@@ -15812,7 +15812,7 @@ loc_A5C8:
 	move.w	#WinID_MapTechList, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_A5D4:
 	move.w	(event_routine_2).w, d1
 	bne.s	+
@@ -15841,7 +15841,7 @@ loc_A5D4:
 	lsl.w	#2, d0
 	andi.w	#$FC, d0
 	jmp	Map_TechEffectIndex(pc,d0.w)
-; -------------------------------------	
+; -------------------------------------
 Map_TechEffectIndex:
 	bra.w	TechEffect_Res
 	bra.w	TechEffect_Res
@@ -15856,19 +15856,19 @@ Map_TechEffectIndex:
 	bra.w	TechEffect_Ryuka
 	bra.w	TechEffect_Hinas
 	bra.w	TechEffect_Musik
-; -------------------------------------	
+; -------------------------------------
 loc_A65C:
-	tst.w	d1	
-	bne.w	CloseAllWindows	
-	move.w	#WinID_ScriptMessage, (window_index).w	
-	move.w	#$103, (script_id).w	
+	tst.w	d1
+	bne.w	CloseAllWindows
+	move.w	#WinID_ScriptMessage, (window_index).w
+	move.w	#$103, (script_id).w
 	rts
-; -------------------------------------		
+; -------------------------------------
 TechEffect_Res:
 	tst.w	d1
 	bne.s	loc_A676
 	rts
-	
+
 loc_A676:
 	subq.w	#1, d1
 	bne.s	loc_A6B8
@@ -15880,14 +15880,14 @@ loc_A676:
 	move.w	#$104, (script_id).w
 	tst.w	(a2)
 	bne.s	loc_A6A2
-	move.w	#$102, (script_id).w	
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	move.w	#$102, (script_id).w
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_A6A2:
 	tst.w	-(a2)
 	bpl.s	loc_A6B0
-	move.w	#$10B, (script_id).w	
-	addq.w	#3, (event_routine_2).w	
+	move.w	#$10B, (script_id).w
+	addq.w	#3, (event_routine_2).w
 loc_A6B0:
 	addq.w	#2, (event_routine_2).w
 	bra.w	Map_TechEffect_SubtractTP
@@ -15927,7 +15927,7 @@ loc_A708:
 	addi.w	#$3C, d1
 	bra.s	loc_A716
 loc_A714:
-	move.w	(a2), d1	
+	move.w	(a2), d1
 loc_A716:
 	cmp.w	(a2), d1
 	bcs.s	loc_A71C
@@ -15950,69 +15950,69 @@ loc_A73E:
 	beq.s	loc_A73C
 loc_A748:
 	bra.w	CloseAllWindows
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Sar:
-	tst.w	d1	
-	bne.s	loc_A762	
-	bsr.w	Map_TechEffect_SubtractTP	
-	move.w	#WinID_ScriptMessage, (window_index).w	
-	move.w	#$108, (script_id).w	
-	rts	
+	tst.w	d1
+	bne.s	loc_A762
+	bsr.w	Map_TechEffect_SubtractTP
+	move.w	#WinID_ScriptMessage, (window_index).w
+	move.w	#$108, (script_id).w
+	rts
 loc_A762:
-	subq.w	#1, d1	
-	bne.s	loc_A778	
-	move.w	#$8001, (window_index).w	
-	move.w	#$1E, $FFFFDE5E.w	
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	subq.w	#1, d1
+	bne.s	loc_A778
+	move.w	#$8001, (window_index).w
+	move.w	#$1E, $FFFFDE5E.w
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_A778:
-	subq.w	#1, d1	
-	bne.s	loc_A7D2	
+	subq.w	#1, d1
+	bne.s	loc_A7D2
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_A7D0
-	lea	(party_member_id).w, a1	
-	move.w	(party_members_num).w, d2	
+	lea	(party_member_id).w, a1
+	move.w	(party_members_num).w, d2
 loc_A78A:
-	lea	(character_stats).w, a2	
-	move.w	(a1)+, d1	
-	lsl.w	#6, d1	
-	adda.w	d1, a2	
-	tst.w	(a2)+	
-	bmi.s	loc_A7C2	
-	move.w	(a2)+, d1	
-	beq.s	loc_A7C2	
-	move.b	(technique_index).w, d0	
-	cmpi.b	#TechID_Sar, d0	
-	bne.s	loc_A7AC	
-	addi.w	#$14, d1	
-	bra.s	loc_A7BA	
+	lea	(character_stats).w, a2
+	move.w	(a1)+, d1
+	lsl.w	#6, d1
+	adda.w	d1, a2
+	tst.w	(a2)+
+	bmi.s	loc_A7C2
+	move.w	(a2)+, d1
+	beq.s	loc_A7C2
+	move.b	(technique_index).w, d0
+	cmpi.b	#TechID_Sar, d0
+	bne.s	loc_A7AC
+	addi.w	#$14, d1
+	bra.s	loc_A7BA
 loc_A7AC:
-	cmpi.b	#TechID_Gisar, d0	
-	bne.s	loc_A7B8	
-	addi.w	#$3C, d1	
-	bra.s	loc_A7BA	
+	cmpi.b	#TechID_Gisar, d0
+	bne.s	loc_A7B8
+	addi.w	#$3C, d1
+	bra.s	loc_A7BA
 loc_A7B8:
-	move.w	(a2), d1	
+	move.w	(a2), d1
 loc_A7BA:
-	cmp.w	(a2), d1	
-	bcs.s	loc_A7C0	
-	move.w	(a2), d1	
+	cmp.w	(a2), d1
+	bcs.s	loc_A7C0
+	move.w	(a2), d1
 loc_A7C0:
-	move.w	d1, -(a2)	
+	move.w	d1, -(a2)
 loc_A7C2:
-	dbf	d2, loc_A78A	
-	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w	
+	dbf	d2, loc_A78A
+	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
 	addq.w	#1, (event_routine_2).w
 ; sound for the Sar techniques is missing; I included the sound ID used for the res technique right below. Just uncomment it if you want it
 	;move.b	#SFXID_Healed, (sound_queue).w
 
 loc_A7D0:
-	rts	
+	rts
 loc_A7D2:
-	bsr.w	WaitJoypad_B_C_Pressed	
-	bne.w	CloseAllWindows	
-	rts	
-; -------------------------------------	
+	bsr.w	WaitJoypad_B_C_Pressed
+	bne.w	CloseAllWindows
+	rts
+; -------------------------------------
 TechEffect_Sak:
 	tst.w	d1
 	bne.s	loc_A7E2
@@ -16075,7 +16075,7 @@ loc_A86C:
 	beq.s	loc_A86A
 loc_A876:
 	bra.w	CloseAllWindows
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Nasak:
 	tst.w	d1
 	bne.s	loc_A890
@@ -16124,7 +16124,7 @@ loc_A8EC:
 	bsr.w	WaitJoypad_B_C_Pressed
 	bne.w	CloseAllWindows
 	rts
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Anti:
 	tst.w	d1
 	bne.s	loc_A8FC
@@ -16140,9 +16140,9 @@ loc_A8FC:
 	move.w	#$105, (script_id).w
 	tst.w	(a2)
 	bne.s	loc_A928
-	move.w	#$102, (script_id).w	
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	move.w	#$102, (script_id).w
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_A928:
 	tst.w	-(a2)
 	bmi.s	loc_A938
@@ -16183,7 +16183,7 @@ loc_A982:
 	beq.s	loc_A980
 loc_A98C:
 	bra.w	CloseAllWindows
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Rever:
 	tst.w	d1
 	bne.s	loc_A996
@@ -16204,19 +16204,19 @@ loc_A996:
 loc_A9C2:
 	addq.w	#1, (event_routine_2).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Ryuka:
 	tst.w	d1
 	bne.w	ItemAction_Telepipe
 	move.w	#WinID_ScriptMessage, (window_index).w
 	bra.w	ItemAction_Telepipe
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Hinas:
 	tst.w	d1
 	bne.w	ItemAction_Escapipe
 	move.w	#WinID_ScriptMessage, (window_index).w
 	bra.w	ItemAction_Escapipe
-; -------------------------------------	
+; -------------------------------------
 TechEffect_Musik:
 	tst.w	d1
 	bne.w	CloseAllWindows
@@ -16243,7 +16243,7 @@ TechEffect_Musik:
 loc_AA3E:
 	move.l	#$1090004, (script_id).w
 	rts
-	
+
 Map_TechEffect_SubtractTP:
 	lea	(TechniqueData+5).l, a3
 	move.b	(technique_index).w, d0
@@ -16263,49 +16263,49 @@ Menu_StrngEntry:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	StrngEntry_ActionIndex-4(pc,d1.w)
-; -------------------------------------		
+; -------------------------------------
 StrngEntry_ActionIndex:
 	bra.w	loc_AA88
 	bra.w	loc_AA94
 	bra.w	loc_AAAA
 	bra.w	loc_AAB8
-; -------------------------------------	
+; -------------------------------------
 loc_AA88:
 	move.w	#WinID_StrngCharList, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AA94:
 	move.l	#((WinID_StrngLVEXP<<$10)|WinID_StrngHPTP), (window_index).w
 	move.l	#((WinID_StrngStats<<$10)|WinID_StrngEquip), (window_index+4).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AAAA:
 	move.l	#((WinID_FullTechList<<$10)|WinID_FullTechList2), (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AAB8:
 	bra.w	CloseAllWindows
-; -------------------------------------	
+; -------------------------------------
 Menu_EqpEntry:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	EqpEntry_ActionIndex-4(pc,d1.w)
-; -------------------------------------	
-EqpEntry_ActionIndex:	
+; -------------------------------------
+EqpEntry_ActionIndex:
 	bra.w	loc_AADA
 	bra.w	loc_AAE6
 	bra.w	loc_AB6A
 	bra.w	loc_AC42
 	bra.w	loc_AD00
-; -------------------------------------		
+; -------------------------------------
 loc_AADA:
 	move.w	#WinID_StrngCharList, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AAE6:
 	tst.w	(event_routine_2).w
 	bne.w	JmpTo_CloseCurrentWindow
@@ -16319,15 +16319,15 @@ loc_AAE6:
 	move.w	#WinID_ScriptMessage, (window_index).w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 +
 	tst.b	$27(a2)
 	bne.s	+
-	move.w	#$23, (script_id).w	
-	move.w	#WinID_ScriptMessage, (window_index).w	
-	addq.w	#1, (event_routine_2).w	
+	move.w	#$23, (script_id).w
+	move.w	#WinID_ScriptMessage, (window_index).w
+	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 +
 	move.w	$14(a2), d0
 	move.w	d0, d1
@@ -16348,7 +16348,7 @@ loc_AAE6:
 	move.l	#((WinID_EquipStats<<$10)|WinID_ItemList2), (window_index+4).w
 	addq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AB6A:
 	move.w	(event_routine_2).w, d1
 	bne.w	JmpTo_CloseCurrentWindow
@@ -16371,7 +16371,7 @@ loc_ABA6:
 	move.w	#WinID_ScriptMessage, (window_index).w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_ABB2:
 	lea	(character_stats+items).w, a2
 	move.w	(character_index).w, d1
@@ -16429,7 +16429,7 @@ loc_AC2E:
 	adda.w	d1, a2
 	move.b	#0, (a2)
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AC42:
 	move.w	(character_index).w, d3
 	bsr.w	loc_ADBE
@@ -16498,7 +16498,7 @@ loc_ACDC:
 	move.b	#$26, (a0)
 loc_ACFE:
 	rts
-; -------------------------------------	
+; -------------------------------------
 loc_AD00:
 	move.w	(character_index).w, d3
 	bsr.w	loc_AD4C
@@ -16514,9 +16514,9 @@ loc_AD00:
 loc_AD38:
 	subq.w	#1, (event_routine).w
 	rts
-; -------------------------------------	
+; -------------------------------------
 
-	
+
 SetCharEquipment:
 	moveq	#0, d3
 	moveq	#7, d4
@@ -16524,9 +16524,9 @@ loc_AD42:
 	bsr.s	loc_AD4C
 	addq.w	#1, d3
 	dbf	d4, loc_AD42
-	
+
 	rts
-	
+
 loc_AD4C:
 	move.w	d3, d1
 	lea	(character_stats).w, a1
@@ -16552,7 +16552,7 @@ loc_AD4C:
 	add.w	d0, $14(a1)		; add value to AGILITY
 loc_AD8A:
 	rts
-	
+
 loc_AD8C:
 	move.b	(a2)+, d0		; get equipment index
 	andi.w	#$7F, d0
@@ -16568,7 +16568,7 @@ loc_AD8C:
 	add.w	d0, $1E(a1)		; add value to DEFENSE
 loc_ADAE:
 	rts
-	
+
 loc_ADB0:
 	moveq	#0, d3
 	moveq	#7, d4
@@ -16577,7 +16577,7 @@ loc_ADB4:
 	addq.w	#1, d3
 	dbf	d4, loc_ADB4
 	rts
-	
+
 loc_ADBE:
 	move.w	d3, d2
 	lea	(character_stats).w, a1
@@ -16596,7 +16596,7 @@ loc_ADBE:
 	bcs.s	loc_ADF6			; if less than 0, we are referencing footwear before Shoes in the list
 	cmpi.w	#(ItemID_GardaBoots-ItemID_Shoes), d2	; range for the footwear in the list (1-8)
 	bhi.s	loc_ADF6			; if it's higher than range, we are referencing footwear after Garda Boots in the list
-	
+
 	lea	(AgilityIncreasesArray).l, a0
 	adda.w	d2, a0
 	move.b	(a0), d0
@@ -16618,7 +16618,7 @@ loc_ADF8:
 	sub.w	d0, $1E(a1)
 loc_AE1A:
 	rts
-	
+
 ; =============================================
 ; Array of agility increases for footwear
 AgilityIncreasesArray:
@@ -16632,13 +16632,13 @@ AgilityIncreasesArray:
 	dc.b	$08		; Garda Boots
 ; =============================================
 
-	
-	
+
+
 WaitJoypad_B_C_Pressed:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
 	rts
-	
+
 
 loc_AE2E:
 	lea	(character_stats+items).w, a2
@@ -16681,8 +16681,8 @@ loc_AE84:
 	beq.s	loc_AE76
 	moveq	#3, d1
 	bra.s	loc_AE76
-	
-	
+
+
 RemoveItemFromInventory:
 	move.w	(character_index).w, d1
 RemoveItemFromInventory2:
@@ -16701,11 +16701,11 @@ RemoveItemFromInventory2:
 loc_AEBE:
 	move.b	(a2)+, (a1)+
 	dbf	d1, loc_AEBE
-	
+
 loc_AEC4:
 	move.b	#0, (a1)
 	rts
-	
+
 AddItemToInventory:
 	move.w	(character_index_2).w, d1
 AddItemToInventory2:
@@ -16718,7 +16718,7 @@ AddItemToInventory2:
 	adda.w	d1, a2
 	move.b	(item_index).w, (a2)
 	rts
-	
+
 
 Building_CheckRoutine:
 	tst.w	(window_index).w
@@ -16732,7 +16732,7 @@ Building_CheckRoutine:
 	move.b	#GameModeID_Map, (game_mode_index).w
 loc_AF02:
 	rts
-	
+
 loc_AF04:
 	subq.w	#1, d1
 	bne.s	loc_AF1A
@@ -16741,7 +16741,7 @@ loc_AF04:
 	move.w	d0, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_AF1A:
 	move.w	(building_index).w, d0
 	lsl.w	#2, d0
@@ -16770,26 +16770,26 @@ PtrBuilding_GairaControlPanel:		bra.w	Building_GairaControlPanel
 PtrBuilding_TylerSpaceship:			bra.w	Building_TylerSpaceship
 PtrBuilding_EsperMansion:			bra.w	Building_EsperMansion
 ;----------------------------------------------------
-	
+
 
 Building_RolfHouseStart:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	RolfHouseSt_EventIndex-4(pc,d1.w)
-; ------------------------------------------	
+; ------------------------------------------
 RolfHouseSt_EventIndex:
 	bra.w	loc_AF8E
 	bra.w	loc_AFA4
 	bra.w	loc_AFC2
 	bra.w	loc_AFE6
-; ------------------------------------------		
+; ------------------------------------------
 loc_AF8E:
 	bsr.w	loc_F550
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$901, (script_id).w		; "After going home and preparing for the trip, Nei seemed worried."
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 loc_AFA4:
 	move.w	#WinID_NeiPortrait, (window_index).w
 	move.w	#1, (portrait_index).w
@@ -16798,15 +16798,15 @@ loc_AFA4:
 	move	#$2500, sr
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 loc_AFC2:
 	move.w	#CharID_Rolf, (character_index).w
-	move.l	#$9020903, (script_id).w								
-	move.l	#$9040905, (script_id+4).w												
+	move.l	#$9020903, (script_id).w
+	move.l	#$9040905, (script_id+4).w
 	move.l	#$9060907, (script_id+8).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 loc_AFE6:
 	move.w	#0, (demo_flag).w
 	move.w	#0, (demo_index).w
@@ -16816,13 +16816,13 @@ loc_AFE6:
 	move.l	#CharID_Nei, (party_member_id).w
 	move.l	#0, $FFFFC60C.w
 	bra.w	CloseAllWindows
-; ------------------------------------------		
+; ------------------------------------------
 
 Building_RolfHouse:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	RolfHouse_EventIndex-4(pc,d1.w)
-; ------------------------------------------		
+; ------------------------------------------
 RolfHouse_EventIndex:
 	bra.w	loc_B04E
 	bra.w	loc_B0A6
@@ -16835,7 +16835,7 @@ RolfHouse_EventIndex:
 	bra.w	loc_B350
 	bra.w	loc_B35C
 	bra.w	loc_B398
-; ------------------------------------------		
+; ------------------------------------------
 loc_B04E:
 	move.w	(party_members_joined).w, d0
 	cmp.w	(party_member_join_next).w, d0
@@ -16849,7 +16849,7 @@ loc_B04E:
 	move.w	#$92E, (script_id+4).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_B082:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$927, (script_id).w		; "Hey,Shir is coming back!"
@@ -16860,12 +16860,12 @@ loc_B082:
 loc_B0A0:
 	addq.w	#5, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 loc_B0A6:
 	move.w	#WinID_YesNo3, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 loc_B0B2:
 	tst.w	(event_routine_2).w
 	bne.w	CloseAllWindows
@@ -16874,12 +16874,12 @@ loc_B0B2:
 	move.l	#$90A090B, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_B0CE:
 	move.w	#$909, (script_id).w
 	addq.w	#1, (event_routine_2).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B0DA:
 	tst.w	(script_id).w
 	bne.s	loc_B0EA
@@ -16887,7 +16887,7 @@ loc_B0DA:
 	addq.w	#1, (event_routine).w
 loc_B0EA:
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B0EC:
 	move.w	$FFFFDEC4.w, d0
 	lsl.w	#2, d0
@@ -16948,7 +16948,7 @@ RolfHouseOption_Reorganize:
 loc_B19A:
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_B1A0:
 	subq.w	#1, d1
 	bne.s	loc_B1EC
@@ -17077,8 +17077,8 @@ loc_B322:
 	move.w	d0, (script_id).w
 	cmpi.w	#7, d1
 	bne.s	loc_B34E
-	move.l	#$91B090E, $FFFFCD02.w	
-	addq.w	#2, (event_routine).w	
+	move.l	#$91B090E, $FFFFCD02.w
+	addq.w	#2, (event_routine).w
 loc_B34E:
 	rts
 ; ------------------------------------------
@@ -17120,7 +17120,7 @@ loc_B398:
 ; ------------------------------------------
 
 ; ===============================
-RolfHouse_CharIntroTextPtrs:	
+RolfHouse_CharIntroTextPtrs:
 	dc.b	$1C
 	dc.b	$1E
 	dc.b	$1F
@@ -17140,7 +17140,7 @@ RolfHouse_CharNameChangeTextPtrs:
 	dc.b	$19
 ; ===============================
 
-	
+
 SetCharNames:
 	lea	(character_names).w, a1		; Character names
 	moveq	#0, d1
@@ -17156,9 +17156,9 @@ SetCharNames:
 	bsr.s	+
 	addq.w	#1, d1			; next character
 	dbf	d0, -
-	
+
 	rts
-	
+
 +
 	moveq	#0, d2
 	move.b	(a1)+, d2
@@ -17170,7 +17170,7 @@ SetCharNames:
 	move.b	(a4), (a2)
 	subq.w	#3, a2
 	rts
-	
+
 
 Building_DataMemory:
 	tst.w	(event_routine_2).w
@@ -17178,7 +17178,7 @@ Building_DataMemory:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	DataMemEventIndex-4(pc,d1.w)
-; ------------------------------------------	
+; ------------------------------------------
 loc_B3FC:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
@@ -17201,7 +17201,7 @@ DataMemEventIndex:
 	bra.w	loc_B628
 	bra.w	loc_B63C
 	bra.w	loc_B654
-; ------------------------------------------	
+; ------------------------------------------
 loc_B44A:
 	move.w	#WinID_ScriptMessage2, (window_index).w
 	tst.w	$FFFFF766.w
@@ -17211,7 +17211,7 @@ loc_B44A:
 	move.w	#$810, (script_id).w
 	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 +
 	move.w	#$301, (script_id).w		; "Welcome to Data Memory."
 	tst.w	$FFFFF764.w
@@ -17222,7 +17222,7 @@ loc_B44A:
 	move.w	#0, ($FFFFC602).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B48A:
 	move.w	($FFFFC602).w, d0
 	move.w	d0, d2
@@ -17391,7 +17391,7 @@ loc_B654:
 	lea	(system_stack&$FFFFFF).l, a0
 	move.l	a0, usp
 	jmp	(EntryPoint).l
-; ------------------------------------------	
+; ------------------------------------------
 
 Building_CloneLab:
 	tst.w	(event_routine_2).w
@@ -17399,14 +17399,14 @@ Building_CloneLab:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	CloneLabEventIndex-4(pc,d1.w)
-; ------------------------------------------		
+; ------------------------------------------
 loc_B678:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
 	move.w	#$404, (script_id).w		; "All right, here you go."
 	addq.w	#1, (event_routine_2).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 CloneLabEventIndex:
 	bra.w	loc_B6AE
 	bra.w	loc_B6FA
@@ -17416,12 +17416,12 @@ CloneLabEventIndex:
 	bra.w	loc_B7EE
 	bra.w	loc_B802
 	bra.w	loc_B810
-; ------------------------------------------		
+; ------------------------------------------
 loc_B6AE:
 	move.l	#((WinID_StoreMeseta<<$10)|WinID_ScriptMessage2), (window_index).w
 	move.w	#$401, (script_id).w
 	tst.w	(demo_flag).w
-	beq.s	loc_B6F4					; branch if not in demo mode (does not branch after Neifirst battle, when Nei is supposed to die)						
+	beq.s	loc_B6F4					; branch if not in demo mode (does not branch after Neifirst battle, when Nei is supposed to die)
 	move.w	#$408, (script_id).w		; if we get here, it means that Nei is dead and the dialogue about nei not being able to be revived and removing her from party takes place here
 	lea	(party_member_id).w, a0
 	move.w	(party_members_num).w, d0
@@ -17432,16 +17432,16 @@ loc_B6D4:
 	tst.w	(a2,d1.w)
 	beq.s	loc_B6E8
 	dbf	d0, loc_B6D4
-	
+
 	addq.w	#1, (event_routine).w
 	bra.s	loc_B6F4
 loc_B6E8:
-	move.w	#$40B, (script_id+2).w	
-	move.w	#0, ($FFFFC602).w	
+	move.w	#$40B, (script_id+2).w
+	move.w	#0, ($FFFFC602).w
 loc_B6F4:
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 loc_B6FA:
 	tst.w	(demo_flag).w
 	bne.s	loc_B70C
@@ -17449,29 +17449,29 @@ loc_B6FA:
 	addq.w	#1, (event_routine).w
 	rts
 loc_B70C:
-	lea	(party_member_id).w, a0	
-	move.w	($FFFFC602).w, d0	
-	cmp.w	(party_members_num).w, d0	
-	bls.s	loc_B726	
+	lea	(party_member_id).w, a0
+	move.w	($FFFFC602).w, d0
+	cmp.w	(party_members_num).w, d0
+	bls.s	loc_B726
 	move.w	#$404, (script_id).w			; "All right, here you go."
-	addq.w	#1, (event_routine).w	
-	rts	
-loc_B726:
-	add.w	d0, d0	
-	move.w	(a0,d0.w), d1	
-	move.w	d1, (character_index).w	
-	lea	(character_stats+curr_hp).w, a2	
-	lsl.w	#6, d1	
-	adda.w	d1, a2	
-	tst.w	(a2)+	
-	bne.s	loc_B74A	
-	move.w	(a2), -(a2)	
-	move.b	#SFXID_Revived, (sound_queue).w
-	move.w	#$406, (script_id).w	
-loc_B74A:
-	addq.w	#1, ($FFFFC602).w	
+	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------		
+loc_B726:
+	add.w	d0, d0
+	move.w	(a0,d0.w), d1
+	move.w	d1, (character_index).w
+	lea	(character_stats+curr_hp).w, a2
+	lsl.w	#6, d1
+	adda.w	d1, a2
+	tst.w	(a2)+
+	bne.s	loc_B74A
+	move.w	(a2), -(a2)
+	move.b	#SFXID_Revived, (sound_queue).w
+	move.w	#$406, (script_id).w
+loc_B74A:
+	addq.w	#1, ($FFFFC602).w
+	rts
+; ------------------------------------------
 loc_B750:
 	tst.w	(demo_flag).w
 	bne.s	loc_B78A
@@ -17498,12 +17498,12 @@ loc_B78A:
 	move.w	#7, (demo_index).w
 	move.w	#0, (demo_input_index).w
 	bra.w	CloseAllWindows
-; ------------------------------------------	
+; ------------------------------------------
 loc_B7A6:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B7B2:
 	move.w	(yes_no_input).w, d0
 	beq.s	+
@@ -17525,7 +17525,7 @@ loc_B7E2:
 	move.w	#$40A, (script_id).w
 	addq.w	#1, (event_routine_2).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B7EE:
 	move.b	#SFXID_Revived, (sound_queue).w
 	move.l	#$4060405, (script_id).w
@@ -17536,7 +17536,7 @@ loc_B802:
 	move.l	#(($8001<<$10)|WinID_YesNo2), (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B810:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_B81C
@@ -17546,7 +17546,7 @@ loc_B81C:
 	move.w	#$407, (script_id).w
 	subq.w	#6, (event_routine).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 
 Building_Hospital:
 	tst.w	(event_routine_2).w
@@ -17554,14 +17554,14 @@ Building_Hospital:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	HospitalEventIndex-4(pc,d1.w)
-; ------------------------------------------		
+; ------------------------------------------
 loc_B83A:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
 	move.w	#$505, (script_id).w
 	addq.w	#1, (event_routine_2).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 HospitalEventIndex:
 	bra.w	loc_B87C
 	bra.w	loc_B8A2
@@ -17574,7 +17574,7 @@ HospitalEventIndex:
 	bra.w	loc_BA00
 	bra.w	loc_BA18
 	bra.w	loc_BA2A
-; ------------------------------------------	
+; ------------------------------------------
 loc_B87C:
 	move.l	#((WinID_StoreMeseta<<$10)|WinID_ScriptMessage2), (window_index).w
 	bsr.w	CheckPlanetAndCaps
@@ -17586,12 +17586,12 @@ loc_B896:
 	move.w	#$501, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B8A2:
 	move.w	#WinID_HealCure, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B8AE:
 	move.w	$FFFFDEC0.w, d0
 	bne.s	loc_B902	; if you picked the CURE option, branch
@@ -17608,13 +17608,13 @@ loc_B8AE:
 	cmp.w	(a2)+, d1
 	bne.s	+			; if max HP is different from current HP, branch (character's not fully healed)
 	move.w	(a2)+, d1	; get current TP
-	cmp.w	(a2), d1	
+	cmp.w	(a2), d1
 	beq.s	++			; if max TP is the same as current TP, branch and process next character (character has both full HP and TP)
 +
 	addq.w	#1, d2		; increase counter
 +
 	dbf	d0, -
-	
+
 	tst.b	d2
 	bne.s	+		; if at least one character can be healed, branch
 	move.l	#$509050A, (script_id).w
@@ -17631,7 +17631,7 @@ loc_B902:
 	move.w	#$507, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B90E:
 	move.w	#WinID_StoreCharList, (window_index).w
 	moveq	#$A, d0
@@ -17639,7 +17639,7 @@ loc_B90E:
 	move.l	d0, (meseta_value).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B924:
 	move.w	$FFFFDEC0.w, d0
 	beq.s	loc_B952		;  if you didn't pick the CURE option, branch
@@ -17653,7 +17653,7 @@ loc_B924:
 	addq.w	#5, (event_routine).w
 	tst.w	(a2)
 	bne.s	+		;  branch if character's not dead
-	move.w	#$508, (script_id).w	
+	move.w	#$508, (script_id).w
 +
 	rts
 
@@ -17661,12 +17661,12 @@ loc_B952:
 	move.w	#$503, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B95E:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B96A:
 	move.w	(yes_no_input).w, d0
 	beq.s	+
@@ -17684,7 +17684,7 @@ loc_B994:
 	move.w	#$504, (script_id).w
 	addq.w	#2, (event_routine_2).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_B9A0:
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_B9D6
@@ -17722,7 +17722,7 @@ loc_B9F4:
 	dbf	d0, loc_B9E0
 	move.b	#SFXID_Healed, (sound_queue).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BA00:
 	subq.w	#1, $FFFFDE5E.w
 	bpl.s	loc_BA16
@@ -17731,7 +17731,7 @@ loc_BA00:
 	addq.w	#1, (event_routine).w
 loc_BA16:
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BA18:
 	tst.w	(script_id).w
 	bne.s	+
@@ -17739,7 +17739,7 @@ loc_BA18:
 	addq.w	#1, (event_routine).w
 +
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BA2A:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_BA3C
@@ -17754,7 +17754,7 @@ loc_BA48:
 	subq.w	#8, (event_routine).w
 	move.w	#WinID_HealCure, (window_index_saved).w
 	rts
-; ------------------------------------------		
+; ------------------------------------------
 
 Building_WeaponStore:
 	tst.w	(event_routine_2).w
@@ -17762,7 +17762,7 @@ Building_WeaponStore:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	WeaponStoreEventIndex-4(pc,d1.w)
-; ------------------------------------------		
+; ------------------------------------------
 loc_BA66:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
@@ -17770,7 +17770,7 @@ loc_BA66:
 	addq.w	#1, (event_routine_2).w
 	moveq	#StealItemArray_Weapon-StealItemArray, d2
 	bra.w	ProcessStealItem
-; ------------------------------------------	
+; ------------------------------------------
 WeaponStoreEventIndex:
 	bra.w	loc_BAA8
 	bra.w	loc_BACE
@@ -17782,7 +17782,7 @@ WeaponStoreEventIndex:
 	bra.w	loc_BBA8
 	bra.w	loc_BBB4
 	bra.w	loc_BBC6
-; ------------------------------------------	
+; ------------------------------------------
 loc_BAA8:
 	move.l	#((WinID_StoreMeseta<<$10)|WinID_ScriptMessage2), (window_index).w
 	bsr.w	CheckPlanetAndCaps
@@ -17794,22 +17794,22 @@ loc_BAC2:
 	move.w	#$601, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BACE:
 	move.w	#WinID_StoreInventory, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BADA:
 	move.w	#$602, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BAE6:
 	move.w	#WinID_StoreCharList, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 loc_BAF2:
 	move.w	(character_index).w, d1
 	lea	(character_stats+item_num).w, a0
@@ -17897,7 +17897,7 @@ loc_BBD8:
 	subq.w	#7, (event_routine).w
 	move.w	#WinID_StoreInventory, (window_index_saved).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 
 Building_ArmorStore:
 	tst.w	(event_routine_2).w
@@ -17905,7 +17905,7 @@ Building_ArmorStore:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	ArmorStoreEventIndex-4(pc,d1.w)
-; ------------------------------------------	
+; ------------------------------------------
 loc_BBFC:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
@@ -17913,7 +17913,7 @@ loc_BBFC:
 	addq.w	#1, (event_routine_2).w
 	moveq	#StealItemArray_Armor-StealItemArray, d2
 	bra.w	ProcessStealItem
-; ------------------------------------------		
+; ------------------------------------------
 ArmorStoreEventIndex:
 	bra.w	loc_BC3E
 	bra.w	loc_BC64
@@ -18040,7 +18040,7 @@ loc_BD6E:
 	subq.w	#7, (event_routine).w
 	move.w	#WinID_StoreInventory, (window_index_saved).w
 	rts
-; ------------------------------------------	
+; ------------------------------------------
 
 Building_ItemStore:
 	tst.w	(event_routine_2).w
@@ -18048,7 +18048,7 @@ Building_ItemStore:
 	lsl.w	#2, d1
 	andi.w	#$7C, d1
 	jmp	ItemStoreEventIndex-4(pc,d1.w)
-; ------------------------------------------	
+; ------------------------------------------
 loc_BD92:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
@@ -18056,7 +18056,7 @@ loc_BD92:
 	addq.w	#1, (event_routine_2).w
 	moveq	#StealItemArray_Item-StealItemArray, d2
 	bra.w	ProcessStealItem
-; ------------------------------------------	
+; ------------------------------------------
 ItemStoreEventIndex:
 	bra.w	loc_BDEC
 	bra.w	loc_BE12
@@ -18074,7 +18074,7 @@ ItemStoreEventIndex:
 	bra.w	loc_BF92
 	bra.w	loc_C014
 	bra.w	loc_C026
-; ------------------------------------------	
+; ------------------------------------------
 loc_BDEC:
 	move.l	#((WinID_StoreMeseta<<$10)|WinID_ScriptMessage2), (window_index).w
 	bsr.w	CheckPlanetAndCaps
@@ -18082,7 +18082,7 @@ loc_BDEC:
 	move.w	#$810, (script_id).w
 	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 loc_BE06:
 	move.w	#$801, (script_id).w
 	addq.w	#1, (event_routine).w
@@ -18097,12 +18097,12 @@ loc_BE1E:
 	move.w	#$802, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_BE30:
 	move.w	#$806, (script_id).w		; "Which would you like?"
 	addq.w	#8, (event_routine).w
 	rts
-	
+
 loc_BE3C:
 	move.w	#WinID_StoreCharList, (window_index).w
 	move.w	#$804, (script_id).w
@@ -18117,13 +18117,13 @@ loc_BE4E:
 	adda.w	d1, a0
 	tst.b	(a0)
 	bne.s	loc_BE7E
-	move.w	#$80F, (script_id).w	
-	addq.w	#1, (event_routine_3).w	
-	rts	
+	move.w	#$80F, (script_id).w
+	addq.w	#1, (event_routine_3).w
+	rts
 loc_BE70:
-	move.w	#0, (event_routine_3).w	
-	move.w	#WinID_StoreCharList, (window_index_saved).w	
-	rts	
+	move.w	#0, (event_routine_3).w
+	move.w	#WinID_StoreCharList, (window_index_saved).w
+	rts
 loc_BE7E:
 	move.w	#WinID_MenuItemList, (window_index).w
 	addq.w	#1, (event_routine).w
@@ -18139,12 +18139,12 @@ loc_BE8A:
 	btst	#7, (a0)
 	bne.s	loc_BEC0
 	move.w	#$805, (script_id).w		; "I can't give you a price on something I've never seen before! Try something else!"
-	cmpi.b	#ItemID_Teim, (item_index).w	
-	bne.s	loc_BEBA	
+	cmpi.b	#ItemID_Teim, (item_index).w
+	bne.s	loc_BEBA
 	move.w	#$80E, (script_id).w			; "What! You must be joking!"
 loc_BEBA:
-	addq.w	#1, (event_routine_3).w	
-	rts	
+	addq.w	#1, (event_routine_3).w
+	rts
 loc_BEC0:
 	move.w	#$803, (script_id).w
 	moveq	#0, d0
@@ -18160,15 +18160,15 @@ loc_BEDC:
 	addq.w	#1, (event_routine).w
 	rts
 loc_BEE6:
-	move.w	#0, (event_routine_3).w	
-	addq.w	#1, (event_routine).w	
-	moveq	#0, d1	
-	bra.w	CloseCurrentWindow	
+	move.w	#0, (event_routine_3).w
+	addq.w	#1, (event_routine).w
+	moveq	#0, d1
+	bra.w	CloseCurrentWindow
 loc_BEF6:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_BF02:
 	move.w	($FFFFDE84).w, d0
 	lsr.w	#3, d0
@@ -18180,7 +18180,7 @@ loc_BF02:
 	beq.s	loc_BF26					; if you chose YES, branch
 	move.w	#$80B, (script_id).w		; "I see. That's too bad. Can I help you with anything else?"
 	rts
-	
+
 loc_BF26:
 	bsr.w	loc_AE2E
 	bsr.w	RemoveItemFromInventory
@@ -18244,7 +18244,7 @@ loc_BFB6:
 	move.w	#$807, (script_id).w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_BFE4:
 	move.w	#((6<<8)|WinID_StoreMeseta), (window_index).w
 	move.w	(character_index).w, d1
@@ -18275,13 +18275,13 @@ loc_C026:
 	subq.w	#4, (event_routine).w
 	move.w	#WinID_StoreInventory, (window_index_saved).w
 	rts
-	
+
 
 Building_CentralTowerOutside:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	CentralTowOutEventIndex-4(pc,d1.w)
-	
+
 
 CentralTowOutEventIndex:
 	bra.w	loc_C066
@@ -18300,14 +18300,14 @@ loc_C066:
 	move.w	#$D04, (script_id).w
 	addq.w	#5, (event_routine).w
 	rts
-	
+
 loc_C086:
 	cmpi.w	#1, $FFFFC736.w
 	beq.s	loc_C09A
 	move.w	#$D01, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C09A:
 	move.w	#$B4, $FFFFCD22.w
 	move.w	#$D02, (script_id).w
@@ -18333,8 +18333,8 @@ loc_C0C4:
 	moveq	#$18, d2
 	cmpi.w	#2, d1
 	beq.s	loc_C0EA
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_C0EA:
 	tst.b	$FFFFC73F.w
 	bne.s	loc_C0F6
@@ -18359,7 +18359,7 @@ loc_C122:
 	move.w	#$17, (portrait_index).w
 	move.w	#1, (screen_changed_flag).w
 	rts
-	
+
 
 Building_CentralTowerRoom:
 	tst.w	(event_routine_2).w
@@ -18367,7 +18367,7 @@ Building_CentralTowerRoom:
 	lsl.w	#2, d1
 	andi.w	#$7C, d1
 	jmp	CentTowRoomEventIndex-4(pc,d1.w)
-	
+
 loc_C148:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
@@ -18433,10 +18433,10 @@ loc_C1FC:
 	addq.w	#1, (event_routine_3).w
 	rts
 loc_C218:
-	move.w	#$E0C, (script_id).w	
-	addq.w	#1, (event_routine_2).w	
-	rts	
-	
+	move.w	#$E0C, (script_id).w
+	addq.w	#1, (event_routine_2).w
+	rts
+
 loc_C224:
 	move.w	#$E05, (script_id).w
 	cmpi.b	#$10, $FFFFC627.w
@@ -18465,8 +18465,8 @@ loc_C26E:
 loc_C27A:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_C286
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_C286:
 	move.w	($FFFFDE84).w, d0
 	lsr.w	#3, d0
@@ -18550,7 +18550,7 @@ loc_C382:
 	move.w	#WinID_RoomOptions, (window_index_saved).w
 	subi.w	#$D, (event_routine).w
 	rts
-	
+
 
 Building_Library:
 	tst.w	(event_routine_2).w
@@ -18564,7 +18564,7 @@ loc_C3A8:
 	move.w	#$1002, (script_id).w
 	addq.w	#1,(event_routine_2).w
 	rts
-	
+
 
 LibraryEventIndex:
 	bra.w	loc_C3E6
@@ -18577,7 +18577,7 @@ LibraryEventIndex:
 	bra.w	loc_C4B2
 	bra.w	loc_C4BE
 	bra.w	loc_C4CA
-	
+
 loc_C3E6:
 	move.w	#WinID_ScriptMessageBig,(window_index).w
 	tst.w	(character_stats+curr_hp).w
@@ -18605,12 +18605,12 @@ loc_C406:
 loc_C442:
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C448:
 	move.w	#WinID_LibraryOptions,(window_index).w
 	addq.w	#1,(event_routine).w
 	rts
-	
+
 loc_C454:
 	lea	(LibraryTextIndArray).l, a0
 	move.w	($FFFFDEBE).w, d0
@@ -18659,7 +18659,7 @@ loc_C4CA:
 	move.b	#SFXID_ItemReceived, (sound_queue).w
 	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 ; =============================================
 ; Array for the five possible options in
 ; the library
@@ -18671,9 +18671,9 @@ LibraryTextIndArray:
 	dc.b	$0A
 	dc.b	$0D
 ; =============================================
-	
+
 	even
-	
+
 
 Building_Roof:
 	tst.w	(event_routine_2).w
@@ -18681,21 +18681,21 @@ Building_Roof:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	RoofEventIndex-4(pc,d1.w)
-	
+
 loc_C500:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
 	move.w	#$F03, (script_id).w
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 RoofEventIndex:
 	bra.w	loc_C52A
 	bra.w	loc_C53C
 	bra.w	loc_C548
 	bra.w	loc_C572
 	bra.w	loc_C578
-	
+
 loc_C52A:
 	move.w	#WinID_ScriptMessage2, (window_index).w
 	move.w	#$F01, (script_id).w
@@ -18717,7 +18717,7 @@ loc_C554:
 	move.w	#$3C0, (map_x_pos).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C572:
 	bsr.w	PaletteFadeFrom
 	bra.s	loc_C58A
@@ -18753,11 +18753,11 @@ loc_C5EA:
 	move.w	#$78, (demo_timer).w		; timer for spaceship travel
 	move.w	(vdp_reg1_values).w, d0		; VDP reg #1 values
 	ori.b	#$40, d0					; enable display
-	move.w	d0, (vdp_control_port).l				
+	move.w	d0, (vdp_control_port).l
 	move.b	#SFXID_SpaceshipDeparted, (sound_queue).w
 	bsr.w	PaletteFadeTo
-	
-	
+
+
 SpaceShipLoop:
 	bsr.w	CheckGamePause
 	move.b	#8, (vblank_routine).w
@@ -18769,7 +18769,7 @@ SpaceShipLoop:
 	move.b	#GameModeID_Map, (game_mode_index).w
 	move.b	#SFXID_SpaceshipLanded, (sound_queue).w
 	rts
-	
+
 
 Building_UstvestiaHouse:
 	tst.w	(event_routine_2).w
@@ -18777,14 +18777,14 @@ Building_UstvestiaHouse:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	UstvesHouseEventIndex-4(pc,d1.w)
-	
+
 loc_C652:
 	cmpi.w	#1, (event_routine_2).w
 	bne.w	CloseAllWindows
 	move.w	#$A04, (script_id).w		; "Well, actually, I'm kind of busy right now, I've got to go!"
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 
 UstvesHouseEventIndex:
 	bra.w	loc_C6A4
@@ -18802,46 +18802,46 @@ UstvesHouseEventIndex:
 	bra.w	loc_C7D6
 	bra.w	loc_C7FC
 	bra.w	loc_C80E
-	
+
 loc_C6A4:
 	move.w	#WinID_ScriptMessage2, (window_index).w
 	move.w	#$A01, (script_id).w		; "I am Ustvestia, a musician. Do you want to hear me play?"
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C6B6:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C6C2:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_C6D4
 	move.w	#$A03, (script_id).w		; "Oh, I get it, you want to learn to play the piano!"
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C6D4:
 	move.w	#$A02, (script_id).w		; "Great! Pick a song."
 	addi.w	#$B, (event_routine).w
 	rts
-	
+
 loc_C6E2:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C6EE:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_C6FA
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_C6FA:
 	move.w	#$A05, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C706:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
@@ -18876,13 +18876,13 @@ loc_C76A:
 	move.l	#((WinID_StoreMeseta<<$10)|WinID_YesNo2), (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C778:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_C784
 	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_C784:
 	move.l	(meseta_value).w, d0
 	bsr.w	CheckSubtractMoney
@@ -18890,13 +18890,13 @@ loc_C784:
 	move.w	#$A0A, (script_id).w		; "You don't have enough money. I'm not cheap."
 	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 loc_C79A:
 	move.w	#((6<<8)|WinID_StoreMeseta), (window_index).w
 	move.w	#$A0B, (script_id).w		; "Ok, I'll start the lessons."
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C7AC:
 	tst.w	(script_id).w
 	bne.s	loc_C7D4
@@ -18911,7 +18911,7 @@ loc_C7BE:
 	addq.w	#1, (event_routine).w
 loc_C7D4:
 	rts
-	
+
 loc_C7D6:
 	move.w	#$A0C, (script_id).w		; "Now you are also a musical artist!"
 	lea	(character_stats+map_tech_num).w, a0
@@ -18970,7 +18970,7 @@ loc_C86C:
 	move.w	#((6<<8)|WinID_UstvestiaSoundtracks), (window_index).w
 loc_C872:
 	rts
-	
+
 ; ==========================================
 Ustvestia_MusicPointers:
 	dc.b	MusicID_Phantasy, $00
@@ -18998,14 +18998,14 @@ Ustvestia_MusicPointers:
 ; ==========================================
 
 	even
-	
+
 Building_InventorHouse:
 	tst.w	(event_routine_2).w
 	bne.w	CloseAllWindows
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	GumInvHouseEventIndex-4(pc,d1.w)
-	
+
 
 GumInvHouseEventIndex:
 	bra.w	loc_C8CA
@@ -19014,7 +19014,7 @@ GumInvHouseEventIndex:
 	bra.w	loc_C90E
 	bra.w	loc_C92A
 	bra.w	loc_C936
-	
+
 loc_C8CA:
 	move.w	#WinID_ScriptMessage2, (window_index).w
 	move.w	#$B08, (script_id).w		; this is never used as it is overwritten immediately below. This part of text was probably meant to be used after the inventor gives the gum and you enter his house again.
@@ -19028,7 +19028,7 @@ loc_C8E2:
 	move.w	#$B02, (script_id).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_C8F6:
 	move.w	#$B05, (script_id).w
 	addq.w	#3, (event_routine).w
@@ -19064,13 +19064,13 @@ loc_C948:
 	move.b	#SFXID_ItemReceived, (sound_queue).w
 	move.w	#$B06, (script_id).w
 	rts
-	
+
 
 Building_CentralTowerGovernor:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	ContTowGoverEventIndex-4(pc,d1.w)
-	
+
 
 ContTowGoverEventIndex:
 	bra.w	loc_C98E
@@ -19080,7 +19080,7 @@ ContTowGoverEventIndex:
 	bra.w	loc_CA42
 	bra.w	loc_CA58
 	bra.w	loc_CA64
-	
+
 loc_C98E:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	tst.b	$FFFFC736.w
@@ -19092,7 +19092,7 @@ loc_C98E:
 	move.w	#$1F0, (map_x_pos).w
 	move.w	#0, (jet_scooter_flag).w
 	rts
-	
+
 loc_C9BE:
 	moveq	#ItemID_Recorder, d2
 	bsr.w	CheckItemExistInventory
@@ -19139,7 +19139,7 @@ loc_CA58:
 loc_CA64:
 	move.w	#0, (demo_flag).w
 	bra.w	CloseAllWindows
-	
+
 ; ==============================================
 ; Events at the Teleport Station
 Building_TeleportStation:
@@ -19148,7 +19148,7 @@ Building_TeleportStation:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	TeleptStnEventIndex-4(pc,d1.w)
-	
+
 loc_CA80:
 	cmpi.w	#1, d0
 	bne.s	loc_CA92
@@ -19161,8 +19161,8 @@ loc_CA92:
 	move.w	#$C04, (script_id).w		; "Well, then, come again later!"
 	addq.w	#1, (event_routine_2).w
 	rts
-	
-	
+
+
 TeleptStnEventIndex:
 	bra.w	loc_CABE
 	bra.w	loc_CB16
@@ -19170,7 +19170,7 @@ TeleptStnEventIndex:
 	bra.w	loc_CB2E
 	bra.w	loc_CB3A
 	bra.w	loc_CBB0
-	
+
 loc_CABE:
 	move.l	#((WinID_StoreMeseta<<$10)|WinID_ScriptMessage2), (window_index).w
 	bsr.w	CheckPlanetAndCaps
@@ -19178,7 +19178,7 @@ loc_CABE:
 	move.w	#$810, (script_id).w
 	addq.w	#3, (event_routine_2).w
 	rts
-	
+
 loc_CAD8:
 	moveq	#$3C, d0			; 60 meseta
 	bsr.w	CheckIfDoublePrice	; of course check if we're on Dezolis and if we're wearing the Mogic or Magic Cap
@@ -19194,37 +19194,37 @@ loc_CAF0:
 	bne.s	loc_CB0A
 loc_CAFA:
 	dbf	d1, loc_CAF0
-	
+
 	move.w	#$C03, (script_id+2).w		; "For just 'amount' meseta, we can teleport you to any town which you know of. If you know the name of a town, you can use our service!"
 	addq.w	#2, (event_routine_2).w			; exit
 	rts
-	
+
 loc_CB0A:
 	move.w	#$C02, (script_id+2).w		; "Where would you like to teleport?"
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_CB16:
 	move.w	#WinID_TeleportPlaceNames, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_CB22:
 	move.w	#$C05, (script_id).w		; "It will cost 'amount' meseta. Will you pay?"
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_CB2E:
 	move.w	#WinID_YesNo2, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_CB3A:
 	move.w	(yes_no_input).w, d0
 	beq.s	loc_CB46				; branch if you chose YES
 	addq.w	#1, (event_routine_2).w	; otherwise, exit
 	rts
-	
+
 loc_CB46:
 	move.l	(meseta_value).w, d0		; get price
 	bsr.w	CheckSubtractMoney
@@ -19244,7 +19244,7 @@ loc_CB46:
 	move.w	#$4F0, (map_y_pos).w
 	move.w	#$3C0, (map_x_pos).w
 	rts
-	
+
 loc_CB8A:
 	add.w	d0, d0
 	adda.w	d0, a1
@@ -19257,24 +19257,24 @@ loc_CB8A:
 	lsl.w	#4, d0
 	move.w	d0, (map_x_pos).w
 	rts
-	
+
 Teleport_NoMoney:
 	move.w	#$C07, (script_id).w
 	addq.w	#2, (event_routine_2).w
 	rts
-	
+
 loc_CBB0:
 	move.b	#SFXID_Teleport, (sound_queue).w
 	addq.w	#3, (event_routine_2).w
 	rts
-	
+
 ; ----------------------------------------------
 ; coordinates (y and x) for the teleport building
 ; in every town; values are in byte - in the code
-; these values are multiplied by 16 (lsl 4)	
+; these values are multiplied by 16 (lsl 4)
 TeleportLocCoord:
 	dc.b	$12, $07	; Paseo
-	dc.b	$1C, $13	; Arima 
+	dc.b	$1C, $13	; Arima
 	dc.b	$14, $39	; Oputa
 	dc.b	$08, $29	; Zema
 	dc.b	$16, $05	; Kueri
@@ -19285,21 +19285,21 @@ TeleportLocCoord:
 ; ----------------------------------------------
 
 	even
-	
+
 ; ==============================================
 
 Building_GairaControlPanel:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	GairaConPanEventIndex-4(pc,d1.w)
-	
+
 
 GairaConPanEventIndex:
 	bra.w	loc_CBE8
 	bra.w	loc_CC00
 	bra.w	loc_CC10
 	bra.w	loc_CC26
-	
+
 loc_CBE8:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$1901, (script_id).w
@@ -19333,13 +19333,13 @@ loc_CC3E:
 	subq.w	#1, (demo_timer).w
 loc_CC48:
 	rts
-	
+
 
 Building_TylerSpaceship:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	TylerSpcshipEventIndex-4(pc,d1.w)
-	
+
 
 TylerSpcshipEventIndex:
 	bra.w	loc_CC7C
@@ -19352,7 +19352,7 @@ TylerSpcshipEventIndex:
 	bra.w	loc_CE20
 	bra.w	loc_CE52
 	bra.w	loc_CE5E
-	
+
 loc_CC7C:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$1902, (script_id).w
@@ -19464,7 +19464,7 @@ loc_CDF8:
 	addq.w	#1, (event_routine).w
 	moveq	#1, d0
 	bra.s	loc_CDDE
-	
+
 ; ==================================
 TylerSpaceShip_EventFrames:
 	dc.b	$01
@@ -19559,14 +19559,14 @@ loc_CE6E:
 	move.w	#8, (demo_index).w
 	move.w	#0, (demo_input_index).w
 	rts
-	
+
 Building_EsperMansion:
 	tst.w	(event_routine_2).w
 	bne.w	CloseAllWindows
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	EspMansionEventIndex-4(pc,d1.w)
-	
+
 
 EspMansionEventIndex:
 	bra.w	loc_CF0A
@@ -19575,7 +19575,7 @@ EspMansionEventIndex:
 	bra.w	loc_CFC0
 	bra.w	loc_CFD8
 	bra.w	loc_CFF6
-	
+
 loc_CF0A:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#0, (character_index).w
@@ -19600,7 +19600,7 @@ loc_CF4E:
 	addq.w	#1, d5
 loc_CF58:
 	dbf	d4, loc_CF4E
-	
+
 	cmpi.b	#NeiEquipmentArrayEnd-NeiEquipmentArray, d5
 	bne.s	loc_CF74			; if we don't have all the Nei items, branch
 	move.b	#1, $FFFFC744.w
@@ -19648,7 +19648,7 @@ loc_CFD8:
 loc_CFF6:
 	addq.w	#1, (event_routine_2).w
 	bra.w	loc_B9D8
-	
+
 ; ========================================
 ; Array of all the Nei equipment to bring to Lutz
 ; ========================================
@@ -19665,7 +19665,7 @@ NeiEquipmentArrayEnd:
 ; ========================================
 
 	even
-	
+
 AddToCurrentMoney:
 	add.l	d0, (current_money).w
 	cmpi.l	#$5F5E0FF, d0
@@ -19673,20 +19673,20 @@ AddToCurrentMoney:
 	move.l	#$5F5E0FF, (current_money).w	; cap at 99,999,999
 loc_D01A:
 	rts
-	
-	
+
+
 CheckSubtractMoney:
 	sub.l	d0, (current_money).w
 	bcc.s	+
 	add.l	d0, (current_money).w
 	moveq	#-1, d0					; not enough money
 	rts
-	
+
 +
-	moveq	#0, d0					
+	moveq	#0, d0
 	rts
-	
-	
+
+
 CheckItemExistInventory:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d1
@@ -19705,14 +19705,14 @@ loc_D04C:
 	beq.s	loc_D064
 	addq.w	#1, ($FFFFDE84).w
 	dbf	d0, loc_D04C
-	
+
 	dbf	d1, loc_D036
-	
+
 	moveq	#-1, d0		; item was not found in inventory for any character
-	
+
 loc_D064:
 	rts
-	
+
 ProcessStealItem:
 	lea	(party_member_id).w, a1
 	move.w	(party_members_num).w, d0
@@ -19720,14 +19720,14 @@ ProcessStealItem:
 	cmpi.w	#CharID_Shir, (a1)+
 	beq.s	ProcessStealItem_Continue	; if Shir is in the party, continue with this routine
 	dbf	d0, -	; loop until we find Shir
-	
+
 -
 	rts
-	
+
 ProcessStealItem_Continue:
 	cmpi.w	#StealItemArray_Room-StealItemArray, d2
 	bne.s	+			; if we didn't get out of Central Tower Room, branch (don't bother checking Shir's level)
-	cmpi.w	#$A, ($FFFFC1CA).w	
+	cmpi.w	#$A, ($FFFFC1CA).w
 	bcs.s	-			; if Shir's level is lower than 10, return
 +
 	tst.w	($FFFFC1C2).w
@@ -19759,7 +19759,7 @@ ProcessStealItem_Continue:
 	subq.w	#1, (party_members_num).w
 	move.w	#$C00, (event_flags).w
 	rts
-	
+
 ; ===============================================
 ; Array of possible items Shir can steal
 ; ===============================================
@@ -19774,7 +19774,7 @@ StealItemArray_Weapon:
 	dc.b	ItemID_Dagger
 	dc.b	ItemID_LaserShot
 	dc.b	ItemID_Dagger
-	
+
 StealItemArray_Armor:
 	dc.b	ItemID_GrSleeves
 	dc.b	ItemID_SilCrown
@@ -19784,7 +19784,7 @@ StealItemArray_Armor:
 	dc.b	ItemID_SilCrown
 	dc.b	ItemID_ShuneBoots
 	dc.b	ItemID_SilCrown
-	
+
 StealItemArray_Item:
 	dc.b	ItemID_Trimate
 	dc.b	ItemID_Hidapipe
@@ -19794,7 +19794,7 @@ StealItemArray_Item:
 	dc.b	ItemID_StarMist
 	dc.b	ItemID_Trimate
 	dc.b	ItemID_MoonDew
-	
+
 StealItemArray_Room:
 	dc.b	ItemID_Visiphone
 	dc.b	ItemID_Visiphone
@@ -19807,7 +19807,7 @@ StealItemArray_Room:
 ; ===============================================
 
 	even
-	
+
 CheckPlanetAndCaps:
 	tst.w	(planet_index).w
 	beq.s	++		; return if we are on Motavia
@@ -19822,7 +19822,7 @@ CheckPlanetAndCaps:
 	moveq	#1, d1		; we are on Dezolis and there's no Magic Cap/Mogic Cap or Rolf is dead
 +
 	rts
-	
+
 CheckIfDoublePrice:
 	tst.w	(planet_index).w
 	beq.s	+			; return if we are on Motavia
@@ -19831,7 +19831,7 @@ CheckIfDoublePrice:
 	add.l	d0, d0					; if wearing a Magic Cap, double price
 +
 	rts
-	
+
 IntroScr_CheckRoutine:
 	tst.w	(window_index).w
 	bne.s	loc_D158
@@ -19841,10 +19841,10 @@ IntroScr_CheckRoutine:
 	bne.s	loc_D158
 	move.w	(event_routine).w, d1
 	bne.s	Intro_RunRoutine
-	move.b	#GameModeID_Title, (game_mode_index).w	
+	move.b	#GameModeID_Title, (game_mode_index).w
 loc_D158:
 	rts
-	
+
 Intro_RunRoutine:
 	move.w	(building_index).w, d0
 	lsl.w	#2, d0
@@ -19859,14 +19859,14 @@ Intro_EventSelectGame:
 	lsl.w	#2, d1
 	andi.w	#$7C, d1
 	jmp	loc_D17A-4(pc,d1.w)
-; --------------------------------------------	
+; --------------------------------------------
 loc_D17A:
 	bra.w	loc_D1C2
 	bra.w	loc_D2B6
 	bra.w	loc_D2C2
 	bra.w	loc_D2F2
-	bra.w	loc_D324	
-	bra.w	loc_D330	
+	bra.w	loc_D324
+	bra.w	loc_D330
 	bra.w	loc_D362
 	bra.w	loc_D36E
 	bra.w	loc_D384
@@ -19879,19 +19879,19 @@ loc_D17A:
 	bra.w	loc_D4B8
 	bra.w	loc_D4C4
 	bra.w	loc_D4EA
-; --------------------------------------------	
+; --------------------------------------------
 loc_D1C2:
 	move.w	(event_routine_3).w, d1
 	lsl.w	#2, d1
 	andi.w	#$C, d1
 	jmp	loc_D1D0(pc,d1.w)
-	
+
 loc_D1D0:
 	bra.w	loc_D1E0
 	bra.w	loc_D20E
 	bra.w	loc_D298
 	bra.w	loc_D2A4
-	
+
 loc_D1E0:
 	tst.w	$FFFFFF00.w
 	bne.s	loc_D208
@@ -19902,11 +19902,11 @@ loc_D1E0:
 	move.w	#0, ($FFFFC602).w
 	addq.w	#1, (event_routine_3).w
 	rts
-	
+
 loc_D208:
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_D20E:
 	move.w	($FFFFC602).w, d0
 	ext.l	d0
@@ -19925,11 +19925,11 @@ loc_D234:
 	move.w	#$130D, (script_id).w
 	bsr.w	loc_D676
 	bne.s	loc_D264
-	move.w	($FFFFC602).w, d0	
-	addq.w	#4, d0	
-	bsr.w	loc_D676	
-	bne.s	loc_D280	
-	move.w	#$130C, (script_id).w	
+	move.w	($FFFFC602).w, d0
+	addq.w	#4, d0
+	bsr.w	loc_D676
+	bne.s	loc_D280
+	move.w	#$130C, (script_id).w
 loc_D252:
 	addq.w	#1, ($FFFFC602).w
 	cmpi.w	#4, ($FFFFC602).w
@@ -19947,15 +19947,15 @@ loc_D264:
 	bsr.w	SaveData
 	bra.s	loc_D252
 loc_D280:
-	move.w	($FFFFC602).w, d0	
-	addq.w	#4, d0	
-	bra.s	loc_D28C	
+	move.w	($FFFFC602).w, d0
+	addq.w	#4, d0
+	bra.s	loc_D28C
 loc_D288:
-	move.w	($FFFFC602).w, d0	
+	move.w	($FFFFC602).w, d0
 loc_D28C:
-	bsr.w	loc_D6D4	
-	move.w	#$130E, $FFFFCD02.w	
-	bra.s	loc_D252	
+	bsr.w	loc_D6D4
+	move.w	#$130E, $FFFFCD02.w
+	bra.s	loc_D252
 loc_D298:
 	move.w	#$1310, (script_id).w
 	addq.w	#1, (event_routine_3).w
@@ -19965,12 +19965,12 @@ loc_D2A4:
 	addq.w	#1, (event_routine).w
 	move.w	#$8001, (window_index).w
 	rts
-	
+
 loc_D2B6:
 	move.w	#WinID_GameSelect, (window_index).w		; NEW GAME, CONTINUE GAME, ERASE GAME window
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_D2C2:
 	tst.w	(event_routine_2).w
 	bne.w	loc_D2EA
@@ -19996,35 +19996,35 @@ loc_D2F2:
 loc_D300:
 	tst.b	(a0)
 	beq.s	loc_D318
-	adda.w	#$800, a0	
-	dbf	d0, loc_D300	
-	move.w	#$1301, (script_id).w	
-	addq.w	#1, (event_routine).w	
-	rts	
+	adda.w	#$800, a0
+	dbf	d0, loc_D300
+	move.w	#$1301, (script_id).w
+	addq.w	#1, (event_routine).w
+	rts
 loc_D318:
 	move.w	#$1302, (script_id).w
 	addq.w	#3, (event_routine).w
 	rts
 loc_D324:
-	move.w	#WinID_YesNo2, (window_index).w	
-	addq.w	#1, (event_routine).w	
-	rts	
+	move.w	#WinID_YesNo2, (window_index).w
+	addq.w	#1, (event_routine).w
+	rts
 loc_D330:
-	move.w	(event_routine_3).w, d1	
-	bne.s	loc_D354	
-	move.w	(yes_no_input).w, d0	
-	beq.s	loc_D348	
-	move.w	#$1303, (script_id).w	
-	addq.w	#1, (event_routine_3).w	
-	rts	
+	move.w	(event_routine_3).w, d1
+	bne.s	loc_D354
+	move.w	(yes_no_input).w, d0
+	beq.s	loc_D348
+	move.w	#$1303, (script_id).w
+	addq.w	#1, (event_routine_3).w
+	rts
 loc_D348:
-	move.w	#$1302, (script_id).w	
-	addq.w	#1, (event_routine).w	
-	rts	
+	move.w	#$1302, (script_id).w
+	addq.w	#1, (event_routine).w
+	rts
 loc_D354:
-	move.w	#0, (event_routine_3).w	
-	subq.w	#2, (event_routine).w	
-	bra.w	JmpTo_CloseCurrentWindow	
+	move.w	#0, (event_routine_3).w
+	subq.w	#2, (event_routine).w
+	bra.w	JmpTo_CloseCurrentWindow
 loc_D362:
 	move.w	#WinID_NameInput, (window_index).w
 	addq.w	#1, (event_routine).w
@@ -20045,12 +20045,12 @@ loc_D392:
 	move.w	#0, (event_routine_3).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_D3AA:
 	move.w	#WinID_SaveSlots, (window_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 loc_D3B6:
 	tst.w	(event_routine_2).w
 	bne.w	loc_D42C
@@ -20072,7 +20072,7 @@ loc_D3B6:
 	bne.s	+
 	tst.w	$FFFFC65A.w
 	beq.s	+
-	move.w	#$10, (portrait_index).w	
+	move.w	#$10, (portrait_index).w
 +
 	move.w	#1, $FFFFF764.w
 	move.b	#GameModeID_Building, (game_mode_index).w
@@ -20168,7 +20168,7 @@ loc_D516:
 	addq.w	#1, (event_routine).w
 	move.b	#$8F, d0
 	bra.w	UpdateSoundQueue
-	
+
 loc_D534:
 	lea	(loc_70A32).l, a1
 	move.l	#$410C0003, d0
@@ -20293,12 +20293,12 @@ loc_D676:
 	addq.w	#2, a0
 	cmp.w	d1, d3
 	bne.s	loc_D6A6
-	moveq	#0, d0	
-	rts	
+	moveq	#0, d0
+	rts
 loc_D6A6:
 	moveq	#-1, d0
 	rts
-	
+
 loc_D6AA:
 	lea	($200741).l, a0
 	lsl.w	#8, d0
@@ -20316,32 +20316,32 @@ loc_D6AA:
 
 	moveq	#0, d0
 	rts
-	
+
 loc_D6D0:
-	moveq	#-1, d0	
-	rts	
-	
+	moveq	#-1, d0
+	rts
+
 loc_D6D4:
-	lea	($200001).l, a0	
-	move.w	d0, d1	
-	movea.l	a0, a1	
-	lsl.w	#8, d0	
-	lsl.w	#3, d0	
-	adda.w	d0, a0	
-	addq.w	#4, d1	
-	andi.w	#7, d1	
-	lsl.w	#8, d1	
-	lsl.w	#3, d1	
-	adda.w	d1, a1	
-	move.w	#$3FF, d1	
+	lea	($200001).l, a0
+	move.w	d0, d1
+	movea.l	a0, a1
+	lsl.w	#8, d0
+	lsl.w	#3, d0
+	adda.w	d0, a0
+	addq.w	#4, d1
+	andi.w	#7, d1
+	lsl.w	#8, d1
+	lsl.w	#3, d1
+	adda.w	d1, a1
+	move.w	#$3FF, d1
 loc_D6F4:
-	move.b	(a1), (a0)	
-	addq.w	#2, a1	
-	addq.w	#2, a0	
+	move.b	(a1), (a0)
+	addq.w	#2, a1
+	addq.w	#2, a0
 	dbf	d1, loc_D6F4
-	
-	rts	
-	
+
+	rts
+
 loc_D700:
 	moveq	#0, d5
 	moveq	#3, d6
@@ -20349,17 +20349,17 @@ loc_D704:
 	move.w	d5, d0
 	bsr.s	loc_D6AA
 	beq.s	loc_D716
-	move.w	d5, d0	
-	addq.w	#4, d0	
-	bsr.s	loc_D6AA	
-	beq.s	loc_D716	
-	bsr.w	SaveData	
-	
+	move.w	d5, d0
+	addq.w	#4, d0
+	bsr.s	loc_D6AA
+	beq.s	loc_D716
+	bsr.w	SaveData
+
 loc_D716:
 	addq.w	#1, d5
 	dbf	d6, loc_D704
 	rts
-	
+
 LoadSavedData:
 	lea	($200001).l, a0
 	lsl.w	#8, d0
@@ -20372,14 +20372,14 @@ LoadSavedData:
 	move.b	(a0), (a1)+
 	addq.w	#2, a0
 	dbf	d1, -
-	
+
 	lea	$FFFFC700.w, a1
 	move.w	#$FF, d1
 -
 	move.b	(a0), (a1)+
 	addq.w	#2, a0
 	dbf	d1, -
-	
+
 	lea	(party_members_num).w, a1
 	move.w	#$FF, d1
 -
@@ -20387,7 +20387,7 @@ LoadSavedData:
 	addq.w	#2, a0
 	dbf	d1, -
 	rts
-	
+
 ; ==============================================
 ; Character arrays of copyright message
 CopyrightString:
@@ -20400,7 +20400,7 @@ CopyrightString:
 ; ==============================================
 
 	even
-	
+
 ProcessAButtonPress:
 	tst.w	(window_index).w
 	bne.s	loc_D7FA
@@ -20418,13 +20418,13 @@ ProcessAButtonPress:
 	bne.s	loc_D7FA
 	tst.b	(event_flags).w
 	bne.s	loc_D7FA
-	
+
 	move.b	(joypad_pressed).w, d0
 	btst	#Button_A, d0			; A button press
 	bne.s	ProcessAButAction	; branch if pressed
 loc_D7FA:
 	rts
-	
+
 
 ProcessAButAction:
 	move.b	#SFXID_Selection, (sound_queue).w
@@ -20436,7 +20436,7 @@ loc_D810:
 	move.w	d6, d0
 	bsr.w	Map_ChkTargetInteract		; check if we're interacting with something
 	beq.s	loc_D84A					; branch if we are not interacting with anything and display the there's nothing message
-	
+
 	lea	(AButton_TargetFacingDirArray).l, a2
 	adda.w	d0, a2
 	tst.w	$18(a1)
@@ -20464,7 +20464,7 @@ loc_D862:
 	lsl.w	#2, d0
 	andi.w	#$C, d0
 	jmp	AButton_ObjTypeIndex(pc,d0.w)
-	
+
 ; =================================
 AButton_TargetFacingDirArray:
 	dc.b	$03
@@ -20475,7 +20475,7 @@ AButton_TargetFacingDirArray:
 
 	even
 
-; -------------------------------------------------------------	
+; -------------------------------------------------------------
 AButton_ObjTypeIndex:
 	bra.w	ObjType_Events				; 0
 	bra.w	ObjType_People				; 1
@@ -20493,7 +20493,7 @@ ObjType_Events:
 	lsl.w	#2, d1
 	andi.w	#$1FC, d1
 	jmp	EventType_DialogueIndex(pc,d1.w)
-; ----------------------------------------	
+; ----------------------------------------
 EventType_DialogueIndex:
 	bra.w	loc_D9AA	; 0
 	bra.w	loc_DA74	; 1
@@ -20560,7 +20560,7 @@ EventType_DialogueIndex:
 	bra.w	loc_E4CC	; $3E
 	bra.w	loc_E4D8	; $3F
 	bra.w	loc_E4E4	; $40
-; ----------------------------------------		
+; ----------------------------------------
 loc_D9AA:
 	tst.w	d2
 	bne.s	loc_DA26
@@ -20568,12 +20568,12 @@ loc_D9AA:
 	bne.s	loc_D9BA
 	tst.w	(jet_scooter_flag).w
 	bne.s	loc_D9C6
-	
+
 loc_D9BA:
 	move.w	#$1708, (script_id).w		; "There seems to be nothing unusual here."
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_D9C6:
 	lea	($FFFFE800).w, a0
 	lea	(JetScooter_CharOffPosOffsets).l, a1
@@ -20589,7 +20589,7 @@ loc_D9DA:
 	move.b	(a1,d0.w), d5
 	ext.w	d5
 	add.w	d5, (characters_ram+x_pos).w
-	
+
 	lea	(loc_29B64).l, a1
 	move.l	a1, $FFFFF72E.w
 	bsr.w	loc_6DA4
@@ -20597,14 +20597,14 @@ loc_D9DA:
 	move.w	#$171D, (script_id).w		; "Ok. Let's get off and walk from here."
 	move.b	#$E1, (sound_queue).w
 	rts
-	
+
 loc_DA10:
 	lea	(loc_29E16).l, a1
 	move.l	a1, ($FFFFF72E).w
 	move.w	#$171E, (script_id).w		; "We can't get off here!"
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_DA26:
 	move.w	$FFFFE80E.w, d0
 	andi.w	#$FFF0, d0
@@ -20620,7 +20620,7 @@ loc_DA4C:
 	move.w	$FFFFE42A.w, $2A(a1)
 	adda.w	#$40, a1
 	dbf	d0, loc_DA4C
-	
+
 	move.w	#0, $FFFFE822.w
 	addq.w	#1, ($FFFFDE72).w
 	rts
@@ -20639,17 +20639,17 @@ JetScooter_CharOffPosOffsets:
 
 	even
 
-	
+
 loc_DA74:
 	move.w	#$170A, (script_id).w		; "Those scoundrels seem to have blown open the door with dynamite and stolen the things."
 	addq.w	#1, ($FFFFDE72).w
-	rts	
-	
+	rts
+
 loc_DA80:
 	move.w	#$1709, (script_id).w		; "This is the control tower which links the town and Mother Brain in one network."
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_DA8C:
 	move.w	#$170B, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
@@ -20699,12 +20699,12 @@ loc_DAF0:
 loc_DB1C:
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_DB22:
 	move.l	#$17191712, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_DB30:
 	move.l	#$17191713, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
@@ -20759,7 +20759,7 @@ loc_DBC8:
 	move.w	#$170B, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_DBD4:
 	subq.w	#1, d2
 	bne.s	loc_DBF2
@@ -20772,7 +20772,7 @@ loc_DBD4:
 	move.w	#0, ($FFFFDE72).w
 loc_DBF0:
 	rts
-	
+
 loc_DBF2:
 	moveq	#9, d0
 	bra.w	loc_E84A
@@ -20789,8 +20789,8 @@ loc_DC10:
 	rts
 loc_DC12:
 	move.w	#$1708, (script_id).w		; "There seems to be nothing unusual here."
-	addq.w	#1, ($FFFFDE72).w	
-	rts	
+	addq.w	#1, ($FFFFDE72).w
+	rts
 loc_DC1E:
 	tst.b	(a0)
 	bne.s	loc_DC2A
@@ -20822,7 +20822,7 @@ loc_DC64:
 	move.b	#ItemID_Teim, (item_index).w
 	move.w	(character_index).w, d1
 	bsr.w	AddItemToInventory2
-	move.b	#SFXID_ItemReceived, (sound_queue).w	
+	move.b	#SFXID_ItemReceived, (sound_queue).w
 	addq.w	#1, ($FFFFDE72).w
 	rts
 loc_DC84:
@@ -20888,7 +20888,7 @@ loc_DD12:
 loc_DD52:
 	tst.w	d2
 	bne.s	loc_DD58
-	rts	
+	rts
 loc_DD58:
 	subq.w	#1, d2
 	bne.s	loc_DD7A
@@ -20896,28 +20896,28 @@ loc_DD58:
 	move.w	#$183D, (script_id).w
 	tst.w	(party_members_num).w
 	bne.s	+
-	move.w	#$1826, (script_id).w	
+	move.w	#$1826, (script_id).w
 +
 	addq.w	#1, $FFFFDE70.w
 	bra.s	loc_DDA2
 loc_DD7A:
 	tst.w	(party_members_num).w
 	bne.s	loc_DD9A
-	move.l	$FFFFC618.w, (party_member_id).w	
-	move.l	$FFFFC61C.w, $FFFFC60C.w	
-	move.w	$FFFFC624.w, (party_members_num).w	
-	move.w	#-1, (screen_changed_flag).w	
-	rts	
+	move.l	$FFFFC618.w, (party_member_id).w
+	move.l	$FFFFC61C.w, $FFFFC60C.w
+	move.w	$FFFFC624.w, (party_members_num).w
+	move.w	#-1, (screen_changed_flag).w
+	rts
 loc_DD9A:
 	move.b	#GameModeID_Battle, (game_mode_index).w
 	rts
-	
+
 loc_DDA2:
 	tst.w	(character_stats+curr_hp).w
 	beq.s	DetectLeadingCharacter
 	move.w	#0, (character_index).w
 	rts
-	
+
 DetectLeadingCharacter:
 	lea	(character_stats).w, a2
 	lea	(party_member_id).w, a0
@@ -20929,15 +20929,15 @@ loc_DDBC:
 	tst.w	2(a2,d1.w)
 	bne.s	loc_DDCE
 	dbf	d0, loc_DDBC
-	
+
 loc_DDCE:
 	rts
-	
+
 loc_DDD0:
 	tst.w	d2
 	bne.s	loc_DDD6
 	rts
-	
+
 loc_DDD6:
 	subq.w	#1, d2
 	bne.s	loc_DDF0
@@ -20962,11 +20962,11 @@ loc_DDFC:
 	subq.w	#1, (party_members_num).w
 	move.w	#-1, (screen_changed_flag).w
 	rts
-	
+
 loc_DE1E:
 	tst.w	d2
 	bne.s	loc_DE24
-	rts	
+	rts
 loc_DE24:
 	subq.w	#1, d2
 	bne.s	loc_DE3A
@@ -20977,12 +20977,12 @@ loc_DE24:
 loc_DE3A:
 	move.w	#-1, (screen_changed_flag).w
 	rts
-	
+
 loc_DE42:
 	tst.w	d2
 	bne.s	loc_DE48
 	rts
-	
+
 loc_DE48:
 	subq.w	#1, d2
 	beq.s	loc_DE52
@@ -21013,11 +21013,11 @@ loc_DE8E:
 	move.w	d0, $26(a1)
 	adda.w	#$40, a1
 	dbf	d2, loc_DE62
-	
+
 	move.w	#$12C, $FFFFCD22.w
 	addq.w	#1, $FFFFDE70.w
 	rts
-	
+
 ; ===========================================
 RandomExpl_PosOffsets:
 	dc.b	$0E, $0A
@@ -21043,7 +21043,7 @@ RandomExpl_PosOffsets:
 loc_DEC6:
 	tst.w	d2
 	bne.s	loc_DECC
-	rts	
+	rts
 loc_DECC:
 	subq.w	#1, d2
 	bne.s	loc_DEE2
@@ -21065,13 +21065,13 @@ loc_DEE2:
 	move.w	#0, (demo_input_index).w
 	rts
 loc_DF24:
-	move.w	#$171F, (script_id).w	
-	addq.w	#1, ($FFFFDE72).w	
-	bra.w	loc_DDA2	
+	move.w	#$171F, (script_id).w
+	addq.w	#1, ($FFFFDE72).w
+	bra.w	loc_DDA2
 loc_DF32:
 	tst.w	d2
 	bne.s	loc_DF38
-	rts	
+	rts
 loc_DF38:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$1839, (script_id).w
@@ -21110,8 +21110,8 @@ loc_DF78:
 loc_DFA8:
 	tst.w	d2
 	bne.s	loc_DFAE
-	rts	
-	
+	rts
+
 loc_DFAE:
 	subq.w	#1, d2
 	bne.s	loc_DFC4
@@ -21119,53 +21119,53 @@ loc_DFAE:
 	move.w	#$78, (demo_timer).w
 	addq.w	#1, $FFFFDE70.w
 	rts
-	
+
 loc_DFC4:
 	tst.w	(demo_timer).w
 	beq.s	loc_DFD0
 	subq.w	#1, (demo_timer).w
 	rts
-	
+
 loc_DFD0:
 	move.b	#1, (a0)
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$1812, (script_id).w		; "ROLF hears a large explosion and feels a tremendous force moving the satellite. ROLF better check the control panel and fix the Gaila's orbit!"
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_DFE6:
 	move.b	#1, (a0)
 	move.w	#BuildingID_GairaControlPanel, (building_index).w
 	move.w	#$1B, (portrait_index).w
 	move.b	#GameModeID_Building, (game_mode_index).w
 	rts
-	
+
 loc_DFFE:
-	tst.w	d2	
-	bne.s	loc_E004	
-	rts	
+	tst.w	d2
+	bne.s	loc_E004
+	rts
 loc_E004:
-	subq.w	#1, d2	
-	bne.s	loc_E01A	
-	move.w	#WinID_ScriptMessage, (window_index).w	
-	move.w	#$1721, (script_id).w	
-	addq.w	#1, $FFFFDE70.w	
-	rts	
+	subq.w	#1, d2
+	bne.s	loc_E01A
+	move.w	#WinID_ScriptMessage, (window_index).w
+	move.w	#$1721, (script_id).w
+	addq.w	#1, $FFFFDE70.w
+	rts
 loc_E01A:
-	lea	(party_member_id).w, a1	
-	move.w	(party_members_num).w, d0	
-	lea	(character_stats+curr_hp).w, a2	
+	lea	(party_member_id).w, a1
+	move.w	(party_members_num).w, d0
+	lea	(character_stats+curr_hp).w, a2
 loc_E026:
-	move.w	(a1)+, d1	
-	move.w	d1, d2	
-	lsl.w	#6, d1	
-	tst.w	(a2,d1.w)	
-	bne.s	loc_E03C	
-	dbf	d0, loc_E026	
-	move.b	#GameModeID_Sega, (game_mode_index).w	
+	move.w	(a1)+, d1
+	move.w	d1, d2
+	lsl.w	#6, d1
+	tst.w	(a2,d1.w)
+	bne.s	loc_E03C
+	dbf	d0, loc_E026
+	move.b	#GameModeID_Sega, (game_mode_index).w
 loc_E03C:
-	addq.w	#1, ($FFFFDE72).w	
-	rts	
+	addq.w	#1, ($FFFFDE72).w
+	rts
 loc_E042:
 	move.w	#WinID_ScriptMessage, (window_index).w
 	move.w	#$1722, (script_id).w
@@ -21181,7 +21181,7 @@ loc_E05A:
 loc_E072:
 	move.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E07A:
 	tst.w	d2
 	bne.s	loc_E096
@@ -21225,7 +21225,7 @@ loc_E0D8:
 loc_E0F8:
 	tst.w	d2
 	bne.s	loc_E0FE
-	rts	
+	rts
 loc_E0FE:
 	subq.w	#1, d2
 	bne.s	loc_E114
@@ -21240,7 +21240,7 @@ loc_E114:
 loc_E122:
 	tst.w	d2
 	bne.s	loc_E128
-	rts	
+	rts
 loc_E128:
 	subq.w	#1, d2
 	bne.s	loc_E152
@@ -21305,7 +21305,7 @@ loc_E1D2:
 loc_E1E4:
 	tst.w	d2
 	bne.s	loc_E1EA
-	rts	
+	rts
 loc_E1EA:
 	subq.w	#1, d2
 	bne.s	loc_E236
@@ -21322,14 +21322,14 @@ loc_E20E:
 	lsl.w	#6, d1
 	tst.w	(a2,d1.w)
 	bne.s	loc_E21C
-	addq.w	#1, d3	
+	addq.w	#1, d3
 loc_E21C:
 	move.w	2(a2,d1.w), (a2,d1.w)
 	dbf	d0, loc_E20E
 
 	tst.w	d3
 	beq.s	loc_E230
-	move.w	#$181E, (script_id).w	
+	move.w	#$181E, (script_id).w
 loc_E230:
 	addq.w	#1, $FFFFDE70.w
 	rts
@@ -21368,7 +21368,7 @@ loc_E29E:
 	tst.w	d2
 	bne.s	+
 	rts
-	
+
 +
 	subq.w	#1, d2
 	bne.s	loc_E2C4
@@ -21388,7 +21388,7 @@ loc_E2C4:
 loc_E2E2:
 	tst.w	d2
 	bne.s	loc_E2E8
-	rts	
+	rts
 loc_E2E8:
 	subq.w	#1, d2
 	bne.w	loc_E306
@@ -21465,7 +21465,7 @@ loc_E3BE:
 	bsr.s	loc_E43E
 	addq.w	#1, d1
 	dbf	d0, loc_E3BE
-	
+
 	lea	(NoahEnding_TeleportedCharPos).l, a1
 	lea	$FFFFE440.w, a0
 	move.w	#$308, d1
@@ -21481,7 +21481,7 @@ loc_E3D6:
 	addq.w	#8, d1
 	adda.w	#$40, a0
 	dbf	d0, loc_E3D6
-	
+
 	move.w	#7, (party_members_num).w
 	bsr.w	loc_1183A
 	lea	(vdp_control_port).l, a6
@@ -21512,7 +21512,7 @@ loc_E458:
 	addq.w	#1, ($FFFFDE72).w
 	move.b	#GameModeID_Ending, (game_mode_index).w
 	rts
-	
+
 ; ==========================================
 NoahEnding_TeleportedCharPos:
 	dc.w	$A8, $218
@@ -21522,7 +21522,7 @@ NoahEnding_TeleportedCharPos:
 	dc.w	$A8, $208
 	dc.w	$B8, $208
 ; ==========================================
-	
+
 loc_E47C:
 	move.w	#$4A0, $FFFFC648.w
 	move.w	#$1E0, $FFFFC64A.w
@@ -21565,7 +21565,7 @@ loc_E4E4:
 	move.b	#GameModeID_Sega, (game_mode_index).w
 loc_E4F6:
 	rts
-; -------------------------------------------------------------	
+; -------------------------------------------------------------
 ObjType_People:
 	tst.w	($FFFFDE72).w
 	bne.s	loc_E53A
@@ -21585,9 +21585,9 @@ ObjType_People:
 	beq.w	loc_E05A
 	cmpi.b	#$8F, d1
 	beq.w	loc_E07A
-	
+
 	bra.w	loc_E5D0
-	
+
 loc_E53A:
 	lea	($FFFFE800).w, a1
 	move.w	#$F, d0
@@ -21595,14 +21595,14 @@ loc_E542:
 	move.b	#0, 3(a1)
 	adda.w	#$40, a1
 	dbf	d0, loc_E542
-	
+
 	bra.w	CloseAllWindows
-	
+
 loc_E554:
 	move.w	#$1708, (script_id).w		; "There seems to be nothing unusual here."
-	addq.w	#1, ($FFFFDE72).w	
+	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E560:
 	lea	(loc_E6B0-1).l, a0
 	tst.b	$FFFFC737.w
@@ -21615,7 +21615,7 @@ loc_E560:
 	move.w	d0, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E584:
 	tst.w	(character_stats+curr_hp).w
 	beq.s	loc_E5B8		; branch if Rolf is dead
@@ -21633,7 +21633,7 @@ loc_E5A6:
 	move.w	d0, (script_id).w
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E5B8:
 	move.w	#$1651, (script_id).w
 	cmpi.w	#$7B, d1
@@ -21642,7 +21642,7 @@ loc_E5B8:
 +
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E5D0:
 	addq.w	#1, ($FFFFDE72).w
 	cmpi.w	#$88, d1
@@ -21651,7 +21651,7 @@ loc_E5D0:
 	bne.s	loc_E5EA
 	move.w	#$16A1, (script_id).w
 	rts
-	
+
 loc_E5EA:
 	lea	(loc_E730).l, a0
 	adda.w	d1, a0
@@ -21659,7 +21659,7 @@ loc_E5EA:
 	move.b	(a0), d0
 	move.w	d0, (script_id).w
 	rts
-	
+
 loc_E5FE:
 	tst.w	d2
 	bne.s	+
@@ -21701,7 +21701,7 @@ loc_E64C:
 	adda.w	d1, a1
 	subi.w	#$A, (a1)
 	bcc.s	+
-	move.w	#0, (a1)	
+	move.w	#0, (a1)
 +
 	dbf	d0, -
 	move.w	#((6<<8)|WinID_MenuCharStats), (window_index).w
@@ -21714,15 +21714,15 @@ loc_E682:
 loc_E688:
 	move.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E690:
-	move.w	#$1685, (script_id).w	;  
+	move.w	#$1685, (script_id).w	;
 	move.b	#1, $FFFFC716.w				; events after Roron (Jet Scooter and other stuff activated)
 	move.w	#$730, $FFFFC654.w
 	move.w	#$590, $FFFFC656.w
 	move.w	#1, ($FFFFDE72).w
 	rts
-	
+
 ; =========================================
 loc_E6B0:
 	dc.b	$99
@@ -21855,7 +21855,7 @@ loc_E70C:
 	dc.b	$22
 	dc.b	$23
 	dc.b	$24
-; -----------------------------------------	
+; -----------------------------------------
 loc_E730:
 	dc.b	$25
 	dc.b	$26
@@ -22005,7 +22005,7 @@ loc_E730:
 
 	even
 
-; -------------------------------------------------------------	
+; -------------------------------------------------------------
 ObjType_TreasureChests:
 	tst.w	($FFFFDE72).w
 	bne.w	CloseAllWindows
@@ -22020,19 +22020,19 @@ ObjType_TreasureChests:
 	tst.b	(a0)
 	beq.s	loc_E804
 	bmi.s	TreasureChest_Locked
-	
+
 TreasureChest_Empty:
 	move.w	#$1706, (script_id).w		; "There is nothing inside."
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 TreasureChest_Locked:
 	tst.w	(a1)
 	beq.w	loc_E8B4
 	move.w	#$1707, (script_id).w		; "It's locked and won't open."
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 loc_E804:
 	move.w	(a1), d0
 	bmi.s	loc_E84A
@@ -22054,10 +22054,10 @@ loc_E804:
 	tst.w	2(a2,d0.w)
 	bne.s	+			; return if character is not dead (display the name of the one, not dead, who found the money)
 	dbf	d1, -			; loop until we find a character who's not dead
-	
+
 +
 	rts
-	
+
 loc_E84A:
 	move.b	d0, (item_index).w
 	move.w	#$1702, (script_id).w		; "'CHARACTER' has found 'ITEM'."
@@ -22078,7 +22078,7 @@ loc_E878:
 	beq.s	loc_E896
 	addq.w	#1, ($FFFFDE84).w
 	dbf	d0, loc_E878
-	
+
 loc_E884:
 	dbf	d1, loc_E85C
 	move.w	#$1704, $FFFFCD02.w
@@ -22094,13 +22094,13 @@ loc_E896:
 	addq.w	#1, ($FFFFDE72).w
 	moveq	#0, d0
 	rts
-	
+
 loc_E8B4:
 	move.b	#1, (a0)
 	move.w	#$1705, (script_id).w		; "It's full of garbage."
 	addq.w	#1, ($FFFFDE72).w
 	rts
-	
+
 ; ===============================================
 ; Array of content of every treasure chest in
 ; the game
@@ -22217,22 +22217,22 @@ ObjType_TeimDarum:
 	lsl.w	#2, d1
 	andi.w	#$7C, d1
 	jmp	loc_E99C-4(pc,d1.w)
-; ----------------------------------------		
+; ----------------------------------------
 loc_E99C:
 	bra.w	loc_E9A8
 	bra.w	loc_E9BA
 	bra.w	loc_EAC2
-; ----------------------------------------		
+; ----------------------------------------
 loc_E9A8:
 	move.w	#WinID_ScriptMessageBig, (window_index).w
 	move.w	#$1801, (script_id).w		; "I've seen that face! He tried to kill Nei seven months ago! This is bad news. Let's go back for awhile."
 	addq.w	#1, ($FFFFDE72).w
 	rts
-; ----------------------------------------	
+; ----------------------------------------
 loc_E9BA:
 	tst.w	d2
 	bne.s	loc_E9C0
-	rts	
+	rts
 loc_E9C0:
 	subq.w	#1, d2
 	bne.s	loc_E9C6
@@ -22333,7 +22333,7 @@ loc_EAC2:
 ; -------------------------------------------------------------
 
 
-	
+
 Battle_CheckRoutines:
 	tst.w	(window_index).w
 	bne.s	+
@@ -22350,7 +22350,7 @@ Battle_CheckRoutines:
 	move.w	#0, (event_routine_3).w
 +
 	rts
-	
+
 Battle_RunRoutines:
 	moveq	#0, d0
 	move.b	(battle_main_routine_index).w, d0
@@ -22386,7 +22386,7 @@ loc_EB52:
 	move.b	#1, (battle_main_routine_index).w		; next battle main routine
 	move.w	#1, (fight_active_flag).w	; start fighting
 	rts
-	
+
 ; we picked the STGY command so load window with ORDR/RUN options window
 +
 	move.w	#((6<<8)|WinID_BattleOptions2), (window_index).w
@@ -22398,7 +22398,7 @@ loc_EB78:
 	move.w	#0, (event_routine).w
 	move.b	#2, (battle_main_routine_index).w		; routine to process the RUN option
 	rts
-	
+
 +
 	lea	(object_ram).w, a0
 	move.w	(current_active_objects_num).w, d3
@@ -22464,7 +22464,7 @@ loc_EC44:
 	move.w	#0, (event_routine_3).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 ; ============================
 ; Arrange characters according to their ID's
 ; ============================
@@ -22472,11 +22472,11 @@ Battle_CharacterIdIndex:
 	dc.b	$04		; third character starts from the farthest left
 	dc.b	$00		; first character
 	dc.b	$02		; second character
-	dc.b	$06		; fourth character 
+	dc.b	$06		; fourth character
 ; ============================
 
 	even
-	
+
 loc_EC5C:
 	tst.w	(event_routine_2).w
 	bne.s	loc_EC74
@@ -22486,14 +22486,14 @@ loc_EC5C:
 	lsl.w	#2, d0
 	andi.w	#$C, d0
 	jmp	Battle_CommandActionIndex(pc,d0.w)
-	
+
 loc_EC74:
 	move.w	#$8001, (window_index).w
 	move.w	#WinID_BattleCommands, (window_index_saved).w
 	move.w	#0, (event_routine_2).w
 	move.w	#0, (event_routine_3).w
 	rts
-	
+
 ; -----------------------------------------
 Battle_CommandActionIndex:
 	bra.w	CommandAction_Attack
@@ -22512,10 +22512,10 @@ CommandAction_Attack:
 	bne.s	loc_ECCA
 	tst.b	(a0)
 	bne.s	loc_ECCA
-	move.w	#WinID_BattleMessage, (window_index).w	
-	move.w	#$1205, (script_id).w	
-	addq.w	#1, (event_routine_2).w	
-	rts	
+	move.w	#WinID_BattleMessage, (window_index).w
+	move.w	#$1205, (script_id).w
+	addq.w	#1, (event_routine_2).w
+	rts
 loc_ECCA:
 	tst.w	(enemy_data_buffer+$10).w
 	bmi.s	loc_ECDC
@@ -22563,7 +22563,7 @@ loc_ED3E:
 	move.w	#0, $FFFFDEEC.w
 	addq.w	#1, (event_routine_3).w
 	rts
-	
+
 loc_ED50:
 	subq.w	#1, d1
 	bne.w	loc_EE00
@@ -22685,17 +22685,17 @@ CommandAction_Item:
 	adda.w	d0, a0
 	tst.b	(a0)
 	bne.s	loc_EEC4
-	move.w	#WinID_BattleMessage, (window_index).w	
+	move.w	#WinID_BattleMessage, (window_index).w
 	move.w	#$23, (script_id).w		; "'Character' isn't carrying anything."
-	addq.w	#1, (event_routine_2).w	
+	addq.w	#1, (event_routine_2).w
 	rts
-	
+
 loc_EEC4:
 	move.w	#WinID_BattleItemList, (window_index).w
 	move.w	#0, $FFFFDEEE.w
 	addq.w	#1, (event_routine_3).w
 	rts
-	
+
 loc_EED6:
 	subq.w	#1, d1
 	bne.w	loc_EF32
@@ -22707,12 +22707,12 @@ loc_EED6:
 	bls.s	CommandAction_ItemSelectCharacter
 	cmpi.w	#ItemID_MoonDew, d0
 	beq.s	CommandAction_ItemSelectCharacter
-	
+
 loc_EEF6:
 	move.w	#$8001, (window_index).w
 	addq.w	#2, (event_routine_3).w
 	rts
-	
+
 CommandAction_ItemSelectCharacter:
 	lea	(object_ram).w, a0
 	move.w	(current_active_objects_num).w, d3
@@ -22726,7 +22726,7 @@ CommandAction_ItemSelectCharacter:
 	move.w	#$148, $E(a0)
 	addq.w	#1, (event_routine_3).w
 	rts
-	
+
 loc_EF32:
 	subq.w	#1, d1
 	bne.s	loc_EF98
@@ -22735,9 +22735,9 @@ loc_EF32:
 	beq.s	loc_EF96
 	andi.b	#$20, d0
 	bne.s	loc_EF52
-	move.w	#WinID_BattleItemList, (window_index_saved).w	
-	subq.w	#1, (event_routine_3).w	
-	bra.s	loc_EF84	
+	move.w	#WinID_BattleItemList, (window_index_saved).w
+	subq.w	#1, (event_routine_3).w
+	bra.s	loc_EF84
 loc_EF52:
 	moveq	#0, d1
 	move.b	($FFFFDE50).w, d1
@@ -22764,7 +22764,7 @@ loc_EF84:
 	move.w	#0, (a1)
 loc_EF96:
 	rts
-	
+
 loc_EF98:
 	move.b	(item_index).w, d1
 	andi.w	#$7F, d1
@@ -22785,16 +22785,16 @@ loc_EFC4:
 	move.w	d1, (a0)+
 	addq.w	#1, d1
 	dbf	d0, loc_EFC4
-	
+
 	move.w	#$8402, (a0)
 	subq.w	#4, (event_routine).w
 	rts
-; -----------------------------------------	
+; -----------------------------------------
 Battle_EventIndex_Fighting:
 	lsl.w	#2, d1
 	andi.w	#$3C, d1
 	jmp	BattleEvent_Fighting_Routines-4(pc,d1.w)
-	
+
 ; -----------------------------------------
 BattleEvent_Fighting_Routines:
 	bra.w	loc_F004
@@ -22827,7 +22827,7 @@ loc_F004:
 	adda.w	d1, a2
 	tst.w	2(a2)			; check character's HP
 	beq.s	+				; don't bother if character's dead
-	lea	(char_battle_command_index).w, a5 
+	lea	(char_battle_command_index).w, a5
 	move.w	d2, d1
 	lsl.w	#4, d1		; get correct character in RAM
 	adda.w	d1, a5
@@ -22842,7 +22842,7 @@ loc_F004:
 	move.w	d0, (a0)+
 +
 	dbf	d3, -
-	
+
 loc_F060:
 	move.w	#0, $FFFFCC0A.w
 	lea	(enemy_stats).w, a2
@@ -22884,7 +22884,7 @@ loc_F09C:
 	move.w	#0, (battle_turn_index).w
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 
 loc_F0C0:
 	lea	($FFFFEC00).w, a0
@@ -22894,7 +22894,7 @@ loc_F0C0:
 	bne.w	loc_F186
 	adda.w	#$40, a0
 	dbf	d1, -
-	
+
 	lea	(window_index).w, a1
 	move.w	#$8002, (a1)+
 	move.l	#((6<<$18)|(WinID_BattleFirstCharStats<<$10)|(6<<8)|WinID_BattleSecondCharStats), (a1)+
@@ -22920,7 +22920,7 @@ loc_F0C0:
 	bne.s	loc_F134
 loc_F11E:
 	dbf	d1, -
-	
+
 	move.w	#0, (fight_active_flag).w
 	move.w	#0, (fight_interrupted_flag).w
 	addq.w	#3, (event_routine).w
@@ -22935,7 +22935,7 @@ loc_F134:
 	bne.s	loc_F16E
 	adda.w	d1, a0
 	dbf	d0, -
-	
+
 	move.w	#0, (fight_active_flag).w
 	move.w	#0, (fight_interrupted_flag).w
 	addq.w	#4, (event_routine).w
@@ -22955,7 +22955,7 @@ loc_F174:
 	addq.w	#1, (event_routine).w
 loc_F186:
 	rts
-	
+
 loc_F188:
 	lea	(battle_turn_order).w, a0
 	move.w	(battle_turn_index).w, d0
@@ -23075,7 +23075,7 @@ loc_F2A4:
 	move.l	#$98967F, $C(a2)	; otherwise force value to 9,999,999
 +
 	dbf	d1, -
-	
+
 loc_F302:
 	addq.w	#1, (event_routine).w
 	rts
@@ -23087,7 +23087,7 @@ loc_F308:
 	move.w	#0, ($FFFFC602).w
 	addq.w	#1, (event_routine).w
 	bra.w	RestoreCharDataAfterBattle
-	
+
 loc_F328:
 	move.w	($FFFFC602).w, d3
 	bsr.w	loc_ADBE
@@ -23105,8 +23105,8 @@ loc_F328:
 	adda.w	d1, a1
 	move.w	$A(a1), d0		; get character level
 	cmpi.w	#$32, d0		; <-- change this number if you want to change max level
-	beq.s	loc_F372		; skip if character's level 50. 
-	mulu.w	#$E, d0			
+	beq.s	loc_F372		; skip if character's level 50.
+	mulu.w	#$E, d0
 	adda.w	d0, a2			; move to next level
 	move.l	(a2), d0
 	andi.l	#$FFFFFF, d0	; get experience points
@@ -23121,7 +23121,7 @@ loc_F372:
 	addq.w	#1, (event_routine).w
 +
 	rts
-	
+
 Character_ProcessLevelUp:
 	move.b	#SFXID_LevelUp, (sound_queue).w		; play level up sound
 	move.w	#$1214, (a3)+			; "'Character' gains a level."
@@ -23129,49 +23129,49 @@ Character_ProcessLevelUp:
 	move.b	(a2), d2
 	move.w	d2, $A(a1)		; save new current level
 	addq.w	#4, a2			; now process stats
-	
+
 	move.b	(a2)+, d2		; get HP increase
 	bsr.w	GenerateRandStatIncrease
 	beq.s	loc_F3AC	; if generated number was 0, don't display text
 	move.w	#$1215, (a3)+	; "New HP maximum."
 loc_F3AC:
 	add.w	d2, 4(a1)		; add to HP maximum
-	
+
 	move.b	(a2)+, d2		; TP increase
 	bsr.w	GenerateRandStatIncrease
 	beq.s	loc_F3BC		; if generated number was 0, don't display text
 	move.w	#$1216, (a3)+	; "New TP maximum."
 loc_F3BC:
 	add.w	d2, 8(a1)		; add to TP maximum
-	
+
 	move.b	(a2)+, d2		; STRENGTH increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $10(a1)
-	
+
 	move.b	(a2)+, d2		; MENTAL increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $12(a1)
-	
+
 	move.b	(a2)+, d2		; AGILITY increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $14(a1)
-	
+
 	move.b	(a2)+, d2		; LUCK increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $16(a1)
-	
+
 	move.b	(a2)+, d2		; DEXTERITY increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $18(a1)
-	
+
 	move.b	(a2)+, d2		; ATTACK increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $1A(a1)
-	
+
 	move.b	(a2)+, d2		; DEFENSE increase
 	bsr.w	GenerateRandStatIncrease
 	add.w	d2, $1E(a1)
-	
+
 	move.b	(a2)+, d0
 	beq.s	loc_F41E
 	move.w	#$1217, (a3)+
@@ -23184,12 +23184,12 @@ loc_F41E:
 	move.w	(character_index).w, d3
 	bsr.w	loc_AD4C
 	rts
-	
+
 loc_F428:
 	move.b	#GameModeID_Map, (game_mode_index).w
 	rts
 
-; ----------------------------------	
+; ----------------------------------
 GenerateRandStatIncrease:
 	ext.w	d2
 	jsr	(UpdateRNGSeed).l	; generate random number
@@ -23199,12 +23199,12 @@ GenerateRandStatIncrease:
 	lsr.w	#8, d2					; divide it by 256
 	rts
 ; ----------------------------------
-	
+
 Battle_EventIndex_RunOption:
 	lsl.w	#2, d1
 	andi.w	#$1C, d1
 	jmp	RunOption_EventIndex-4(pc,d1.w)
-; --------------------------------------------	
+; --------------------------------------------
 RunOption_EventIndex:
 	bra.w	Run_EventIndex_TryRun
 	bra.w	Run_EventIndex_RunSuccessful
@@ -23224,7 +23224,7 @@ Run_EventIndex_TryRun:
 +
 	addq.w	#1, (event_routine).w
 	rts
-	
+
 Run_EventIndex_RunSuccessful:
 	move.b	#GameModeID_Map, (game_mode_index).w	; exit battle screen
 	bra.w	RestoreCharDataAfterBattle
@@ -23243,7 +23243,7 @@ Run_EventIndex_RunEnemiesAttack:
 	move.w	d0, (fight_interrupted_flag).w	; interrupt after this turn so that you can pick commands
 	move.w	d0, (event_routine).w			; restart from first battle option
 	rts
-	
+
 RestoreCharDataAfterBattle:
 	lea	(battle_character_stats).w, a0
 	lea	(character_stats).w, a1		; restore characters' data
@@ -23259,7 +23259,7 @@ RestoreCharDataAfterBattle:
 	adda.w	#$20, a1
 	dbf	d0, -
 	rts
-	
+
 loc_F4E8:
 	moveq	#0, d3
 	moveq	#7, d4
@@ -23268,10 +23268,10 @@ loc_F4EC:
 	bsr.s	loc_F4F8
 	addq.w	#1, d3
 	dbf	d4, loc_F4EC
-	
+
 	rts
-	
-	
+
+
 loc_F4F8:
 	move.b	(a1), d0
 	lea	(char_battle_command_index).w, a1
@@ -23298,11 +23298,11 @@ loc_F524:
 	cmp.w	2(a1), d2
 	beq.s	loc_F538
 	dbf	d0, loc_F524
-	
+
 loc_F534:
 	moveq	#0, d0
 	bra.s	loc_F584
-	
+
 loc_F538:
 	move.w	2(a1), d2
 	lsl.w	#4, d2
@@ -23312,7 +23312,7 @@ loc_F538:
 	btst	#6, (a2)
 	bne.s	loc_F584
 	rts
-	
+
 loc_F550:
 	lea	(battle_main_routine_index).w, a6
 	moveq	#0, d7
@@ -23320,7 +23320,7 @@ loc_F550:
 loc_F55A:
 	move.l	d7, (a6)+
 	dbf	d6, loc_F55A
-	
+
 	moveq	#0, d3
 	moveq	#7, d4
 loc_F564:
@@ -23329,7 +23329,7 @@ loc_F564:
 	addq.w	#1, d3
 	dbf	d4, loc_F564
 	rts
-	
+
 loc_F570:
 	lea	(CharStartCommandsArray).l, a1
 	adda.w	d1, a1
@@ -23355,7 +23355,7 @@ loc_F596:
 	move.l	d0, (a1)+
 	move.l	d0, (a1)
 	rts
-	
+
 ; =================================
 ; $00 = Attack
 ; $01 = Technique
@@ -23374,7 +23374,7 @@ CharStartCommandsArray:
 ; =================================
 
 	even
-	
+
 CheckPrepareWindows:
 	tst.w	(window_index).w
 	beq.s	PrepareWindows		; continue processing an already opened window
@@ -23385,7 +23385,7 @@ CheckPrepareWindows:
 	andi.w	#$FF, d0
 	move.w	d0, (window_index_saved).w	; save index for further processing
 	move.w	#0, (window_routine).w
-	
+
 PrepareWindows:
 	move.w	(window_routine).w, d1
 	move.w	(window_index_saved).w, d0
@@ -23394,10 +23394,10 @@ PrepareWindows:
 	jsr	WindowsIndexTable(pc,d0.w)
 	cmpi.w	#2, (window_routine).w
 	beq.s	+	; rts		; stop windows routine at 2 (3 routines per window)
-	addq.w	#1, (window_routine).w	; process next windows routine next frame 
+	addq.w	#1, (window_routine).w	; process next windows routine next frame
 +
 	rts
-	
+
 ; ========================================
 ; table of all the windows in the game
 ; ========================================
@@ -23520,7 +23520,7 @@ WindowsIndexTable:
 	bra.w	Win_TeleportPlaceNames	; $73
 	bra.w	Win_UstvestiaSoundtracks ; $74
 ; ========================================
-	
+
 Win_Null:
 	tst.w	(window_active_flag).w
 	beq.s	+
@@ -23533,7 +23533,7 @@ Win_PlayerMenu:
 	tst.b	d1
 	bne.s	+
 	rts
-	
+
 +
 	subq.w	#1, d1
 	bne.s	+
@@ -23541,7 +23541,7 @@ Win_PlayerMenu:
 	move.w	#$90, d1
 	move.w	#$90, d2
 	bra.w	LoadCursorInWindows
-	
+
 +
 	lea	($FFFFDE80).w, a0
 	bra.w	loc_11060
@@ -23551,7 +23551,7 @@ Win_MenuItemChar:
 	bne.s	+
 	lea	(loc_11412).l, a3
 	bra.s	loc_F83A
-	
+
 +
 	subq.w	#1, d1
 	bne.s	loc_F814
@@ -23579,7 +23579,7 @@ loc_F83A:
 loc_F848:
 	move.l	(a1)+, (a2)+	; WARNING: a2 can point to an odd address if the dynamic windows are resized. Split the move.l into multiple move.b instructions and change the code accordingly
 	dbf	d0, loc_F848
-	
+
 	lea	(party_member_id).w, a0
 	lea	(window_art_buffer+WinArt_CharList-DynamicWindowsStart+8).w, a1
 	move.w	(party_members_num).w, d0
@@ -23593,7 +23593,7 @@ loc_F85A:
 	move.l	(a2), (a1); WARNING: a2 can point to an odd address if the dynamic windows are resized. Split the move.l into multiple move.b instructions and change the code accordingly
 	addq.w	#6, a1
 	dbf	d0, loc_F85A
-	
+
 	subq.w	#1, a1
 	lea	(window_art_buffer+WinArt_CharList-DynamicWindowsStart+$37).w, a1
 	move.b	(a3)+, (a1)+
@@ -23622,7 +23622,7 @@ Win_MenuItemList:
 loc_F8AA:
 	lea	(character_stats+items).w, a2
 	bra.s	loc_F922
-	
+
 loc_F8B0:
 	subq.w	#1, d1
 	bne.s	loc_F8E0
@@ -23653,7 +23653,7 @@ loc_F8E0:
 	bne.s	loc_F902
 	move.w	#WinID_MenuItemList2, (window_index).w
 	rts
-	
+
 loc_F902:
 	subq.w	#1, ($FFFFDE84).w
 loc_F906:
@@ -23667,7 +23667,7 @@ loc_F906:
 	move.b	d0, (item_index).w
 loc_F920:
 	rts
-	
+
 loc_F922:
 	move.w	(character_index).w, d1
 	lsl.w	#6, d1
@@ -23684,7 +23684,7 @@ loc_F938:
 	bsr.s	loc_F948
 	addq.w	#1, a2
 	dbf	d0, loc_F938
-	
+
 	rts
 
 loc_F948:
@@ -23711,7 +23711,7 @@ loc_F96C:
 	adda.w	d1, a4
 	move.b	(a4), (a1)+
 	dbf	d2, loc_F96C
-	
+
 	rts
 ; ----------------------------------------
 ; loc_F984
@@ -23856,7 +23856,7 @@ loc_FACE:
 	bsr.w	loc_1135A
 	suba.w	#$6A, a1
 	dbf	d5, loc_FA94
-	
+
 	rts
 ; ----------------------------------------
 ; loc_FAFA
@@ -23864,7 +23864,7 @@ Win_ScriptMessage:
 	tst.b	d1
 	bne.s	loc_FB00
 	rts
-	
+
 loc_FB00:
 	subq.w	#1, d1
 	bne.s	loc_FB4E
@@ -23891,7 +23891,7 @@ loc_FB00:
 loc_FB4E:
 	move.w	#0, (window_index_saved).w
 	rts
-	
+
 loc_FB56:
 	movea.l	(text_buffer_pointer).w, a0
 	move.b	(a0)+, d0
@@ -23949,7 +23949,7 @@ loc_FBE8:
 	move.w	#1, $FFFFCD20.w
 loc_FBFE:
 	rts
-	
+
 loc_FC00:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask|Button_A_Mask, d0
@@ -24017,7 +24017,7 @@ loc_FC90:
 	move.w	#$108, d1
 	move.w	#$E8, d2
 	bra.w	LoadCursorInWindows
-	
+
 loc_FCA4:
 	bsr.w	loc_11010
 	tst.w	(window_index_saved).w
@@ -24197,7 +24197,7 @@ loc_FE32:
 	addq.w	#1, $FFFFDE9A.w
 loc_FE4A:
 	dbf	d0, loc_FE32
-	
+
 	rts
 ; ----------------------------------------
 Win_MapTechList:
@@ -24294,7 +24294,7 @@ loc_FF2E:
 	adda.w	d1, a4
 	move.b	(a4), (a1)+
 	dbf	d2, loc_FF2E
-	
+
 	rts
 ; ----------------------------------------
 ; loc_FF46
@@ -24326,7 +24326,7 @@ loc_FF80:
 	beq.s	loc_FFD6
 	andi.b	#$10, d0
 	beq.s	loc_FF9A
-	rts	
+	rts
 loc_FF9A:
 	tst.w	$FFFFDE9C.w
 	bne.s	loc_FFB8
@@ -24338,15 +24338,15 @@ loc_FF9A:
 	move.w	(a1), (window_index_saved).w
 	rts
 loc_FFB8:
-	addq.w	#7, $FFFFDE9C.w	
-	lea	$FFFFC800.w, a2	
-	move.w	(character_index).w, d1	
-	lsl.w	#5, d1	
-	adda.w	d1, a2	
-	adda.w	$FFFFDE9C.w, a2	
-	move.b	(a2), d0	
-	andi.b	#$3F, d0	
-	move.b	d0, (technique_index).w	
+	addq.w	#7, $FFFFDE9C.w
+	lea	$FFFFC800.w, a2
+	move.w	(character_index).w, d1
+	lsl.w	#5, d1
+	adda.w	d1, a2
+	adda.w	$FFFFDE9C.w, a2
+	move.b	(a2), d0
+	andi.b	#$3F, d0
+	move.b	d0, (technique_index).w
 loc_FFD6:
 	rts
 ; ----------------------------------------------------
@@ -24403,13 +24403,13 @@ Win_StrngEquip:
 Win_EqpEquipList:
 	tst.b	d1
 	beq.s	loc_10076
-	lea	$FFFFDEA4.w, a0	
-	bsr.w	loc_11060	
-	btst	#Button_B, (joypad_pressed).w	
-	beq.s	loc_10074	
-	addq.w	#1, (event_routine_2).w	
+	lea	$FFFFDEA4.w, a0
+	bsr.w	loc_11060
+	btst	#Button_B, (joypad_pressed).w
+	beq.s	loc_10074
+	addq.w	#1, (event_routine_2).w
 loc_10074:
-	rts	
+	rts
 loc_10076:
 	lea	(character_stats+equipment).w, a2
 	move.w	(character_index).w, d1
@@ -24429,7 +24429,7 @@ loc_1008A:
 	addq.w	#1, a2
 	dbf	d0, loc_1008A
 	rts
-	
+
 ; ------------------------------------------------
 ; loc_100A6
 Win_StrngLVEXP:
@@ -24462,7 +24462,7 @@ Win_StrngLVEXP:
 	adda.w	#$E, a1
 	move.l	(a3), d0
 	bra.w	Exp_ConvertToDecimal
-	
+
 ; --------------------------------------------------
 ; loc_100FC
 Win_EquipStats:
@@ -24961,10 +24961,10 @@ loc_105DC:
 	addq.w	#2, a1
 	addq.w	#1, a0
 	dbf	d5, loc_105DC
-	
+
 	rts
 ; -------------------------------------
-; loc_10618	
+; loc_10618
 Win_RolfHouseOptions:
 	tst.b	d1
 	bne.s	loc_1061E
@@ -25033,7 +25033,7 @@ loc_106AE:
 	move.l	#$26262626, (a1)
 	addq.w	#6, a1
 	dbf	d0, loc_106AE
-	
+
 loc_106C2:
 	rts
 ; ------------------------------------------
@@ -25062,7 +25062,7 @@ loc_106E4:
 	beq.s	loc_106FE
 	subq.w	#1,(event_routine_2).w
 	rts
-	
+
 loc_106FE:
 	tst.w	(window_index_saved).w
 	bne.s	loc_10726
@@ -25079,11 +25079,11 @@ loc_10706:
 	cmp.w	(a0)+,d0
 	beq.s	loc_10706
 	dbf	d1, loc_10706
-	
+
 	move.w	d0,(character_index).w
 loc_10726:
 	rts
-	
+
 loc_10728:
 	lea	(WinArt_RegroupCharList).l, a3
 	lea	(window_art_buffer+WinArt_RegroupCharList-DynamicWindowsStart).w, a2
@@ -25148,7 +25148,7 @@ loc_107B8:
 Win_CentTowerOptions:
 	move.w	#2, d0
 	bra.s	loc_107C4
-	
+
 ; loc_107C0
 Win_CentTowerOptions2:
 	move.w	#3, d0
@@ -25415,7 +25415,7 @@ Win_BattleOptions2:
 	tst.b	d1
 	bne.s	loc_10A2E
 	rts
-	
+
 loc_10A2E:
 	subq.w	#1, d1
 	bne.s	loc_10A5C
@@ -25459,7 +25459,7 @@ Win_BattleCharName:
 	move.l	(a3)+, (a1)+	; WARNING: a1 can point to an odd address if the dynamic windows are resized. Split the move.l into multiple move.b instructions and change the code accordingly
 	move.l	(a3), (a1)
 	rts
-; ------------------------------------	
+; ------------------------------------
 ; loc_10AAC
 Win_BattleCommands:
 	tst.b	d1
@@ -25802,8 +25802,8 @@ Win_BattleTechUsed:
 ; ---------------------------
 ; loc_10E56
 Win_BattleEmptySpots:
-	move.w	#0, (window_index_saved).w	
-	rts	
+	move.w	#0, (window_index_saved).w
+	rts
 ; ----------------------------------------
 ; loc_10E5E
 Win_FirstEnemyName:
@@ -25822,9 +25822,9 @@ loc_10E68:
 	bsr.s	loc_10E8E
 	rts
 loc_10E80:
-	move.w	#$8500, $FFFFF72C.w	
-	move.w	#0, (window_index_saved).w	
-	rts	
+	move.w	#$8500, $FFFFF72C.w
+	move.w	#0, (window_index_saved).w
+	rts
 loc_10E8E:
 	lea	(EnemyNames).l, a3
 	move.w	d0, d1
@@ -25840,7 +25840,7 @@ loc_10EA0:
 	adda.w	d1, a4
 	move.b	(a4), (a1)+
 	dbf	d2, loc_10EA0
-	
+
 	rts
 ; -------------------------------
 ; loc_10EB8
@@ -25898,7 +25898,7 @@ loc_10F2A:
 loc_10F38:
 	move.l	(a1)+, (a2)+	; WARNING: a1 and a2 can point to an odd address if the dynamic windows are resized. Split the move.l into multiple move.b instructions and change the code accordingly
 	dbf	d0, loc_10F38
-	
+
 	lea	(window_art_buffer+WinArt_TeleportPlaceNames-DynamicWindowsStart+9).w, a1
 	lea	$FFFFF768.w, a3
 	move.w	#$FFFF, $FFFFDED6.w
@@ -25942,10 +25942,10 @@ loc_10F94:
 	adda.w	d1, a4
 	move.b	(a4), (a1)+
 	dbf	d5, loc_10F94
-	
+
 	addq.w	#2, a1
 	rts
-; ----------------------------------------	
+; ----------------------------------------
 
 	charset	'A', "\11\12\13\14\15\16\17\18\19\20\21\22\23\24\25\26\27\28\29\30\31\32\33\34\35\36"
 	charset	'a', "\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55\56\57\58\59\60\61\62"
@@ -25979,7 +25979,7 @@ TeleportPlaceNamesArray:
 ; ========================================
 
 	even
-	
+
 	charset
 
 ; -----------------------------------------
@@ -26010,7 +26010,7 @@ loc_11010:
 	move.b	#SFXID_Selection, (sound_queue).w
 +
 	rts
-	
+
 loc_11028:
 	move.b	(joypad_pressed).w, d0
 	andi.b	#Button_B_Mask|Button_C_Mask, d0
@@ -26028,10 +26028,10 @@ loc_11028:
 	addq.w	#1, (event_routine_2).w
 	rts
 loc_1105A:
-	addq.w	#1, ($FFFFDE72).w	
+	addq.w	#1, ($FFFFDE72).w
 loc_1105E:
 	rts
-	
+
 loc_11060:
 	move.w	#$8001, d1
 loc_11064:
@@ -26045,7 +26045,7 @@ loc_11064:
 	move.w	d1, (a0)
 loc_11082:
 	rts
-	
+
 loc_11084:
 	btst	#Button_B, d0
 	beq.s	loc_11082			; return if b was not pressed
@@ -26068,13 +26068,13 @@ CloseCurrentWindow:
 loc_110BA:
 	subq.w	#1, (event_routine).w
 	rts
-	
-	
+
+
 JmpTo_CloseCurrentWindow:
 	move.w	#$8001, d1
 	bra.s	CloseCurrentWindow
-	
-	
+
+
 CloseAllWindows:
 	moveq	#0, d0
 	move.w	d0, (window_index_saved).w
@@ -26087,7 +26087,7 @@ CloseAllWindows:
 	ori.w	#$8000, d0
 	move.w	d0, (window_index).w
 	rts
-	
+
 CheckLoadScript:
 	tst.w	(window_active_flag).w
 	bne.s	+
@@ -26095,7 +26095,7 @@ CheckLoadScript:
 	bne.s	LoadScript
 /
 	rts
-	
+
 LoadScript:
 	move.l	(script_id+2).w, (script_id).w
 	move.l	(script_id+6).w, (script_id+4).w
@@ -26104,7 +26104,7 @@ LoadScript:
 	move.w	d0, d1
 	lsr.w	#6, d0
 	andi.w	#$3FC, d0
-	
+
 	lea	(GameScriptPtrs).l, a1
 	adda.w	d0, a1
 	movea.l	(a1), a1
@@ -26117,7 +26117,7 @@ LoadScript:
 	move.b	(a2)+, d0
 	adda.w	d0, a1
 	dbf	d1, -
-	
+
 	lea	(party_member_id).w, a4
 	lea	(text_buffer).w, a2
 	move.l	a2, (text_buffer_pointer).w
@@ -26126,7 +26126,7 @@ LoadScript:
 	move.w	$FFFFCD16.w, d0
 	cmp.w	$FFFFCD18.w, d0
 	bne.w	loc_11250
-	
+
 LoadScript_ChkCharName:
 	move.b	(a1)+, d0
 	cmpi.b	#$BB, d0
@@ -26143,7 +26143,7 @@ loc_11172:
 	adda.w	d1, a3
 	bsr.w	Script_ProcessCharNames
 	bra.s	LoadScript_ChkCharName
-	
+
 LoadScript_ChkCharName2:
 	cmpi.b	#$BC, d0
 	bne.s	LoadScript_ChkEnemyName
@@ -26195,7 +26195,7 @@ LoadDigitInRAMLoop:
 	bne.s	+			; branch if we are not in the one's place yet
 	move.b	#1, d4
 						; so set the flag no matter what.
-+						
++
 	moveq	#0, d2		; if d2 and d4 are 0, then the space character will be drawn
 	move.l	(a3)+, d3
 -
@@ -26260,7 +26260,7 @@ Script_ProcessItemEnemyNames:	; 10 characters
 	cmpi.b	#$C4, (a3)
 	beq.s	+	; rts
 	move.b	(a3)+, (a2)+
-	
+
 Script_ProcessTechNames:	; 5 characters
 	cmpi.b	#$C4, (a3)
 	beq.s	+	; rts
@@ -26280,7 +26280,7 @@ Script_ProcessCharNames:	; 4 characters
 	move.b	(a3)+, (a2)+
 +
 	rts
-	
+
 loc_112C4:
 	lea	$FFFFC800.w, a1
 	moveq	#0, d2
@@ -26313,7 +26313,7 @@ loc_112FC:
 -
 	move.b	(a2)+, (a1)+
 	dbf	d1, -
-	
+
 	btst	#7, (a0)
 	beq.s	+
 	movea.l	a1, a3
@@ -26325,10 +26325,10 @@ loc_112FC:
 -
 	move.b	#0, (a1)+
 	dbf	d1, -
-	
+
 +
 	rts
-	
+
 LoadCursorInWindows:
 	lea	(object_ram).w, a0
 	move.w	(current_active_objects_num).w, d3
@@ -26341,7 +26341,7 @@ LoadCursorInWindows:
 	move.w	d1, $A(a0)
 	move.w	d2, $E(a0)
 	rts
-	
+
 loc_11350:
 	lea	(DecimalConverReferArray+$10).l, a2
 	moveq	#3, d1	; 4 digits
@@ -26353,11 +26353,11 @@ loc_1135A:
 loc_11364:
 	lea	(DecimalConverReferArray+$18).l, a2
 	moveq	#1, d1		; 2 digits
-	
+
 StartDecimalConversion:
 	moveq	#0, d4	; unset flag for digit start place
 DrawDigitInVRAMLoop:
-	tst.b	d1			
+	tst.b	d1
 	bne.s	+			; branch if we are not in the one's place yet
 	move.b	#1, d4		; if we get here, we are at the last iteration of the loop, thus placing the unit digit. We need to display at least the unit digit,
 						; so set the flag no matter what.
@@ -26374,7 +26374,7 @@ DrawDigitInVRAMLoop:
 	tst.b	d4
 	bne.s	loc_11390	; branch if we've already drawn at least one digit or if we are at the one's place
 	tst.w	d2
-	beq.s	loc_1139C	; if we have no digits to draw, draw space character 
+	beq.s	loc_1139C	; if we have no digits to draw, draw space character
 	move.b	#1, d4		; set flag because we don't want to draw a space between digits; we only put spaces before the first digit we draw
 loc_11390:
 	addi.b	#$97, d2	; number offset in VRAM (start from 0)
@@ -26385,17 +26385,17 @@ loc_1139C:
 	move.b	#$26, (a1)+			; space character
 	dbf	d1, DrawDigitInVRAMLoop
 	rts
-	
+
 
 Meseta_ConvertToDecimal:
 	lea	(DecimalConverReferArray).l, a2
 	moveq	#7, d1		; eight digits
 	bra.s	StartDecimalConversion2
-	
+
 Exp_ConvertToDecimal:
 	lea	(DecimalConverReferArray+4).l, a2
 	moveq	#6, d1		;  seven digits
-	
+
 ; seems to be a copy of the above - I think just the code above would've been enough, but anyway...
 StartDecimalConversion2:
 	moveq	#0, d4	; unset flag for digit start place
@@ -26414,24 +26414,24 @@ DrawDigitInVRAMLoop2:
 	bra.s	-			; subtract again
 +
 	add.l	d3, d0		; re-add money to make it positive so we can process it with lower place value
-	tst.b	d4			
+	tst.b	d4
 	bne.s	loc_113DC	; branch if we've already drawn at least one digit or if we are at the one's place
 	tst.w	d2
-	beq.s	loc_113E8	; if we have no digits to draw, draw space character 
+	beq.s	loc_113E8	; if we have no digits to draw, draw space character
 	move.b	#1, d4		; set flag because we don't want to draw a space between digits; we only put spaces before the first digit we draw
 loc_113DC:
 	addi.b	#$97, d2	; number offset in VRAM (start from 0)
 	move.b	d2, (a1)+	; pick character from digit counter
 	dbf	d1, DrawDigitInVRAMLoop2	; next place value
-	
+
 	rts
-	
+
 loc_113E8:
 	move.b	#$26, (a1)+		; space character
 	dbf	d1, DrawDigitInVRAMLoop2
-	
-	rts	
-	
+
+	rts
+
 ; ====================================
 DecimalConverReferArray:
 	dc.l	$989680 ; 10000000
@@ -26442,7 +26442,7 @@ DecimalConverReferArray:
 	dc.l	$64		; 100
 	dc.l	$A		; 10
 	dc.l	1 		; 1
-; ====================================	
+; ====================================
 
 	charset 'A', "\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55\56\57\58\59\60\61\62\63\64"
 	charset 'a', "\65\66\67\68\69\70\71\72\73\74\75\76\77\78\79\80\81\82\83\84\85\86\87\88\89\90"
@@ -26458,53 +26458,53 @@ DecimalConverReferArray:
 	charset '-', $62
 	charset '/', $64
 	charset ':', $80
-	
+
 loc_11412:
 	dc.b	"    WHO?"
-	
+
 	even
-	
+
 loc_1141A:
 	border 8, $B9
-	
+
 	even
-	
+
 loc_11422:
 	dc.b	$B9
 	cursorbox "NEXT"
 	dc.b	$B9
-	
+
 	even
-	
+
 loc_1142A:
 	dc.b	"    ON? "
-	
+
 	even
-	
+
 loc_11432:
 	dc.b	$70, $71, $74, $75
 	dc.b	$6E, $6F, $72, $73
 	dc.b	"HPTP"
-	
+
 	even
-	
+
 loc_1143E:
 	dc.b	$70, $71, $74, $75
 	dc.b	$6E, $6F, $72, $73
 	dc.b	"  LV"
-	
+
 	even
-	
+
 loc_1144A:
 	border 6, $B9
-	
+
 	even
-	
+
 loc_11450:
 	cursorbox "NEXT"
-	
+
 	even
-	
+
 loc_11456:
 	dc.b	" AGENT  "
 	dc.b	" NO JOB "
@@ -26514,12 +26514,12 @@ loc_11456:
 	dc.b	"GUARDIAN"
 	dc.b	"WRECKER "
 	dc.b	" THIEF  "
-; =================================================================	
-	
+; =================================================================
+
 	even
-	
+
 	charset
-	
+
 ; =================================================================================================
 ; Character Map in input window when choosing names
 ;
@@ -26541,7 +26541,7 @@ loc_11456:
 	charset	39, $45	; apostrophe
 	charset	'-', $46
 	charset	':', $77
-	
+
 InputCharacterMap:
 	dc.b	"A B C D E F G H I"
 	dc.b	"J K L M N O P Q R"
@@ -26550,10 +26550,10 @@ InputCharacterMap:
 ; =================================================================================================
 
 	even
-	
+
 	charset
-	
-	
+
+
 	charset 'A', "\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55\56\57\58\59\60\61\62\63\64"
 	charset 'a', "\65\66\67\68\69\70\71\72\73\74\75\76\77\78\79\80\81\82\83\84\85\86\87\88\89\90"
 	charset '0', "\118\119\120\121\122\123\124\125\126\127"
@@ -26568,7 +26568,7 @@ InputCharacterMap:
 	charset '-', $62
 	charset '/', $64
 	charset ':', $80
-		
+
 loc_114DA:
 	dc.w	$1213, $1415
 	dc.w	$1617, $1819
@@ -26581,15 +26581,15 @@ loc_114EA:
 	dc.b	$6C, $6D, "TP"
 	dc.w	$6E6F, $7273
 	dc.b	"HPTP"
-	
+
 loc_114FE:
 	dc.b	"    Heal"
-	
+
 loc_11506:
 	dc.b	"    miss"
-	
+
 	charset
-	
+
 ; =============================================
 ; Techniques learned for each character
 ; =============================================
@@ -26885,7 +26885,7 @@ Shir_BattleTechs:
 ; =============================================
 
 	even
-	
+
 ; =============================================
 ; All equipment and items in stores
 ; =============================================
@@ -26900,7 +26900,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_Escapipe
 	dc.b	ItemID_None
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Paseo Armor Store
 	dc.b	ItemID_Headgear
@@ -26912,7 +26912,7 @@ StoreEquipItemArray:
 ; ---------------------------------------------
 
 ; ---------------------------------------------
-; Paseo Weapon Store	
+; Paseo Weapon Store
 	dc.b	ItemID_Knife
 	dc.b	ItemID_Dagger
 	dc.b	ItemID_Scalpel
@@ -26922,7 +26922,7 @@ StoreEquipItemArray:
 ; ---------------------------------------------
 
 ; ---------------------------------------------
-; Arima Weapon Store	
+; Arima Weapon Store
 	dc.b	ItemID_Dagger
 	dc.b	ItemID_SteelBar
 	dc.b	ItemID_Sword
@@ -26930,7 +26930,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_SonicGun
 	dc.b	ItemID_Shotgun
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Oputa Item Store
 	dc.b	ItemID_Monomate
@@ -26960,7 +26960,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_Shotgun
 	dc.b	ItemID_SilentShot
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Zema Item Store
 	dc.b	ItemID_Monomate
@@ -26980,7 +26980,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_FiberEmel
 	dc.b	ItemID_MirShield
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Zema Weapon Store
 	dc.b	ItemID_Whip
@@ -26990,7 +26990,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_Cannon
 	dc.b	ItemID_PoisonShot
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Kueri Item Store
 	dc.b	ItemID_Monomate
@@ -27000,7 +27000,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_Telepipe
 	dc.b	ItemID_Escapipe
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Kueri Armor Store
 	dc.b	ItemID_TtnmArmor
@@ -27010,7 +27010,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_MirEmel
 	dc.b	ItemID_CerShield
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Kueri Weapon Store
 	dc.b	ItemID_Boomerang
@@ -27020,7 +27020,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_SilentShot
 	dc.b	ItemID_LaserShot
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Piata Item Store
 	dc.b	ItemID_Monomate
@@ -27030,7 +27030,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_Escapipe
 	dc.b	ItemID_Hidapipe
 ; ---------------------------------------------
-	
+
 ; ---------------------------------------------
 ; Piata Armor Store
 	dc.b	ItemID_SilCrown
@@ -27049,7 +27049,7 @@ StoreEquipItemArray:
 	dc.b	ItemID_Vulcan
 	dc.b	ItemID_LaserShot
 	dc.b	ItemID_LsrCannon
-; ---------------------------------------------	
+; ---------------------------------------------
 
 ; ---------------------------------------------
 ; Aukba Item Store
@@ -27147,14 +27147,14 @@ LoadDynWindowsInRam:
 	lea	(DynamicWindowsStart).l, a1
 	lea	(window_art_buffer).w, a2
 	move.w	#dyn_windows_size/4-1, d0
-	
+
 -
 	move.l	(a1)+, (a2)+
 	dbf	d0, -
-	
+
 	rts
-	
-	
+
+
 ProcessRandomBattle:
 	nop
 	tst.w	$FFFFDE70.w
@@ -27182,7 +27182,7 @@ loc_116E6:
 	beq.s	loc_11716
 loc_116FE:
 	rts
-	
+
 loc_11700:
 	move.w	(characters_ram+y_pos).w, d0
 	andi.w	#$F, d0
@@ -27190,7 +27190,7 @@ loc_11700:
 	move.w	(characters_ram+x_pos).w, d0
 	andi.w	#$F, d0
 	beq.s	loc_11716
-	rts	
+	rts
 loc_11716:
 	move.w	#0, $FFFFCB0A.w
 	move.w	(map_index).w, d1
@@ -27268,7 +27268,7 @@ loc_117C6:
 	lea	(EnemyFormationTable).l, a1
 	lsl.w	#3, d2
 	adda.w	d2, a1
-	andi.w	#7, d0	; from 1-8 
+	andi.w	#7, d0	; from 1-8
 	adda.w	d0, a1	; now point to the formation ID we want to use in battle
 	moveq	#0, d1
 	move.b	(a1), d1
@@ -27276,7 +27276,7 @@ loc_117C6:
 	move.b	#GameModeID_Battle, (game_mode_index).w
 +
 	rts
-	
+
 RenderCharSprites:
 	lea	$FFFFD600.w, a4
 	lea	(party_member_id).w, a2
@@ -27297,7 +27297,7 @@ RenderCharSprites:
 	bsr.s	loc_11868
 	adda.w	d1, a0
 	bra.s	loc_11868
-	
+
 loc_1183A:
 	lea	$FFFFD600.w, a4
 	lea	(party_member_id).w, a2
@@ -27345,17 +27345,17 @@ loc_11868:
 	lsl.w	#5, d0
 	adda.w	d0, a1
 	moveq	#7, d0
-	
+
 -
 	rept 8
 		move.l	(a1)+, (a4)+
 	endm
-	
+
 	dbf	d0, -
-	
+
 loc_118C6:
 	rts
-	
+
 loc_118C8:
 	dc.l	$03FF3000
 	dc.l	$23FF3900
@@ -27365,7 +27365,7 @@ loc_118C8:
 	dc.l	$03FF4B00
 	dc.l	$03FF5D00
 	dc.l	$23FF4200
-	
+
 loc_118E8:
 	dc.b	$18
 	dc.b	$20
@@ -27379,9 +27379,9 @@ loc_118E8:
 	dc.b	$30
 	dc.b	$38
 	dc.b	$40
-	
+
 	even
-	
+
 loc_118F4:
 	lea	$FFFFF63C.w, a1
 	lea	$FFFFF63E.w, a2
@@ -27427,13 +27427,13 @@ loc_11974:
 	rts
 loc_11976:
 	rts
-	
+
 loc_11978:
 	dc.b	$00
 	dc.b	$02
 	dc.b	$04
 	dc.b	$02
-	
+
 	even
 
 ; ===========================================================
@@ -27445,7 +27445,7 @@ PtrPal_Sega:		dc.l	Pal_Sega
 					dc.w	$FB00, (Pal_SegaEnd-Pal_Sega)/4-1
 PtrPal_Title:	dc.l	Pal_Title
 					dc.w	$FB00, (Pal_TitleScrEnd-Pal_Title)/4-1
-					
+
 					dc.l	loc_11D04
 					dc.w	$FB00, $F
 					dc.l	loc_11DC4
@@ -27458,7 +27458,7 @@ PtrPal_Title:	dc.l	Pal_Title
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x000119B0-0x000119B4, Entry count: 0x00000004) [Unknown data]
 					dc.l	loc_11EC4
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x000119B8-0x000119BC, Entry count: 0x00000004) [Unknown data]
-					dc.l	loc_11F04	
+					dc.l	loc_11F04
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x000119C0-0x000119C4, Entry count: 0x00000004) [Unknown data]
 					dc.l	loc_11F44
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x000119C8-0x000119CC, Entry count: 0x00000004) [Unknown data]
@@ -27476,31 +27476,31 @@ PtrPal_Title:	dc.l	Pal_Title
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x000119F8-0x000119FC, Entry count: 0x00000004) [Unknown data]
 					dc.l	loc_12104
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x00011A00-0x00011A04, Entry count: 0x00000004) [Unknown data]
-					
+
 PtrPal_RolfPort:	dc.l	Pal_RolfPortrait
 					dc.w	$FB20, (Pal_RolfPortraitEnd-Pal_RolfPortrait)/4-1
-					
+
 PtrPal_NeiPort:		dc.l	Pal_NeiPortrait
 					dc.w	$FB40, (Pal_NeiPortraitEnd-Pal_NeiPortrait)/4-1
-					
+
 PtrPal_RudoPort:	dc.l	Pal_RudoPortrait
 					dc.w	$FB40, (Pal_RudoPortraitEnd-Pal_RudoPortrait)/4-1
-					
+
 PtrPal_AmyPort:		dc.l	Pal_AmyPortrait
 					dc.w	$FB40, (Pal_AmyPortraitEnd-Pal_AmyPortrait)/4-1
-					
+
 PtrPal_HughPort:	dc.l	Pal_HughPortrait
 					dc.w	$FB40, (Pal_HughPortraitEnd-Pal_HughPortrait)/4-1
-					
+
 PtrPal_AnnaPort:	dc.l	Pal_AnnaPortrait
 					dc.w	$FB40, (Pal_AnnaPortraitEnd-Pal_AnnaPortrait)/4-1
-					
+
 PtrPal_KainPort:	dc.l	Pal_KainPortrait
 					dc.w	$FB40, (Pal_KainPortraitEnd-Pal_KainPortrait)/4-1
-					
+
 PtrPal_ShirPort:	dc.l	Pal_ShirPortrait
 					dc.w	$FB40, (Pal_ShirPortraitEnd-Pal_ShirPortrait)/4-1
-					
+
 PtrPal_LibrPort:	dc.l	Pal_LibrarianPortrait
 					dc.b	$FB, $40, $00, $07
 PtrPal_MotSvEmPort:	dc.l	Pal_MotSaveEmpPort
@@ -27585,7 +27585,7 @@ PtrPal_TeleEmpPort: dc.l	Pal_TeleEmpPort
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x00011B88-0x00011B8C, Entry count: 0x00000004) [Unknown data]
 					dc.l	loc_12384
 					dc.b	$FB, $40, $00, $0F ;0x0 (0x00011B90-0x00011B94, Entry count: 0x00000004) [Unknown data]
-					dc.l	loc_12884	
+					dc.l	loc_12884
 					dc.b	$FB, $40, $00, $07 ;0x0 (0x00011B98-0x00011B9C, Entry count: 0x00000004) [Unknown data]
 					dc.l	loc_12884
 					dc.b	$FB, $40, $00, $07 ;0x0 (0x00011BA0-0x00011BA4, Entry count: 0x00000004) [Unknown data]
@@ -27720,7 +27720,7 @@ loc_11E04:
 loc_11E44:
 	dc.l	$00000000, $0EEE0AA4, $08600640, $04200060, $088E066E, $000E0008, $0AAA0888, $04440222, $00000EEE, $02C602A2, $00400020, $04440080, $00680046, $0024084E, $0EA00E60, $0A200000 ;0x0 (0x00011E44-0x00011E84, Entry count: 0x00000040)
 ; --------------------------------
-	
+
 loc_11E84:
 	dc.l	$00000E80, $0AEE08CE, $06AC048A, $02680246, $00240002, $00000ECA, $0EC20CA0, $0A800860, $00000E80, $06AC048A, $02680246, $00240002, $000008C6, $06A40482, $02600040, $0AEE08CE ;0x0 (0x00011E84-0x00011EC4, Entry count: 0x00000040)
 loc_11EC4:
@@ -27770,7 +27770,7 @@ loc_12384:
 	dc.l	$00000E64, $0ECC0EAA, $0C880A66, $08440622, $0CCE0AAC, $088A0668, $04460224, $00220000, $00000EEE, $0EEC0ECA, $0CCA0AA8, $08860666, $00000000, $00000AAA, $08880666, $00000000 ;0x0 (0x00012384-0x000123C4, Entry count: 0x00000040)
 loc_123C4:
 	dc.l	$00000000, $0EEE0AA4, $08600640, $04200060, $088E066E, $000E0008, $0AAA0888, $04440222, $00000EEE, $02C602A2, $00400020, $04440080, $00680046, $0024084E, $0EE80CC6, $0AA40000 ;0x0 (0x000123C4-0x00012404, Entry count: 0x00000040)
-	
+
 ; --------------------------------
 Pal_RolfPortrait:
 	dc.l	$0000000E
@@ -27946,14 +27946,14 @@ loc_12944:
 	dc.l	$00000EEE, $0ACE08AE, $068E0E66, $0C000AAA, $08880666, $02EE02AA, $000E0EEE, $00000000 ;0x0 (0x00012944-0x00012964, Entry count: 0x00000020)
 loc_12964:
 	dc.l	$00000000, $02220444, $06660888, $0AAA0CCC, $0EEE0000, $00000000, $00000000, $00000000, $00000400, $06000800, $0A200C42, $0E640E86, $0E640000, $00000000, $00000C42, $06200000 ;0x0 (0x00012964-0x000129A4, Entry count: 0x00000040)
-	
+
 ; ---------------------------------------------------------------------------------
 ; filler free space - can be replaced with even
 
 	rept $162
 	dc.b	0
-	endm	
-; ---------------------------------------------------------------------------------	
+	endm
+; ---------------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------
 ; Mappings
@@ -27985,7 +27985,7 @@ loc_12B1E:
 	dc.w	loc_12B6A-loc_12B1E
 	dc.w	loc_12B6A-loc_12B1E
 	dc.w	loc_12B6A-loc_12B1E
-	
+
 loc_12B36:
 	dc.w	loc_12B70-loc_12B36
 	dc.w	loc_12B70-loc_12B36
@@ -27999,7 +27999,7 @@ loc_12B36:
 	dc.w	loc_12B80-loc_12B36
 	dc.w	loc_12B80-loc_12B36
 	dc.w	loc_12B80-loc_12B36
-	
+
 ; -----------------------------------------------------------------
 ; Cursor Sprite Mappings
 ; -----------------------------------------------------------------
@@ -28010,7 +28010,7 @@ Map_Cursors:
 	dc.w	Map_Cursor_Triangle-Map_Cursors
 	dc.w	Map_Cursor_ChosenLetter-Map_Cursors
 ; -----------------------------------------------------------------
-	
+
 loc_12B58:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
@@ -28018,38 +28018,38 @@ loc_12B58:
 loc_12B5E:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $00, $F8
-	
+
 loc_12B64:
 	dc.b	$01
 	dc.b	$D8, $07, $00, $00, $F0
-	
+
 loc_12B6A:
 	dc.b	$01
 	dc.b	$D8, $07, $08, $00, $F0
-	
+
 loc_12B70:
 	dc.b	$03
 	dc.b	$F0, $04, $00, $22, $F8
 	dc.b	$E0, $07, $00, $00, $F8
 	dc.b	$E8, $04, $00, $20, $F8
-	
+
 loc_12B80:
 	dc.b	$03
 	dc.b	$F0, $04, $08, $22, $F8
 	dc.b	$E0, $07, $08, $00, $F8
 	dc.b	$E8, $04, $08, $20, $F8
-	
+
 Map_Cursor_Rectangle:
 	dc.b	$01
 	dc.b	$00, $04, $00, $00, $00
-	
+
 Map_Cursor_InputTile:
 	dc.b	$02
 	dc.b	$F8, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00
-	
+
 	even
-	
+
 Map_Cursor_InputTileBig:
 	dc.b	$05
 	dc.b	$00, $00, $00, $00, $00
@@ -28057,16 +28057,16 @@ Map_Cursor_InputTileBig:
 	dc.b	$00, $00, $00, $00, $10
 	dc.b	$00, $00, $00, $00, $18
 	dc.b	$00, $00, $00, $00, $20
-	
+
 Map_Cursor_Triangle:
 	dc.b	$01
 	dc.b	$00, $05, $00, $00, $00
-	
+
 Map_Cursor_ChosenLetter:
 	dc.b	$01
 	dc.b	$00, $00, $00, $00, $00
-	
-; ================================	
+
+; ================================
 ; VDP character maps
 ; ================================
 VDPCharacterMaps:
@@ -28189,9 +28189,9 @@ VDPCharacterMaps:
 	dc.b	$26, $26
 	dc.b	$26, $26
 	dc.b	$26, $26
-	
+
 	dc.b	$26, $80
-	
+
 	dc.b	$26, $26
 	dc.b	$26, $26
 	dc.b	$26, $26
@@ -28281,7 +28281,7 @@ VDPCharacterMaps:
 	dc.b	$26, $26
 	dc.b	$26, $26
 ; ================================
-	
+
 ; =======================================================================
 ; All inventory data
 ; 16 bytes for every item
@@ -28292,7 +28292,7 @@ VDPCharacterMaps:
 			; lower nibble = body part to wear item - 1 = head, 2 = select right or left hand, 3 = two-handed weapon
 			; 4 = body, 5 = feet
 			; bit 3 = show special text for this item, otherwise show "nothing happens" text
-			; higher nibbles = actions - bit 4 = item usable or not in battle;  
+			; higher nibbles = actions - bit 4 = item usable or not in battle;
 ; byte 14 = bitfield - determines which character can equip the item
 ; byte 15 = attack value
 ; byte 16 = defense value
@@ -28313,7 +28313,7 @@ InventoryData:
 	charset	':', $77
 
 	outradix 10
-	
+
 ; ItemNameLength = 10
 length	:=	ItemNameLength
 
@@ -28321,257 +28321,257 @@ Item_None:
 	nametxt	""
 	dc.w	0
 	dc.b	$00, $00, $00, $00
-	
+
 Item_SmallKey:
 	nametxt	"SMALL KEY"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_Dynamite:
 	nametxt	"DYNAMITE"
 	dc.w	0
 	dc.b	$48, $00, $00, $00
-	
+
 Item_KeyTube:
 	nametxt	"KEY TUBE"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_MruraGum:
 	nametxt	"MARUERAGUM"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_GreenCard:
 	nametxt	"GREEN CARD"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_BlueCard:
 	nametxt	"BLUE CARD"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_YellowCard:
 	nametxt	"YELLOWCARD"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_RedCard:
 	nametxt	"RED CARD"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_Letter:
 	nametxt	"LETTER"
 	dc.w	0
 	dc.b	$08, $00, $00, $00
-	
+
 Item_Recorder:
 	nametxt	"RECORDER"
 	dc.w	0
 	dc.b	$08, $00, $00, $00
-	
+
 Item_MruraLeaf:
 	nametxt	"MRURA LEAF"
 	dc.w	0
 	dc.b	$28, $00, $00, $00
-	
+
 Item_PlsmRing:
 	nametxt	"PLASMARING"
 	dc.w	0
 	dc.b	$08, $00, $00, $00
-	
+
 Item_Prism:
 	nametxt	"PRISM"
 	dc.w	0
 	dc.b	$08, $00, $00, $00
-	
+
 Item_Telepipe:
 	nametxt	"TELEPIPE"
 	dc.w	$82
 	dc.b	$E8, $00, $00, $00
-	
+
 Item_Escapipe:
 	nametxt	"ESCAPIPE"
 	dc.w	$46
 	dc.b	$E8, $00, $00, $00
-	
+
 Item_Hidapipe:
 	nametxt	"HIDAPIPE"
 	dc.w	$118
 	dc.b	$E8, $00, $00, $00
-	
+
 Item_Monomate:
 	nametxt	"MONOMATE"
 	dc.w	$14
 	dc.b	$F8, $00, $00, $00
-	
+
 Item_Dimate:
 	nametxt	"DIMATE"
 	dc.w	$3C
 	dc.b	$F8, $00, $00, $00
-	
+
 Item_Trimate:
 	nametxt	"TRIMATE"
 	dc.w	$A0
 	dc.b	$F8, $00, $00, $00
-	
+
 Item_Antidote:
 	nametxt	"ANTIDOTE"
 	dc.w	$0A
 	dc.b	$F8, $00, $00, $00
-	
+
 Item_StarMist:
 	nametxt	"STAR MIST"
 	dc.w	$3E8
 	dc.b	$F8, $00, $00, $00
-	
+
 Item_MoonDew:
 	nametxt	"MOON DEW"
 	dc.w	$2EE0
 	dc.b	$F8, $00, $00, $00
-	
+
 Item_Headgear:
 	nametxt	"HEADGEAR"
 	dc.w	$78
 	dc.b	$A1
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$00, $03
-	
+
 Item_Ribbon:
 	nametxt	"RIBBON"
 	dc.w	$50
 	dc.b	$A1
 	dc.b	CharID_Nei_Mask
 	dc.b	$00, $03
-	
+
 Item_Fibergear:
 	nametxt	"FIBERGEAR"
 	dc.w	$1AE
 	dc.b	$A1
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$00, $08
-	
+
 Item_SilRibbon:
 	nametxt	"SIL RIBBON"
 	dc.w	$17C
 	dc.b	$A1
 	dc.b	CharID_Nei_Mask
 	dc.b	$00, $0C
-	
+
 Item_SilCrown:
 	nametxt	"SIL CROWN"
 	dc.w	$1D6
 	dc.b	$A1
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $0E
-	
+
 Item_Titanigear:
 	nametxt	"TITANIGEAR"
 	dc.w	$578
 	dc.b	$A1
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$00, $0E
-	
+
 Item_Titanimet:
 	nametxt	"TITANIMET"
 	dc.w	$E74
 	dc.b	$A1
 	dc.b	CharID_Rolf_Mask|CharID_Kain_Mask
 	dc.b	$00, $10
-	
+
 Item_JwlCrown:
 	nametxt	"JWL CROWN"
 	dc.w	$11F8
 	dc.b	$A1
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $11
-	
+
 Item_JwlRibbon:
 	nametxt	"JWL RIBBON"
 	dc.w	$125C
 	dc.b	$A1
 	dc.b	CharID_Nei_Mask
 	dc.b	$00, $15
-	
+
 Item_Crescegear:
 	nametxt	"CRESCEGEAR"
 	dc.w	$118
 	dc.b	$B1
 	dc.b	CharID_Rudo_Mask
 	dc.b	$00, $0E
-	
+
 Item_SnowCrown:
 	nametxt	"SNOW CROWN"
 	dc.w	$1EA
 	dc.b	$B1
 	dc.b	CharID_Amy_Mask
 	dc.b	$00, $11
-	
+
 Item_WindScarf:
 	nametxt	"WIND SCARF"
 	dc.w	$78
 	dc.b	$B1
 	dc.b	CharID_Shir_Mask
 	dc.b	$00, $11
-	
+
 Item_ColorScarf:
 	nametxt	"COLORSCARF"
 	dc.w	$82
 	dc.b	$B1
 	dc.b	CharID_Anna_Mask
 	dc.b	$00, $11
-	
+
 Item_StormGear:
 	nametxt	"STORM GEAR"
 	dc.w	$276
 	dc.b	$B1
 	dc.b	CharID_Kain_Mask
 	dc.b	$00, $10
-	
+
 Item_Laconigear:
 	nametxt	"LACONIGEAR"
 	dc.w	$6D60
 	dc.b	$A1
 	dc.b	CharID_Rudo_Mask|CharID_Hugh_Mask
 	dc.b	$00, $1B
-	
+
 Item_Laconiamet:
 	nametxt	"LACONIAMET"
 	dc.w	$7148
 	dc.b	$A1
 	dc.b	CharID_Rudo_Mask|CharID_Hugh_Mask
 	dc.b	$00, $1D
-	
+
 Item_Neimet:
 	nametxt	"NEIMET"
 	dc.w	0
 	dc.b	$21
 	dc.b	CharID_Rolf_Mask|CharID_Kain_Mask
 	dc.b	$00, $32
-	
+
 Item_NeiCrown:
 	nametxt	"NEICROWN"
 	dc.w	0
 	dc.b	$21
 	dc.b	CharID_Amy_Mask
 	dc.b	$00, $30
-	
+
 Item_MagicCap:
 	nametxt	"MAGIC CAP"
 	dc.w	0
 	dc.b	$21
 	dc.b	CharID_Rolf_Mask
 	dc.b	$00, $02
-	
+
 Item_MogicCap:
 	nametxt	"MOGIC CAP"
 	dc.w	0
 	dc.b	$21
 	dc.b	CharID_Rolf_Mask
 	dc.b	$00, $02
-	
+
 Item_CarbonSuit:
 	nametxt	"CARBONSUIT"
 	dc.w	$80
@@ -28585,189 +28585,189 @@ Item_CarbonVest:
 	dc.b	$A4
 	dc.b	CharID_Nei_Mask
 	dc.b	$00, $04
-	
+
 Item_FiberCoat:
 	nametxt	"FIBERCOAT"
 	dc.w	$12C
 	dc.b	$A4
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $08
-	
+
 Item_FiberCape:
 	nametxt	"FIBERCAPE"
 	dc.w	$1A4
 	dc.b	$A4
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $08
-	
+
 Item_FiberVest:
 	nametxt	"FIBERVEST"
 	dc.w	$118
 	dc.b	$A4
 	dc.b	CharID_Nei_Mask
 	dc.b	$00, $06
-	
+
 Item_TtnmArmor:
 	nametxt	"TTNM ARMOR"
 	dc.w	$15E0
 	dc.b	$A4
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$00, $18
-	
+
 Item_TtnmCape:
 	nametxt	"TTNM CAPE"
 	dc.w	$189C
 	dc.b	$A4
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask
 	dc.b	$00, $1C
-	
+
 Item_TtnmChest:
 	nametxt	"TTNM CHEST"
 	dc.w	$1518
 	dc.b	$A4
 	dc.b	CharID_Rolf_Mask|CharID_Hugh_Mask
 	dc.b	$00, $15
-	
+
 Item_CrmcArmor:
 	nametxt	"CRMC ARMOR"
 	dc.w	$2DB4
 	dc.b	$A4
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$00, $30
-	
+
 Item_CrmcCape:
 	nametxt	"CRMC CAPE"
 	dc.w	$3070
 	dc.b	$A4
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $38
-	
+
 Item_CrmcChest:
 	nametxt	"CRMC CHEST"
 	dc.w	$2710
 	dc.b	$A4
 	dc.b	CharID_Rolf_Mask|CharID_Hugh_Mask
 	dc.b	$00, $2E
-	
+
 Item_AmberRobe:
 	nametxt	"AMBER ROBE"
 	dc.w	$AA
 	dc.b	$B4
 	dc.b	CharID_Hugh_Mask
 	dc.b	$00, $14
-	
+
 Item_Crystanish:
 	nametxt	"CRYSTANISH"
 	dc.w	$276
 	dc.b	$B4
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$00, $3C
-	
+
 Item_CrystCape:
 	nametxt	"CRYSTCAPE"
 	dc.w	$348
 	dc.b	$B4
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $3E
-	
+
 Item_CrystChest:
 	nametxt	"CRYSTCHEST"
 	dc.w	$29E
 	dc.b	$B4
 	dc.b	CharID_Rolf_Mask
 	dc.b	$00, $3C
-	
+
 Item_Laconinish:
 	nametxt	"LACONINISH"
 	dc.w	$88B8
 	dc.b	$A4
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$00, $41
-	
+
 Item_LaconCape:
 	nametxt	"LACONCAPE"
 	dc.w	$8CA0
 	dc.b	$A4
 	dc.b	CharID_Anna_Mask
 	dc.b	$00, $46
-	
+
 Item_LaconChest:
 	nametxt	"LACONCHEST"
 	dc.w	$6D60
 	dc.b	$A4
 	dc.b	CharID_Rolf_Mask
 	dc.b	$00, $50
-	
+
 Item_NeiArmor:
 	nametxt	"NEIARMOR"
 	dc.w	0
 	dc.b	$24
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$00, $5F
-	
+
 Item_NeiCape:
 	nametxt	"NEICAPE"
 	dc.w	0
 	dc.b	$24
 	dc.b	CharID_Amy_Mask|CharID_Shir_Mask
 	dc.b	$00, $58
-	
+
 Item_Shoes:
 	nametxt	"SHOES"
 	dc.w	$F0
 	dc.b	$A5
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$00, $03
-	
+
 Item_Sandals
 	nametxt	"SANDALS"
 	dc.w	$B4
 	dc.b	$A5
 	dc.b	CharID_Nei_Mask
 	dc.b	$00, $03
-	
+
 Item_Boots:
 	nametxt	"BOOTS"
 	dc.w	$3E8
 	dc.b	$A5
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$00, $07
-	
+
 Item_KnifeBoots:
 	nametxt	"KNIFEBOOTS"
 	dc.w	$1068
 	dc.b	$A5
 	dc.b	CharID_Nei_Mask|CharID_Anna_Mask
 	dc.b	$07, $07
-	
+
 Item_LongBoots:
 	nametxt	"LONG BOOTS"
 	dc.w	$1A90
 	dc.b	$A5
 	dc.b	CharID_Anna_Mask
 	dc.b	$05, $07
-	
+
 Item_HirzaBoots:
 	nametxt	"HIRZABOOTS"
 	dc.w	$2648
 	dc.b	$A5
 	dc.b	CharID_Amy_Mask|CharID_Shir_Mask
 	dc.b	$00, $07
-	
+
 Item_ShuneBoots:
 	nametxt	"SHUNEBOOTS"
 	dc.w	$1D4C
 	dc.b	$A5
 	dc.b	CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $07
-	
+
 Item_GardaBoots:
 	nametxt	"GARDABOOTS"
 	dc.w	$3070
 	dc.b	$A5
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $0F
-	
+
 Item_CrbnShield:
 	nametxt	"CRBNSHIELD"
 	dc.w	$21C
@@ -28781,375 +28781,375 @@ Item_CrbnEmel:
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $07
-	
+
 Item_FibrShield:
 	nametxt	"FIBRSHILD"
 	dc.w	$4B0
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $0F
-	
+
 Item_FiberEmel:
 	nametxt	"FIBER EMEL"
 	dc.w	$550
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $11
-	
+
 Item_MirShield:
 	nametxt	"MIR SHIELD"
 	dc.w	$12C0
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $20
-	
+
 Item_MirEmel:
 	nametxt	"MIR EMEL"
 	dc.w	$1400
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $1E
-	
+
 Item_CerShield:
 	nametxt	"CER SHIELD"
 	dc.w	$206C
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $27
-	
+
 Item_CerEmel:
 	nametxt	"CER EMEL"
 	dc.w	$25E4
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $28
-	
+
 Item_Aegis:
 	nametxt	"AEGIS"
 	dc.w	$4B0
 	dc.b	$B2
 	dc.b	CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $20
-	
+
 Item_GrSleeves:
 	nametxt	"GR SLEEVES"
 	dc.w	$348
 	dc.b	$B2
 	dc.b	CharID_Anna_Mask
 	dc.b	$00, $3F
-	
+
 Item_TruthSlvs:
 	nametxt	"TRUTH SLVS"
 	dc.w	$2D0
 	dc.b	$B2
 	dc.b	CharID_Shir_Mask
 	dc.b	$00, $3B
-	
+
 Item_LaconEmel:
 	nametxt	"LACON EMEL"
 	dc.w	$2EE0
 	dc.b	$A2, $28, $00, $44
-	
+
 Item_LacShield:
 	nametxt	"LAC SHIELD"
 	dc.w	$32C8
 	dc.b	$A2
 	dc.b	CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $55
-	
+
 Item_NeiShield:
 	nametxt	"NEISHIELD"
 	dc.w	0
 	dc.b	$22
 	dc.b	CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$00, $5F
-	
+
 Item_NeiEmel:
 	nametxt	"NEIEMEL"
 	dc.w	0
 	dc.b	$22
 	dc.b	CharID_Anna_Mask|CharID_Shir_Mask
 	dc.b	$00, $76
-	
+
 Item_Knife:
 	nametxt	"KNIFE"
 	dc.w	$64
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$05, $00
-	
+
 Item_Dagger:
 	nametxt	"DAGGER"
 	dc.w	$C8
 	dc.b	$A2
 	dc.b	CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$08, $01
-	
+
 Item_Scalpel:
 	nametxt	"SCALPEL"
 	dc.w	$B4
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Hugh_Mask
 	dc.b	$07, $00
-	
+
 Item_SteelBar:
 	nametxt	"STEEL BAR"
 	dc.w	$50
 	dc.b	$A2
 	dc.b	CharID_Nei_Mask
 	dc.b	$07, $02
-	
+
 Item_Boomerang:
 	nametxt	"BOOMERANG"
 	dc.w	$1E0
 	dc.b	$A2
 	dc.b	CharID_Anna_Mask
 	dc.b	$0C, $00
-	
+
 Item_Slasher:
 	nametxt	"SLASHER"
 	dc.w	$7D0
 	dc.b	$A2
 	dc.b	CharID_Anna_Mask
 	dc.b	$11, $00
-	
+
 Item_Sword:
 	nametxt	"SWORD"
 	dc.w	$4B0
 	dc.b	$A3
 	dc.b	CharID_Rolf_Mask
 	dc.b	$12, $04
-	
+
 Item_Whip:
 	nametxt	"WHIP"
 	dc.w	$578
 	dc.b	$A2
 	dc.b	CharID_Anna_Mask
 	dc.b	$14, $02
-	
+
 Item_CrmcSword:
 	nametxt	"CERAM SWRD"
 	dc.w	$C80
 	dc.b	$A3
 	dc.b	CharID_Rolf_Mask
 	dc.b	$1E, $05
-	
+
 Item_CeramKnife
 	nametxt	"CERAM KNFE"
 	dc.w	$AF0
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$14, $03
-	
+
 Item_CeramBar:
 	nametxt	"CERAM BAR"
 	dc.w	$4B0
 	dc.b	$A2
 	dc.b	CharID_Nei_Mask
 	dc.b	$1B, $02
-	
+
 Item_LasrSlshr:
 	nametxt	"LASR SLSHR"
 	dc.w	$1A2C
 	dc.b	$A2
 	dc.b	CharID_Anna_Mask
 	dc.b	$1E, $00
-	
+
 Item_LasrSword:
 	nametxt	"LASR SWRD"
 	dc.w	$1518
 	dc.b	$A3
 	dc.b	CharID_Rolf_Mask
 	dc.b	$32, $09
-	
+
 Item_LaserBar:
 	nametxt	"LASR BAR"
 	dc.w	$C1C
 	dc.b	$A2
 	dc.b	CharID_Nei_Mask
 	dc.b	$26, $03
-	
+
 Item_LaserKnife:
 	nametxt	"LASER KNFE"
 	dc.w	$1130
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$1C, $05
-	
+
 Item_SwdOfAnger:
 	nametxt	"SWD OF ANG"
 	dc.w	$118
 	dc.b	$A3
 	dc.b	CharID_Rolf_Mask
 	dc.b	$3A, $00
-	
+
 Item_FireSlshr:
 	nametxt	"FIRE SLSHR"
 	dc.w	$154
 	dc.b	$A2
 	dc.b	CharID_Anna_Mask
 	dc.b	$24, $00
-	
+
 Item_FireStaff:
 	nametxt	"FIRE STAFF"
 	dc.w	$29E
 	dc.b	$B2
 	dc.b	CharID_Amy_Mask
 	dc.b	$20, $0B
-	
+
 Item_LacnMace:
 	nametxt	"LACN MACE"
 	dc.w	$41A0
 	dc.b	$A2
 	dc.b	CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$28, $08
-	
+
 Item_LacDagger:
 	nametxt	"LAC DAGGER"
 	dc.w	$47E0
 	dc.b	$A2
 	dc.b	CharID_Shir_Mask
 	dc.b	$04, $16				;  Attack power is only 4. Don't think this was intentional...
-	
+
 Item_ACSlasher:
 	nametxt	"AC SLASHR "	; Should be LAC SLASHR
 	dc.w	$5DC0
 	dc.b	$A2
 	dc.b	CharID_Anna_Mask
 	dc.b	$2A, $00
-	
+
 Item_LacSword:
 	nametxt	"LAC SWORD"
 	dc.w	$55F0
 	dc.b	$A3
 	dc.b	CharID_Rolf_Mask
 	dc.b	$3E, $07
-	
+
 Item_NeiSword:
 	nametxt	"NEISWORD"
 	dc.w	0
 	dc.b	$2B
 	dc.b	CharID_Rolf_Mask
 	dc.b	$4B, $18
-	
+
 Item_NeiSlasher:
 	nametxt	"NEISLASHER"
 	dc.w	0
 	dc.b	$22
 	dc.b	CharID_Anna_Mask
 	dc.b	$3C, $00
-	
+
 Item_BowGun:
 	nametxt	"BOW GUN"
 	dc.w	$12C
 	dc.b	$A3
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$08, $00
-	
+
 Item_SonicGun:
 	nametxt	"SONIC GUN"
 	dc.w	$280
 	dc.b	$A2
 	dc.b	CharID_Rolf_Mask|CharID_Rudo_Mask|CharID_Hugh_Mask|CharID_Kain_Mask
 	dc.b	$11, $00
-	
+
 Item_Shotgun:
 	nametxt	"SHOTGUN"
 	dc.w	$320
 	dc.b	$A3
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$0A, $00
-	
+
 Item_SilentShot:
 	nametxt	"SILENTSHOT"
 	dc.w	$398
 	dc.b	$A3
 	dc.b	CharID_Amy_Mask
 	dc.b	$0A, $00
-	
+
 Item_PoisonShot
 	nametxt	"POISONSHOT"
 	dc.w	$6A4
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Hugh_Mask
 	dc.b	$0F, $00
-	
+
 Item_AcidShot:
 	nametxt	"ACIDSHOT"
 	dc.w	$12C0
 	dc.b	$A2
 	dc.b	CharID_Amy_Mask|CharID_Hugh_Mask
 	dc.b	$19, $00
-	
+
 Item_Cannon:
 	nametxt	"CANNON"
 	dc.w	$898
 	dc.b	$A3
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$12, $00
-	
+
 Item_Vulcan:
 	nametxt	"VULCAN"
 	dc.w	$3138
 	dc.b	$A3
 	dc.b	CharID_Rudo_Mask
 	dc.b	$1C, $00
-	
+
 Item_LaserShot:
 	nametxt	"LASER SHOT"
 	dc.w	$1838
 	dc.b	$A3
 	dc.b	CharID_Rudo_Mask|CharID_Kain_Mask
 	dc.b	$14, $00
-	
+
 Item_LsrCannon:
 	nametxt	"LSR CANNON"
 	dc.w	$4E20
 	dc.b	$A3
 	dc.b	CharID_Rudo_Mask
 	dc.b	$1E, $00
-	
+
 Item_PlsCannon:
 	nametxt	"PLS CANNON"
 	dc.w	$7D00
 	dc.b	$A3, $04, $23, $00
-	
+
 Item_PulseVlcn:
 	nametxt	"PULSE VLCN"
 	dc.w	$BB80
 	dc.b	$A3
 	dc.b	CharID_Rudo_Mask
 	dc.b	$26, $00
-	
+
 Item_NeiShot:
 	nametxt	"NEISHOT"
 	dc.w	0
 	dc.b	$23
 	dc.b	CharID_Rudo_Mask
 	dc.b	$3C, $00
-	
+
 Item_PrsnClths:
 	nametxt	"PRSN CLTHS"
 	dc.w	$64
 	dc.b	$04
 	dc.b	CharID_Rolf_Mask|CharID_Nei_Mask|CharID_Rudo_Mask|CharID_Amy_Mask|CharID_Hugh_Mask|CharID_Anna_Mask|CharID_Kain_Mask|CharID_Shir_Mask
 	dc.b	$00, $02
-	
+
 Item_Teim:
 	nametxt	"TEIM"
 	dc.w	0
 	dc.b	$08, $00, $00, $00
-	
+
 Item_Visiphone:
 	nametxt	"VISIPHONE"
 	dc.w	$BB8
 	dc.b	$A8, $00, $00, $00
-	
+
 Item_Unknown1:
 	nametxt	"T"	; ???
 	dc.w	$F230
 	dc.b	$E8, $00, $00, $00
-	
+
 Item_Unknown2:
 	nametxt	"H"	; ???
 	dc.w	$B3B0
@@ -29172,131 +29172,131 @@ length	:=	TechNameLength
 Tech_None:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Foi:
 	nametxt	"FOI"
 	dc.b	$02, $F1, $0F
-	
+
 Tech_Gifoi:
 	nametxt	"GIFOI"
 	dc.b	$06, $F1, $28
-	
+
 Tech_Nafoi:
 	nametxt	"NAFOI"
 	dc.b	$0C, $F1, $82
-	
+
 Tech_Zan:
 	nametxt	"ZAN"
 	dc.b	$04, $F2, $14
-	
+
 Tech_Gizan:
 	nametxt	"GIZAN"
 	dc.b	$07, $F2, $1E
-	
+
 Tech_Nazan:
 	nametxt	"NAZAN"
 	dc.b	$0B, $F2, $64
-	
+
 Tech_Gra:
 	nametxt	"GRA"
 	dc.b	$08, $F4, $14
-	
+
 Tech_Gigra:
 	nametxt	"GIGRA"
 	dc.b	$0C, $F4, $28
-	
+
 Tech_Nagra:
 	nametxt	"NAGRA"
 	dc.b	$14, $F4, $50
-	
+
 Tech_Tsu:
 	nametxt	"TSU"
 	dc.b	$06, $F1, $1E
-	
+
 Tech_Githu:
 	nametxt	"GITHU"
 	dc.b	$0D, $F1, $50
-	
+
 Tech_Nathu:
 	nametxt	"NATHU"
 	dc.b	$14, $F1, $96
-	
+
 Tech_Shift:
 	nametxt	"SHIFT"
 	dc.b	$05, $30, $14
-	
+
 Tech_Fanbi:
 	nametxt	"FANBI"
 	dc.b	$02, $F1, $0A
-	
+
 Tech_Eijia:
 	nametxt	"EIJIA"
 	dc.b	$04, $D2, $17
-	
+
 Tech_Brose:
 	nametxt	"BROSE"
 	dc.b	$08, $D1, $FF
-	
+
 Tech_Conte:
 	nametxt	"CONTE"
 	dc.b	$06, $D1, $00
-	
+
 Tech_Gaj:
 	nametxt	"GAJ"
 	dc.b	$01, $D1, $14
-	
+
 Tech_Gigaj:
 	nametxt	"GIGAJ"
 	dc.b	$05, $D1, $3C
-	
+
 Tech_Nagaj:
 	nametxt	"NAGAJ"
 	dc.b	$0F, $D1, $96
-	
+
 Tech_Sag:
 	nametxt	"SAG"
 	dc.b	$03, $D4, $14
-	
+
 Tech_Gisag:
 	nametxt	"GISAG"
 	dc.b	$0F, $D4, $3C
-	
+
 Tech_Nasag:
 	nametxt	"NASAG"
 	dc.b	$1B, $D4, $96
-	
+
 Tech_Gen:
 	nametxt	"GEN"
 	dc.b	$01, $B1, $14
-	
+
 Tech_Sagen:
 	nametxt	"SAGEN"
 	dc.b	$03, $B4, $14
-	
+
 Tech_Vol:
 	nametxt	"VOL"
 	dc.b	$08, $B1, $FF
-	
+
 Tech_Savol:
 	nametxt	"SAVOL"
 	dc.b	$10, $B2, $FF
-	
+
 Tech_Shiza:
 	nametxt	"SHIZA"
 	dc.b	$06, $B1, $00
-	
+
 Tech_Doran:
 	nametxt	"DORAN"
 	dc.b	$02, $B1, $00
-	
+
 Tech_Rimit:
 	nametxt	"RIMIT"
 	dc.b	$03, $B1, $00
-	
+
 Tech_Shinb:
 	nametxt	"SHINB"
 	dc.b	$04, $B4, $00
-	
+
 Tech_Forsa:
 	nametxt	"FORSA"
 	dc.b	$02, $D2, $00
@@ -29304,23 +29304,23 @@ Tech_Forsa:
 Tech_Rimet:
 	nametxt	"RIMET"
 	dc.b	$03, $D1, $00
-	
+
 Tech_Shu:
 	nametxt	"SHU"
 	dc.b	$03, $11, $00
-	
+
 Tech_Sashu:
 	nametxt	"SASHU"
 	dc.b	$08, $14, $00
-	
+
 Tech_Deban:
 	nametxt	"DEBAN"
 	dc.b	$04, $14, $00
-	
+
 Tech_Ner:
 	nametxt	"NER"
 	dc.b	$02, $11, $00
-	
+
 Tech_Saner:
 	nametxt	"SANER"
 	dc.b	$06, $14, $00
@@ -29328,87 +29328,87 @@ Tech_Saner:
 Tech_Res:
 	nametxt	"RES"
 	dc.b	$03, $19, $14
-	
+
 Tech_Gires:
 	nametxt	"GIRES"
 	dc.b	$07, $19, $3C
-	
+
 Tech_Nares:
 	nametxt	"NARES"
 	dc.b	$0D, $19, $FF
-	
+
 Tech_Sar:
 	nametxt	"SAR"
 	dc.b	$0D, $1C, $14
-	
+
 Tech_Gisar:
 	nametxt	"GISAR"
 	dc.b	$1D, $1C, $3C
-	
+
 Tech_Nasar:
 	nametxt	"NASAR"
 	dc.b	$35, $1C, $FF
-	
+
 Tech_Sak:
 	nametxt	"SAK"
 	dc.b	$01, $19, $FF
-	
+
 Tech_Nasak:
 	nametxt	"NASAK"
 	dc.b	$01, $1C, $FF
-	
+
 Tech_Anti:
 	nametxt	"ANTI"
 	dc.b	$02, $09, $00
-	
+
 Tech_Rever:
 	nametxt	"REVER"
 	dc.b	$1E, $09, $00
-	
+
 Tech_Ryuka:
 	nametxt	"RYUKA"
 	dc.b	$08, $0C, $00
-	
+
 Tech_Hinas:
 	nametxt	"HINAS"
 	dc.b	$04, $0C, $00
-	
+
 Tech_Musik:
 	nametxt	"MUSIK"
 	dc.b	$03, $04, $00
-	
+
 Tech_Megid:
 	nametxt	"MEGID"
 	dc.b	$37, $F4, $00
-	
+
 Tech_Unknown1:
 	nametxt	"RRRRR" ; ?
 	dc.b	$1C, $09, $00
-	
+
 Tech_Unknown2:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Unknown3:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Unknown4:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Unknown5:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Unknown6:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Unknown7:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_Unknown8:
 	nametxt	""
 	dc.b	$00, $00, $00
@@ -29416,11 +29416,11 @@ Tech_Unknown8:
 Tech_Unknown9:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_UnknownA:
 	nametxt	""
 	dc.b	$00, $00, $00
-	
+
 Tech_UnknownB:
 	nametxt	""
 	dc.b	$00, $00, $00
@@ -29428,7 +29428,7 @@ Tech_UnknownB:
 
 	outradix 16
 	charset
-	
+
 ; =======================================================================
 ; 8 bytes for every window
 ;
@@ -29447,107 +29447,107 @@ PtrWin_PlayerMenu:
 	dc.b	$40, $82				; Y and X position
 	dc.l	WinArt_PlayerMenu	; pointer to art	(see the example in this address)
 	dc.b	$08, $0A				; 7 columns and 11 rows when drawing the window
-	
+
 PtrWin_MenuItemChar:
 	dc.b	$44, $88
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_CharList-DynamicWindowsStart
 	dc.b	$07, $0A
-	
+
 PtrWin_MenuItemList:
 	dc.b	$40, $9A
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MenuItemList-DynamicWindowsStart
 	dc.b	$0E, $11
-	
+
 PtrWin_MenuItemList2:
 	dc.b	$41, $1C
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MenuItemList-DynamicWindowsStart
 	dc.b	$0E, $11
-	
+
 PtrWin_ItemAction:
 	dc.b	$40, $BC
 	dc.l	WinArt_ItemAction
 	dc.b	$06, $06
-	
+
 PtrWin_ChosenItemChar:
 	dc.b	$44, $BE
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_CharList-DynamicWindowsStart
 	dc.b	$07, $0A
-	
+
 PtrWin_MenuCharStats:
 	dc.b	$4A, $0C
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MenuCharStats-DynamicWindowsStart
 	dc.b	$1C, $06
 
-PtrWin_ScriptMessage:	
+PtrWin_ScriptMessage:
 	dc.b	$4A, $8E
 	dc.l	WinArt_ScriptMessage
 	dc.b	$19, $05
-	
+
 PtrWin_YesNo:
 	dc.b	$45, $BC
 	dc.l	WinArt_YesNo
 	dc.b	$06, $04
 
-PtrWin_StateOrder:	
+PtrWin_StateOrder:
 	dc.b	$46, $04
 	dc.l	WinArt_StateOrder
 	dc.b	$08, $04
 
-PtrWin_FirstCharStats:	
+PtrWin_FirstCharStats:
 	dc.b	$47, $1E
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_IndividualCharStats-DynamicWindowsStart
 	dc.b	$0B, $05
 
-PtrWin_SecondCharStats:	
+PtrWin_SecondCharStats:
 	dc.b	$47, $36
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_IndividualCharStats-DynamicWindowsStart
 	dc.b	$0B, $05
 
-PtrWin_ThirdCharStats:	
+PtrWin_ThirdCharStats:
 	dc.b	$4A, $1E
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_IndividualCharStats-DynamicWindowsStart
 	dc.b	$0B, $05
 
-PtrWin_FourthCharStats:	
+PtrWin_FourthCharStats:
 	dc.b	$4A, $36
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_IndividualCharStats-DynamicWindowsStart
 	dc.b	$0B, $05
 
-PtrWin_MenuMeseta:	
+PtrWin_MenuMeseta:
 	dc.b	$49, $04
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_Meseta-DynamicWindowsStart
 	dc.b	$0C, $02
 
-PtrWin_CharOrderDestination:	
+PtrWin_CharOrderDestination:
 	dc.b	$42, $20
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_CharOrderDestination-DynamicWindowsStart
 	dc.b	$07, $09
 
-PtrWin_CharList2:	
+PtrWin_CharList2:
 	dc.b	$43, $B8
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_CharList2-DynamicWindowsStart
 	dc.b	$07, $09
 
-PtrWin_MapTechList:	
+PtrWin_MapTechList:
 	dc.b	$40, $98
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MapTechList-DynamicWindowsStart
 	dc.b	$08, $11
 
-PtrWin_MapTechList2:	
+PtrWin_MapTechList2:
 	dc.b	$41, $1A
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MapTechList-DynamicWindowsStart
 	dc.b	$08, $11
 
-PtrWin_StrngHPTP:	
+PtrWin_StrngHPTP:
 	dc.b	$40, $B6
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StrngHPTP-DynamicWindowsStart
 	dc.b	$0B, $04
-	
+
 PtrWin_StrngStats:
 	dc.b	$46, $34
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StrngStats-DynamicWindowsStart
 	dc.b	$0C, $0E
-	
+
 PtrWin_StrngEquip:
 	dc.b	$47, $8C
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StrngEquip-DynamicWindowsStart
@@ -29558,36 +29558,36 @@ PtrWin_StrngLVEXP:
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StrngLVEXP-DynamicWindowsStart
 	dc.b	$0B, $07
 
-PtrWin_EquipStats:	
+PtrWin_EquipStats:
 	dc.b	$49, $AE
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_EquipStats-DynamicWindowsStart
 	dc.b	$0C, $07
 
-PtrWin_EqpEquipList:	
+PtrWin_EqpEquipList:
 	dc.b	$47, $8C
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StrngEquip-DynamicWindowsStart
 	dc.b	$10, $0B
 
-PtrWin_ItemList2:	
+PtrWin_ItemList2:
 	dc.b	$40, $AE
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MenuItemList-DynamicWindowsStart
 	dc.b	$0E, $11
 
-PtrWin_ItemList3:	
+PtrWin_ItemList3:
 	dc.b	$41, $30
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_MenuItemList-DynamicWindowsStart
 	dc.b	$0E, $11
-	
+
 PtrWin_ScriptMessageBig:
 	dc.b	$48, $8E
 	dc.l	WinArt_ScriptMessageBig
 	dc.b	$19, $09
 
-PtrWin_FullTechList:	
+PtrWin_FullTechList:
 	dc.b	$44, $18
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_FullTechList-DynamicWindowsStart
 	dc.b	$0C, $11
-	
+
 PtrWin_FullTechList2:
 	dc.b	$44, $34
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_FullTechList-DynamicWindowsStart
@@ -29598,7 +29598,7 @@ PtrWin_YesNo2:
 	dc.l	WinArt_YesNo
 	dc.b	$06, $04
 
-PtrWin_YesNo3:	
+PtrWin_YesNo3:
 	dc.b	$46, $20
 	dc.l	WinArt_YesNo
 	dc.b	$06, $04
@@ -29608,7 +29608,7 @@ PtrWin_ScriptMessage2:
 	dc.l	WinArt_ScriptMessage
 	dc.b	$19, $05
 
-PtrWin_BuySell:	
+PtrWin_BuySell:
 	dc.b	$4A, $B8
 	dc.l	WinArt_BuySell
 	dc.b	$07, $04
@@ -29618,52 +29618,52 @@ PtrWin_StoreMeseta:
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_Meseta-DynamicWindowsStart
 	dc.b	$0C, $02
 
-PtrWin_NameInput:	
+PtrWin_NameInput:
 	dc.b	$40, $9C
 	dc.l	WinArt_NameInput
 	dc.b	$14, $10
 
-PtrWin_SaveSlots:	
+PtrWin_SaveSlots:
 	dc.b	$48, $B8
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_SaveSlots-DynamicWindowsStart
 	dc.b	$0A, $09
-	
+
 PtrWin_LibraryOptions:
 	dc.b	$41, $AE
 	dc.l	WinArt_LibraryOptions
 	dc.b	$0D, $0B
 
-PtrWin_HealCure:	
+PtrWin_HealCure:
 	dc.b	$42, $9A
 	dc.l	WinArt_HealCure
 	dc.b	$0A, $05
-	
+
 PtrWin_StoreInventory:
 	dc.b	$43, $1A
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StoreInventory-DynamicWindowsStart
 	dc.b	$13, $0D
 
-PtrWin_RolfHouseOptions:	
+PtrWin_RolfHouseOptions:
 	dc.b	$41, $18
 	dc.l	WinArt_RolfHouseOptions
 	dc.b	$0E, $06
 
-PtrWin_ProfileCharList:	
+PtrWin_ProfileCharList:
 	dc.b	$42, $92
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_ProfileCharList-DynamicWindowsStart
 	dc.b	$07, $11
 
-PtrWin_RolfProfile:	
+PtrWin_RolfProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_RolfProfile
 	dc.b	$17, $0B
 
-PtrWin_NeiProfile:	
+PtrWin_NeiProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_NeiProfile
 	dc.b	$17, $0B
 
-PtrWin_RudoProfile:	
+PtrWin_RudoProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_RudoProfile
 	dc.b	$17, $0B
@@ -29677,53 +29677,53 @@ PtrWin_HughProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_HughProfile
 	dc.b	$17, $0B
-	
+
 PtrWin_AnnaProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_AnnaProfile
 	dc.b	$17, $0B
-	
+
 PtrWin_KainProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_KainProfile
 	dc.b	$17, $0B
-	
+
 PtrWin_ShirProfile:
 	dc.b	$47, $84
 	dc.l	WinArt_ShirProfile
 	dc.b	$17, $0B
 
-PtrWin_RegroupCharList:	
+PtrWin_RegroupCharList:
 	dc.b	$41, $02
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_RegroupCharList-DynamicWindowsStart
 	dc.b	$07, $0D
 
-PtrWin_RegroupSelectedChar:	
+PtrWin_RegroupSelectedChar:
 	dc.b	$43, $16
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_RegroupSelectedChar-DynamicWindowsStart
 	dc.b	$05, $09
-	
+
 PtrWin_CentTowerOptions:
 	dc.b	$43, $32
 	dc.l	WinArt_CentTowerOptions
 	dc.b	$0B, $07
 
-PtrWin_CentTowerOptions2:	
+PtrWin_CentTowerOptions2:
 	dc.b	$43, $32
 	dc.l	WinArt_CentTowerOptions2
 	dc.b	$0B, $09
 
-PtrWin_GameSelect:	
+PtrWin_GameSelect:
 	dc.b	$41, $8E
 	dc.l	WinArt_GameSelect
 	dc.b	$12, $07
 
-PtrWin_RoomOptions:	
+PtrWin_RoomOptions:
 	dc.b	$47, $82
 	dc.l	WinArt_RoomOptions
 	dc.b	$11, $05
 
-PtrWin_RightLeft:	
+PtrWin_RightLeft:
 	dc.b	$44, $9C
 	dc.l	WinArt_RightLeft
 	dc.b	$07, $05
@@ -29734,88 +29734,88 @@ PtrWin_StrngCharList:
 	dc.b	$07, $09
 
 PtrWin_PortraitStart:
-	
+
 PtrWin_RolfPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_RolfPortrait
 	dc.b	$0B, $0B
 
-PtrWin_NeiPortrait:	
+PtrWin_NeiPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_NeiPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_RudoPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_RudoPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_AmyPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_AmyPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_HughPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_HughPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_AnnaPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_AnnaPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_KainPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_KainPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_ShirPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_ShirPortrait
 	dc.b	$0B, $0B
 
-PtrWin_LibrarianPortrait:	
+PtrWin_LibrarianPortrait:
 	dc.b	$41, $14
 	dc.l	WinArt_LibrarianPortrait
 	dc.b	$0B, $0B
 
-PtrWin_MotaSaveEmplPortrait:	
+PtrWin_MotaSaveEmplPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_MotaSaveEmplPortrait
 	dc.b	$0B, $0B
 
-PtrWin_MotaDoctorPortrait:	
+PtrWin_MotaDoctorPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_MotaDoctorPortrait
 	dc.b	$0B, $0B
 
-PtrWin_GrandmaPortrait:	
+PtrWin_GrandmaPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_GrandmaPortrait
 	dc.b	$0B, $0B
 
-PtrWin_MotaItemSellerPortrait:	
+PtrWin_MotaItemSellerPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_MotaItemSellerPortrait
 	dc.b	$0B, $0B
 
-PtrWin_MotaWpnSellerPortrait:	
+PtrWin_MotaWpnSellerPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_MotaWpnSellerPortrait
 	dc.b	$0B, $0B
 
-PtrWin_MotaArmorSellerPortrait:	
+PtrWin_MotaArmorSellerPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_MotaArmorSellerPortrait
 	dc.b	$0B, $0B
 
-PtrWin_UstvestiaPortrait:	
+PtrWin_UstvestiaPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_UstvestiaPortrait
 	dc.b	$0B, $0B
 
-PtrWin_Dezolian1Portrait:	
+PtrWin_Dezolian1Portrait:
 	dc.b	$41, $02
 	dc.l	WinArt_DezolianPortrait
 	dc.b	$0B, $0B
@@ -29824,100 +29824,100 @@ PtrWin_Dezolian2Portrait:
 	dc.b	$41, $02
 	dc.l	WinArt_DezolianPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_Dezolian3Portrait:
 	dc.b	$41, $02
 	dc.l	WinArt_DezolianPortrait
 	dc.b	$0B, $0B
-	
+
 PtrWin_Dezolian4Portrait:
 	dc.b	$41, $02
 	dc.l	WinArt_DezolianPortrait
 	dc.b	$0B, $0B
 
-PtrWin_ItemKeeperPortrait:	
+PtrWin_ItemKeeperPortrait:
 	dc.b	$41, $02
 	dc.l	WinArt_ItemKeeperPortrait
 	dc.b	$0B, $0B
 
-PtrWin_CentTowerOutsidePortrait:	
+PtrWin_CentTowerOutsidePortrait:
 	dc.b	$41, $14
 	dc.l	WinArt_CentTowerOutsidePortrait
 	dc.b	$0B, $0B
 
-PtrWin_CentTowerOutsidePortraitCopy:	
+PtrWin_CentTowerOutsidePortraitCopy:
 	dc.b	$41, $14
 	dc.l	WinArt_CentTowerOutsidePortraitCopy
 	dc.b	$0B, $0B
 
-PtrWin_GovernorPortrait:	
+PtrWin_GovernorPortrait:
 	dc.b	$41, $14
 	dc.l	WinArt_GovernorPortrait
 	dc.b	$0B, $0B
 
-PtrWin_SpaceshipPortrait:	
+PtrWin_SpaceshipPortrait:
 	dc.b	$41, $14
 	dc.l	WinArt_SpaceshipPortrait
 	dc.b	$0B, $0B
 
-PtrWin_MotaTeleportEmplPortrait:	
+PtrWin_MotaTeleportEmplPortrait:
 	dc.b	$41, $12
 	dc.l	WinArt_MotaTeleportEmplPortrait
 	dc.b	$0B, $0B
 
-PtrWin_LibraryGraphPortrait:	
+PtrWin_LibraryGraphPortrait:
 	dc.b	$41, $2E
 	dc.l	WinArt_LibraryGraphPortrait
 	dc.b	$0B, $0B
 
-PtrWin_RadarPortrait:	
+PtrWin_RadarPortrait:
 	dc.b	$41, $1C
 	dc.l	WinArt_RadarPortrait
 	dc.b	$0B, $0B
 
-PtrWin_CentTowerOutsidePortrait3:	
+PtrWin_CentTowerOutsidePortrait3:
 	dc.b	$41, $AE
 	dc.l	WinArt_BattleEmptySpots
 	dc.b	$0B, $0B
 
-PtrWin_CentTowerOutsidePortrait3_2:	
+PtrWin_CentTowerOutsidePortrait3_2:
 	dc.b	$41, $AE
 	dc.l	WinArt_BattleEmptySpots
 	dc.b	$0B, $0B
 
-PtrWin_MotaTeleportEmplPortrait2:	
+PtrWin_MotaTeleportEmplPortrait2:
 	dc.b	$41, $02
 	dc.l	WinArt_MotaTeleportEmplPortrait
 	dc.b	$0B, $0B
 
-PtrWin_HouseLVEXP:	
+PtrWin_HouseLVEXP:
 	dc.b	$42, $36
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_StrngLVEXP-DynamicWindowsStart
 	dc.b	$0B, $07
 
-PtrWin_StoreCharList:	
+PtrWin_StoreCharList:
 	dc.b	$43, $B8
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_CharList2-DynamicWindowsStart
 	dc.b	$07, $09
 
 PtrWin_BattleCharStats:
-	
-PtrWin_BattleFirstCharStats:	
+
+PtrWin_BattleFirstCharStats:
 	dc.b	$4A, $92
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleCharStats-DynamicWindowsStart
 	dc.b	$07, $05
 
-PtrWin_BattleSecondCharStats:	
+PtrWin_BattleSecondCharStats:
 	dc.b	$4A, $AE
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleCharStats-DynamicWindowsStart
 	dc.b	$07, $05
 
-PtrWin_BattleThirdCharStats:	
+PtrWin_BattleThirdCharStats:
 	dc.b	$4A, $82
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleCharStats-DynamicWindowsStart
 	dc.b	$07, $05
 
-PtrWin_BattleFourthCharStats:	
+PtrWin_BattleFourthCharStats:
 	dc.b	$4A, $BE
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleCharStats-DynamicWindowsStart
 	dc.b	$07, $05
@@ -29927,7 +29927,7 @@ PtrWin_BattleOptions:
 	dc.l	WinArt_BattleOptions
 	dc.b	$05, $05
 
-PtrWin_BattleOptions2:	
+PtrWin_BattleOptions2:
 	dc.b	$4A, $A2
 	dc.l	WinArt_BattleOptions2
 	dc.b	$05, $05
@@ -29937,64 +29937,64 @@ PtrWin_BattleCharName:
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleCharName-DynamicWindowsStart
 	dc.b	$05, $03
 
-PtrWin_BattleCommands:	
+PtrWin_BattleCommands:
 	dc.b	$48, $08
 	dc.l	WinArt_BattleCommands
 	dc.b	$0C, $04
 
-PtrWin_EnemyGroups:	
+PtrWin_EnemyGroups:
 	dc.b	$47, $AE
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_EnemyGroups-DynamicWindowsStart
 	dc.b	$0D, $05
 
-PtrWin_BattleMessage:	
+PtrWin_BattleMessage:
 	dc.b	$48, $92
 	dc.l	WinArt_BattleMessage
 	dc.b	$15, $03
 
-PtrWin_BattleTechList:	
+PtrWin_BattleTechList:
 	dc.b	$47, $90
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleTechList-DynamicWindowsStart
 	dc.b	$08, $09
 
-PtrWin_BattleItemList:	
+PtrWin_BattleItemList:
 	dc.b	$47, $84
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleItemList-DynamicWindowsStart
 	dc.b	$0E, $09
 
-PtrWin_BattleItemUsed:	
+PtrWin_BattleItemUsed:
 	dc.b	$48, $9C
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleItemUsed-DynamicWindowsStart
 	dc.b	$0B, $03
 
-PtrWin_BattleTechUsed:	
+PtrWin_BattleTechUsed:
 	dc.b	$48, $A2
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_BattleTechUsed-DynamicWindowsStart
 	dc.b	$06, $03
-	
+
 PtrWin_FirstEnemyName:
 	dc.b	$60, $82
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_EnemyNames-DynamicWindowsStart
 	dc.b	$0B, $03
 
-PtrWin_SecondEnemyName:	
+PtrWin_SecondEnemyName:
 	dc.b	$60, $AA
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_EnemyNames-DynamicWindowsStart
 	dc.b	$0B, $03
 
-PtrWin_FirstEnemyInfo:	
+PtrWin_FirstEnemyInfo:
 	dc.b	$60, $9A
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_EnemyInfo-DynamicWindowsStart
 	dc.b	$05, $03
 
-PtrWin_SecondEnemyInfo:	
+PtrWin_SecondEnemyInfo:
 	dc.b	$60, $C2
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_EnemyInfo-DynamicWindowsStart
 	dc.b	$05, $03
 
 PtrWin_BattleEmptySpotStart:
-	
-PtrWin_BattleFirstEmptySpot:	
+
+PtrWin_BattleFirstEmptySpot:
 	dc.b	$4A, $92
 	dc.l	WinArt_BattleEmptySpots
 	dc.b	$07, $05
@@ -30004,22 +30004,22 @@ PtrWin_BattleSecondEmptySpot:
 	dc.l	WinArt_BattleEmptySpots
 	dc.b	$07, $05
 
-PtrWin_BattleThirdEmptySpot:	
+PtrWin_BattleThirdEmptySpot:
 	dc.b	$4A, $82
 	dc.l	WinArt_BattleEmptySpots
 	dc.b	$07, $05
 
-PtrWin_BattleFourthEmptySpot:	
+PtrWin_BattleFourthEmptySpot:
 	dc.b	$4A, $BE
 	dc.l	WinArt_BattleEmptySpots
 	dc.b	$07, $05
 
-PtrWin_RolfPortrait2:	
+PtrWin_RolfPortrait2:
 	dc.b	$42, $36
 	dc.l	WinArt_RolfPortrait
 	dc.b	$0B, $0B
 
-PtrWin_TeleportPlaceNames:	
+PtrWin_TeleportPlaceNames:
 	dc.b	$43, $A4
 	dc.l	(window_art_buffer&$FFFFFF)+WinArt_TeleportPlaceNames-DynamicWindowsStart
 	dc.b	$08, $0B
@@ -30044,13 +30044,13 @@ PtrWin_UstvestiaSoundtracks:
 	charset '-', $62
 	charset '/', $64
 	charset ':', $80
-	
+
 ; The border macro prints bytes of data the number of times
 ; defined in the first parameter. $B9 is the top border; $BE is the bottom border.
 ; The data defined between these two borders must match the number seen in the border parameter
 ; cursorbox is macro which automacally puts the bytes $B4 and $B5 which together form a rectangular
 ; box where the red cursors will be displayed. So 2 bytes are already inserted and you need to put
-; the remaining bytes ONLY. As an example, the window art below has borders of 7 bytes, so the top and 
+; the remaining bytes ONLY. As an example, the window art below has borders of 7 bytes, so the top and
 ; bottom will have 7 bytes of $B9 and $BE respectively. The middle data will need to be the same length
 ; cursorbox already inserts 2 bytes, so you need to include only five bytes after. When there is no box
 ; for the cursor, just put 7 bytes as usual.
@@ -30059,9 +30059,9 @@ PtrWin_UstvestiaSoundtracks:
 
 WinArt_PlayerMenu:
 	border 7, $B9
-	
+
 	cursorbox "ITEM "
-	dc.b	"       "	
+	dc.b	"       "
 	cursorbox "STATE"
 	dc.b	"       "
 	cursorbox "TECH "
@@ -30069,27 +30069,27 @@ WinArt_PlayerMenu:
 	cursorbox "STRNG"
 	dc.b	"       "
 	cursorbox "EQP  "
-	
+
 	border 7, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 WinArt_ItemAction:
 	border 5, $B9
-	
+
 	cursorbox "USE"
 	dc.b	"     "
 	cursorbox "GIV"
 	dc.b	"     "
 	cursorbox "TOS"
-	
+
 	border 5, $BE
 ; -----------------------------------------------------------------------
-	
+
 	even
 
-; loc_13B7A:	
+; loc_13B7A:
 WinArt_ScriptMessage:
 	border 24, $B9
 
@@ -30097,37 +30097,37 @@ WinArt_ScriptMessage:
 	dc.b	"                        "
 	dc.b	"                        "
 	dc.b	"                        "
-	
+
 	border 24, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 WinArt_YesNo:
 	border 5, $B9
 
 	cursorbox "YES"
 	dc.b	"     "
 	cursorbox "NO "
-	
+
 	border 5, $BE
 ; -----------------------------------------------------------------------
-	
+
 	even
-	
+
 WinArt_StateOrder:
 	border 7, $B9
-	
+
 	cursorbox "STATE"
 	dc.b	"       "
 	cursorbox "ORDER"
-	
+
 	border 7, $BE
 ; -----------------------------------------------------------------------
-	
+
 	even
 
-; loc_13C48	
+; loc_13C48
 WinArt_ScriptMessageBig:
 	border 24, $B9
 
@@ -30139,24 +30139,24 @@ WinArt_ScriptMessageBig:
 	dc.b	"                        "
 	dc.b	"                        "
 	dc.b	"                        "
-	
+
 	border 24, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 WinArt_BuySell:
 	border 6, $B9
 
 	cursorbox "BUY "
 	dc.b	"      "
 	cursorbox "SELL"
-	
+
 	border 6, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 WinArt_NameInput:
 	border 19, $B9
 
@@ -30175,15 +30175,15 @@ WinArt_NameInput:
 	dc.b	"                   "
 	dc.b	"   ADV  RUB  END   "
 	dc.b	"                   "
-	
+
 	border 19, $BE
 ; -----------------------------------------------------------------------
-	
+
 	even
-	
+
 WinArt_LibraryOptions:
 	border 12, $B9
-	
+
 	dc.b	"            "
 	cursorbox "HISTORY   "
 	dc.b	"            "
@@ -30194,25 +30194,25 @@ WinArt_LibraryOptions:
 	cursorbox "DAM       "
 	dc.b	"            "
 	cursorbox "MOTHRBRAIN"
-	
+
 	border 12, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 WinArt_HealCure:
 	border 9, $B9
-	
+
 	dc.b	"         "
 	cursorbox "HEAL   "
 	dc.b	"         "
 	cursorbox "CURE   "
-	
+
 	border 9, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 ; loc_13F60
 WinArt_RolfHouseOptions:
 	border 13, $B9
@@ -30222,36 +30222,36 @@ WinArt_RolfHouseOptions:
 	cursorbox "REORGANIZE "
 	dc.b	"             "
 	cursorbox "OUTSIDE    "
-	
+
 	border 13, $BE
 ; -----------------------------------------------------------------------
-	
+
 	even
 
-; loc_13FBC	
+; loc_13FBC
 WinArt_RolfProfile:
 	border 22, $B9
-	
+
 	dc.b	"                      "
 	dc.b	"LOST PARENTS AT AGE   "
 	dc.b	"                      "
 	dc.b	"10. HEALTHY AND HAS   "
 	dc.b	"                      "
-	dc.b	"BROAD RANGE OF        " 
+	dc.b	"BROAD RANGE OF        "
 	dc.b	"                      "
 	dc.b	"KNOWLEDGE.            "
 	dc.b	"                      "
 	dc.b	"                      "
-	
+
 	border 22, $BE
-; -----------------------------------------------------------------------	
+; -----------------------------------------------------------------------
 
 	even
 
-; loc_140C4	
+; loc_140C4
 WinArt_NeiProfile:
 	border 22, $B9
-	
+
 	dc.b	"                      "
 	dc.b	"\INEI\I MEANS \ITHE HUMAN"			; \I is the " character
 	dc.b	"                      "
@@ -30262,16 +30262,16 @@ WinArt_NeiProfile:
 	dc.b	"AN ANIMAL, SHE HATES  "
 	dc.b	"                      "
 	dc.b	"CARRYING A HEAVY LOAD."
-	
+
 	border 22, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_141CC	
+; loc_141CC
 WinArt_RudoProfile:
 	border 22, $B9
-	
+
 	dc.b	"                      "
 	dc.b	"LEFT THE ARMY AND     "
 	dc.b	"                      "
@@ -30282,13 +30282,13 @@ WinArt_RudoProfile:
 	dc.b	"VERY STRONG, CAN USE  "
 	dc.b	"                      "
 	dc.b	"HEAVY GUNS WITH EASE. "
-	
+
 	border 22, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_142D4	
+; loc_142D4
 WinArt_AmyProfile:
 	border 22, $B9
 
@@ -30308,7 +30308,7 @@ WinArt_AmyProfile:
 
 	even
 
-; loc_143DC	
+; loc_143DC
 WinArt_HughProfile:
 	border 22, $B9
 
@@ -30328,7 +30328,7 @@ WinArt_HughProfile:
 
 	even
 
-; loc_144E4	
+; loc_144E4
 WinArt_AnnaProfile:
 	border 22, $B9
 
@@ -30348,7 +30348,7 @@ WinArt_AnnaProfile:
 
 	even
 
-; loc_145EC	
+; loc_145EC
 WinArt_KainProfile:
 	border 22, $B9
 
@@ -30362,13 +30362,13 @@ WinArt_KainProfile:
 	dc.b	"TRIED TO FIX; DECIDED "
 	dc.b	"                      "
 	dc.b	"TO MAKE THAT HIS JOB. "
-	
+
 	border 22, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_146F4	
+; loc_146F4
 WinArt_ShirProfile:
 	border 22, $B9
 
@@ -30398,16 +30398,16 @@ WinArt_CentTowerOptions:
 	cursorbox "LIBRARY "
 	dc.b	"          "
 	cursorbox "OUTSIDE "
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_1484C	
+; loc_1484C
 WinArt_CentTowerOptions2:
 	border 10, $B9
-	
+
 	dc.b	"          "
 	cursorbox "ROOM    "
 	dc.b	"          "
@@ -30416,23 +30416,23 @@ WinArt_CentTowerOptions2:
 	cursorbox "ROOF    "
 	dc.b	"          "
 	cursorbox "OUTSIDE "
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_148B0	
+; loc_148B0
 WinArt_GameSelect:
 	border 17, $B9
-	
+
 	dc.b	"                 "
 	cursorbox "NEW GAME       "
 	dc.b	"                 "
 	cursorbox "CONTINUE       "
 	dc.b	"                 "
 	cursorbox "ERASE GAME     "
-	
+
 	border 17, $BE
 ; -----------------------------------------------------------------------
 
@@ -30441,35 +30441,35 @@ WinArt_GameSelect:
 ; loc_14938
 WinArt_RoomOptions:
 	border 16, $B9
-	
+
 	dc.b	"                "
 	cursorbox "KEEP BAGGAGE  "
 	dc.b	"                "
 	cursorbox "BAGGAGE PLEASE"
-	
+
 	border 16, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14998	
+; loc_14998
 WinArt_RightLeft:
 	border 6, $B9
-	
+
 	dc.b	"      "
 	cursorbox "RGHT"
 	dc.b	"      "
 	cursorbox "LEFT"
-	
+
 	border 6, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_149BC	
+; loc_149BC
 WinArt_LibrarianPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $01, $02, $03, $04, $05, $06, $07, $01
 	dc.b	$08, $09, $0A, $0B, $0C, $0D, $0E, $0F, $10, $01
 	dc.b	$11, $11, $12, $13, $14, $15, $16, $17, $18, $11
@@ -30480,16 +30480,16 @@ WinArt_LibrarianPortrait:
 	dc.b	$39, $1A, $3A, $3B, $3C, $3D, $3E, $3F, $40, $41
 	dc.b	$42, $43, $44, $45, $46, $47, $48, $49, $4A, $4B
 	dc.b	$4C, $4D, $4E, $4F, $50, $51, $52, $53, $54, $55
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14A34	
+; loc_14A34
 WinArt_MotaSaveEmplPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $08, $00
 	dc.b	$09, $09, $0A, $0B, $0C, $0D, $0E, $0F, $10, $09
 	dc.b	$09, $11, $12, $13, $14, $15, $16, $17, $18, $09
@@ -30500,16 +30500,16 @@ WinArt_MotaSaveEmplPortrait:
 	dc.b	$3E, $3F, $40, $41, $42, $43, $44, $45, $46, $47
 	dc.b	$48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50, $51
 	dc.b	$48, $52, $53, $54, $55, $56, $57, $58, $59, $5A
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14AAC	
+; loc_14AAC
 WinArt_MotaDoctorPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$01, $02, $03, $04, $05, $06, $07, $07, $08, $09
 	dc.b	$01, $0A, $0B, $0C, $0D, $0E, $0F, $10, $11, $12
@@ -30520,7 +30520,7 @@ WinArt_MotaDoctorPortrait:
 	dc.b	$35, $36, $37, $38, $39, $3A, $3B, $3C, $3D, $3E
 	dc.b	$3F, $40, $41, $42, $43, $44, $45, $46, $47, $48
 	dc.b	$49, $4A, $4B, $4C, $4D, $4E, $4F, $50, $51, $52
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
@@ -30529,7 +30529,7 @@ WinArt_MotaDoctorPortrait:
 ; loc_14B24
 WinArt_GrandmaPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $08, $09
 	dc.b	$0A, $01, $02, $0B, $0C, $0D, $0E, $0F, $10, $11
 	dc.b	$00, $12, $13, $14, $15, $16, $17, $18, $19, $1A
@@ -30540,16 +30540,16 @@ WinArt_GrandmaPortrait:
 	dc.b	$00, $3F, $40, $41, $42, $43, $44, $45, $46, $47
 	dc.b	$48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50, $51
 	dc.b	$52, $49, $53, $54, $55, $56, $57, $58, $59, $5A
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14B9C	
+; loc_14B9C
 WinArt_MotaItemSellerPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $00, $00, $02, $03, $04, $05, $06, $07
 	dc.b	$08, $01, $00, $09, $0A, $0B, $0C, $0D, $0E, $0F
 	dc.b	$00, $01, $00, $10, $11, $12, $13, $14, $15, $16
@@ -30560,16 +30560,16 @@ WinArt_MotaItemSellerPortrait:
 	dc.b	$31, $39, $39, $39, $3A, $3B, $3C, $3D, $3E, $3F
 	dc.b	$40, $41, $42, $43, $44, $45, $46, $47, $3F, $48
 	dc.b	$49, $4A, $4B, $4C, $4D, $4E, $4F, $50, $51, $52
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14C14	
+; loc_14C14
 WinArt_MotaWpnSellerPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $01, $02, $03, $04, $05, $05, $05, $05
 	dc.b	$06, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F
 	dc.b	$10, $11, $12, $13, $14, $15, $16, $17, $18, $19
@@ -30580,7 +30580,7 @@ WinArt_MotaWpnSellerPortrait:
 	dc.b	$42, $43, $44, $45, $46, $47, $48, $49, $4A, $4B
 	dc.b	$4C, $4D, $4E, $4F, $50, $51, $52, $53, $54, $55
 	dc.b	$56, $57, $58, $59, $5A, $5B, $5C, $5D, $5E, $5F
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
@@ -30589,7 +30589,7 @@ WinArt_MotaWpnSellerPortrait:
 ; loc_14C8C
 WinArt_MotaArmorSellerPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $08, $09
 	dc.b	$0A, $0B, $0C, $0D, $0E, $0F, $10, $11, $12, $13
 	dc.b	$14, $14, $14, $15, $16, $17, $18, $19, $1A, $1B
@@ -30600,16 +30600,16 @@ WinArt_MotaArmorSellerPortrait:
 	dc.b	$41, $42, $43, $44, $45, $46, $47, $48, $49, $4A
 	dc.b	$4B, $4C, $4D, $4E, $4F, $50, $51, $52, $53, $54
 	dc.b	$55, $56, $57, $58, $59, $5A, $5B, $5C, $5D, $5E
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14D04	
+; loc_14D04
 WinArt_UstvestiaPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $01, $01, $00, $02, $03, $04, $01, $01
 	dc.b	$00, $01, $05, $01, $06, $07, $08, $09, $0A, $0B
 	dc.b	$00, $01, $0C, $01, $0D, $0E, $0F, $10, $11, $12
@@ -30620,16 +30620,16 @@ WinArt_UstvestiaPortrait:
 	dc.b	$01, $36, $01, $37, $38, $39, $3A, $3B, $3C, $3D
 	dc.b	$3E, $3F, $40, $41, $42, $43, $44, $45, $46, $47
 	dc.b	$48, $48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14D7C	
+; loc_14D7C
 WinArt_DezolianPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $08, $09
 	dc.b	$0A, $0B, $02, $03, $0C, $0D, $0E, $0F, $08, $10
 	dc.b	$11, $12, $02, $03, $13, $14, $15, $16, $08, $17
@@ -30640,16 +30640,16 @@ WinArt_DezolianPortrait:
 	dc.b	$18, $23, $31, $32, $33, $34, $35, $36, $37, $38
 	dc.b	$18, $39, $3A, $3B, $3C, $3D, $3E, $3F, $40, $41
 	dc.b	$42, $43, $44, $45, $46, $47, $48, $49, $4A, $4B
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14DF4	
+; loc_14DF4
 WinArt_CentTowerOutsidePortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $01, $02, $03, $04, $05, $06, $07, $08
 	dc.b	$09, $0A, $0B, $0C, $0D, $0C, $0E, $0F, $10, $11
 	dc.b	$12, $13, $14, $14, $15, $14, $0E, $0F, $16, $17
@@ -30660,16 +30660,16 @@ WinArt_CentTowerOutsidePortrait:
 	dc.b	$2C, $2C, $2C, $2C, $2C, $2C, $2C, $2C, $2C, $2C
 	dc.b	$2E, $2E, $2E, $2E, $2E, $2E, $2E, $2E, $2E, $2E
 	dc.b	$2E, $2E, $2E, $2E, $2E, $2E, $2E, $2E, $2E, $2E
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14E6C	
+; loc_14E6C
 WinArt_CentTowerOutsidePortraitCopy:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $01, $02, $03, $04, $05, $06, $07, $08
 	dc.b	$09, $0A, $0B, $0C, $0D, $2F, $30, $31, $32, $11
 	dc.b	$12, $13, $14, $14, $15, $33, $34, $35, $36, $17
@@ -30680,16 +30680,16 @@ WinArt_CentTowerOutsidePortraitCopy:
 	dc.b	$2C, $2C, $4E, $4F, $50, $51, $52, $53, $54, $55
 	dc.b	$2E, $2E, $56, $57, $58, $59, $5A, $5B, $5C, $5D
 	dc.b	$2E, $2E, $5E, $5F, $60, $61, $62, $63, $64, $65
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14EE4	
+; loc_14EE4
 WinArt_GovernorPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $01, $02, $03, $03, $04, $05, $00, $00
 	dc.b	$00, $06, $01, $07, $08, $09, $0A, $05, $0B, $00
 	dc.b	$00, $00, $0C, $0D, $0E, $0F, $10, $05, $00, $00
@@ -30700,16 +30700,16 @@ WinArt_GovernorPortrait:
 	dc.b	$33, $34, $35, $36, $37, $38, $39, $3A, $3B, $3C
 	dc.b	$3D, $3E, $3F, $40, $41, $42, $43, $44, $45, $46
 	dc.b	$47, $48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14F5C	
+; loc_14F5C
 WinArt_ItemKeeperPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $00, $02, $03, $04, $05, $06, $00, $00
 	dc.b	$07, $08, $07, $09, $0A, $0B, $0C, $0D, $07, $07
 	dc.b	$0E, $0F, $0E, $10, $11, $12, $13, $11, $14, $15
@@ -30720,16 +30720,16 @@ WinArt_ItemKeeperPortrait:
 	dc.b	$33, $34, $35, $23, $36, $37, $38, $39, $23, $3A
 	dc.b	$3B, $3C, $3D, $23, $3E, $3F, $40, $41, $42, $43
 	dc.b	$44, $45, $46, $47, $48, $49, $4A, $4B, $4C, $4D
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_14FD4	
+; loc_14FD4
 WinArt_SpaceshipPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $00, $00, $01, $02, $03, $00, $00, $00
 	dc.b	$04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0A
 	dc.b	$0D, $0E, $0D, $0F, $10, $11, $0D, $12, $13, $14
@@ -30740,16 +30740,16 @@ WinArt_SpaceshipPortrait:
 	dc.b	$3D, $3E, $3F, $40, $41, $41, $42, $43, $44, $45
 	dc.b	$46, $47, $48, $49, $49, $49, $49, $4A, $4B, $4C
 	dc.b	$46, $46, $4D, $4E, $41, $41, $41, $41, $41, $41
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_1504C	
+; loc_1504C
 WinArt_MotaTeleportEmplPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $08, $09
 	dc.b	$0A, $0B, $0C, $0D, $0E, $0F, $10, $11, $12, $13
 	dc.b	$14, $15, $16, $17, $18, $19, $1A, $1B, $1C, $1D
@@ -30760,16 +30760,16 @@ WinArt_MotaTeleportEmplPortrait:
 	dc.b	$3D, $3E, $3F, $40, $41, $42, $43, $44, $45, $46
 	dc.b	$47, $48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50
 	dc.b	$51, $52, $53, $54, $55, $56, $57, $58, $59, $5A
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 ; loc_150C4
 WinArt_RolfPortrait:
 	border 10, $B9
-	
+
 	dc.b	$A0, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $A0
 	dc.b	$A8, $A9, $AA, $AB, $AC, $AD, $AE, $AF, $B0, $B1
 	dc.b	$B2, $B3, $B4, $B5, $B6, $B7, $B8, $B9, $BA, $BB
@@ -30780,16 +30780,16 @@ WinArt_RolfPortrait:
 	dc.b	$E2, $E3, $E4, $E5, $E6, $E7, $E8, $E9, $EA, $EB
 	dc.b	$EC, $ED, $EE, $EF, $F0, $F1, $F2, $F3, $F4, $F5
 	dc.b	$F6, $F7, $F8, $F9, $FA, $FB, $FC, $FD, $FE, $FF
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_1513C	
+; loc_1513C
 WinArt_NeiPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $01, $02, $03, $04, $04, $04, $05, $06
 	dc.b	$00, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F
 	dc.b	$00, $10, $11, $12, $13, $14, $15, $16, $17, $18
@@ -30800,16 +30800,16 @@ WinArt_NeiPortrait:
 	dc.b	$00, $3C, $3D, $3E, $3F, $40, $41, $42, $43, $44
 	dc.b	$45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E
 	dc.b	$00, $4F, $50, $51, $52, $53, $54, $55, $56, $57
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
-	
+
 ; loc_151B4
 WinArt_RudoPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $03, $03, $03, $04, $03, $03
 	dc.b	$05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $0D
 	dc.b	$0D, $0E, $0F, $10, $11, $12, $13, $14, $15, $15
@@ -30820,16 +30820,16 @@ WinArt_RudoPortrait:
 	dc.b	$3B, $3C, $3D, $3E, $3F, $40, $41, $42, $43, $44
 	dc.b	$45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E
 	dc.b	$4F, $50, $51, $52, $53, $54, $55, $56, $57, $58
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_1522C	
+; loc_1522C
 WinArt_AmyPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $00, $01, $00, $00, $02, $03, $01, $00, $00
 	dc.b	$04, $04, $05, $06, $07, $08, $09, $0A, $04, $04
 	dc.b	$0B, $0B, $0C, $0D, $0E, $0F, $10, $11, $12, $0B
@@ -30840,16 +30840,16 @@ WinArt_AmyPortrait:
 	dc.b	$38, $39, $3A, $3B, $3C, $3D, $3E, $3F, $40, $41
 	dc.b	$42, $43, $44, $45, $46, $47, $48, $49, $4A, $4B
 	dc.b	$1D, $4C, $4D, $4E, $4F, $50, $51, $52, $53, $54
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_152A4	
+; loc_152A4
 WinArt_HughPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $08, $09
 	dc.b	$03, $0A, $0B, $0C, $0D, $0E, $0F, $10, $11, $09
 	dc.b	$12, $13, $14, $15, $16, $17, $18, $10, $19, $09
@@ -30860,16 +30860,16 @@ WinArt_HughPortrait:
 	dc.b	$3B, $3B, $3C, $3D, $3E, $3F, $40, $41, $42, $09
 	dc.b	$43, $44, $45, $46, $47, $48, $49, $4A, $4B, $4C
 	dc.b	$4D, $4E, $4F, $50, $51, $52, $53, $54, $55, $56
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_1531C	
+; loc_1531C
 WinArt_AnnaPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $00, $01
 	dc.b	$08, $09, $0A, $0B, $0C, $0D, $0E, $0F, $10, $09
 	dc.b	$11, $12, $13, $14, $15, $16, $17, $18, $19, $12
@@ -30880,7 +30880,7 @@ WinArt_AnnaPortrait:
 	dc.b	$11, $3C, $3D, $3E, $3F, $40, $41, $42, $43, $44
 	dc.b	$45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E
 	dc.b	$4F, $4F, $4F, $50, $51, $52, $53, $54, $55, $56
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
@@ -30889,7 +30889,7 @@ WinArt_AnnaPortrait:
 ; loc_15394
 WinArt_KainPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $04, $05, $06, $07, $00, $01
 	dc.b	$08, $09, $0A, $0B, $0C, $0D, $0E, $0F, $08, $09
 	dc.b	$10, $11, $12, $13, $14, $15, $16, $17, $10, $11
@@ -30900,16 +30900,16 @@ WinArt_KainPortrait:
 	dc.b	$36, $37, $38, $39, $3A, $3B, $3C, $3D, $3E, $3F
 	dc.b	$40, $41, $42, $43, $44, $45, $46, $47, $48, $49
 	dc.b	$4A, $4B, $4C, $4D, $4E, $4F, $50, $51, $52, $53
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_1540C	
+; loc_1540C
 WinArt_ShirPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $03, $03, $03, $03, $03, $04, $03
 	dc.b	$05, $06, $07, $08, $09, $0A, $0B, $03, $0C, $0D
 	dc.b	$0E, $0F, $10, $11, $12, $13, $14, $15, $16, $17
@@ -30920,7 +30920,7 @@ WinArt_ShirPortrait:
 	dc.b	$3D, $3E, $3F, $40, $41, $42, $43, $03, $03, $44
 	dc.b	$45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E
 	dc.b	$4F, $50, $51, $52, $53, $54, $55, $56, $57, $58
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
@@ -30929,7 +30929,7 @@ WinArt_ShirPortrait:
 ; loc_15484
 WinArt_LibraryGraphPortrait:
 	border 10, $B9
-	
+
 	dc.b	$A0, $A1, $A2, $A3, $A1, $A4, $A5, $A6, $A7, $A3
 	dc.b	$A8, $A9, $AA, $AB, $A9, $AC, $AD, $AE, $AF, $B0
 	dc.b	$B1, $B2, $B3, $B4, $B5, $B6, $B7, $B8, $B9, $BA
@@ -30940,16 +30940,16 @@ WinArt_LibraryGraphPortrait:
 	dc.b	$A8, $D9, $DA, $DB, $DC, $DD, $DE, $DF, $E0, $E1
 	dc.b	$B1, $E2, $E3, $D0, $E4, $D1, $D0, $E5, $E6, $E7
 	dc.b	$E8, $E9, $EA, $EB, $EC, $ED, $EE, $EF, $F0, $F1
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_154FC	
+; loc_154FC
 WinArt_RadarPortrait:
 	border 10, $B9
-	
+
 	dc.b	$00, $01, $02, $01, $02, $01, $02, $01, $02, $01
 	dc.b	$03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C
 	dc.b	$0D, $0E, $0F, $10, $11, $12, $13, $14, $15, $14
@@ -30960,13 +30960,13 @@ WinArt_RadarPortrait:
 	dc.b	$33, $29, $34, $35, $36, $37, $38, $08, $18, $39
 	dc.b	$0D, $14, $3A, $3B, $15, $3C, $15, $14, $15, $3D
 	dc.b	$33, $08, $3E, $3F, $18, $40, $18, $08, $18, $41
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_15574	
+; loc_15574
 WinArt_BattleEmptySpots:
 	border 6, $B9
 
@@ -30974,7 +30974,7 @@ WinArt_BattleEmptySpots:
 	dc.b	$26, $04, $05, $06, $07, $26
 	dc.b	$26, $08, $09, $0A, $0B, $26
 	dc.b	$26, $0C, $0D, $0E, $0F, $26
-	
+
 	border 6, $BE
 ; -----------------------------------------------------------------------
 
@@ -30983,12 +30983,12 @@ WinArt_BattleEmptySpots:
 ; loc_15598
 WinArt_BattleOptions:
 	border 4, $B9
-	
+
 	dc.b	$26, $B4, $B5, $26
 	dc.b	"FGHT"
 	dc.b	$26, $B4, $B5, $26
 	dc.b	"STGY"
-	
+
 	border 4, $BE
 ; -----------------------------------------------------------------------
 
@@ -30997,37 +30997,37 @@ WinArt_BattleOptions:
 ; loc_155B0
 WinArt_BattleOptions2:
 	border 4, $B9
-	
+
 	dc.b	$26, $B4, $B5, $26
 	dc.b	"ORDR"
 	dc.b	$26, $B4, $B5, $26
 	dc.b	"RUN "
-	
+
 	border 4, $BE
 ; -----------------------------------------------------------------------
 
 	even
 
-; loc_155C8	
+; loc_155C8
 WinArt_BattleCommands:
 	border 11, $B9
-	
+
 	dc.b	$12, $13, $26, $16, $17, $26, $1A, $1B, $26, $1E, $1F
 	dc.b	$14, $15, $26, $18, $19, $26, $1C, $1D, $26, $20, $21
 	dc.b	$26, $26, $26, $26, $26, $26, $26, $26, $26, $26, $26
-	
+
 	border 11, $BE
-; -----------------------------------------------------------------------	
-	
+; -----------------------------------------------------------------------
+
 	even
 
 ; loc_15600
 WinArt_BattleMessage:
 	border 20, $B9
-	
+
 	dc.b	"                    "
 	dc.b	"                    "
-	
+
 	border 20, $BE
 ; -----------------------------------------------------------------------
 
@@ -31041,7 +31041,7 @@ WinArt_BattleMessage:
 ; desired. The others are complicated to clean up through assembly only
 
 DynamicWindowsStart:
-	
+
 ; loc_15650
 WinArt_CharList:
 	dc.b	$B9, $B9, $B9, $B9, $B9, $B9
@@ -31109,7 +31109,7 @@ WinArt_Meseta:
 	border 11, $B9
 
 	dc.b	"MST       0"
-	
+
 	border 11, $BE
 ; -----------------------------------------------------------------------
 ; loc_15896
@@ -31190,7 +31190,7 @@ WinArt_StrngHPTP:
 ; loc_15A3C
 WinArt_StrngStats:
 	border 11, $B9
-	
+
 	dc.b	"STRNGTH   0"
 	dc.b	"           "
 	dc.b	"MENTAL    0"
@@ -31204,13 +31204,13 @@ WinArt_StrngStats:
 	dc.b	"ATTACK    0"
 	dc.b	"           "
 	dc.b	"DEFENSE   0"
-	
+
 	border 11, $BE
 ; -----------------------------------------------------------------------
 ; loc_15AE1
 WinArt_StrngEquip:
 	border 15, $B9
-	
+
 	dc.b	"               "
 	dc.b	"HEAD           "
 	dc.b	"               "
@@ -31221,7 +31221,7 @@ WinArt_StrngEquip:
 	dc.b	"BODY           "
 	dc.b	"               "
 	dc.b	"LEGS           "
-	
+
 	border 15, $BE
 ; -----------------------------------------------------------------------
 ; loc_15B95
@@ -31234,7 +31234,7 @@ WinArt_StrngLVEXP:
 	dc.b	"          "
 	dc.b	"          "
 	dc.b	"EXP       "
-	
+
 	border 10, $BE
 ; -----------------------------------------------------------------------
 loc_15BE5:
@@ -31244,14 +31244,14 @@ loc_15BE5:
 ; loc_15BF9
 WinArt_EquipStats:
 	border 11, $B9
-	
+
 	dc.b	"           "
 	dc.b	"AGILITY    "
 	dc.b	"           "
 	dc.b	"ATTACK     "
 	dc.b	"           "
 	dc.b	"DEFENSE    "
-	
+
 	border 11, $BE
 ; -----------------------------------------------------------------------
 ; loc_15C51
@@ -31361,12 +31361,12 @@ WinArt_RegroupSelectedChar:
 ; loc_15F56
 WinArt_BattleCharStats:
 	border 6, $B9
-	
+
 	dc.b	"HP   0"
 	dc.b	"TP   0"
 	dc.b	"      "
 	dc.b	"      "
-	
+
 	border 6, $BE
 ; -----------------------------------------------------------------------
 ; loc_15F7A
@@ -31461,7 +31461,7 @@ WinArt_TeleportPlaceNames:
 	dc.b	$BE, $BE, $BE, $BE, $BE, $BE, $BE
 ; -----------------------------------------------------------------------
 ; loc_1616E
-WinArt_UstvestiaSoundtracks:	
+WinArt_UstvestiaSoundtracks:
 	dc.b	$B9, $B9, $B9, $B9, $B9, $B9, $B9, $B9, $B9, $B9, $B9, $B9
 	dc.b	$26, $26, $26, $26, $26, $26, $26, $26, $26, $26, $26, $26
 	dc.b	$26, $26, $26, $26, $26, $26, $26, $26, $26, $26, $26, $26
@@ -31470,19 +31470,19 @@ WinArt_UstvestiaSoundtracks:
 DynamicWindowsEnd:
 
 	even
-	
+
 	charset
-	
+
 ; =============================================================================
 ; Experience table
-; 
+;
 ; byte 1 = character level
 ; bytes 2-4 = experience points
 ; bytes 5-13 = stats
 ; byte 14 =  number of usable techniques increase
 ;			higher nibble = battle techniques
 ;			lower nibble = map techniques
-; 
+;
 ; 1. HP
 ; 2. TP
 ; 3. STRENGTH
@@ -31494,7 +31494,7 @@ DynamicWindowsEnd:
 ; 9. DEFENSE
 ;
 ;==============================================================================
-	
+
 CharExperiencePtrs:
 	dc.l	RolfExpTable
 	dc.l	NeiExpTable
@@ -31505,9 +31505,9 @@ CharExperiencePtrs:
 	dc.l	KainExpTable
 	dc.l	ShirExpTable
 CharExperiencePtrsEnd:
-	
+
 ; ==============================================================
-	
+
 RolfExpTable:
 	dc.l	$01000000
 	dc.b	$13, $0F, $14, $1C, $0F, $0D, $14, $0C, $0A, $10
@@ -31609,9 +31609,9 @@ RolfExpTable:
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
 	dc.l	$3269B309
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	
-; ==============================================================	
-	
+
+; ==============================================================
+
 NeiExpTable:
 	dc.l	$01000000
 	dc.b	$0C, $0A, $0E, $12, $1B, $0A, $0E, $07, $0C, $11
@@ -31713,9 +31713,9 @@ NeiExpTable:
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $01, $00
 	dc.l	$3205D188
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $01, $02, $00
-	
-; ==============================================================	
-	
+
+; ==============================================================
+
 RudoExpTable:
 	dc.l	$01000000
 	dc.b	$2C, $00, $3C, $1C, $0F, $07, $0C, $0A, $0C, $00
@@ -31817,9 +31817,9 @@ RudoExpTable:
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
 	dc.l	$32738023
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	
+
 ; ==============================================================
-	
+
 AmyExpTable:
 	dc.l	$01000000
 	dc.b	$0A, $12, $0D, $18, $05, $08, $10, $07, $04, $11
@@ -31921,9 +31921,9 @@ AmyExpTable:
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
 	dc.l	$327E35E7
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	
+
 ; ==============================================================
-	
+
 HughExpTable:
 	dc.l	$01000000
 	dc.b	$10, $13, $0E, $1A, $08, $06, $0A, $07, $06, $00
@@ -32026,9 +32026,9 @@ HughExpTable:
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $03, $00
 	dc.l	$327A88D6
 	dc.b	$06, $02, $03, $03, $02, $04, $02, $03, $02, $00
-	
+
 ; ==============================================================
-	
+
 AnnaExpTable:
 	dc.l	$01000000
 	dc.b	$12, $0C, $14, $1B, $14, $09, $0F, $0C, $0B, $10
@@ -32130,9 +32130,9 @@ AnnaExpTable:
 	dc.b	$03, $02, $04, $02, $02, $03, $03, $02, $02, $00
 	dc.l	$327022EE
 	dc.b	$04, $01, $04, $02, $02, $03, $03, $02, $02, $00
-	
+
 ; ==============================================================
-	
+
 KainExpTable:
 	dc.l	$01000000
 	dc.b	$10, $08, $0F, $0A, $0E, $0B, $08, $08, $08, $20
@@ -32234,9 +32234,9 @@ KainExpTable:
 	dc.b	$07, $0C, $12, $0F, $0C, $12, $11, $09, $07, $00
 	dc.l	$3276F72E
 	dc.b	$03, $02, $03, $02, $02, $03, $03, $02, $03, $00
-	
+
 ; ==============================================================
-	
+
 ShirExpTable:
 	dc.l	$01000000
 	dc.b	$0D, $06, $12, $0A, $0F, $0C, $12, $09, $09, $10
@@ -32338,9 +32338,9 @@ ShirExpTable:
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $01, $03, $00
 	dc.l	$326CDECE
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	
+
 ; ==============================================================
-	
+
 ; ==============================================================
 ; All enemy names
 ; ==============================================================
@@ -32361,10 +32361,10 @@ EnemyNames:
 	charset	':', $77
 
 	outradix 10
-	
+
 ; EnemyNameLength = 10
 length	:=	EnemyNameLength
-	
+
 
 	nametxt	""
 	nametxt	"FIRE ANT"
@@ -32493,10 +32493,10 @@ length	:=	EnemyNameLength
 	nametxt	"NEIFIRST"
 	nametxt	"DARKFRCE"
 	nametxt	"MOMBRAIN"
-	
+
 	outradix 16
 	charset
-	
+
 ; =============================================================================
 
 loc_17C94:
@@ -32524,7 +32524,7 @@ loc_17C94:
 	dc.b	$14, $40, $05
 	dc.b	$14, $45, $92
 	dc.b	$FF
-	
+
 	even
 
 loc_17CDA:
@@ -32566,7 +32566,7 @@ loc_17CDA:
 	dc.b	$38, $44, $92
 	dc.b	$32, $40, $43
 	dc.b	$FF
-	
+
 	even
 
 loc_17D4A:
@@ -32600,7 +32600,7 @@ loc_17D4A:
 	dc.b	$25, $0C, $A6
 	dc.b	$26, $0C, $43
 	dc.b	$FF
-	
+
 	even
 
 loc_17DA2:
@@ -32634,7 +32634,7 @@ loc_17DA2:
 	dc.b	$07, $18, $44
 	dc.b	$06, $18, $95
 	dc.b	$FF
-	
+
 	even
 
 
@@ -32647,7 +32647,7 @@ TylerSpcshp_MonitorTileInd:	binclude "art\tylr_spc_monitor_tile_ind.bin"
 
 	even
 
-	
+
 ; -------------------------------------------------------------------
 ; Sprite Mappings for explosion seen in monitor on Tyler's spaceship
 ; -------------------------------------------------------------------
@@ -32659,16 +32659,16 @@ Map_PalmExplosion:
 	dc.w	Map_PalmExplosion_2-Map_PalmExplosion
 	dc.w	Map_PalmExplosion_3-Map_PalmExplosion
 	dc.w	Map_PalmExplosion_4-Map_PalmExplosion
-	
+
 Map_PalmExplosion_1:
 	dc.b	$04
 	dc.b	$20, $00, $00, $A8, $40
 	dc.b	$20, $00, $08, $A8, $48
 	dc.b	$28, $00, $10, $A8, $40
 	dc.b	$28, $00, $18, $A8, $48
-	
+
 	even
-	
+
 Map_PalmExplosion_2:
 	dc.b	$0C
 	dc.b	$18, $00, $00, $A9, $40
@@ -32683,9 +32683,9 @@ Map_PalmExplosion_2:
 	dc.b	$20, $00, $08, $AB, $48
 	dc.b	$28, $00, $10, $AB, $40
 	dc.b	$28, $00, $18, $AB, $48
-	
+
 	even
-	
+
 Map_PalmExplosion_3:
 	dc.b	$10
 	dc.b	$18, $00, $00, $AC, $38
@@ -32704,9 +32704,9 @@ Map_PalmExplosion_3:
 	dc.b	$20, $00, $00, $02, $48
 	dc.b	$28, $00, $00, $02, $40
 	dc.b	$28, $00, $00, $02, $48
-	
+
 	even
-	
+
 Map_PalmExplosion_4:
 	dc.b	$21
 	dc.b	$18, $00, $00, $AF, $38
@@ -32744,13 +32744,13 @@ Map_PalmExplosion_4:
 	dc.b	$30, $00, $18, $B0, $58
 
 ; =========================================================================
-	
+
 	even
 
 LutzPortraitTileInd:	binclude "art\lutz_port_tile_ind.bin"
 
 	even
-	
+
 
 ; ========================================================================================
 ; Soundtrack strings in Ustvestia House
@@ -32759,7 +32759,7 @@ LutzPortraitTileInd:	binclude "art\lutz_port_tile_ind.bin"
 	charset	'A', "\11\12\13\14\15\16\17\18\19\20\21\22\23\24\25\26\27\28\29\30\31\32\33\34\35\36"
 	charset	'a', "\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55\56\57\58\59\60\61\62"
 	charset	' ', 0
-	
+
 	; print the variables in decimal notation for the message
 	outradix 10
 
@@ -32771,14 +32771,14 @@ soundtracktxt macro text
 	rept	SoundtrackNameLength-strlen(text)
 		dc.b	0
 	endm
-	
+
 	endm
 
 SoundtrackCharArray:
 	soundtracktxt	"Phantasy"
 	soundtracktxt	"Restration"
 	soundtracktxt	"Pleasure"
-	soundtracktxt	"Advanced" 
+	soundtracktxt	"Advanced"
 	soundtracktxt	"Step Up"
 	soundtracktxt	"Bracky News"
 	soundtracktxt	"My Home"
@@ -32797,12 +32797,12 @@ SoundtrackCharArray:
 	soundtracktxt	"Under"
 	soundtracktxt	"Exclaim"
 	soundtracktxt	"Never Dream"
-	
+
 	outradix 16
 	charset
 ; ========================================================================================
 
-	
+
 	charset	'A', "\11\12\13\14\15\16\17\18\19\20\21\22\23\24\25\26\27\28\29\30\31\32\33\34\35\36"
 	charset	'a', "\37\38\39\40\41\42\43\44\45\46\47\48\49\50\51\52\53\54\55\56\57\58\59\60\61\62"
 	charset	'0', "\1\2\3\4\5\6\7\8\9\10"
@@ -32877,9 +32877,9 @@ SoundtrackCharArray:
 ;	move.l	#$11141115, (script_id+4).w
 ;	move.l	#$11161117, (script_id+8).w
 ;	move.l	#$11181119, (script_id+$C).w
-; 
+;
 ;   and the software will process all the text defined by the ID's above in sequence.
-;   
+;
 ; ----------------------------------------------------------------------------------------------------------------
 
 
@@ -32904,7 +32904,7 @@ GameScriptPtrs:
 	dc.l	Script_Room				; $E
 	dc.l	Script_Roof				; $F
 	dc.l	Script_Library			; $10
-	dc.l	Script_Governor			; $11	
+	dc.l	Script_Governor			; $11
 	dc.l	Script_Battle			; $12
 	dc.l	Script_Introduction		; $13
 	dc.l	Script_Opening			; $14
@@ -32956,20 +32956,20 @@ Script_ItemAction:
 	dc.b	loc_1921C-loc_191F5			; $26
 	dc.b	loc_1921C-loc_1921C			; $27
 	dc.b	loc_19235-loc_1921C			; $28
-	
+
 loc_18C72:
 	dc.b	$BB, " uses ", $BF, $47, $47, $47, $47
 	dc.b	$C4
-	
+
 loc_18C7F:
 	dc.b	$BC, "'s wounds are"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"healed."
 	dc.b	$C4
 
 loc_18C96:
 	dc.b	$BC, " is cured of the"
-	dc.b	$C1		
+	dc.b	$C1
 	dc.b	"poison."
 	dc.b	$C4
 
@@ -33003,7 +33003,7 @@ loc_18D1A:
 	dc.b	$C1
 	dc.b	"from ", $BB, "'s sack."
 	dc.b	$C4
-	
+
 loc_18D3F:
 	dc.b	$BC, " can't carry any"
 	dc.b	$C1
@@ -33018,18 +33018,18 @@ loc_18D51:
 
 loc_18D77:
 	dc.b	"Do you really want to"
-	dc.b	$C1									
+	dc.b	$C1
 	dc.b	"drop ", $BF, "?"
 	dc.b	$C5
 
 loc_18D95:
 	dc.b	$BB, " changes his mind"
-	dc.b	$C1							
+	dc.b	$C1
 	dc.b	"and keeps the item."
 	dc.b	$C4
 
 loc_18DBC:
-	dc.b	$BB, " drops ", $BF, "."					
+	dc.b	$BB, " drops ", $BF, "."
 	dc.b	$C4
 
 loc_18DC7:
@@ -33055,7 +33055,7 @@ loc_18E31:
 	dc.b	$C1
 	dc.b	"light."
 	dc.b	$C5
-	
+
 loc_18E4C:
 	dc.b	"The tones cover the"
 	dc.b	$C1
@@ -33163,7 +33163,7 @@ loc_19085:
 
 loc_19138:
 	dc.b	"This device records all"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"events in the Biosystems"
 	dc.b	$C3
 	dc.b	"lab."
@@ -33178,7 +33178,7 @@ loc_1916E:
 	dc.b	$C1
 	dc.b	"Biohazards."
 	dc.b	$C4
-	
+
 loc_191BA:
 	dc.b	$BB, " isn't carrying"
 	dc.b	$C1
@@ -33212,7 +33212,7 @@ loc_19235:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_TechAction:
 	dc.b	loc_19268-Script_TechAction	; 1
 	dc.b	loc_19280-loc_19268			; 2
@@ -33268,7 +33268,7 @@ loc_19319:
 	dc.b	$C3
 	dc.b	"to ", $BC, "."
 	dc.b	$C4
-	
+
 loc_19341:
 	dc.b	$BB, " heals everybody's"
 	dc.b	$C1
@@ -33288,13 +33288,13 @@ loc_1937A:
 	dc.b	$C3
 	dc.b	"to life!"
 	dc.b	$C4
-	
+
 loc_1939C:
 	dc.b	$BB, " touches ", $BC, "'s"
 	dc.b	$C1
 	dc.b	"wounds."
 	dc.b	$C4
-	
+
 loc_193B2:
 	dc.b	"But the poison still"
 	dc.b	$C1
@@ -33305,14 +33305,14 @@ loc_193B2:
 ; ---------------------------------------------------------------------------------
 
 	even
-		
+
 Script_EquipAction:
 	dc.b	loc_193F1-Script_EquipAction	; 1
 	dc.b	loc_19401-loc_193F1				; 2
 	dc.b	loc_1940C-loc_19401				; 3
 	dc.b	loc_19426-loc_1940C				; 4
 	dc.b	loc_19433-loc_19426				; 5
-	
+
 loc_193F1:
 	dc.b	$BB, " can't take"
 	dc.b	$C1
@@ -33322,7 +33322,7 @@ loc_193F1:
 loc_19401:
 	dc.b	$BB, " takes ", $BF, "."
 	dc.b	$C4
-	
+
 loc_1940C:
 	dc.b	$BB, " doesn't want to"
 	dc.b	$C1
@@ -33341,7 +33341,7 @@ loc_19433:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_DataMemory:
 	dc.b	loc_19453-Script_DataMemory	; 1
 	dc.b	loc_1946B-loc_19453			; 2
@@ -33356,7 +33356,7 @@ Script_DataMemory:
 	dc.b	loc_195EC-loc_195D8			; $B
 	dc.b	loc_195FE-loc_195EC			; $C
 	dc.b	loc_19614-loc_195FE			; $D
-	
+
 loc_19453:
 	dc.b	"Welcome to Data Memory."
 	dc.b	$C4
@@ -33377,7 +33377,7 @@ loc_1948E:
 
 loc_194CD:
 	dc.b	"I see; well, be on your"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"way then."
 	dc.b	$C4
 
@@ -33411,7 +33411,7 @@ loc_19599:
 	dc.b	"Are you going to "
 	dc.b	$C1
 	dc.b	"adventure some more?"
-	
+
 ; the following lines don't make much sense here, because they are called right after the question, before the player gets to answer!
 ; Remove the following lines until the C5 (KEEP THE C5), if you don't want it.
 	dc.b	$C1
@@ -33429,7 +33429,7 @@ loc_195EC:
 loc_195FE:
 	dc.b	"Be careful out there!"
 	dc.b	$C4
-	
+
 loc_19614:
 	dc.b	$BB, " it is not possible"
 	dc.b	$C1
@@ -33440,7 +33440,7 @@ loc_19614:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_CloneLabs:
 	dc.b	loc_19655-Script_CloneLabs	; 1
 	dc.b	loc_1969C-loc_19655			; 2
@@ -33453,7 +33453,7 @@ Script_CloneLabs:
 	dc.b	loc_19825-loc_19767			; 9
 	dc.b	loc_198AD-loc_19825			; $A
 	dc.b	loc_198EC-loc_198AD			; $B
-	
+
 loc_19655:
 	dc.b	"Welcome to the Clone"
 	dc.b	$C1
@@ -33537,7 +33537,7 @@ loc_198AD:
 	dc.b	$C3
 	dc.b	"world go round?\I", $47, $47, $47
 	dc.b	$C4
-	
+
 loc_198EC:
 	dc.b	"What about that tired"
 	dc.b	$C1
@@ -33550,7 +33550,7 @@ loc_198EC:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_Hospital:
 	dc.b	loc_19950-Script_Hospital	; 1
 	dc.b	loc_19960-loc_19950			; 2
@@ -33600,7 +33600,7 @@ loc_19A0C:
 	dc.b	$C1
 	dc.b	"cure?"
 	dc.b	$C5
-	
+
 loc_19A28:
 	dc.b	$BB, " is dead,I'm afraid."
 	dc.b	$C4
@@ -33619,7 +33619,7 @@ loc_19A65:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_WeaponStore:
 	dc.b	loc_19A91-Script_WeaponStore	; 1
 	dc.b	loc_19AAF-loc_19A91				; 2
@@ -33665,7 +33665,7 @@ loc_19B30:
 
 loc_19B60:
 	dc.b	"There you go! Use it or"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"lose it!"
 	dc.b	$C4
 
@@ -33687,7 +33687,7 @@ loc_19BBE:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_ArmorStore:
 	dc.b	loc_19BF7-Script_ArmorStore	; 1
 	dc.b	loc_19C22-loc_19BF7			; 2
@@ -33698,7 +33698,7 @@ Script_ArmorStore:
 	dc.b	loc_19CF5-loc_19CD0			; 7
 	dc.b	loc_19D19-loc_19CF5			; 8
 	dc.b	loc_19D35-loc_19D19			; 9
-	
+
 loc_19BF7:
 	dc.b	"Welcome to my shop! What"
 	dc.b	$C1
@@ -33755,7 +33755,7 @@ loc_19D35:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_ItemStore:
 	dc.b	loc_19D76-Script_ItemStore	; 1
 	dc.b	loc_19D98-loc_19D76			; 2
@@ -33776,7 +33776,7 @@ Script_ItemStore:
 
 loc_19D76:
 	dc.b	"Welcome. how may I be of"
-	dc.b	$C1		
+	dc.b	$C1
 	dc.b	"service?"
 	dc.b	$C5
 
@@ -33791,13 +33791,13 @@ loc_19DC1:
 	dc.b	$C1
 	dc.b	"How about it?"
 	dc.b	$C5
-	
+
 loc_19DE3:
 	dc.b	"Which do you want to"
 	dc.b	$C1
 	dc.b	"sell?"
 	dc.b	$C5
-	
+
 loc_19DFE:
 	dc.b	"I can't give you a price"
 	dc.b	$C1
@@ -33807,7 +33807,7 @@ loc_19DFE:
 	dc.b	$C1
 	dc.b	"something else!"
 	dc.b	$C5
-	
+
 loc_19E50:
 	dc.b	"Which would you like?"
 	dc.b	$C5
@@ -33857,13 +33857,13 @@ loc_19F5E:
 	dc.b	$C1
 	dc.b	"again!"
 	dc.b	$C4
-	
+
 loc_19F78:
 	dc.b	"What! You must be"
 	dc.b	$C1
 	dc.b	"joking!"
 	dc.b	$C4
-	
+
 loc_19F92:
 	dc.b	$BB, " isn't carrying"
 	dc.b	$C1
@@ -33876,11 +33876,11 @@ loc_19F92:
 
 loc_19FDF:
 	dc.b	"Danyaraha? bebekucha?"
-	dc.b	$C4	
+	dc.b	$C4
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_RolfHouse:
 	dc.b	loc_1A025-Script_RolfHouse	; 1
 	dc.b	loc_1A066-loc_1A025			; 2
@@ -33890,7 +33890,7 @@ Script_RolfHouse:
 	dc.b	loc_1A270-loc_1A236			; 6
 	dc.b	loc_1A2A8-loc_1A270			; 7
 	dc.b	loc_1A31D-loc_1A2A8			; 8
-	dc.b	loc_1A38B-loc_1A31D			; 9 
+	dc.b	loc_1A38B-loc_1A31D			; 9
 	dc.b	loc_1A3C2-loc_1A38B			; $A
 	dc.b	loc_1A401-loc_1A3C2			; $B
 	dc.b	loc_1A421-loc_1A401			; $C
@@ -33963,7 +33963,7 @@ loc_1A08A:
 	dc.b	$C1
 	dc.b	"mixture of human cells"
 	dc.b	$C3
-	dc.b	"and those of a Bio-"		
+	dc.b	"and those of a Bio-"
 	dc.b	$C1
 	dc.b	"monster, she was an"
 	dc.b	$C1
@@ -33980,7 +33980,7 @@ loc_1A182:
 	dc.b	$C1
 	dc.b	"yourself. I'm going on"
 	dc.b	$C3
-	dc.b	"a dangerous journey: too"	
+	dc.b	"a dangerous journey: too"
 	dc.b	$C1
 	dc.b	"dangerous for you. I"
 	dc.b	$C1
@@ -34096,13 +34096,13 @@ loc_1A516:
 	dc.b	$C1
 	dc.b	"Let's start the journey!"
 	dc.b	$C4
-	
+
 ; ---------------------------------------------
 ; some leftover script data - just remove it
 	dc.b	"nd"
 	dc.b	$C1
 	dc.b	" Let's"
-	dc.b	$C1				
+	dc.b	$C1
 	dc.b	"y!"
 	dc.b	$C4
 ; ---------------------------------------------
@@ -34121,21 +34121,21 @@ loc_1A59C:
 	dc.b	$C1
 	dc.b	"be good for me?"
 	dc.b	$C5
-	
+
 loc_1A5C4:
 	dc.b	$C2
 	dc.b	"I see; what name would"
 	dc.b	$C1
 	dc.b	"be good for me?"
 	dc.b	$C5
-	
+
 loc_1A5EC:
 	dc.b	$C2
 	dc.b	"I see; what name would"
 	dc.b	$C1
 	dc.b	"be good for me?"
 	dc.b	$C5
-	
+
 loc_1A614:
 	dc.b	$C2
 	dc.b	"I'm Shir of the wind,"
@@ -34149,7 +34149,7 @@ loc_1A650:
 	dc.b	$C2
 	dc.b	"I will call you ", $BB, "!"
 	dc.b	$C4
-	
+
 loc_1A664:
 	dc.b	$C2
 	dc.b	"Excuse me", $47, $47, $47
@@ -34233,7 +34233,7 @@ loc_1A8B6:
 	dc.b	$C1
 	dc.b	"Biomonsters."
 	dc.b	$C1
-	
+
 loc_1A939:
 	dc.b	"I am willing to fight"
 	dc.b	$C3
@@ -34268,7 +34268,7 @@ loc_1A9E1:
 	dc.b	$C1
 	dc.b	"track them down."
 	dc.b	$C1
-	
+
 loc_1AA75:
 	dc.b	"My job is to hunt evil"
 	dc.b	$C3
@@ -34332,7 +34332,7 @@ loc_1AC76:
 	dc.b	$C1
 	dc.b	"just as handsome as they"
 	dc.b	$C1
-	dc.b	"say. I am Shir Gold."	
+	dc.b	"say. I am Shir Gold."
 	dc.b	$C1
 	dc.b	"I am a thief. I care"
 	dc.b	$C3
@@ -34348,12 +34348,12 @@ loc_1AC76:
 	dc.b	$C1
 	dc.b	"thrills for me."
 	dc.b	$C1
-	
+
 loc_1AD47:
 	dc.b	"I think I'd like to go"
 	dc.b	$C1
 	dc.b	"with you. Remember, I'm"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"Shir of the wind!"
 	dc.b	$C1
 	dc.b	"Nothing can catch me! Do"
@@ -34406,7 +34406,7 @@ loc_1AEF2:
 	dc.b	"Right now I am"
 	dc.b	$C1
 	dc.b	"journeying just with"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	$BB, "."
 	dc.b	$C5
 
@@ -34442,7 +34442,7 @@ loc_1AFA5:
 ; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_UstvestiaHouse:
 	dc.b	loc_1AFF7-Script_UstvestiaHouse		; 1
 	dc.b	loc_1B030-loc_1AFF7					; 2
@@ -34450,14 +34450,14 @@ Script_UstvestiaHouse:
 	dc.b	loc_1B077-loc_1B044					; 4
 	dc.b	loc_1B0B3-loc_1B077					; 5
 	dc.b	loc_1B0D2-loc_1B0B3					; 6
-	dc.b	loc_1B0F4-loc_1B0D2					; 7 
+	dc.b	loc_1B0F4-loc_1B0D2					; 7
 	dc.b	loc_1B10B-loc_1B0F4					; 8
 	dc.b	loc_1B143-loc_1B10B					; 9
 	dc.b	loc_1B171-loc_1B143 				; $A
 	dc.b	loc_1B19D-loc_1B171					; $B
 	dc.b	loc_1B1B9-loc_1B19D					; $C
 	dc.b	loc_1B1E8-loc_1B1B9					; $D
-	
+
 loc_1AFF7:
 	dc.b	"I am Ustvestia, a"
 	dc.b	$C1
@@ -34465,11 +34465,11 @@ loc_1AFF7:
 	dc.b	$C3
 	dc.b	"to hear me play?"
 	dc.b	$C5
-	
+
 loc_1B030:
 	dc.b	"Great! Pick a song."
 	dc.b	$C5
-	
+
 loc_1B044:
 	dc.b	"Oh, I get it, you want"
 	dc.b	$C1
@@ -34477,7 +34477,7 @@ loc_1B044:
 	dc.b	$C3
 	dc.b	"piano!"
 	dc.b	$C5
-	
+
 ; it always sounded to me that it's Rolf who says the line, but it's actually Ustvestia. To be honest I realized this
 ; when playing the Japanese version. It's translated poorly in my opinion. He says that you should leave since he's very busy
 loc_1B077:
@@ -34487,49 +34487,49 @@ loc_1B077:
 	dc.b	$C3
 	dc.b	"got to go!"
 	dc.b	$C4
-	
+
 loc_1B0B3:
 	dc.b	"Am I a great musician or"
 	dc.b	$C1
 	dc.b	"what?"
 	dc.b	$C5
-	
+
 loc_1B0D2:
 	dc.b	"Why, you--go on, get"
 	dc.b	$C1
 	dc.b	"out of here."
 	dc.b	$C4
-	
+
 loc_1B0F4:
 	dc.b	"Who is going to learn?"
 	dc.b	$C5
-	
+
 loc_1B10B:
 	dc.b	"Hey, he looks smart."		; For those who don't know, Ustvestia is gay, so "smart" was used to cover this up
 	dc.b	$C1
 	dc.b	"I'll give lessons for"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"2000 meseta."
 	dc.b	$C5
-	
+
 loc_1B143:
 	dc.b	"All right. I'll give"
 	dc.b	$C1
 	dc.b	"lessons for 5000 meseta."
 	dc.b	$C5
-	
+
 loc_1B171:
 	dc.b	"You don't have enough"
 	dc.b	$C1
 	dc.b	"money. I'm not cheap."
 	dc.b	$C4
-	
+
 loc_1B19D:
 	dc.b	"Ok, I'll start the"
 	dc.b	$C1
 	dc.b	"lessons."
 	dc.b	$C4
-	
+
 loc_1B1B9:
 	dc.b	"Now you are also a"
 	dc.b	$C1
@@ -34537,40 +34537,40 @@ loc_1B1B9:
 	dc.b	$C3
 	dc.b	"Come again!"
 	dc.b	$C4
-	
+
 loc_1B1E8:
 	dc.b	$BB, " has learned the"
 	dc.b	$C1
 	dc.b	"MUSIK technique."
 	dc.b	$C4
-; ---------------------------------------------------------------------------------	
+; ---------------------------------------------------------------------------------
 
 	even
-	
+
 Script_InventorHouse:
 	dc.b	loc_1B214-Script_InventorHouse	; 1
 	dc.b	loc_1B244-loc_1B214				; 2
-	dc.b	loc_1B269-loc_1B244				; 3 
+	dc.b	loc_1B269-loc_1B244				; 3
 	dc.b	loc_1B2A4-loc_1B269				; 4
 	dc.b	loc_1B360-loc_1B2A4				; 5
 	dc.b	loc_1B391-loc_1B360				; 6
 	dc.b	loc_1B3FA-loc_1B391				; 7
 	dc.b	loc_1B41F-loc_1B3FA				; 8
-	
+
 loc_1B214:
 	dc.b	"Hi! I'm working on"
 	dc.b	$C1
 	dc.b	"inventing a new kind of"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"gum!"
 	dc.b	$C4
-	
+
 loc_1B244:
 	dc.b	"Do you know what MARUERA"
 	dc.b	$C1
 	dc.b	"LEAVES are?"
 	dc.b	$C5
-	
+
 loc_1B269:
 	dc.b	"I need some of those"
 	dc.b	$C1
@@ -34578,7 +34578,7 @@ loc_1B269:
 	dc.b	$C3
 	dc.b	"any, let me know!"
 	dc.b	$C4
-	
+
 loc_1B2A4:
 	dc.b	"There is a MARUERA TREE"
 	dc.b	$C1
@@ -34596,7 +34596,7 @@ loc_1B2A4:
 	dc.b	$C1
 	dc.b	"you breathe underwater!"
 	dc.b	$C4
-	
+
 loc_1B360:
 	dc.b	"That's it; a MARUERA"
 	dc.b	$C1
@@ -34604,7 +34604,7 @@ loc_1B360:
 	dc.b	$C3
 	dc.b	"me!"
 	dc.b	$C5
-	
+
 loc_1B391:
 	dc.b	"Thanks! If you'll wait,"
 	dc.b	$C1
@@ -34616,7 +34616,7 @@ loc_1B391:
 	dc.b	$C3
 	dc.b	"Farewell!"
 	dc.b	$C4
-	
+
 loc_1B3FA:
 	dc.b	"That's too bad. Well"
 	dc.b	$C1
@@ -34642,7 +34642,7 @@ Script_TeleportStation:
 	dc.b	loc_1B55A-loc_1B535					; 6
 	dc.b	loc_1B576-loc_1B55A					; 7
 	dc.b	loc_1B59B-loc_1B576					; 8
-	
+
 loc_1B44C:
 	dc.b	"Welcome to the Teleport"
 	dc.b	$C1
@@ -34655,7 +34655,7 @@ loc_1B46D:
 	dc.b	"to teleport?"
 	dc.b	$C5
 
-; ------------------------	
+; ------------------------
 ; leftover data
 	dc.b	" want to"
 	dc.b	$C1
@@ -34712,7 +34712,7 @@ Script_CentralTower:
 	dc.b	loc_1B60B-loc_1B5F6				; 3
 	dc.b	loc_1B6CD-loc_1B60B				; 4
 	dc.b	loc_1B6EC-loc_1B6CD				; 5
-	
+
 loc_1B5B7:
 	dc.b	"This is Central Tower in"
 	dc.b	$C1
@@ -34720,11 +34720,11 @@ loc_1B5B7:
 	dc.b	$C1
 	dc.b	"Mota. Where to?"
 	dc.b	$C5
-	
+
 loc_1B5F6:
 	dc.b	"Something's wrong", $47, $47, $47
 	dc.b	$C7
-	
+
 loc_1B60B:
 	dc.b	"Omigosh! The lake is"
 	dc.b	$C1
@@ -34750,7 +34750,7 @@ loc_1B6CD:
 	dc.b	$C1
 	dc.b	"governor!"
 	dc.b	$C4
-	
+
 loc_1B6EC:
 	dc.b	"Something is rotten in"
 	dc.b	$C1
@@ -34789,7 +34789,7 @@ Script_Room:
 	dc.b	loc_1B9BC-loc_1B97C		; $C
 	dc.b	loc_1B9DF-loc_1B9BC		; $D
 	dc.b	loc_1B9F9-loc_1B9DF		; $E
-	
+
 loc_1B7BA:
 	dc.b	"How're you doing? Is"
 	dc.b	$C1
@@ -34797,17 +34797,17 @@ loc_1B7BA:
 	dc.b	$C3
 	dc.b	"for you?"
 	dc.b	$C5
-	
+
 loc_1B7F1:
 	dc.b	"Whose belongings do you"
 	dc.b	$C1
 	dc.b	"want to leave with me?"
 	dc.b	$C5
-	
+
 loc_1B820:
 	dc.b	"Which items?"
 	dc.b	$C5
-	
+
 loc_1B82D:
 	dc.b	"Ok, I'll keep them"
 	dc.b	$C1
@@ -34815,29 +34815,29 @@ loc_1B82D:
 	dc.b	$C3
 	dc.b	"get back."
 	dc.b	$C4
-	
+
 loc_1B861:
 	dc.b	"Sorry, all my lockers"
 	dc.b	$C1
 	dc.b	"are filled up right now!"
 	dc.b	$C4
-	
+
 loc_1B890:
 	dc.b	"Don't you think you had"
 	dc.b	$C1
 	dc.b	"better keep that?"
 	dc.b	$C4
-	
+
 loc_1B8BA:
 	dc.b	"Is there anything else?"
 	dc.b	$C5
-	
+
 loc_1B8D2:
 	dc.b	"Well, then, take care!"
 	dc.b	$C1
 	dc.b	"Drop by again! So long!"
 	dc.b	$C4
-	
+
 loc_1B901:
 	dc.b	"These are the things I"
 	dc.b	$C1
@@ -34845,7 +34845,7 @@ loc_1B901:
 	dc.b	$C3
 	dc.b	"you want?"
 	dc.b	$C5
-	
+
 loc_1B93B:
 	dc.b	"That's funny; I'm pretty"
 	dc.b	$C1
@@ -34861,19 +34861,19 @@ loc_1B97C:
 	dc.b	$C3
 	dc.b	"like you left it."
 	dc.b	$C4
-	
+
 loc_1B9BC:
 	dc.b	"Huh? Where? I can't see"
 	dc.b	$C1
 	dc.b	"any items!"
 	dc.b	$C4
-	
+
 loc_1B9DF:
 	dc.b	"Who's going to take"
 	dc.b	$C1
 	dc.b	"this?"
 	dc.b	$C5
-	
+
 loc_1B9F9:
 	dc.b	"You have too much"
 	dc.b	$C1
@@ -34889,7 +34889,7 @@ Script_Roof:
 	dc.b	loc_1BA31-Script_Roof	; 1
 	dc.b	loc_1BA9E-loc_1BA31		; 2
 	dc.b	loc_1BAB4-loc_1BA9E		; 3
-	
+
 loc_1BA31:
 	dc.b	"This is Mota's only"
 	dc.b	$C1
@@ -34901,11 +34901,11 @@ loc_1BA31:
 	dc.b	$C3
 	dc.b	"Shall we go to Dezo?"
 	dc.b	$C5
-	
+
 loc_1BA9E:
 	dc.b	"Now leaving for Dezo."
 	dc.b	$C4
-	
+
 loc_1BAB4:
 	dc.b	"The party leaves Central"
 	dc.b	$C1
@@ -34943,7 +34943,7 @@ Script_Library:
 	dc.b	loc_1C737-loc_1C6DF			; $17
 	dc.b	loc_1C7DE-loc_1C737			; $18
 	dc.b	loc_1C835-loc_1C7DE			; $19
-	
+
 loc_1BB0D:
 	dc.b	"Welcome to the library."
 	dc.b	$C4
@@ -34953,13 +34953,13 @@ loc_1BB25:
 	dc.b	$C1
 	dc.b	"later."
 	dc.b	$C4
-	
+
 loc_1BB41:
 	dc.b	"Is there anything else"
 	dc.b	$C1
 	dc.b	"you would like to know?"
 	dc.b	$C5
-	
+
 loc_1BB70:
 	dc.b	"Mota used to be a"
 	dc.b	$C1
@@ -34980,7 +34980,7 @@ loc_1BB70:
 	dc.b	"created things like"
 	dc.b	$C1
 	dc.b	"the Biosystems lab,"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"Climatrol, etc."
 	dc.b	$C4
 
@@ -34996,9 +34996,9 @@ loc_1BC48:
 
 loc_1BCA1:
 	dc.b	"improvements. All DNA"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"data of Algo are stored"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"there. The reason why"
 	dc.b	$C1
 	dc.b	"Mota was turned into"
@@ -35011,7 +35011,7 @@ loc_1BCA1:
 	dc.b	$C1
 	dc.b	"systems lab."
 	dc.b	$C3
-	
+
 loc_1BD50:
 	dc.b	"However, two years ago,"
 	dc.b	$C1
@@ -35049,7 +35049,7 @@ loc_1BE34:
 	dc.b	$C1
 	dc.b	"amount of rainfall"
 	dc.b	$C1
-	
+
 loc_1BEB1:
 	dc.b	"and so on. Mota was"
 	dc.b	$C1
@@ -35063,7 +35063,7 @@ loc_1BEB1:
 	dc.b	$C1
 	dc.b	"is essential now."
 	dc.b	$C4
-	
+
 loc_1BF2C:
 	dc.b	"There are rivers run-"
 	dc.b	$C1
@@ -35094,14 +35094,14 @@ loc_1BFDB:
 	dc.b	"Blue dam. In order to"
 	dc.b	$C1
 	dc.b	"enter each dam, a card"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"whose color matches"
 	dc.b	$C1
 	dc.b	"the color of the dam is"
 	dc.b	$C3
 	dc.b	"required."
 	dc.b	$C1
-	
+
 loc_1C09B:
 	dc.b	"These cards are supposed"
 	dc.b	$C1
@@ -35132,10 +35132,10 @@ loc_1C163:
 	dc.b	"power to control every-"
 	dc.b	$C1
 	dc.b	"thing in the world of"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"Algo. Our life is"
 	dc.b	$C1
-	
+
 loc_1C1CF:
 	dc.b	"monitored and is"
 	dc.b	$C1
@@ -35155,7 +35155,7 @@ loc_1C1CF:
 loc_1C25B:
 	dc.b	"It is Mother Brain which"
 	dc.b	$C1
-	dc.b	"controls the systems"	
+	dc.b	"controls the systems"
 	dc.b	$C1
 	dc.b	"such as the Biosystems"
 	dc.b	$C1
@@ -35164,7 +35164,7 @@ loc_1C25B:
 	dc.b	"so on. Thus Mother Brain"
 	dc.b	$C1
 	dc.b	"is essential to our"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"life, but nobody knows"
 	dc.b	$C1
 	dc.b	"who made Mother Brain"
@@ -35184,7 +35184,7 @@ loc_1C323:
 	dc.b	"was an overload of"
 	dc.b	$C1
 	dc.b	"energy poured into the"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"system all at once. As a"
 	dc.b	$C1
 	dc.b	"result, the creature"
@@ -35212,7 +35212,7 @@ loc_1C3D4:
 
 loc_1C48D:
 	dc.b	"Please look at this"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"graph. It shows the"
 	dc.b	$C1
 	dc.b	"amount of energy"
@@ -35220,7 +35220,7 @@ loc_1C48D:
 	dc.b	"consumed in the last"
 	dc.b	$C3
 	dc.b	"couple of years. Let's"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"overlap the graphs of"
 	dc.b	$C1
 	dc.b	"temperature and"
@@ -35302,7 +35302,7 @@ loc_1C737:
 	dc.b	"what is going on with"
 	dc.b	$C1
 	dc.b	"Climatrol."
-	dc.b	$C4 
+	dc.b	$C4
 
 loc_1C7DE:
 	dc.b	"Is it true that Mota"
@@ -35338,7 +35338,7 @@ loc_1C835:
 	dc.b	"that Palm is gone, those"
 	dc.b	$C3
 	dc.b	"of us who are in Mota"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"have to sustain Algo."
 	dc.b	$C1
 	dc.b	$BB, ", please do your"
@@ -35367,7 +35367,7 @@ Script_Governor:
 	dc.b	loc_1D078-loc_1D002			; $F
 	dc.b	loc_1D122-loc_1D078			; $10
 	dc.b	loc_1D159-loc_1D122			; $11
-	
+
 loc_1C96D:
 	dc.b	"Good morning, ", $BB, "."
 	dc.b	$C1
@@ -35378,7 +35378,7 @@ loc_1C96D:
 	dc.b	"you started working for"
 	dc.b	$C3
 	dc.b	"me, the Commander of"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"Mota. What I am going"
 	dc.b	$C1
 	dc.b	"to ask you to do will"
@@ -35397,10 +35397,10 @@ loc_1CA1F:
 	dc.b	$C3
 	dc.b	"up by Mother Brain."
 	dc.b	$C1
-	
+
 loc_1CA8C:
 	dc.b	"My work as a Commander"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"has been to smoothly"
 	dc.b	$C1
 	dc.b	"promote the plans of"
@@ -35434,7 +35434,7 @@ loc_1CBAA:
 	dc.b	$BB, ", your mission is"
 	dc.b	$C1
 	dc.b	"to go to the Biosystems"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"lab and get the"
 	dc.b	$C3
 	dc.b	"recorder. If we look"
@@ -35475,7 +35475,7 @@ loc_1CCC2:
 	dc.b	$C1
 	dc.b	"absolutely right all the"
 	dc.b	$C1
-	
+
 loc_1CD58:
 	dc.b	"time, and that our life"
 	dc.b	$C3
@@ -35489,7 +35489,7 @@ loc_1CD58:
 	dc.b	$C3
 	dc.b	"weak and lethargic"
 	dc.b	$C1
-	
+
 loc_1CDDA:
 	dc.b	"beings. Under the"
 	dc.b	$C1
@@ -35558,7 +35558,7 @@ loc_1D002:
 	dc.b	"is desperately trying to"
 	dc.b	$C3
 	dc.b	"catch you guys. It is"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"too dangerous to do"
 	dc.b	$C1
 	dc.b	"anything that stands"
@@ -35610,7 +35610,7 @@ loc_1D159:
 	dc.b	"spaceship on the roof-"
 	dc.b	$C1
 	dc.b	"top. But, remember that"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"you are still suspects."
 	dc.b	$C1
 	dc.b	"The Palm incident has"
@@ -35633,7 +35633,7 @@ Script_Battle:
 	dc.b	loc_1D2ED-loc_1D2E0		; 5
 	dc.b	loc_1D2FC-loc_1D2ED		; 6
 	dc.b	loc_1D307-loc_1D2FC		; 7
-	dc.b	loc_1D326-loc_1D307		; 8	
+	dc.b	loc_1D326-loc_1D307		; 8
 	dc.b	loc_1D341-loc_1D326 	; 9
 	dc.b	loc_1D35D-loc_1D341		; $A
 	dc.b	loc_1D369-loc_1D35D		; $B
@@ -35668,47 +35668,47 @@ Script_Battle:
 	dc.b	loc_1D60C-loc_1D5E1		; $28
 	dc.b	loc_1D63C-loc_1D60C		; $29
 	dc.b	loc_1D65C-loc_1D63C		; $2A
-	
+
 loc_1D2A5:
 	dc.b	$BB, " fell asleep!"
 	dc.b	$C6
-	
+
 loc_1D2B3:
 	dc.b	$BB, " and friends"
 	dc.b	$C3
 	dc.b	"run away!"
 	dc.b	$C6
-	
+
 loc_1D2CB:
 	dc.b	"But they're"
 	dc.b	$C3
 	dc.b	"trapped!"
 	dc.b	$C6
-	
+
 loc_1D2E0:
 	dc.b	"Didn't work!"
 	dc.b	$C6
-	
+
 loc_1D2ED:
 	dc.b	$BB, " can't fight!"
 	dc.b	$C4
-	
+
 loc_1D2FC:
 	dc.b	$BB, " is dead!"
 	dc.b	$C6
-	
+
 loc_1D307:
 	dc.b	$BB, " doesn't know"
 	dc.b	$C3
 	dc.b	"any techniques!"
 	dc.b	$C4
-	
+
 loc_1D326:
 	dc.b	$BB, " and party are"
 	dc.b	$C3
 	dc.b	"destroyed!"
 	dc.b	$C6
-	
+
 loc_1D341:
 	dc.b	"Fighting ability"
 	dc.b	$C3
@@ -35718,75 +35718,75 @@ loc_1D341:
 loc_1D35D:
 	dc.b	$BD, " is quiet."
 	dc.b	$C6
-	
+
 loc_1D369:
 	dc.b	$BD, " has gone"
 	dc.b	$C3
 	dc.b	"insane!"
 	dc.b	$C6
-	
+
 loc_1D37C:
 	dc.b	$BD, " is"
 	dc.b	$C3
 	dc.b	"paralyzed!"
 	dc.b	$C6
-	
+
 loc_1D38C:
 	dc.b	"Defense ability"
 	dc.b	$C3
 	dc.b	"increases!"
 	dc.b	$C6
-	
+
 loc_1D3A7:
 	dc.b	"Agility increases!"
 	dc.b	$C6
-	
+
 loc_1D3BA:
 	dc.b	$BB, " gives up a"
 	dc.b	$C3
 	dc.b	"life!"
 	dc.b	$C6
-	
+
 loc_1D3CD:
 	dc.b	"Something's wrong!"
 	dc.b	$C6
-	
+
 loc_1D3E0:
 	dc.b	$BB, " and party are"
 	dc.b	$C3
 	dc.b	"victorious!"
 	dc.b	$C4
-	
+
 loc_1D3FC:
 	dc.b	$C0, " experience"
 	dc.b	$C3
 	dc.b	"points!"
 	dc.b	$C4
-	
+
 loc_1D411:
 	dc.b	"Receive ", $C0
 	dc.b	$C3
 	dc.b	"meseta!"
 	dc.b	$C4
-	
+
 loc_1D423:
 	dc.b	$BB, " gains a level."
 	dc.b	$C4
-	
+
 loc_1D434:
 	dc.b	"New HP maximum!"
 	dc.b	$C4
-	
+
 loc_1D444:
 	dc.b	"New TP maximum!"
 	dc.b	$C4
-	
+
 loc_1D454:
 	dc.b	"Learned a new"
 	dc.b	$C3
 	dc.b	"technique!"
 	dc.b	$C4
-	
+
 loc_1D46D:
 	dc.b	$BB, " and the others"
 	dc.b	$C1
@@ -35794,13 +35794,13 @@ loc_1D46D:
 	dc.b	$C1
 	dc.b	"to the planet Algo."
 	dc.b	$C5
-	
+
 loc_1D4AA:
 	dc.b	"Trapped by plasma"
 	dc.b	$C3
 	dc.b	"rings!"
 	dc.b	$C4
-	
+
 loc_1D4C3:
 	dc.b	"Too tired to"
 	dc.b	$C3
@@ -35810,37 +35810,37 @@ loc_1D4C3:
 loc_1D4D7:
 	dc.b	$BB, " is poisoned!"
 	dc.b	$C6
-	
+
 loc_1D4E6:
 	dc.b	"Defense ability"
 	dc.b	$C3
 	dc.b	"decreased!"
 	dc.b	$C6
-	
+
 loc_1D501:
 	dc.b	"Agility decreased!"
 	dc.b	$C6
-	
+
 loc_1D514:
 	dc.b	"Attack ability"
 	dc.b	$C3
 	dc.b	"decreased!"
 	dc.b	$C6
-	
+
 loc_1D52E:
 	dc.b	$BB, " is paralyzed!"
 	dc.b	$C6
-	
+
 loc_1D53E:
 	dc.b	$BB, " is no longer"
 	dc.b	$C3
 	dc.b	"paralyzed!"
 	dc.b	$C6
-	
+
 loc_1D558:
 	dc.b	$BB, " becomes evil!"
 	dc.b	$C6
-	
+
 loc_1D568:
 	dc.b	$BB, " turns traitor"
 	dc.b	$C3
@@ -35850,13 +35850,13 @@ loc_1D568:
 	dc.b	$C3
 	dc.b	"away!"
 	dc.b	$C6
-	
+
 loc_1D59E:
 	dc.b	"Crushed by"
 	dc.b	$C3
 	dc.b	"despair!"
 	dc.b	$C6
-	
+
 loc_1D5B2:
 	dc.b	$BB, " turns greedy"
 	dc.b	$C3
@@ -35864,7 +35864,7 @@ loc_1D5B2:
 	dc.b	$C3
 	dc.b	"others' items!"
 	dc.b	$C6
-	
+
 loc_1D5E1:
 	dc.b	$BB, " turns"
 	dc.b	$C3
@@ -35874,7 +35874,7 @@ loc_1D5E1:
 	dc.b	$C3
 	dc.b	"furiously!"
 	dc.b	$C6
-	
+
 loc_1D60C:
 	dc.b	$BB, " loses"
 	dc.b	$C3
@@ -35884,7 +35884,7 @@ loc_1D60C:
 	dc.b	$C3
 	dc.b	"any techniques!"
 	dc.b	$C6
-	
+
 loc_1D63C:
 	dc.b	$BB, " gets lazy!"
 	dc.b	$C3
@@ -35921,7 +35921,7 @@ Script_Introduction:
 	dc.b	loc_1D8E7-loc_1D8A7				; $E
 	dc.b	loc_1D90A-loc_1D8E7				; $F
 	dc.b	loc_1D950-loc_1D90A				; 10
-	
+
 loc_1D6A6:
 	dc.b	"There is no room to save"
 	dc.b	$C1
@@ -35931,13 +35931,13 @@ loc_1D6A6:
 	dc.b	$C1
 	dc.b	"new game?"
 	dc.b	$C5
-	
+
 loc_1D6F5:
 	dc.b	"What is the name of your"
 	dc.b	$C1
 	dc.b	"character?"
 	dc.b	$C5
-	
+
 loc_1D719:
 	dc.b	"Some of the existing"
 	dc.b	$C1
@@ -35968,7 +35968,7 @@ loc_1D7AC:
 
 loc_1D7D4:
 	dc.b	"Do you really want to"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"erase game number ", $C0, "?"
 	dc.b	$C5
 
@@ -35997,7 +35997,7 @@ loc_1D873:
 	dc.b	$C1
 	dc.b	"data."
 	dc.b	$C7
-	
+
 loc_1D891:
 	dc.b	"The data for ", $C0, " is ok."
 	dc.b	$C5
@@ -36009,7 +36009,7 @@ loc_1D8A7:
 	dc.b	$C3
 	dc.b	"I can fix it", $47, $47, $47
 	dc.b	$C7
-	
+
 loc_1D8E7:
 	dc.b	"Ok, I was able to fix"
 	dc.b	$C1
@@ -36040,7 +36040,7 @@ Script_Opening:
 	dc.b	loc_1DA54-loc_1D9F4			; 4
 	dc.b	loc_1DAAA-loc_1DA54			; 5
 	dc.b	loc_1DAFE-loc_1DAAA			; 6
-	
+
 loc_1D96C:
 	dc.b	"This is the second"
 	dc.b	$C1
@@ -36048,7 +36048,7 @@ loc_1D96C:
 	dc.b	$C1
 	dc.b	"system, Mota."
 	dc.b	$C7
-	
+
 loc_1D9A0:
 	dc.b	"Over 1000 years have"
 	dc.b	$C1
@@ -36058,7 +36058,7 @@ loc_1D9A0:
 	dc.b	$C1
 	dc.b	"Alis and friends."
 	dc.b	$C7
-	
+
 loc_1D9F4:
 	dc.b	"Since that time, Algo"
 	dc.b	$C1
@@ -36068,7 +36068,7 @@ loc_1D9F4:
 	dc.b	$C1
 	dc.b	"called the Mother Brain."
 	dc.b	$C7
-	
+
 loc_1DA54:
 	dc.b	"The Mother Brain created"
 	dc.b	$C1
@@ -36078,7 +36078,7 @@ loc_1DA54:
 	dc.b	$C1
 	dc.b	"crops would grow."
 	dc.b	$C7
-	
+
 loc_1DAAA:
 	dc.b	"But the people of the"
 	dc.b	$C1
@@ -36088,7 +36088,7 @@ loc_1DAAA:
 	dc.b	$C1
 	dc.b	"years of peace", $47, $47, $47
 	dc.b	$C7
-	
+
 loc_1DAFE:
 	dc.b	"And now evil threatens"
 	dc.b	$C1
@@ -36107,13 +36107,13 @@ Script_GameStart:
 	dc.b	loc_1DB86-loc_1DB5E			; 2
 	dc.b	loc_1DC18-loc_1DB86			; 3
 	dc.b	loc_1DC47-loc_1DC18			; 4
-	
+
 loc_1DB5E:
 	dc.b	"I am haunted by"
 	dc.b	$C1
 	dc.b	"nightmares every night."
 	dc.b	$C5
-	
+
 loc_1DB86:
 	dc.b	"A young girl is battling"
 	dc.b	$C1
@@ -36122,25 +36122,25 @@ loc_1DB86:
 	dc.b	"close by, but can't move"
 	dc.b	$C1
 	dc.b	"or speak! All I can do"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"is watch while the demon"
 	dc.b	$C1
 	dc.b	"keeps striking at the"
 	dc.b	$C1
 	dc.b	"girl."
 	dc.b	$C4
-	
+
 loc_1DC18:
 	dc.b	"Just as she is fighting"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"for her life, I awake!"
-	dc.b	$C4 
-	
+	dc.b	$C4
+
 loc_1DC47:
 	dc.b	"I awake in my room,"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"dimly lit by the early"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"dawn. I am filled with"
 	dc.b	$C1
 	dc.b	"an incredible sadness"
@@ -36148,7 +36148,7 @@ loc_1DC47:
 	dc.b	"and fear. I am ", $BB, ", an"
 	dc.b	$C1
 	dc.b	"agent here in Paseo, the"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"capital of Mota."
 	dc.b	$C1
 	dc.b	"I shake my head as if to"
@@ -36183,10 +36183,10 @@ loc_1DC47:
 	dc.b	$C1
 	dc.b	"my dream."
 	dc.b	$C4
-; ---------------------------------------------------------------------------------	
-	
+; ---------------------------------------------------------------------------------
+
 	even
-	
+
 Script_People:
 	dc.b	loc_1DED0-Script_People	; 1
 	dc.b	loc_1DF05-loc_1DED0		; 2
@@ -36350,7 +36350,7 @@ Script_People:
 	dc.b	loc_20907-loc_208BB		; $A0
 	dc.b	loc_20942-loc_20907		; $A1
 	dc.b	loc_209AA-loc_20942		; $A2
-	
+
 ; no idea why this guy says a line talking about Central Tower. In the Japanese version he says: "This is Paseo, the largest city on Motavia"
 ; He doesn't say it using a fully structured Japanese sentence, meaning he leaves out particles and whatnot...
 loc_1DED0:
@@ -36360,7 +36360,7 @@ loc_1DED0:
 	dc.b	$C1							; should be $C3
 	dc.b	"of Mota."
 	dc.b	$C4
-	
+
 loc_1DF05:
 	dc.b	"Maybe you should go back"
 	dc.b	$C1
@@ -36400,7 +36400,7 @@ loc_1DFF6:
 	dc.b	$C3
 	dc.b	"Central Tower."
 	dc.b	$C4
-	
+
 loc_1E061:
 	dc.b	"I used to work at the"
 	dc.b	$C1
@@ -36422,7 +36422,7 @@ loc_1E0AE:
 	dc.b	$C3
 	dc.b	"a man named Darum."
 	dc.b	$C4
-	
+
 loc_1E11A:
 	dc.b	"If you have money, you"
 	dc.b	$C1
@@ -36477,7 +36477,7 @@ loc_1E25D:
 
 loc_1E299:
 	dc.b	"My dad is just goofing"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"off everyday."
 	dc.b	$C3
 	dc.b	"He says he can live"
@@ -36519,9 +36519,9 @@ loc_1E387:
 
 loc_1E3CE:
 	dc.b	"If only those scoundrels"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"hadn't come to this"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"town, Darum and his"
 	dc.b	$C1
 	dc.b	"daughter Teim could have"
@@ -36601,7 +36601,7 @@ loc_1E62B:
 
 loc_1E66E:
 	dc.b	"I hear that those bad"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"guys are very cautious,"
 	dc.b	$C3
 	dc.b	"and keep their stuff in"
@@ -36613,9 +36613,9 @@ loc_1E6C8:
 	dc.b	"Darum is not a bad guy!"
 	dc.b	$C1
 	dc.b	"The reason he became"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"violent is that his"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"daughter, Teim, was"
 	dc.b	$C3
 	dc.b	"kidnapped!"
@@ -36685,7 +36685,7 @@ loc_1E8C9:
 	dc.b	"already been devastated."
 	dc.b	$C1
 	dc.b	"There's nothing we can"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"do."
 	dc.b	$C4
 
@@ -36703,7 +36703,7 @@ loc_1E96C:
 	dc.b	"I heard that there's a"
 	dc.b	$C3
 	dc.b	"piano teacher in this"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"town."
 	dc.b	$C4
 
@@ -36739,7 +36739,7 @@ loc_1EA6F:
 
 loc_1EA98:
 	dc.b	"People of Algo are"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"hungry all the time"
 	dc.b	$C3
 	dc.b	"because they can't"
@@ -36839,7 +36839,7 @@ loc_1ED3C:
 	dc.b	"The ancestors of the"
 	dc.b	$C1
 	dc.b	"people in this town"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"used to work in the"
 	dc.b	$C1
 	dc.b	"ocean."
@@ -36901,10 +36901,10 @@ loc_1EF24:
 	dc.b	"I remember there was a"
 	dc.b	$C1
 	dc.b	"rocky island named Uzo"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"in the ocean."
 	dc.b	$C4
-	
+
 loc_1EF60:
 	dc.b	"It was 50 years ago when"
 	dc.b	$C1
@@ -36967,7 +36967,7 @@ loc_1F0E6:
 
 loc_1F136:
 	dc.b	"This town is called"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"Piata. There used to"
 	dc.b	$C3
 	dc.b	"be a spaceport near"
@@ -36977,9 +36977,9 @@ loc_1F136:
 
 loc_1F179:
 	dc.b	"When people refer to the"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"accident of 10 years"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"ago, they mean the col-"
 	dc.b	$C1
 	dc.b	"lision of spaceships"
@@ -36999,7 +36999,7 @@ loc_1F1DF:
 
 loc_1F227:
 	dc.b	"Everyone used to believe"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"that travelling in space"
 	dc.b	$C3
 	dc.b	"was not dangerous at"
@@ -37014,7 +37014,7 @@ loc_1F273:
 	dc.b	$C3
 	dc.b	"side of Algo."
 	dc.b	$C4
-	
+
 loc_1F2AF:
 	dc.b	"People used to dream of"
 	dc.b	$C1
@@ -37097,13 +37097,13 @@ loc_1F4CC:
 	dc.b	"Staying too long on this"
 	dc.b	$C1
 	dc.b	"planet makes everyone's"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"body rot."
 	dc.b	$C4
 
 loc_1F507:
 	dc.b	"The truth is, the clone"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"lab Grandma is really"
 	dc.b	$C3
 	dc.b	"a man."
@@ -37126,7 +37126,7 @@ loc_1F571:
 	dc.b	$C1
 	dc.b	"Zosa."
 	dc.b	$C4
-	
+
 loc_1F58B:
 	dc.b	"It's best to live lazily"
 	dc.b	$C1
@@ -37188,19 +37188,19 @@ loc_1F732:
 	dc.b	$C3
 	dc.b	"It's unbelievable!"
 	dc.b	$C4
-	
+
 loc_1F762:
 	dc.b	"It's such a surprise to"
 	dc.b	$C1
 	dc.b	"see a human other than"
 	dc.b	$C3
 	dc.b	"the clone lab Grandma!"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"Everybody left three"
 	dc.b	$C3
 	dc.b	"years ago."
 	dc.b	$C4
-	
+
 loc_1F7C8:
 	dc.b	"When I went to the other"
 	dc.b	$C1
@@ -37210,13 +37210,13 @@ loc_1F7C8:
 	dc.b	$C1
 	dc.b	"there."
 	dc.b	$C4
-	
+
 loc_1F813:
 	dc.b	"This town is called"
 	dc.b	$C1
 	dc.b	"Aukba."
 	dc.b	$C4
-	
+
 loc_1F82E:
 	dc.b	"Long dern time ago, I"
 	dc.b	$C1
@@ -37226,7 +37226,7 @@ loc_1F82E:
 	dc.b	$C1
 	dc.b	"planet."
 	dc.b	$C4
-	
+
 loc_1F87A:
 	dc.b	"They say people who are"
 	dc.b	$C1
@@ -37234,13 +37234,13 @@ loc_1F87A:
 	dc.b	$C3
 	dc.b	"have strange power."
 	dc.b	$C4
-	
+
 loc_1F8BC:
 	dc.b	"Hey, you,", $47, $47, $47, "you came"
 	dc.b	$C1
 	dc.b	"over from that crevice?"
 	dc.b	$C4
-	
+
 loc_1F8E9:
 	dc.b	"Dezo is all ours. We"
 	dc.b	$C1
@@ -37250,15 +37250,15 @@ loc_1F8E9:
 	dc.b	$C1
 	dc.b	"left."
 	dc.b	$C4
-	
+
 loc_1F92F:
 	dc.b	"I wonder why that guy,"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"hiding on this planet,"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"never ages?"
 	dc.b	$C4
-	
+
 loc_1F969:
 	dc.b	"We ain't gonna leave"
 	dc.b	$C1
@@ -37266,7 +37266,7 @@ loc_1F969:
 	dc.b	$C3
 	dc.b	"what!"
 	dc.b	$C4
-	
+
 loc_1F99A:
 	dc.b	"We hate computers!"
 	dc.b	$C4
@@ -37293,7 +37293,7 @@ loc_1F9F6:
 
 loc_1FA35:
 	dc.b	"I heard the poison gas"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"came from the mine."
 	dc.b	$C4
 
@@ -37369,7 +37369,7 @@ loc_1FC2D:
 	dc.b	"Most people working in"
 	dc.b	$C1
 	dc.b	"Dezo were away from"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"their families back"
 	dc.b	$C1
 	dc.b	"home."
@@ -37439,7 +37439,7 @@ loc_1FDC3:
 
 loc_1FE21:
 	dc.b	$BB, " and the others"
-	dc.b	$C1		
+	dc.b	$C1
 	dc.b	"respectfully declined"
 	dc.b	$C3
 	dc.b	"the offer."
@@ -37471,7 +37471,7 @@ loc_1FEE9:
 	dc.b	"Ah-ha! There's a note"
 	dc.b	$C1
 	dc.b	"attached! \IWe love"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"going through garbage"
 	dc.b	$C1
 	dc.b	"itself. So, we don't"
@@ -37490,7 +37490,7 @@ loc_1FFA0:
 	dc.b	$C3
 	dc.b	"you."
 	dc.b	$C4
-	
+
 loc_1FFC9:
 	dc.b	"You are not ", $BB, ","
 	dc.b	$C1
@@ -37525,7 +37525,7 @@ loc_2007B:
 
 loc_200B5:
 	dc.b	"We have been working for"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"him since many"
 	dc.b	$C3
 	dc.b	"generations ago."
@@ -37596,7 +37596,7 @@ loc_2026C:
 	dc.b	$C3
 	dc.b	"than they wanted."
 	dc.b	$C1
-	
+
 loc_20333:
 	dc.b	"However, when Mother"
 	dc.b	$C3
@@ -37614,7 +37614,7 @@ loc_20333:
 	dc.b	$C3
 	dc.b	"People started to fight"
 	dc.b	$C1
-	
+
 loc_203E0:
 	dc.b	"for what Mother Brain"
 	dc.b	$C3
@@ -37649,7 +37649,7 @@ loc_2049E:
 	dc.b	"the trap, or why. There"
 	dc.b	$C3
 	dc.b	"is a Neisword in the"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"box. When you pick it"
 	dc.b	$C3
 	dc.b	"up, it will rescue you"
@@ -37676,7 +37676,7 @@ loc_2057B:
 	dc.b	$C3
 	dc.b	"from outside of Algo."
 	dc.b	$C4
-	
+
 loc_20643:
 	dc.b	"Good grief! We now have"
 	dc.b	$C1
@@ -37759,7 +37759,7 @@ loc_2089A:
 
 loc_208BB:
 	dc.b	"Hey, the good-looking"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"girl you were always"
 	dc.b	$C3
 	dc.b	"with, she is not with"
@@ -37841,8 +37841,8 @@ Script_MapActions:
 	dc.b	loc_21045-loc_20FF2				; $20
 	dc.b	loc_210AE-loc_21045				; $21
 	dc.b	loc_210B9-loc_210AE				; $22
-	
-	
+
+
 loc_20A58:
 	dc.b	$BB, " has gotten hold of"
 	dc.b	$C1
@@ -37896,7 +37896,7 @@ loc_20B2F:
 	dc.b	$C1
 	dc.b	"in one network."
 	dc.b	$C4
-	
+
 loc_20B7F:
 	dc.b	"Those scoundrels seem"
 	dc.b	$C1
@@ -37925,7 +37925,7 @@ loc_20C22:
 
 loc_20C52:
 	dc.b	"Maybe dynamite can open"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"this door."
 	dc.b	$C4
 
@@ -38005,7 +38005,7 @@ loc_20E5E:
 
 loc_20E9B:
 	dc.b	"The gas that leaked out"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"could be extremely"
 	dc.b	$C3
 	dc.b	"dangerous."
@@ -38056,13 +38056,13 @@ loc_20FB5:
 loc_20FDB:
 	dc.b	"We can't get off here!"
 	dc.b	$C4
-	
+
 loc_20FF2:
 	dc.b	"There is a high rocky"
 	dc.b	$C1
 	dc.b	"mountain in front of"
 	dc.b	$C4		; this should be $C3
-	
+
 ; cut-off text
 	dc.b	$BB, " and the others!"
 	dc.b	$C1
@@ -38074,7 +38074,7 @@ loc_21045:
 	dc.b	$C1
 	dc.b	"around here certainly"
 	dc.b	$C4		; this should be $C3
-	
+
 ; cut-off text
 	dc.b	"seems different."
 	dc.b	$C1
@@ -38084,11 +38084,11 @@ loc_21045:
 	dc.b	$C1
 	dc.b	"ground."
 	dc.b	$C4
-	
+
 loc_210AE:
 	dc.b	$BB, " is dead!"
 	dc.b	$C4
-	
+
 loc_210B9:
 	dc.b	"What? Shir is gone?"
 	dc.b	$C4
@@ -38233,9 +38233,9 @@ loc_21279:
 
 loc_212EF:
 	dc.b	"I'm Teim,daughter of"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"Darum. My father"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"promised me he would"
 	dc.b	$C1
 	dc.b	"come and help me,so I'm"
@@ -38246,7 +38246,7 @@ loc_212EF:
 	dc.b	$C4
 
 loc_2135C:
-	dc.b	$BB, " hands over ", $BF, ";"	
+	dc.b	$BB, " hands over ", $BF, ";"
 	dc.b	$C1
 	dc.b	"Teim's hands are"
 	dc.b	$C1
@@ -38283,7 +38283,7 @@ loc_2146C:
 	dc.b	"\II am Neifirst, I was"
 	dc.b	$C1
 	dc.b	"born 2 years ago. I am"
-	dc.b	$C3	
+	dc.b	$C3
 	dc.b	"the product of a Bio-"
 	dc.b	$C1
 	dc.b	"systems experiment"
@@ -38301,7 +38301,7 @@ loc_2146C:
 
 loc_2154F:
 	dc.b	"\IBut I escaped,and stole"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"DNA data from the"
 	dc.b	$C1
 	dc.b	"Biosystem. I have"
@@ -38397,7 +38397,7 @@ loc_21817:
 	dc.b	$BB, " better check the"
 	dc.b	$C1
 	dc.b	"control panel and fix"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"the Gaila's orbit!"
 	dc.b	$C4
 
@@ -38441,7 +38441,7 @@ loc_2197C:
 	dc.b	$C1
 	dc.b	"helpless. They have"
 	dc.b	$C1
-	
+
 loc_21A23:
 	dc.b	"become too soft and used"
 	dc.b	$C1
@@ -38479,7 +38479,7 @@ loc_21AC1:
 	dc.b	$C1
 	dc.b	"down the path of"
 	dc.b	$C1
-	
+
 loc_21B89:
 	dc.b	"destruction."	; this word should be in the piece of text above since this very piece of dialogue is called separately when you give another answer
 	dc.b	$C1
@@ -38540,7 +38540,7 @@ loc_21CDE:
 	dc.b	$C1
 	dc.b	"expected!"
 	dc.b	$C4
-	
+
 loc_21D2D:
 	dc.b	"Then they could hear"
 	dc.b	$C1
@@ -38557,7 +38557,7 @@ loc_21D2D:
 	dc.b	$C4
 
 loc_21DA4:
-	dc.b	"Let's get back to"						
+	dc.b	"Let's get back to"
 	dc.b	$C1
 	dc.b	"Mota. This is only"
 	dc.b	$C1
@@ -38700,7 +38700,7 @@ loc_22195:
 	dc.b	"you have done."
 	dc.b	$C5
 
-loc_221F5:	
+loc_221F5:
 	dc.b	"How dare you"
 	dc.b	$C1
 	dc.b	"ruin Algo!"
@@ -38779,7 +38779,7 @@ loc_22391:
 	dc.b	"lovely, and we had a"
 	dc.b	$C1
 	dc.b	"highly advanced"
-	dc.b	$C1	
+	dc.b	$C1
 	dc.b	"civilization."
 	dc.b	$C3
 	dc.b	"We are the last of our"
@@ -38885,7 +38885,7 @@ loc_226FE:
 	dc.b	"sentence is carried out."
 	dc.b	$C3
 	dc.b	$C2
-	
+
 loc_227B5:
 	dc.b	"I tried to open the dams"
 	dc.b	$C1
@@ -38966,7 +38966,7 @@ loc_229E5:
 	dc.b	$C1
 	dc.b	"can find happiness in"
 	dc.b	$C1
-	
+
 loc_22A8E:
 	dc.b	"their new life.\I"
 	dc.b	$C3
@@ -39027,7 +39027,7 @@ Script_Miscellaneous:
 	dc.b	loc_233AA-loc_2330A				; $11
 	dc.b	loc_233E8-loc_233AA				; $12
 	dc.b	loc_2345E-loc_233E8				; $13
-	
+
 loc_22BF7:
 	dc.b	"Oh no! This satellite is"
 	dc.b	$C1
@@ -39188,7 +39188,7 @@ loc_230C0:
 	dc.b	$C3
 	dc.b	"Algo. Beautiful Alis,"
 	dc.b	$C1
-	
+
 loc_2314C:
 	dc.b	"the symbol of Algo, was"
 	dc.b	$C1
@@ -39281,18 +39281,18 @@ loc_2345E:
 	dc.b	"from this box."
 	dc.b	$C4
 ; ---------------------------------------------------------------------------------
-	
+
 	even
-	
+
 	charset
-	
+
 ; ---------------------------------------------------------------------------------
 ; filler free space - unnecessary
 
 	rept $2A8
 	dc.b	0
 	endm
-; ---------------------------------------------------------------------------------	
+; ---------------------------------------------------------------------------------
 
 
 ; =================================================================================
@@ -39555,23 +39555,23 @@ EnemyBattleFormationData:
 	dc.b	EnemyID_Glosword, $01, EnemyID_Mesoman, $01, $07		; $F9
 	dc.b	EnemyID_Wizard, $01, EnemyID_Glosword, $01, $07		; $FA
 	dc.b	EnemyID_Shadow, $01, EnemyID_Lung, $01, $07		; $FB
-	
+
 ; 4 empty space so that you can put more formations
 	dc.b	$00, $00, $00, $00, $00		; $FC
 	dc.b	$00, $00, $00, $00, $00		; $FD
 	dc.b	$00, $00, $00, $00, $00		; $FE
 	dc.b	$00, $00, $00, $00, $00		; $FF
-	
+
 ; boss battles - there are grouped together for convenience. The code also expects these
 ; to start from ID $100 in this formation table.
 	dc.b	EnemyID_Neifirst, $01, $00, $00, $01		; $100
 	dc.b	EnemyID_ArmyEye, $03, $00, $00, $08			; $101
 	dc.b	EnemyID_DarkFrce, $01, $00, $00, $01		; $102
 	dc.b	EnemyID_Mombrain, $01, $00, $00, $01		; $103
-; =================================================================================	
-	
+; =================================================================================
+
 	even
-	
+
 loc_23C3A:
 	dc.b	$00, $00, $03, $02, $01, $02, $02, $00, $00, $00, $00, $00, $07, $06 ;0x0 (0x00023C3A-0x00023C48, Entry count: 0x0000000E) [Unknown data]
 	dc.b	$03
@@ -39604,7 +39604,7 @@ loc_23C3A:
 	dc.b	$0C, $0B, $0A ;0x0 (0x00023C8E-0x00023C91, Entry count: 0x00000003) [Unknown data]
 	dc.b	$0A, $09, $0A, $0B ;0x0 (0x00023C91-0x00023C95, Entry count: 0x00000004)
 	dc.b	$0B, $0B, $0E, $00, $00
-	
+
 loc_23C9A:
 	dc.b	$27, $27, $26, $26, $26, $26, $26, $27 ;0x0 (0x00023C95-0x00023CA2, Entry count: 0x0000000D) [Unknown data]
 	dc.b	$27
@@ -39623,7 +39623,7 @@ loc_23C9A:
 	dc.b	$2A, $29, $28, $28, $28 ;0x0 (0x00023CEE-0x00023CF3, Entry count: 0x00000005) [Unknown data]
 	dc.b	$28, $29, $29, $29 ;0x0 (0x00023CF3-0x00023CF7, Entry count: 0x00000004)
 	dc.b	$29, $29, $2A ;0x0 (0x00023CF7-0x00023CFA, Entry count: 0x00000003) [Unknown data]
-	
+
 loc_23CFA:
 	dc.b	$2B
 	dc.b	$2B, $2B, $2B, $2B, $2B, $2B, $2B, $2B, $2B, $2B, $2B, $2C, $2C, $2B, $2B ;0x0 (0x00023CFB-0x00023D0A, Entry count: 0x0000000F) [Unknown data]
@@ -39724,7 +39724,7 @@ loc_23DBA:
 	dc.b	$44, $42, $42, $43 ;0x0 (0x00023DF4-0x00023DF8, Entry count: 0x00000004) [Unknown data]
 	dc.b	$43
 	dc.b	$43
-	
+
 
 EnemyFormationTable:
 	dc.b	$04, $01, $0A, $04, $01, $4A, $47, $52	; 0
@@ -39811,9 +39811,9 @@ EnemyFormationTable:
 	dc.b	$E3, $F3, $E0, $E1, $F3, $ED, $EE, $E3	; $51
 	dc.b	$F5, $F7, $F1, $E1, $EE, $DF, $E3, $E7	; $52
 	dc.b	$D7, $F8, $ED, $E3, $F0, $DF, $F7, $E4	; $53
-	
+
 	even
-	
+
 ; =====================================================================
 ; Enemy Data
 ;
@@ -39843,18 +39843,18 @@ EnemyData:
 Enemy_FireAnt:
 	dc.w	$68C, $46A, $248, $26, 4, 2, 0, $6A6, $484, $240, $8AA, $688, $466, $244, 0
 	dc.l	Battle_AntArt
-	dc.w	3		; 3 EXP				
-	dc.w	5		; 5 MESETA	
+	dc.w	3		; 3 EXP
+	dc.w	5		; 5 MESETA
 	dc.w	3		; 3 ATTACK
 	dc.w	4		; 4 DEFENSE
 	dc.b	$20		; BIOMONSTER
-	dc.b	$17		; 23 AGILITY	
+	dc.b	$17		; 23 AGILITY
 	dc.w	9		; 9 HP
 	dc.b	0		; No techniques
 	dc.b	0		; 0% chances as we have no techniques to choose from
 	dc.b	0		; Technique success rate index
 	dc.b	$B2		; 70% escape rate
-	dc.b	$0F		
+	dc.b	$0F
 	dc.b	$03		; animation duration
 	dc.b	$6C
 	dc.b	$00
@@ -39862,10 +39862,10 @@ Enemy_FireAnt:
 	dc.b	$00
 	dc.b	SFXID_FireAntAttack		; sound when attacking
 	dc.b	SFXID_Whip		; sound when using techniques
-	dc.l	Battle_AntMap 
+	dc.l	Battle_AntMap
 	dc.b	$01		; Enemy ID = 1
 	dc.b	$01		; Enemy ID copy = 1?
-	
+
 Enemy_ArmorAnt:
 	dc.w	$08E8, $06A6, $0484, $0262, $0240, $0020, $0000, $006E, $004E, $002A, $0A8A, $0868, $0646, $0424, $0000 ;0x0 (0x000240DA-0x000240F8, Entry count: 0x0000001E)
 	dc.l	Battle_AntArt
@@ -39875,7 +39875,7 @@ Enemy_ArmorAnt:
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$02, $02
-	
+
 Enemy_PinchAnt:
 	dc.w	$0CCA, $0AA8, $0886, $0664, $0442, $0220, $0000, $086E, $030C, $0308, $068C, $046A, $0248, $0226, $0000 ;0x0 (0x0002411A-0x00024138, Entry count: 0x0000001E)
 	dc.l	Battle_AntArt
@@ -39885,7 +39885,7 @@ Enemy_PinchAnt:
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$03, $03
-	
+
 Enemy_Mosquito:
 	dc.w	$0000, $0020, $0064, $0086, $00A8, $00EC, $0204, $0428, $066C, $0802, $0C06, $0000, $0888, $0EEE, $0000 ;0x0 (0x0002415A-0x00024178, Entry count: 0x0000001E)
 	dc.l	Battle_MosquitoArt
@@ -39895,7 +39895,7 @@ Enemy_Mosquito:
 	dc.b	SFXID_MosquitoAttack, SFXID_MosquitoAttack
 	dc.l	Battle_MosquitoMap
 	dc.b	$04, $04
-	
+
 Enemy_Waspy:
 	dc.w	$0000, $0024, $0066, $028A, $04AC, $08EE, $0040, $0262, $06C6, $0620, $0862, $0000, $0488, $0CEE, $0000 ;0x0 (0x0002419A-0x000241B8, Entry count: 0x0000001E)
 	dc.l	Battle_MosquitoArt
@@ -39905,7 +39905,7 @@ Enemy_Waspy:
 	dc.b	SFXID_MosquitoAttack, SFXID_MosquitoAttack
 	dc.l	Battle_MosquitoMap
 	dc.b	$05, $05
-	
+
 Enemy_Stinger:
 	dc.w	$0000, $0220, $0664, $0886, $0AA8, $0EEC, $0604, $0A26, $0A6C, $0408, $060C, $0000, $0864, $0ECA, $0000 ;0x0 (0x000241DA-0x000241F8, Entry count: 0x0000001E)
 	dc.l	Battle_MosquitoArt
@@ -39915,7 +39915,7 @@ Enemy_Stinger:
 	dc.b	SFXID_MosquitoAttack, SFXID_MosquitoAttack
 	dc.l	Battle_MosquitoMap
 	dc.b	$06, $06
-	
+
 Enemy_Spinner:
 	dc.w	$0EEE, $0EAC, $0C8A, $0A68, $0846, $0624, $0402, $06EE, $00EE, $02CE, $009E, $0220, $0440, $0660, $0000 ;0x0 (0x0002421A-0x00024238, Entry count: 0x0000001E)
 	dc.l	Battle_SpinnerArt
@@ -39925,7 +39925,7 @@ Enemy_Spinner:
 	dc.b	SFXID_SpinnerAttack, SFXID_SpinnerAttack
 	dc.l	Battle_SpinnerMap
 	dc.b	$07, $07
-	
+
 Enemy_Vortex:
 	dc.w	$0EEE, $0AEA, $08C8, $06A6, $0484, $0262, $0040, $004E, $000E, $000C, $000A, $0220, $0440, $0660, $0000 ;0x0 (0x0002425A-0x00024278, Entry count: 0x0000001E)
 	dc.l	Battle_SpinnerArt
@@ -39935,7 +39935,7 @@ Enemy_Vortex:
 	dc.b	SFXID_SpinnerAttack, SFXID_SpinnerAttack
 	dc.l	Battle_SpinnerMap
 	dc.b	$08, $08
-	
+
 Enemy_Whirly:
 	dc.w	$0EEE, $0CCE, $0AAE, $088E, $066E, $024E, $000C, $0AEA, $06C6, $0484, $0060, $0220, $0440, $0660, $0000 ;0x0 (0x0002429A-0x000242B8, Entry count: 0x0000001E)
 	dc.l	Battle_SpinnerArt
@@ -39945,7 +39945,7 @@ Enemy_Whirly:
 	dc.b	SFXID_SpinnerAttack, SFXID_SpinnerAttack
 	dc.l	Battle_SpinnerMap
 	dc.b	$09, $09
-	
+
 Enemy_Bee:
 	dc.w	$0000, $0240, $0682, $0AC6, $0ECC, $0EEE, $000C, $0006, $0204, $0406, $082A, $0222, $0666, $0AAA, $0A8C ;0x0 (0x000242DA-0x000242F8, Entry count: 0x0000001E)
 	dc.l	Battle_BeeArt
@@ -39955,7 +39955,7 @@ Enemy_Bee:
 	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_BeeMap
 	dc.b	$0A, $0A
-	
+
 Enemy_Buzzer:
 	dc.w	$0000, $0226, $066A, $08AC, $0CCE, $0EEE, $0864, $0620, $0402, $0644, $0A68, $0222, $0666, $0AAA, $0C8A ;0x0 (0x0002431A-0x00024338, Entry count: 0x0000001E)
 	dc.l	Battle_BeeArt
@@ -39975,7 +39975,7 @@ Enemy_Insecta:
 	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_BeeMap
 	dc.b	$0C, $0C
-	
+
 Enemy_Poisoner:
 	dc.w	$0CCE, $08CA, $06A8, $0486, $0264, $0042, $006E, $0CCC, $0AAA, $0888, $0666, $0444, $0AAE, $066A, $0226 ;0x0 (0x0002439A-0x000243B8, Entry count: 0x0000001E)
 	dc.l	Battle_PoisonerArt
@@ -39985,7 +39985,7 @@ Enemy_Poisoner:
 	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_PoisonerMap
 	dc.b	$0D, $0D
-	
+
 Enemy_Spitkill:
 	dc.w	$0EEE, $0CA8, $0A86, $0864, $0642, $0420, $006E, $0ACC, $08AA, $0688, $0466, $0244, $0AAE, $066A, $0226 ;0x0 (0x000243DA-0x000243F8, Entry count: 0x0000001E)
 	dc.l	Battle_PoisonerArt
@@ -39995,17 +39995,17 @@ Enemy_Spitkill:
 	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_PoisonerMap
 	dc.b	$0E, $0E
-	
+
 Enemy_Spitfang:
 	dc.b	$0E, $AE, $0C, $8C, $0A, $6A, $08, $48, $06, $26, $04, $04, $00, $80, $0A, $A8
 	dc.b	$08, $86, $06, $64, $04, $42, $02, $20, $0A, $AE, $06, $6A, $02, $26 ;0x0 (0x0002441A-0x00024438, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_PoisonerArt	
+	dc.l	Battle_PoisonerArt
 	dc.b	$00, $B6, $00, $C2, $00, $31, $00, $1C, $20, $4A, $00, $42, $04, $33, $0C, $99
 	dc.b	$0F, $03, $64, $0C, $64, $0C
 	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_PoisonerMap
 	dc.b	$0F, $0F
-	
+
 Enemy_HitTail:
 	dc.w	$0224, $0226, $0448, $066A, $0AAD, $0EEE, $0666, $0688, $0000, $0204, $0406, $060A, $0620, $0A60, $0000 ;0x0 (0x0002445A-0x00024478, Entry count: 0x0000001E)
 	dc.l	Battle_HitTailArt
@@ -40015,7 +40015,7 @@ Enemy_HitTail:
 	dc.b	SFXID_FireAntAttack, SFXID_VanAttack
 	dc.l	Battle_HitTailMap
 	dc.b	$10, $10
-	
+
 Enemy_Center:
 	dc.w	$0024, $0246, $0468, $068A, $08AC, $0AEE, $0446, $0E20, $0EA0, $0420, $0864, $0CA8, $000E, $008E, $0000 ;0x0 (0x0002449A-0x000244B8, Entry count: 0x0000001E)
 	dc.l	Battle_HitTailArt
@@ -40025,7 +40025,7 @@ Enemy_Center:
 	dc.b	SFXID_FireAntAttack, SFXID_VanAttack
 	dc.l	Battle_HitTailMap
 	dc.b	$11, $11
-	
+
 Enemy_Scaly:
 	dc.w	$0222, $0444, $0666, $0AAA, $0CCC, $0EEE, $0664, $004E, $00CE, $0044, $0088, $00CC, $0006, $060E, $0000 ;0x0 (0x000244DA-0x000244F8, Entry count: 0x0000001E)
 	dc.l	Battle_HitTailArt
@@ -40035,7 +40035,7 @@ Enemy_Scaly:
 	dc.b	SFXID_FireAntAttack, SFXID_VanAttack
 	dc.l	Battle_HitTailMap
 	dc.b	$12, $12
-	
+
 Enemy_Froggy:
 	dc.w	$0CE0, $0AC0, $08A0, $0680, $0460, $0240, $0020, $0022, $0044, $0066, $00CC, $020E, $020A, $0206, $0000 ;0x0 (0x0002451A-0x00024538, Entry count: 0x0000001E)
 	dc.l	Battle_FroggyArt
@@ -40045,7 +40045,7 @@ Enemy_Froggy:
 	dc.b	SFXID_FireAntAttack, SFXID_MosquitoAttack
 	dc.l	Battle_FroggyMap
 	dc.b	$13, $13
-	
+
 Enemy_Toader:
 	dc.w	$0E0A, $0C08, $0A06, $0804, $0602, $0400, $0200, $0240, $0460, $08A0, $0AC0, $020E, $020A, $0206, $0000 ;0x0 (0x0002455A-0x00024578, Entry count: 0x0000001E)
 	dc.l	Battle_FroggyArt
@@ -40055,7 +40055,7 @@ Enemy_Toader:
 	dc.b	SFXID_FireAntAttack, SFXID_AmoebaAttack
 	dc.l	Battle_FroggyMap
 	dc.b	$14, $14
-	
+
 Enemy_Squat:
 	dc.w	$0EAE, $0C8C, $0A6A, $0848, $0626, $0404, $0202, $0400, $0600, $0A00, $0C00, $020E, $020A, $0206, $0000 ;0x0 (0x0002459A-0x000245B8, Entry count: 0x0000001E)
 	dc.l	Battle_FroggyArt
@@ -40065,7 +40065,7 @@ Enemy_Squat:
 	dc.b	SFXID_FireAntAttack, SFXID_MosquitoAttack
 	dc.l	Battle_FroggyMap
 	dc.b	$15, $15
-	
+
 Enemy_Carrier:
 	dc.w	$0002, $0204, $0406, $0608, $082A, $0A4C, $0C6E, $00EE, $00AE, $006A, $0026, $000E, $0008, $0004, $0000 ;0x0 (0x000245DA-0x000245F8, Entry count: 0x0000001E)
 	dc.l	Battle_CarrierArt
@@ -40075,7 +40075,7 @@ Enemy_Carrier:
 	dc.b	SFXID_FireAntAttack, SFXID_FireAntAttack
 	dc.l	Battle_CarrierMap
 	dc.b	$16, $16
-	
+
 Enemy_Mushroom:
 	dc.w	$0002, $0204, $0406, $0608, $082A, $0A4C, $0C6E, $00EE, $00AE, $006A, $0026, $000E, $0008, $0004, $0000 ;0x0 (0x0002461A-0x00024638, Entry count: 0x0000001E)
 	dc.l	Battle_CarrierArt
@@ -40085,7 +40085,7 @@ Enemy_Mushroom:
 	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_CarrierMap
 	dc.b	$17, $17
-	
+
 Enemy_HeadRot:
 	dc.w	$0002, $0204, $0406, $0608, $082A, $0A4C, $0C6E, $00EE, $00AE, $006A, $0026, $000E, $0008, $0004, $0000 ;0x0 (0x0002465A-0x00024678, Entry count: 0x0000001E)
 	dc.l	Battle_CarrierArt
@@ -40095,7 +40095,7 @@ Enemy_HeadRot:
 	dc.b	SFXID_BlasterAttack, SFXID_BlasterAttack
 	dc.l	Battle_CarrierMap
 	dc.b	$18, $18
-	
+
 Enemy_Whistle:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $008E, $00CE, $04AC, $028A, $0A40, $000E ;0x0 (0x0002469A-0x000246B8, Entry count: 0x0000001E)
 	dc.l	Battle_WhistleArt
@@ -40105,7 +40105,7 @@ Enemy_Whistle:
 	dc.b	SFXID_WhistleAttack, SFXID_Whip
 	dc.l	Battle_WhistleMap
 	dc.b	$19, $19
-	
+
 Enemy_Informer:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0008, $0CCA, $0EEC, $0EEE, $0EA0, $0EC8, $0CA8, $0A84, $0A40, $0E60 ;0x0 (0x000246DA-0x000246F8, Entry count: 0x0000001E)
 	dc.l	Battle_WhistleArt
@@ -40115,7 +40115,7 @@ Enemy_Informer:
 	dc.b	SFXID_WhistleAttack, SFXID_Whip
 	dc.l	Battle_WhistleMap
 	dc.b	$1A, $1A
-	
+
 Enemy_Tracer:
 	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $008E, $00CE, $04AC, $028A, $0A40, $000E ;0x0 (0x0002471A-0x00024738, Entry count: 0x0000001E)
 	dc.l	Battle_WhistleArt
@@ -40125,7 +40125,7 @@ Enemy_Tracer:
 	dc.b	SFXID_WhistleAttack, SFXID_Whip
 	dc.l	Battle_WhistleMap
 	dc.b	$1B, $1B
-	
+
 Enemy_Locust:
 	dc.w	$0000, $0004, $0026, $0048, $006A, $008C, $08CE, $0EEE, $0222, $0468, $06AC, $0226, $044A, $0600, $0E62 ;0x0 (0x0002475A-0x00024778, Entry count: 0x0000001E)
 	dc.l	Battle_LocustArt
@@ -40135,7 +40135,7 @@ Enemy_Locust:
 	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_LocustMap
 	dc.b	$1C, $1C
-	
+
 Enemy_Locusta:
 	dc.w	$0000, $0020, $0260, $04A0, $06C4, $08E8, $0AEC, $0EEE, $0220, $0660, $0CC0, $0444, $0888, $0004, $000A ;0x0 (0x0002479A-0x000247B8, Entry count: 0x0000001E)
 	dc.l	Battle_LocustArt
@@ -40145,7 +40145,7 @@ Enemy_Locusta:
 	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_LocustMap
 	dc.b	$1D, $1D
-	
+
 Enemy_Fanbite:
 	dc.w	$0000, $0402, $0622, $0844, $0A64, $0C84, $0ECA, $0EEE, $0002, $0026, $026A, $0664, $0CCA, $0204, $084C ;0x0 (0x000247DA-0x000247F8, Entry count: 0x0000001E)
 	dc.l	Battle_LocustArt
@@ -40155,7 +40155,7 @@ Enemy_Fanbite:
 	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_LocustMap
 	dc.b	$1E, $1E
-	
+
 Enemy_Amoeba:
 	dc.w	$0200, $0400, $0622, $0844, $0A66, $0C88, $0000, $0000, $000E, $000A, $0006, $0000, $0000, $0000, $0000 ;0x0 (0x0002481A-0x00024838, Entry count: 0x0000001E)
 	dc.l	Battle_AmoebaArt
@@ -40165,7 +40165,7 @@ Enemy_Amoeba:
 	dc.b	SFXID_AmoebaAttack, SFXID_BlasterAttack
 	dc.l	Battle_AmoebaMap
 	dc.b	$1F, $1F
-	
+
 Enemy_Jelly:
 	dc.w	$0200, $0402, $0604, $0806, $0A08, $0C0A, $0000, $0000, $08B0, $000A, $0480, $0040, $0000, $0000, $0000 ;0x0 (0x0002485A-0x00024878, Entry count: 0x0000001E)
 	dc.l	Battle_AmoebaArt
@@ -40175,7 +40175,7 @@ Enemy_Jelly:
 	dc.b	SFXID_AmoebaAttack, SFXID_BlasterAttack
 	dc.l	Battle_AmoebaMap
 	dc.b	$20, $20
-	
+
 Enemy_Slugmess:
 	dc.w	$0CE0, $0AC0, $08A0, $0680, $0460, $0240, $0020, $0022, $0044, $0066, $00CC, $020E, $020A, $0206, $0000 ;0x0 (0x0002489A-0x000248B8, Entry count: 0x0000001E)
 	dc.l	Battle_AmoebaArt
@@ -40185,7 +40185,7 @@ Enemy_Slugmess:
 	dc.b	SFXID_AmoebaAttack, SFXID_BlasterAttack
 	dc.l	Battle_AmoebaMap
 	dc.b	$21, $21
-	
+
 Enemy_Polezi:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $008E, $00CE, $01AC, $028A, $0A40, $000E ;0x0 (0x000248DA-0x000248F8, Entry count: 0x0000001E)
 	dc.l	Battle_PoleziArt
@@ -40195,7 +40195,7 @@ Enemy_Polezi:
 	dc.b	SFXID_PoleziAttack, SFXID_Whip
 	dc.l	Battle_PoleziMap
 	dc.b	$22, $22
-	
+
 Enemy_Poleziax:
 	dc.w	$0000, $0420, $0820, $0C20, $0E40, $0E60, $0EA0, $0EC8, $0EEE, $008E, $00CE, $0AAC, $028A, $0A40, $000E ;0x0 (0x0002491A-0x00024938, Entry count: 0x0000001E)
 	dc.l	Battle_PoleziArt
@@ -40205,7 +40205,7 @@ Enemy_Poleziax:
 	dc.b	SFXID_PoleziAttack, SFXID_Whip
 	dc.l	Battle_PoleziMap
 	dc.b	$23, $23
-	
+
 Enemy_Poleziss:
 	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0EA0, $0EC8, $0AAA, $0666, $0A40, $0E60 ;0x0 (0x0002495A-0x00024978, Entry count: 0x0000001E)
 	dc.l	Battle_PoleziArt
@@ -40215,7 +40215,7 @@ Enemy_Poleziss:
 	dc.b	SFXID_PoleziAttack, SFXID_Whip
 	dc.l	Battle_PoleziMap
 	dc.b	$24, $24
-	
+
 Enemy_Leecher:
 	dc.w	$0000, $0EEE, $06AA, $0488, $0266, $0044, $0022, $0020, $0A8E, $086C, $064A, $0428, $0440, $0880, $0CC0 ;0x0 (0x0002499A-0x000249B8, Entry count: 0x0000001E)
 	dc.l	Battle_LeecherArt
@@ -40225,7 +40225,7 @@ Enemy_Leecher:
 	dc.b	SFXID_BeeAttack, SFXID_BlasterAttack
 	dc.l	Battle_LeecherMap
 	dc.b	$25, $25
-	
+
 Enemy_Fang:
 	dc.w	$0000, $0EEE, $0A8C, $086A, $0648, $0426, $0204, $0002, $066E, $044C, $022A, $0008, $000E, $008E, $00EE ;0x0 (0x000249DA-0x000249F8, Entry count: 0x0000001E)
 	dc.l	Battle_LeecherArt
@@ -40235,7 +40235,7 @@ Enemy_Fang:
 	dc.b	SFXID_BeeAttack, SFXID_BlasterAttack
 	dc.l	Battle_LeecherMap
 	dc.b	$26, $26
-	
+
 Enemy_Python:
 	dc.w	$0000, $0EEE, $0CCC, $0AAA, $0888, $0666, $0444, $0222, $0E8E, $0C6C, $0A4A, $0828, $06E6, $04C4, $0484 ;0x0 (0x00024A1A-0x00024A38, Entry count: 0x0000001E)
 	dc.l	Battle_LeecherArt
@@ -40245,40 +40245,40 @@ Enemy_Python:
 	dc.b	SFXID_BeeAttack, SFXID_BlasterAttack
 	dc.l	Battle_LeecherMap
 	dc.b	$27, $27
-	
+
 ; unused
 Enemy_S:
 	dc.b	$0E, $C0, $0C, $A0, $0A, $80, $08, $60, $06, $40, $04, $20, $00, $24, $00, $46
 	dc.b	$00, $8A, $00, $CE, $08, $EE, $00, $0A, $00, $2C, $0E, $EE, $04, $A0 ;0x0 (0x00024A5A-0x00024A78, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_AntArt	
+	dc.l	Battle_AntArt
 	dc.b	$00, $0F, $00, $1B, $00, $0D, $00, $0A, $20, $0B, $00, $0C, $00, $FF, $00, $66
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$28, $28
 
-; unused	
+; unused
 Enemy_K:
 	dc.b	$0A, $EC, $08, $CA, $06, $A8, $04, $86, $02, $64, $00, $42, $00, $04, $00, $26
 	dc.b	$00, $48, $00, $6A, $00, $8C, $04, $24, $06, $46, $0E, $EE, $00, $00 ;0x20
-	dc.l	Battle_AntArt	
+	dc.l	Battle_AntArt
 	dc.b	$00, $3E, $00, $70, $00, $21, $00, $12, $20, $15, $00, $26, $00, $FF, $00, $66
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$29, $29
 
-; unused	
+; unused
 Enemy_H:
 	dc.b	$08, $CE, $06, $AE, $04, $8E, $02, $6E, $00, $4E, $00, $0E, $02, $26, $04, $48
 	dc.b	$06, $6A, $08, $8C, $0A, $AE, $04, $2E, $00, $00, $00, $00, $00, $00 ;0x20
-	dc.l	Battle_AntArt	
+	dc.l	Battle_AntArt
 	dc.b	$00, $98, $01, $12, $00, $37, $00, $24, $20, $22, $00, $53, $00, $FF, $00, $7F
 	dc.b	$0F, $03, $5C, $0C, $5C, $0C
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$2A, $2A
-	
+
 Enemy_Pulser:
 	dc.w	$0000, $0044, $0266, $0488, $06AA, $08CC, $0AEE, $0028, $024A, $046C, $08AE, $0062, $00A8, $02EA, $0000 ;0x0 (0x00024B1A-0x00024B38, Entry count: 0x0000001E)
 	dc.l	Battle_PulserArt
@@ -40288,7 +40288,7 @@ Enemy_Pulser:
 	dc.b	SFXID_PulserAttack, SFXID_BlasterAttack
 	dc.l	Battle_PulserMap
 	dc.b	$2B, $2B
-	
+
 Enemy_Blaster:
 	dc.w	$0000, $0406, $0626, $0846, $0A66, $0C86, $0EC8, $0202, $0224, $0268, $04AE, $0062, $00A8, $02EA, $0000 ;0x0 (0x00024B5A-0x00024B78, Entry count: 0x0000001E)
 	dc.l	Battle_PulserArt
@@ -40298,7 +40298,7 @@ Enemy_Blaster:
 	dc.b	SFXID_PulserAttack, SFXID_BlasterAttack
 	dc.l	Battle_PulserMap
 	dc.b	$2C, $2C
-	
+
 Enemy_Blastoid:
 	dc.w	$0000, $0640, $0662, $0684, $04A6, $04C8, $04EC, $0400, $0620, $0842, $0E86, $0062, $00A8, $02EA, $0000 ;0x0 (0x00024B9A-0x00024BB8, Entry count: 0x0000001E)
 	dc.l	Battle_PulserArt
@@ -40308,7 +40308,7 @@ Enemy_Blastoid:
 	dc.b	SFXID_PulserAttack, SFXID_BlasterAttack
 	dc.l	Battle_PulserMap
 	dc.b	$2D, $2D
-	
+
 Enemy_RotWood:
 	dc.w	$0EE8, $0EA0, $0C80, $0A60, $0840, $0620, $0400, $0000, $046C, $0024, $0004, $06EE, $00AA, $0066, $0022 ;0x0 (0x00024BDA-0x00024BF8, Entry count: 0x0000001E)
 	dc.l	Battle_RotWoodArt
@@ -40318,7 +40318,7 @@ Enemy_RotWood:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_RotWoodMap
 	dc.b	$2E, $2E
-	
+
 Enemy_Blockhed:
 	dc.w	$06CE, $0EAC, $028A, $0048, $0026, $0004, $0002, $0000, $0CC0, $0660, $0220, $0AAA, $0888, $0666, $0222 ;0x0 (0x00024C1A-0x00024C38, Entry count: 0x0000001E)
 	dc.l	Battle_RotWoodArt
@@ -40328,7 +40328,7 @@ Enemy_Blockhed:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_RotWoodMap
 	dc.b	$2F, $2F
-	
+
 Enemy_Firia:
 	dc.w	$06CE, $06AC, $0288, $0066, $0044, $0024, $0002, $0000, $06E6, $0280, $0040, $0C88, $0844, $0422, $0220 ;0x0 (0x00024C5A-0x00024C78, Entry count: 0x0000001E)
 	dc.l	Battle_RotWoodArt
@@ -40338,7 +40338,7 @@ Enemy_Firia:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_RotWoodMap
 	dc.b	$30, $30
-	
+
 Enemy_Wolfang:
 	dc.w	$0EEE, $0ECA, $0CA8, $0A86, $0864, $0642, $0420, $0000, $000C, $004E, $006E, $008E, $00EE, $0004, $000C ;0x0 (0x00024C9A-0x00024CB8, Entry count: 0x0000001E)
 	dc.l	Battle_WolfangArt
@@ -40348,7 +40348,7 @@ Enemy_Wolfang:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_WolfangMap
 	dc.b	$31, $31
-	
+
 Enemy_Burnwolf:
 	dc.w	$0EEE, $08CA, $06A8, $0486, $0264, $0042, $0020, $0000, $0C08, $0C68, $0C88, $0CA8, $0CC8, $0004, $000C ;0x0 (0x00024CDA-0x00024CF8, Entry count: 0x0000001E)
 	dc.l	Battle_WolfangArt
@@ -40358,7 +40358,7 @@ Enemy_Burnwolf:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_WolfangMap
 	dc.b	$32, $32
-	
+
 Enemy_Flarewlf:
 	dc.w	$0EEE, $0CAC, $0A8C, $086C, $064C, $042A, $0208, $0000, $0660, $0680, $06A0, $06C0, $0AE4, $0004, $000C ;0x0 (0x00024D1A-0x00024D38, Entry count: 0x0000001E)
 	dc.l	Battle_WolfangArt
@@ -40368,7 +40368,7 @@ Enemy_Flarewlf:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_WolfangMap
 	dc.b	$33, $33
-	
+
 Enemy_PugHit:
 	dc.w	$0000, $0400, $0620, $0842, $0A64, $0C86, $0EA8, $0ECA, $0EEE, $006E, $0000, $0246, $0468, $08AC, $0000 ;0x0 (0x00024D5A-0x00024D78, Entry count: 0x0000001E)
 	dc.l	Battle_PugHitArt
@@ -40378,7 +40378,7 @@ Enemy_PugHit:
 	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_PugHitMap
 	dc.b	$34, $34
-	
+
 Enemy_PugBrat:
 	dc.w	$0000, $0004, $0006, $0028, $004A, $026C, $048E, $08CE, $0EEE, $0C44, $0200, $0652, $0000, $0CA8, $0000 ;0x0 (0x00024D9A-0x00024DB8, Entry count: 0x0000001E)
 	dc.l	Battle_PugHitArt
@@ -40388,50 +40388,50 @@ Enemy_PugBrat:
 	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_PugHitMap
 	dc.b	$35, $35
-	
+
 Enemy_PugKill:
 	dc.b	$00, $00, $00, $02, $00, $24, $02, $46, $02, $68, $02, $88, $02, $AC, $0A, $EE
 	dc.b	$0E, $EE, $02, $A0, $02, $22, $06, $06, $00, $00, $0E, $6E, $00, $00 ;0x0 (0x00024DDA-0x00024DF8, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_PugHitArt	
+	dc.l	Battle_PugHitArt
 	dc.b	$01, $2E, $01, $1A, $00, $45, $00, $11, $20, $65, $00, $62, $00, $00, $00, $E5
 	dc.b	$0F, $03, $54, $0C, $54, $0C
 	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_PugHitMap
 	dc.b	$36, $36
-	
+
 ; unused
 Enemy_S2:
 	dc.b	$04, $0E, $04, $0C, $04, $0A, $04, $08, $04, $06, $04, $04, $06, $AE, $04, $8C
 	dc.b	$02, $6A, $00, $48, $08, $CC, $06, $AA, $04, $88, $02, $66, $00, $00 ;0x20
-	dc.l	Battle_AntArt	
+	dc.l	Battle_AntArt
 	dc.b	$00, $16, $00, $26, $00, $10, $00, $0E, $20, $1B, $00, $23, $00, $00, $00, $CC
 	dc.b	$0F, $03, $70, $00, $70, $00
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$37, $37
 
-; unused	
+; unused
 Enemy_S3:
 	dc.b	$04, $0E, $04, $0C, $04, $0A, $04, $08, $04, $06, $04, $04, $00, $8E, $00, $6C
 	dc.b	$00, $4A, $00, $28, $0A, $A8, $08, $86, $06, $64, $04, $42, $00, $00 ;0x20
-	dc.l	Battle_AntArt	
+	dc.l	Battle_AntArt
 	dc.b	$00, $41, $00, $6B, $00, $20, $00, $25, $20, $31, $00, $3A, $00, $00, $00, $E5
 	dc.b	$0F, $03, $70, $00, $70, $00
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$38, $38
 
-; unused	
+; unused
 Enemy_S4:
 	dc.b	$04, $0E, $04, $0C, $04, $0A, $04, $08, $04, $06, $04, $04, $04, $8C, $08, $6A
 	dc.b	$06, $48, $04, $26, $00, $EA, $00, $C8, $00, $A6, $00, $86, $00, $00 ;0x20
-	dc.l	Battle_AntArt	
+	dc.l	Battle_AntArt
 	dc.b	$00, $73, $00, $CD, $00, $28, $00, $32, $20, $40, $00, $77, $00, $00, $00, $E5
 	dc.b	$0F, $03, $74, $00, $74, $00
 	dc.b	SFXID_FireAntAttack, SFXID_Whip
 	dc.l	Battle_AntMap
 	dc.b	$39, $39
-	
+
 Enemy_Wireface:
 	dc.w	$0EEE, $0EEC, $0CCA, $0AA8, $0886, $0664, $0442, $0000, $000A, $0800, $0E00, $0E80, $04EE, $008E, $024E ;0x0 (0x00024EDA-0x00024EF8, Entry count: 0x0000001E)
 	dc.l	Battle_WirefaceArt
@@ -40441,7 +40441,7 @@ Enemy_Wireface:
 	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_WirefaceMap
 	dc.b	$3A, $3A
-	
+
 Enemy_Wirehead:
 	dc.w	$0EEE, $0ECE, $0CAC, $0A8A, $0868, $0646, $0424, $0000, $0060, $0800, $0E00, $0E80, $04EE, $00C8, $0294 ;0x0 (0x00024F1A-0x00024F38, Entry count: 0x0000001E)
 	dc.l	Battle_WirefaceArt
@@ -40451,7 +40451,7 @@ Enemy_Wirehead:
 	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_WirefaceMap
 	dc.b	$3B, $3B
-	
+
 Enemy_PodHead:
 	dc.w	$0EEE, $0CEE, $0ACC, $08AA, $0688, $0466, $0244, $0000, $0808, $0800, $0E00, $0E80, $0ECE, $0EAE, $0C4C ;0x0 (0x00024F5A-0x00024F78, Entry count: 0x0000001E)
 	dc.l	Battle_WirefaceArt
@@ -40461,7 +40461,7 @@ Enemy_PodHead:
 	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_WirefaceMap
 	dc.b	$3C, $3C
-	
+
 Enemy_Terakite:
 	dc.w	$0CCA, $0AA8, $0886, $0664, $0442, $0220, $0EEE, $08EE, $0266, $000A, $0008, $004E, $048E, $08CE, $046E ;0x0 (0x00024F9A-0x00024FB8, Entry count: 0x0000001E)
 	dc.l	Battle_TerakiteArt
@@ -40471,7 +40471,7 @@ Enemy_Terakite:
 	dc.b	SFXID_TerakiteAttack, SFXID_WhistleAttack
 	dc.l	Battle_TerakiteMap
 	dc.b	$3D, $3D
-	
+
 Enemy_Reptile:
 	dc.w	$0CEE, $0ACC, $08AA, $0688, $0466, $0244, $0EEE, $008E, $002A, $086C, $064A, $0A8E, $0666, $0AAA, $0888 ;0x0 (0x00024FDA-0x00024FF8, Entry count: 0x0000001E)
 	dc.l	Battle_TerakiteArt
@@ -40481,17 +40481,17 @@ Enemy_Reptile:
 	dc.b	SFXID_TerakiteAttack, SFXID_WhistleAttack
 	dc.l	Battle_TerakiteMap
 	dc.b	$3E, $3E
-	
+
 Enemy_KiteDrgn:
 	dc.b	$0C, $CE, $0A, $AC, $08, $8A, $06, $68, $04, $46, $02, $24, $0E, $EE, $06, $C0
 	dc.b	$00, $40, $04, $0E, $00, $0A, $06, $2E, $0C, $A0, $0E, $E8, $0A, $80 ;0x0 (0x0002501A-0x00025038, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_TerakiteArt	
+	dc.l	Battle_TerakiteArt
 	dc.b	$01, $5F, $01, $DB, $00, $54, $00, $55, $20, $4A, $00, $71, $09, $4C, $00, $CC
 	dc.b	$0F, $03, $54, $14, $54, $14
 	dc.b	SFXID_TerakiteAttack, SFXID_WhistleAttack
 	dc.l	Battle_TerakiteMap
 	dc.b	$3F, $3F
-	
+
 Enemy_FireEye:
 	dc.w	$0204, $024E, $028E, $02CE, $02EE, $0EEE, $0020, $0040, $0262, $0484, $0686, $0CE8, $0A00, $0C20, $0E42 ;0x0 (0x0002505A-0x00025078, Entry count: 0x0000001E)
 	dc.l	Battle_FireEyeArt
@@ -40501,7 +40501,7 @@ Enemy_FireEye:
 	dc.b	SFXID_TerakiteAttack, SFXID_VanAttack
 	dc.l	Battle_FireEyeMap
 	dc.b	$40, $40
-	
+
 Enemy_Glowstik:
 	dc.w	$0402, $0822, $0A42, $0C84, $0EC8, $0EEE, $0002, $0224, $0246, $0468, $068A, $0ACE, $0060, $02A0, $04E0 ;0x0 (0x0002509A-0x000250B8, Entry count: 0x0000001E)
 	dc.l	Battle_FireEyeArt
@@ -40511,7 +40511,7 @@ Enemy_Glowstik:
 	dc.b	SFXID_TerakiteAttack, SFXID_VanAttack
 	dc.l	Battle_FireEyeMap
 	dc.b	$41, $41
-	
+
 Enemy_Forest:
 	dc.w	$0020, $0240, $0280, $02C4, $02E8, $0EEE, $0202, $0424, $0846, $0A66, $0CA8, $0EC8, $008E, $00CE, $04EE ;0x0 (0x000250DA-0x000250F8, Entry count: 0x0000001E)
 	dc.l	Battle_FireEyeArt
@@ -40521,7 +40521,7 @@ Enemy_Forest:
 	dc.b	SFXID_TerakiteAttack, SFXID_VanAttack
 	dc.l	Battle_FireEyeMap
 	dc.b	$42, $42
-	
+
 Enemy_Catman:
 	dc.w	$0000, $0CAA, $0A88, $0866, $0644, $0CEE, $0ACC, $08AA, $0688, $0466, $0000, $0AAE, $0422, $0000, $0000 ;0x0 (0x0002511A-0x00025138, Entry count: 0x0000001E)
 	dc.l	Battle_CatmanArt
@@ -40531,7 +40531,7 @@ Enemy_Catman:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_CatmanMap
 	dc.b	$43, $43
-	
+
 Enemy_Catfang:
 	dc.w	$0000, $0AAE, $088E, $066C, $044A, $0CEE, $0ACC, $08AA, $0688, $0466, $0000, $0AAE, $0226, $0000, $0000 ;0x0 (0x0002515A-0x00025178, Entry count: 0x0000001E)
 	dc.l	Battle_CatmanArt
@@ -40541,7 +40541,7 @@ Enemy_Catfang:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_CatmanMap
 	dc.b	$44, $44
-	
+
 Enemy_Cateye:
 	dc.w	$0000, $00AE, $008E, $006C, $004A, $0CEE, $0ACC, $08AA, $0688, $0466, $0000, $0AAE, $0026, $0000, $0000 ;0x0 (0x0002519A-0x000251B8, Entry count: 0x0000001E)
 	dc.l	Battle_CatmanArt
@@ -40551,7 +40551,7 @@ Enemy_Cateye:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_CatmanMap
 	dc.b	$45, $45
-	
+
 Enemy_Mechoman:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $08EE, $00CE, $008E, $04AC, $0068, $002A ;0x0 (0x000251DA-0x000251F8, Entry count: 0x0000001E)
 	dc.l	Battle_MechomanArt
@@ -40561,7 +40561,7 @@ Enemy_Mechoman:
 	dc.b	SFXID_WhistleAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_MechomanMap
 	dc.b	$46, $46
-	
+
 Enemy_Sonomech:
 	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $08EE, $00CE, $008E, $0AAA, $0888, $002A ;0x0 (0x0002521A-0x00025238, Entry count: 0x0000001E)
 	dc.l	Battle_MechomanArt
@@ -40571,7 +40571,7 @@ Enemy_Sonomech:
 	dc.b	SFXID_WhistleAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_MechomanMap
 	dc.b	$47, $47
-	
+
 Enemy_Attmech:
 	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0ECA, $0EA0, $0E60, $0AAA, $0666, $0800 ;0x0 (0x0002525A-0x00025278, Entry count: 0x0000001E)
 	dc.l	Battle_MechomanArt
@@ -40581,7 +40581,7 @@ Enemy_Attmech:
 	dc.b	SFXID_WhistleAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_MechomanMap
 	dc.b	$48, $48
-	
+
 Enemy_Mazgamma:
 	dc.w	$0EEE, $0CCA, $0AA8, $0886, $0664, $0442, $0000, $0000, $000C, $0800, $0E00, $0E80, $00EE, $008E, $024E ;0x0 (0x0002529A-0x000252B8, Entry count: 0x0000001E)
 	dc.l	Battle_MazgammaArt
@@ -40591,7 +40591,7 @@ Enemy_Mazgamma:
 	dc.b	SFXID_WhistleAttack, SFXID_WhistleAttack
 	dc.l	Battle_MazgammaMap
 	dc.b	$49, $49
-	
+
 Enemy_Firgamma:
 	dc.w	$0EEE, $0CCE, $0AAC, $088A, $0668, $0446, $0224, $0000, $0060, $000A, $000E, $066E, $0EE6, $00C8, $0294 ;0x0 (0x000252DA-0x000252F8, Entry count: 0x0000001E)
 	dc.l	Battle_MazgammaArt
@@ -40601,7 +40601,7 @@ Enemy_Firgamma:
 	dc.b	SFXID_WhistleAttack, SFXID_WhistleAttack
 	dc.l	Battle_MazgammaMap
 	dc.b	$4A, $4A
-	
+
 Enemy_Kilgamma:
 	dc.w	$0EEE, $0CEE, $0ACC, $08AA, $0688, $0466, $0244, $0000, $0808, $0080, $00E2, $00EA, $0EAE, $0C8C, $0C4C ;0x0 (0x0002531A-0x00025338, Entry count: 0x0000001E)
 	dc.l	Battle_MazgammaArt
@@ -40611,7 +40611,7 @@ Enemy_Kilgamma:
 	dc.b	SFXID_WhistleAttack, SFXID_WhistleAttack
 	dc.l	Battle_MazgammaMap
 	dc.b	$4B, $4B
-	
+
 Enemy_Metalman:
 	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0ACA, $0CEC, $0EEE, $0EC8, $0EA0, $0AA8, $0664, $00CE, $000E ;0x0 (0x0002535A-0x00025378, Entry count: 0x0000001E)
 	dc.l	Battle_MetalmanArt
@@ -40621,7 +40621,7 @@ Enemy_Metalman:
 	dc.b	SFXID_PoleziAttack, SFXID_WhistleAttack
 	dc.l	Battle_MetalmanMap
 	dc.b	$4C, $4C
-	
+
 Enemy_TwigMan:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $0EC8, $0EA0, $028A, $0066, $00CE, $000E ;0x0 (0x0002539A-0x000253B8, Entry count: 0x0000001E)
 	dc.l	Battle_MetalmanArt
@@ -40631,7 +40631,7 @@ Enemy_TwigMan:
 	dc.b	SFXID_PoleziAttack, SFXID_WhistleAttack
 	dc.l	Battle_MetalmanMap
 	dc.b	$4D, $4D
-	
+
 Enemy_Twigtall:
 	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0AE6, $06E2, $0AAA, $0888, $0EA0, $000E ;0x0 (0x000253DA-0x000253F8, Entry count: 0x0000001E)
 	dc.l	Battle_MetalmanArt
@@ -40641,7 +40641,7 @@ Enemy_Twigtall:
 	dc.b	SFXID_PoleziAttack, SFXID_WhistleAttack
 	dc.l	Battle_MetalmanMap
 	dc.b	$4E, $4E
-	
+
 Enemy_Cooley61:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $008E, $00CE, $0486, $0264, $00CE, $000E ;0x0 (0x0002541A-0x00025438, Entry count: 0x0000001E)
 	dc.l	Battle_Cooley61Art
@@ -40651,7 +40651,7 @@ Enemy_Cooley61:
 	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_Cooley61Map
 	dc.b	$4F, $4F
-	
+
 Enemy_Monster:
 	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $0E60, $00CE, $0AAA, $0666, $0EA0, $000E ;0x0 (0x0002545A-0x00025478, Entry count: 0x0000001E)
 	dc.l	Battle_Cooley61Art
@@ -40661,7 +40661,7 @@ Enemy_Monster:
 	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_Cooley61Map
 	dc.b	$50, $50
-	
+
 Enemy_Lrgminer:
 	dc.w	$0000, $0020, $0040, $0262, $0484, $06A6, $08C8, $0AEA, $0EEE, $008E, $00CE, $0AAA, $0666, $00CE, $000E ;0x0 (0x0002549A-0x000254B8, Entry count: 0x0000001E)
 	dc.l	Battle_Cooley61Art
@@ -40671,7 +40671,7 @@ Enemy_Lrgminer:
 	dc.b	SFXID_BeeAttack, SFXID_BeeAttack
 	dc.l	Battle_Cooley61Map
 	dc.b	$51, $51
-	
+
 Enemy_Eyesore:
 	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $00CE, $0CCC, $0888, $0666, $0444, $000E ;0x0 (0x000254DA-0x000254F8, Entry count: 0x0000001E)
 	dc.l	Battle_EyesoreArt
@@ -40681,7 +40681,7 @@ Enemy_Eyesore:
 	dc.b	SFXID_PoleziAttack, SFXID_VanAttack
 	dc.l	Battle_EyesoreMap
 	dc.b	$52, $52
-	
+
 Enemy_Hvysolid:
 	dc.w	$0000, $0202, $0242, $0464, $0686, $08A8, $0ACA, $0CAC, $0EEE, $00CE, $0CCC, $0888, $0666, $0444, $000E ;0x0 (0x0002551A-0x00025538, Entry count: 0x0000001E)
 	dc.l	Battle_EyesoreArt
@@ -40691,7 +40691,7 @@ Enemy_Hvysolid:
 	dc.b	SFXID_PoleziAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_EyesoreMap
 	dc.b	$53, $53
-	
+
 Enemy_GunBust:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $00CE, $04AA, $0288, $0044, $0022, $000E ;0x0 (0x0002555A-0x00025578, Entry count: 0x0000001E)
 	dc.l	Battle_EyesoreArt
@@ -40701,7 +40701,7 @@ Enemy_GunBust:
 	dc.b	SFXID_PoleziAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_EyesoreMap
 	dc.b	$54, $54
-	
+
 Enemy_ArmyEye:
 	dc.w	$0000, $0000, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $0CCC, $0888, $0666, $0444, $0060, $000E ;0x0 (0x0002559A-0x000255B8, Entry count: 0x0000001E)
 	dc.l	Battle_ArmyEyeArt
@@ -40711,7 +40711,7 @@ Enemy_ArmyEye:
 	dc.b	SFXID_ArmyEyeAttack, SFXID_BeeAttack
 	dc.l	Battle_ArmyEyeMap
 	dc.b	$55, $55
-	
+
 Enemy_Trcrbase:
 	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0ACA, $0CEC, $0EEE, $0CCC, $0AAA, $0888, $0666, $00CE, $008E ;0x0 (0x000255DA-0x000255F8, Entry count: 0x0000001E)
 	dc.l	Battle_ArmyEyeArt
@@ -40721,7 +40721,7 @@ Enemy_Trcrbase:
 	dc.b	SFXID_ArmyEyeAttack, SFXID_VanAttack
 	dc.l	Battle_ArmyEyeMap
 	dc.b	$56, $56
-	
+
 Enemy_Specter:
 	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0CCC, $0888, $0666, $0444, $00CE, $008E ;0x0 (0x0002561A-0x00025638, Entry count: 0x0000001E)
 	dc.l	Battle_ArmyEyeArt
@@ -40731,7 +40731,7 @@ Enemy_Specter:
 	dc.b	SFXID_ArmyEyeAttack, SFXID_VanAttack
 	dc.l	Battle_ArmyEyeMap
 	dc.b	$57, $57
-	
+
 Enemy_Van:
 	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0ACA, $0CEC, $0EEE, $00CE, $008E, $004E, $002E, $0008, $000E ;0x0 (0x0002565A-0x00025678, Entry count: 0x0000001E)
 	dc.l	Battle_VanArt
@@ -40741,17 +40741,17 @@ Enemy_Van:
 	dc.b	SFXID_VanAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_VanMap
 	dc.b	$58, $58
-	
+
 Enemy_Vanleadr:
 	dc.b	$00, $00, $00, $24, $02, $46, $04, $68, $06, $8A, $08, $AC, $0A, $CE, $0C, $EE
 	dc.b	$0E, $EE, $06, $E2, $00, $C0, $00, $80, $00, $60, $00, $40, $00, $0E ;0x0 (0x0002569A-0x000256B8, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_VanArt	
+	dc.l	Battle_VanArt
 	dc.b	$06, $58, $02, $EB, $00, $6C, $00, $5F, $40, $3F, $00, $EF, $E7, $7F, $08, $33
 	dc.b	$0F, $03, $64, $1C, $64, $1C
 	dc.b	SFXID_VanAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_VanMap
 	dc.b	$59, $59
-	
+
 Enemy_Aerotank:
 	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $0EC8, $0EA0, $0E60, $0C20, $0800, $000E ;0x0 (0x000256DA-0x000256F8, Entry count: 0x0000001E)
 	dc.l	Battle_VanArt
@@ -40761,7 +40761,7 @@ Enemy_Aerotank:
 	dc.b	SFXID_VanAttack, SFXID_ArmyEyeAttack
 	dc.l	Battle_VanMap
 	dc.b	$5A, $5A
-	
+
 Enemy_Orangah:
 	dc.w	$0000, $0EEE, $0E6A, $0C48, $0A26, $0804, $0400, $00AA, $0088, $0066, $0044, $0022, $0002, $0A8E, $000E ;0x0 (0x0002571A-0x00025738, Entry count: 0x0000001E)
 	dc.l	Battle_OrangahArt
@@ -40771,7 +40771,7 @@ Enemy_Orangah:
 	dc.b	SFXID_NeifirstAttack, SFXID_SpinnerAttack
 	dc.l	Battle_OrangahMap
 	dc.b	$5B, $5B
-	
+
 Enemy_Orangoo:
 	dc.w	$0000, $0000, $0EA6, $0C84, $0A62, $0840, $0400, $008E, $006C, $004A, $0028, $0006, $0004, $0E8C, $000E ;0x0 (0x0002575A-0x00025778, Entry count: 0x0000001E)
 	dc.l	Battle_OrangahArt
@@ -40781,7 +40781,7 @@ Enemy_Orangoo:
 	dc.b	SFXID_NeifirstAttack, SFXID_SpinnerAttack
 	dc.l	Battle_OrangahMap
 	dc.b	$5C, $5C
-	
+
 Enemy_Ohx:
 	dc.w	$0000, $0000, $0E8E, $0A6E, $064E, $022E, $0026, $0ACA, $08E8, $0686, $046A, $0242, $0020, $0ECC, $000E ;0x0 (0x0002579A-0x000257B8, Entry count: 0x0000001E)
 	dc.l	Battle_OrangahArt
@@ -40791,7 +40791,7 @@ Enemy_Ohx:
 	dc.b	SFXID_NeifirstAttack, SFXID_SpinnerAttack
 	dc.l	Battle_OrangahMap
 	dc.b	$5D, $5D
-	
+
 Enemy_Mastodon:
 	dc.w	$0EEE, $0000, $000E, $0AAC, $088A, $0668, $0446, $0224, $0008, $026E, $0ACA, $08A8, $0686, $066C, $044A ;0x0 (0x000257DA-0x000257F8, Entry count: 0x0000001E)
 	dc.l	Battle_MastodonArt
@@ -40801,7 +40801,7 @@ Enemy_Mastodon:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_MastodonMap
 	dc.b	$5E, $5E
-	
+
 Enemy_Eletusk:
 	dc.w	$0EEE, $0000, $0008, $0AA6, $0884, $0662, $0440, $0220, $0206, $026E, $0ACC, $08CC, $06AA, $084A, $0628 ;0x0 (0x0002581A-0x00025838, Entry count: 0x0000001E)
 	dc.l	Battle_MastodonArt
@@ -40811,17 +40811,17 @@ Enemy_Eletusk:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_MastodonMap
 	dc.b	$5F, $5F
-	
+
 Enemy_Elephant:
 	dc.b	$0E, $EE, $00, $00, $00, $EE, $08, $CC, $06, $AA, $04, $88, $02, $66, $00, $44
 	dc.b	$02, $0C, $0A, $AE, $0E, $CE, $0C, $AC, $0A, $8A, $04, $8E, $02, $6A ;0x0 (0x0002585A-0x00025878, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_MastodonArt	
+	dc.l	Battle_MastodonArt
 	dc.b	$0D, $3F, $03, $96, $00, $C1, $00, $46, $20, $41, $00, $BB, $00, $00, $00, $B2
 	dc.b	$0F, $03, $6C, $00, $6C, $00
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_MastodonMap
 	dc.b	$60, $60
-	
+
 Enemy_DezoOwl:
 	dc.w	$0EEE, $0AA8, $0662, $0ACA, $08A8, $0486, $0264, $0042, $0020, $0000, $008C, $006A, $0048, $000A, $0024 ;0x0 (0x0002589A-0x000258B8, Entry count: 0x0000001E)
 	dc.l	Battle_DezoOwlArt
@@ -40831,7 +40831,7 @@ Enemy_DezoOwl:
 	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_DezoOwlMap
 	dc.b	$61, $61
-	
+
 Enemy_Skytiara:
 	dc.w	$0EEE, $0ACA, $08A2, $08CA, $08AA, $068A, $046A, $0248, $0024, $0000, $048E, $026E, $004E, $000C, $0028 ;0x0 (0x000258DA-0x000258F8, Entry count: 0x0000001E)
 	dc.l	Battle_DezoOwlArt
@@ -40841,7 +40841,7 @@ Enemy_Skytiara:
 	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_DezoOwlMap
 	dc.b	$62, $62
-	
+
 Enemy_Owltalon:
 	dc.w	$0EEE, $0ACC, $0688, $0EAC, $0C8A, $0A86, $0864, $0642, $0420, $0000, $008E, $006E, $004E, $000E, $000A ;0x0 (0x0002591A-0x00025938, Entry count: 0x0000001E)
 	dc.l	Battle_DezoOwlArt
@@ -40851,7 +40851,7 @@ Enemy_Owltalon:
 	dc.b	SFXID_LocustAttack, SFXID_LocustAttack
 	dc.l	Battle_DezoOwlMap
 	dc.b	$63, $63
-	
+
 Enemy_Rabbit:
 	dc.w	$0EEC, $0CCA, $0AA8, $0886, $0664, $0442, $0220, $008E, $004C, $0A8C, $086A, $0648, $0426, $0000, $0000 ;0x0 (0x0002595A-0x00025978, Entry count: 0x0000001E)
 	dc.l	Battle_RabbitArt
@@ -40861,7 +40861,7 @@ Enemy_Rabbit:
 	dc.b	SFXID_BlasterAttack, SFXID_AmoebaAttack
 	dc.l	Battle_RabbitMap
 	dc.b	$64, $64
-	
+
 Enemy_Rabitta:
 	dc.w	$0EEE, $0CCE, $0AAE, $088C, $066A, $0448, $0226, $0648, $0426, $08A8, $0686, $0464, $0242, $0000, $0000 ;0x0 (0x0002599A-0x000259B8, Entry count: 0x0000001E)
 	dc.l	Battle_RabbitArt
@@ -40871,17 +40871,17 @@ Enemy_Rabitta:
 	dc.b	SFXID_BlasterAttack, SFXID_AmoebaAttack
 	dc.l	Battle_RabbitMap
 	dc.b	$65, $65
-	
+
 Enemy_Rabitgut:
 	dc.b	$0C, $EE, $0A, $EE, $08, $CC, $06, $AA, $04, $88, $02, $66, $00, $44, $04, $AE
 	dc.b	$02, $0A, $08, $8C, $06, $6A, $04, $48, $02, $26, $08, $42, $06, $20 ;0x0 (0x000259DA-0x000259F8, Entry count: 0x0000001E) [Unknown data]
-	dc.l	Battle_RabbitArt	
+	dc.l	Battle_RabbitArt
 	dc.b	$0B, $04, $01, $7C, $00, $74, $00, $10, $20, $55, $00, $CB, $00, $00, $00, $66
 	dc.b	$0F, $07, $64, $0C, $64, $0C
 	dc.b	SFXID_BlasterAttack, SFXID_AmoebaAttack
 	dc.l	Battle_RabbitMap
 	dc.b	$66, $66
-	
+
 Enemy_Wrestler:
 	dc.w	$08CC, $06AA, $0488, $0266, $0044, $0022, $0EEE, $0888, $0000, $0848, $0626, $0404, $0202, $0642, $0420 ;0x0 (0x00025A1A-0x00025A38, Entry count: 0x0000001E)
 	dc.l	Battle_WresterArt
@@ -40891,7 +40891,7 @@ Enemy_Wrestler:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_WresterMap
 	dc.b	$67, $67
-	
+
 Enemy_Sakoff:
 	dc.w	$06C8, $04A6, $0284, $0062, $0040, $0020, $0EEE, $0888, $0CA0, $0A66, $0844, $0622, $0400, $0664, $0442 ;0x0 (0x00025A5A-0x00025A78, Entry count: 0x0000001E)
 	dc.l	Battle_WresterArt
@@ -40901,7 +40901,7 @@ Enemy_Sakoff:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_WresterMap
 	dc.b	$68, $68
-	
+
 Enemy_Mesoman:
 	dc.w	$0AA8, $0886, $0664, $0442, $0220, $0220, $0EEE, $0888, $0000, $026E, $000A, $0006, $0002, $0060, $0040 ;0x0 (0x00025A9A-0x00025AB8, Entry count: 0x0000001E)
 	dc.l	Battle_WresterArt
@@ -40911,7 +40911,7 @@ Enemy_Mesoman:
 	dc.b	SFXID_Whip, SFXID_Whip
 	dc.l	Battle_WresterMap
 	dc.b	$69, $69
-	
+
 Enemy_Lung:
 	dc.w	$0000, $0002, $0024, $0046, $008C, $06CE, $0CEE, $0EEE, $0222, $0666, $0E02, $0EE0, $080E, $000A, $0000 ;0x0 (0x00025ADA-0x00025AF8, Entry count: 0x0000001E)
 	dc.l	Battle_LungArt
@@ -40921,7 +40921,7 @@ Enemy_Lung:
 	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_LungMap
 	dc.b	$6A, $6A
-	
+
 Enemy_Glosword:
 	dc.w	$0000, $0200, $0420, $0640, $0C80, $0EC6, $0EEC, $0EEE, $0202, $0A0A, $008E, $00EC, $08EE, $00E0, $0000 ;0x0 (0x00025B1A-0x00025B38, Entry count: 0x0000001E)
 	dc.l	Battle_LungArt
@@ -40931,7 +40931,7 @@ Enemy_Glosword:
 	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_LungMap
 	dc.b	$6B, $6B
-	
+
 Enemy_Desrona:
 	dc.w	$0000, $0000, $0222, $0444, $0666, $0888, $0AAA, $0EEE, $0026, $006A, $000A, $024E, $0C60, $0A00, $0000 ;0x0 (0x00025B5A-0x00025B78, Entry count: 0x0000001E)
 	dc.l	Battle_LungArt
@@ -40941,7 +40941,7 @@ Enemy_Desrona:
 	dc.b	SFXID_LocustAttack, SFXID_SpinnerAttack
 	dc.l	Battle_LungMap
 	dc.b	$6C, $6C
-	
+
 Enemy_Darkside:
 	dc.w	$0EEE, $0A40, $0820, $0600, $0400, $00EE, $000E, $0004, $00EA, $0AC0, $0680, $0020, $0068, $0626, $0000 ;0x0 (0x00025B9A-0x00025BB8, Entry count: 0x0000001E)
 	dc.l	Battle_DarksideArt
@@ -40951,7 +40951,7 @@ Enemy_Darkside:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_DarksideMap
 	dc.b	$6D, $6D
-	
+
 Enemy_MrDeath:
 	dc.w	$0EEE, $0A8A, $0646, $0424, $0202, $00EE, $00E0, $0040, $022A, $0008, $0004, $0020, $0068, $0626, $0000 ;0x0 (0x00025BDA-0x00025BF8, Entry count: 0x0000001E)
 	dc.l	Battle_DarksideArt
@@ -40961,7 +40961,7 @@ Enemy_MrDeath:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_DarksideMap
 	dc.b	$6E, $6E
-	
+
 Enemy_Shadow:
 	dc.w	$0EEE, $0ECC, $0A66, $0844, $0622, $00EE, $000E, $0004, $08A0, $0860, $0420, $0020, $0068, $0626, $0000 ;0x0 (0x00025C1A-0x00025C38, Entry count: 0x0000001E)
 	dc.l	Battle_DarksideArt
@@ -40971,7 +40971,7 @@ Enemy_Shadow:
 	dc.b	SFXID_NeifirstAttack, SFXID_NeifirstAttack
 	dc.l	Battle_DarksideMap
 	dc.b	$6F, $6F
-	
+
 Enemy_Mystcape:
 	dc.w	$0000, $0224, $0668, $088A, $0DDE, $0844, $0C88, $0ECC, $0EEE, $0042, $0286, $06EA, $00EE, $000E, $0002 ;0x0 (0x00025C5A-0x00025C78, Entry count: 0x0000001E)
 	dc.l	Battle_MystcapeArt
@@ -40991,7 +40991,7 @@ Enemy_Illusnst:
 	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_MystcapeMap
 	dc.b	$71, $71
-	
+
 Enemy_Imagiomg:
 	dc.w	$0000, $0206, $084A, $0A8C, $0ECE, $0244, $0688, $0ACC, $0EEE, $0006, $022A, $046E, $0EE0, $00E0, $0002 ;0x0 (0x00025CDA-0x00025CF8, Entry count: 0x0000001E)
 	dc.l	Battle_MystcapeArt
@@ -41001,7 +41001,7 @@ Enemy_Imagiomg:
 	dc.b	SFXID_VanAttack, SFXID_VanAttack
 	dc.l	Battle_MystcapeMap
 	dc.b	$72, $72
-	
+
 Enemy_ArchDrgn:
 	dc.w	$0000, $0224, $0446, $0668, $088A, $0AAC, $0EEE, $0ACA, $0686, $00CE, $008E, $004E, $002E, $0008, $008E ;0x0 (0x00025D1A-0x00025D38, Entry count: 0x0000001E)
 	dc.l	Battle_ArchDrgnArt
@@ -41011,7 +41011,7 @@ Enemy_ArchDrgn:
 	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_ArchDrgnMap
 	dc.b	$73, $73
-	
+
 Enemy_Frdragon:
 	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0EEE, $0AAA, $0666, $00CE, $008E, $004E, $002E, $0008, $008E ;0x0 (0x00025D5A-0x00025D78, Entry count: 0x0000001E)
 	dc.l	Battle_ArchDrgnArt
@@ -41021,7 +41021,7 @@ Enemy_Frdragon:
 	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_ArchDrgnMap
 	dc.b	$74, $74
-	
+
 Enemy_Mxdragon:
 	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $0EEE, $0ACA, $0686, $00CE, $008E, $004E, $002E, $0008, $008E ;0x0 (0x00025D9A-0x00025DB8, Entry count: 0x0000001E)
 	dc.l	Battle_ArchDrgnArt
@@ -41031,7 +41031,7 @@ Enemy_Mxdragon:
 	dc.b	SFXID_TerakiteAttack, SFXID_TerakiteAttack
 	dc.l	Battle_ArchDrgnMap
 	dc.b	$75, $75
-	
+
 Enemy_Firefall:
 	dc.w	$0EEE, $08EE, $00CE, $00AE, $008E, $006E, $002E, $000A, $0006, $0002, $04A0, $0480, $0260, $0040, $0000 ;0x0 (0x00025DDA-0x00025DF8, Entry count: 0x0000001E)
 	dc.l	Battle_FirefallArt
@@ -41041,7 +41041,7 @@ Enemy_Firefall:
 	dc.b	SFXID_FireAntAttack, SFXID_TerakiteAttack
 	dc.l	Battle_FirefallMap
 	dc.b	$76, $76
-	
+
 Enemy_Vorcano:
 	dc.w	$0EEE, $0AE4, $08C0, $06C0, $04C0, $02A0, $0080, $0060, $0040, $0020, $006E, $000E, $000C, $0008, $0000 ;0x0 (0x00025E1A-0x00025E38, Entry count: 0x0000001E)
 	dc.l	Battle_FirefallArt
@@ -41051,7 +41051,7 @@ Enemy_Vorcano:
 	dc.b	SFXID_FireAntAttack, SFXID_TerakiteAttack
 	dc.l	Battle_FirefallMap
 	dc.b	$77, $77
-	
+
 Enemy_Kinglava:
 	dc.w	$0EEE, $0EA8, $0E6A, $0E48, $0E26, $0E04, $0C00, $0A00, $0600, $0400, $000E, $000A, $0006, $0002, $0000 ;0x0 (0x00025E5A-0x00025E78, Entry count: 0x0000001E)
 	dc.l	Battle_FirefallArt
@@ -41061,7 +41061,7 @@ Enemy_Kinglava:
 	dc.b	SFXID_FireAntAttack, SFXID_TerakiteAttack
 	dc.l	Battle_FirefallMap
 	dc.b	$78, $78
-	
+
 Enemy_Wizard:
 	dc.w	$0EEE, $022E, $0C42, $0888, $0666, $0444, $0222, $000C, $000A, $0008, $0006, $0004, $0002, $0CA0, $0000 ;0x0 (0x00025E9A-0x00025EB8, Entry count: 0x0000001E)
 	dc.l	Battle_WizardArt
@@ -41071,7 +41071,7 @@ Enemy_Wizard:
 	dc.b	SFXID_PoleziAttack, SFXID_TerakiteAttack
 	dc.l	Battle_WizardMap
 	dc.b	$79, $79
-	
+
 Enemy_Capeone:
 	dc.w	$0EEE, $0CA0, $06A0, $08AA, $0688, $0466, $0244, $0A80, $0860, $0640, $0420, $0200, $0000, $0CE8, $0000 ;0x0 (0x00025EDA-0x00025EF8, Entry count: 0x0000001E)
 	dc.l	Battle_WizardArt
@@ -41081,7 +41081,7 @@ Enemy_Capeone:
 	dc.b	SFXID_PoleziAttack, SFXID_TerakiteAttack
 	dc.l	Battle_WizardMap
 	dc.b	$7A, $7A
-	
+
 Enemy_Fiend:
 	dc.w	$0EEE, $06C0, $022E, $088A, $0668, $0446, $0224, $04A0, $0280, $0060, $0040, $0020, $0000, $066E, $0000 ;0x0 (0x00025F1A-0x00025F38, Entry count: 0x0000001E)
 	dc.l	Battle_WizardArt
@@ -41091,7 +41091,7 @@ Enemy_Fiend:
 	dc.b	SFXID_PoleziAttack, SFXID_TerakiteAttack
 	dc.l	Battle_WizardMap
 	dc.b	$7B, $7B
-	
+
 Enemy_Neifirst:
 	dc.w	$0AE0, $0EC0, $0CA0, $0A80, $0860, $0640, $0420, $0E44, $0E22, $0A00, $0800, $0EEE, $0600, $0400, $0000 ;0x0 (0x00025F5A-0x00025F78, Entry count: 0x0000001E)
 	dc.l	Battle_NeifirstArt
@@ -41101,7 +41101,7 @@ Enemy_Neifirst:
 	dc.b	SFXID_NeifirstAttack, SFXID_Whip
 	dc.l	Battle_NeifirstMap
 	dc.b	$7C, $7C
-	
+
 Enemy_DarkFrce:
 	dc.w	$0000, $0220, $0440, $0660, $0880, $0AA0, $0CC0, $0EE0, $0EE8, $0EEE, $088E, $0620, $0C80, $0008, $0000 ;0x0 (0x00025F9A-0x00025FB8, Entry count: 0x0000001E)
 	dc.l	Battle_DarkFrceArt
@@ -41111,7 +41111,7 @@ Enemy_DarkFrce:
 	dc.b	SFXID_WhistleAttack, SFXID_PoleziAttack
 	dc.l	Battle_DarkFrceMap
 	dc.b	$7D, $7D
-	
+
 Enemy_Mombrain:
 	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ;0x0 (0x00025FDA-0x00025FF8, Entry count: 0x0000001E)
 	dc.l	Battle_MombrainArt
@@ -41122,7 +41122,7 @@ Enemy_Mombrain:
 	dc.l	Battle_MombrainMap
 	dc.b	$7E, $7E
 ; ==========================================================================
-	
+
 ; ==========================================================================
 loc_2601A:
 	dc.w	loc_26518-loc_2601A
@@ -41835,7 +41835,7 @@ loc_26518:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_2654A:
 	dc.b	$07
 	dc.b	$08
@@ -41851,7 +41851,7 @@ loc_2654A:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26556:
 	dc.b	$07
 	dc.b	$0B
@@ -41867,9 +41867,9 @@ loc_26556:
 	dc.b	$07
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26564:
 	dc.b	$0F
 	dc.b	$10
@@ -41877,7 +41877,7 @@ loc_26564:
 	dc.b	$12
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2656A:
 	dc.b	$01
 	dc.b	$02
@@ -41885,7 +41885,7 @@ loc_2656A:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_2656E:
 	dc.b	$01
 	dc.b	$02
@@ -41907,7 +41907,7 @@ loc_2656E:
 	dc.b	$03
 	dc.b	$02
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26582:
 	dc.b	$01
 	dc.b	$02
@@ -41927,7 +41927,7 @@ loc_26588:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26590:
 	dc.b	$06
 	dc.b	$EF
@@ -41937,9 +41937,9 @@ loc_26590:
 	dc.b	$0A
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26598:
 	dc.b	$0B, $0B
 	dc.b	$0C, $0C
@@ -41950,7 +41950,7 @@ loc_26598:
 	dc.b	$0C, $0C
 	dc.b	$0B, $0B
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_265A6:
 	dc.b	$01
 	dc.b	$02
@@ -41962,9 +41962,9 @@ loc_265A6:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_265B0:
 	dc.b	$01
 	dc.b	$02
@@ -41983,9 +41983,9 @@ loc_265B0:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_265C2:
 	dc.b	$07
 	dc.b	$08
@@ -41993,15 +41993,15 @@ loc_265C2:
 	dc.b	$0A
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_265C8:
 	dc.b	$01, $01
 	dc.b	$02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_265CE:
 	dc.b	$03
 	dc.b	$04
@@ -42024,9 +42024,9 @@ loc_265CE:
 	dc.b	$02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_265E4:
 	dc.b	$03
 	dc.b	$04
@@ -42049,9 +42049,9 @@ loc_265E4:
 	dc.b	$02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_265FA:
 	dc.b	$0A
 	dc.b	$0B
@@ -42061,9 +42061,9 @@ loc_265FA:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26602:
 	dc.b	$01
 	dc.b	$02
@@ -42071,9 +42071,9 @@ loc_26602:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26608:
 	dc.b	$01
 	dc.b	$02
@@ -42095,7 +42095,7 @@ loc_26608:
 	dc.b	$0B
 	dc.b	$0C
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2661C:
 	dc.b	$01
 	dc.b	$02
@@ -42120,9 +42120,9 @@ loc_2661C:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26634:
 	dc.b	$11
 	dc.b	$12
@@ -42138,17 +42138,17 @@ loc_26634:
 	dc.b	$F8
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26642:
 	dc.b	$01, $01, $01
 	dc.b	$02, $02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_2664A:
 	dc.b	$01, $01
 	dc.b	$10
@@ -42165,7 +42165,7 @@ loc_2664A:
 	dc.b	$10
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2665A:
 	dc.b	$01
 	dc.b	$09, $09
@@ -42184,7 +42184,7 @@ loc_2665A:
 	dc.b	$09
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26672:
 	dc.b	$01
 	dc.b	$02
@@ -42204,9 +42204,9 @@ loc_26672:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26684:
 	dc.b	$01
 	dc.b	$09, $09
@@ -42225,7 +42225,7 @@ loc_26684:
 	dc.b	$09
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2669C:
 	dc.b	$01, $01
 	dc.b	$02, $02
@@ -42245,14 +42245,14 @@ loc_2669C:
 	dc.b	$03, $03
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_266C0:
 	dc.b	$06, $06, $06, $06, $06, $06, $06, $06, $06, $06
 	dc.b	$07
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_266CC:
 	dc.b	$0C
 	dc.b	$0D
@@ -42274,9 +42274,9 @@ loc_266CC:
 	dc.b	$0F
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_266E0:
 	dc.b	$01
 	dc.b	$02
@@ -42297,9 +42297,9 @@ loc_266E0:
 	dc.b	$03
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_266F4:
 	dc.b	$06, $06
 	dc.b	$08, $08
@@ -42319,9 +42319,9 @@ loc_266F4:
 	dc.b	$06, $06
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_2670A:
 	dc.b	$0C
 	dc.b	$11
@@ -42355,7 +42355,7 @@ loc_2670A:
 	dc.b	$11
 	dc.b	$0C
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26732:
 	dc.b	$01
 	dc.b	$02
@@ -42365,7 +42365,7 @@ loc_26732:
 	dc.b	$06
 	dc.b	$08
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2673A:
 	dc.b	$01
 	dc.b	$02
@@ -42379,7 +42379,7 @@ loc_2673A:
 	dc.b	$F0
 	dc.b	$0C, $0C, $0C
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26748:
 	dc.b	$01
 	dc.b	$0D
@@ -42393,7 +42393,7 @@ loc_26748:
 	dc.b	$0E
 	dc.b	$0D
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26756:
 	dc.b	$12
 	dc.b	$13
@@ -42407,7 +42407,7 @@ loc_26756:
 	dc.b	$1B
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26762:
 	dc.b	$1C
 	dc.b	$1D
@@ -42419,15 +42419,15 @@ loc_26762:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_2676A:
 	dc.b	$01, $01, $01
 	dc.b	$0A, $0A, $0A
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26772:
 	dc.b	$01
 	dc.b	$02
@@ -42437,7 +42437,7 @@ loc_26772:
 	dc.b	$05
 	dc.b	$01, $01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2677E:
 	dc.b	$01
 	dc.b	$02
@@ -42448,7 +42448,7 @@ loc_2677E:
 	dc.b	$F0
 	dc.b	$09, $09, $09
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2678C:
 	dc.b	$01
 	dc.b	$02
@@ -42459,7 +42459,7 @@ loc_2678C:
 	dc.b	$EF
 	dc.b	$09, $09, $09
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2679A:
 	dc.b	$0B
 	dc.b	$0C
@@ -42473,7 +42473,7 @@ loc_2679A:
 	dc.b	$FD
 	dc.b	$14
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_267A6:
 	dc.b	$0B
 	dc.b	$0C
@@ -42495,9 +42495,9 @@ loc_267B2:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_267B8:
 	dc.b	$01
 	dc.b	$02
@@ -42513,7 +42513,7 @@ loc_267B8:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_267C6:
 	dc.b	$01
 	dc.b	$02
@@ -42540,7 +42540,7 @@ loc_267D4:
 	dc.b	$0E
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_267DE:
 	dc.b	$00, $00
 	dc.b	$0F
@@ -42553,7 +42553,7 @@ loc_267DE:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_267E8:
 	dc.b	$00, $00
 	dc.b	$13
@@ -42564,17 +42564,17 @@ loc_267E8:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_267F2:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_267F6:
 	dc.b	$01
 	dc.b	$08
@@ -42588,7 +42588,7 @@ loc_267F6:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26806:
 	dc.b	$01
 	dc.b	$03
@@ -42604,9 +42604,9 @@ loc_26806:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26814:
 	dc.b	$0D
 	dc.b	$0E
@@ -42622,7 +42622,7 @@ loc_26814:
 	dc.b	$0F
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26822:
 	dc.b	$03
 	dc.b	$02
@@ -42632,7 +42632,7 @@ loc_26822:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26828:
 	dc.b	$03
 	dc.b	$02
@@ -42650,7 +42650,7 @@ loc_26828:
 	dc.b	$F0
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26838:
 	dc.b	$03
 	dc.b	$0E
@@ -42668,25 +42668,25 @@ loc_26838:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26848:
 	dc.b	$00, $00
 	dc.b	$19, $19, $19, $19, $19
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26852:
 	dc.b	$00, $00
 	dc.b	$1A, $1A, $1A, $1A
 	dc.b	$1B, $1B, $1B, $1B
 	dc.b	$F8
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2685E:
 	dc.b	$09
 	dc.b	$0A
@@ -42694,9 +42694,9 @@ loc_2685E:
 	dc.b	$0A
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26864:
 	dc.b	$0F
 	dc.b	$10
@@ -42704,9 +42704,9 @@ loc_26864:
 	dc.b	$10
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_2686A:
 	dc.b	$01
 	dc.b	$02
@@ -42714,9 +42714,9 @@ loc_2686A:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26870:
 	dc.b	$F0
 	dc.b	$0C
@@ -42728,7 +42728,7 @@ loc_26870:
 	dc.b	$0E
 	dc.b	$0A
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2687A:
 	dc.b	$F0
 	dc.b	$12
@@ -42756,7 +42756,7 @@ loc_2687A:
 	dc.b	$14
 	dc.b	$13
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26894:
 	dc.b	$F0
 	dc.b	$05
@@ -42772,7 +42772,7 @@ loc_26894:
 	dc.b	$07
 	dc.b	$08
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_268A2:
 	dc.b	$15, $15
 	dc.b	$16, $16
@@ -42783,9 +42783,9 @@ loc_268A2:
 	dc.b	$00
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_268B0:
 	dc.b	$15, $15
 	dc.b	$16, $16
@@ -42805,7 +42805,7 @@ loc_268B0:
 	dc.b	$19
 	dc.b	$16
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_268CA:
 	dc.b	$15, $15
 	dc.b	$16, $16
@@ -42814,19 +42814,19 @@ loc_268CA:
 	dc.b	$19
 	dc.b	$1A, $1A, $1A, $1A, $1A, $1A
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_268D8:
 	dc.b	$1A
 	dc.b	$1B
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_268DC:
 	dc.b	$1A
 	dc.b	$1B
 	dc.b	$F8
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_268E0:
 	dc.b	$01, $01
 	dc.b	$02, $02
@@ -42834,9 +42834,9 @@ loc_268E0:
 	dc.b	$02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_268EA:
 	dc.b	$01
 	dc.b	$02
@@ -42854,7 +42854,7 @@ loc_268EA:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_268FA:
 	dc.b	$01
 	dc.b	$02
@@ -42893,7 +42893,7 @@ loc_2690A:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_2691C:
 	dc.b	$09
 	dc.b	$0A
@@ -42907,7 +42907,7 @@ loc_2691C:
 	dc.b	$10
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26928:
 	dc.b	$11
 	dc.b	$12
@@ -42921,21 +42921,21 @@ loc_26928:
 	dc.b	$F8
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26934:
 	dc.b	$00
 	dc.b	$1A
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26938:
 	dc.b	$00
 	dc.b	$1B
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2693C:
 	dc.b	$01
 	dc.b	$02
@@ -42943,9 +42943,9 @@ loc_2693C:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26942:
 	dc.b	$01
 	dc.b	$04
@@ -42958,9 +42958,9 @@ loc_26942:
 	dc.b	$09
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26950:
 	dc.b	$01
 	dc.b	$02
@@ -42974,7 +42974,7 @@ loc_26950:
 	dc.b	$02
 	dc.b	$03
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_2695C:
 	dc.b	$01
 	dc.b	$02
@@ -42988,9 +42988,9 @@ loc_2695C:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_2696A:
 	dc.b	$01
 	dc.b	$02
@@ -43004,9 +43004,9 @@ loc_2696A:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26978:
 	dc.b	$08
 	dc.b	$09
@@ -43016,7 +43016,7 @@ loc_26978:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_2697E:
 	dc.b	$08
 	dc.b	$09
@@ -43024,17 +43024,17 @@ loc_2697E:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26984:
 	dc.b	$01, $01
 	dc.b	$02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_2698A:
 	dc.b	$01
 	dc.b	$02
@@ -43046,9 +43046,9 @@ loc_2698A:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_2699C:
 	dc.b	$01
 	dc.b	$02
@@ -43064,7 +43064,7 @@ loc_2699C:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_269AE:
 	dc.b	$00, $00
 	dc.b	$0E
@@ -43079,9 +43079,9 @@ loc_269AE:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_269C2:
 	dc.b	$00, $00
 	dc.b	$0E, $0E
@@ -43097,17 +43097,17 @@ loc_269C2:
 	dc.b	$F8
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_269D6:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_269DA:
 	dc.b	$01
 	dc.b	$02
@@ -43122,9 +43122,9 @@ loc_269DA:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_269EC:
 	dc.b	$01
 	dc.b	$02
@@ -43139,9 +43139,9 @@ loc_269EC:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_269FA:
 	dc.b	$06
 	dc.b	$07
@@ -43151,7 +43151,7 @@ loc_269FA:
 	dc.b	$07
 	dc.b	$06
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A02:
 	dc.b	$09
 	dc.b	$0A
@@ -43159,7 +43159,7 @@ loc_26A02:
 	dc.b	$0C
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A08:
 	dc.b	$0D
 	dc.b	$0E
@@ -43167,19 +43167,19 @@ loc_26A08:
 	dc.b	$10
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A0E:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26A12:
 	dc.b	$F0
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A14:
 	dc.b	$03
 	dc.b	$04
@@ -43200,17 +43200,17 @@ loc_26A14:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26A2C:
 	dc.b	$01, $01
 	dc.b	$02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26A32:
 	dc.b	$01, $01
 	dc.b	$02, $02
@@ -43222,7 +43222,7 @@ loc_26A32:
 	dc.b	$03, $03
 	dc.b	$04, $04
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A44:
 	dc.b	$01
 	dc.b	$02
@@ -43234,7 +43234,7 @@ loc_26A44:
 	dc.b	$03
 	dc.b	$04
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A4E:
 	dc.b	$05
 	dc.b	$06
@@ -43250,9 +43250,9 @@ loc_26A4E:
 	dc.b	$07
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26A5C:
 	dc.b	$0A
 	dc.b	$0B
@@ -43264,7 +43264,7 @@ loc_26A5C:
 	dc.b	$0E
 	dc.b	$0F
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26A66:
 	dc.b	$01
 	dc.b	$02, $02
@@ -43274,7 +43274,7 @@ loc_26A66:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26A70:
 	dc.b	$01
 	dc.b	$02, $02
@@ -43287,7 +43287,7 @@ loc_26A70:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26A80:
 	dc.b	$01
 	dc.b	$02, $02
@@ -43298,7 +43298,7 @@ loc_26A80:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26A92:
 	dc.b	$11, $11
 	dc.b	$12, $12
@@ -43311,10 +43311,10 @@ loc_26A92:
 	dc.b	$18
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26AA0:
 	dc.b	$04
 	dc.b	$05
@@ -43324,7 +43324,7 @@ loc_26AA0:
 	dc.b	$09
 	dc.b	$FB
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26AA8:
 	dc.b	$00, $00, $00, $00, $00, $00, $00
 	dc.b	$0A
@@ -43336,7 +43336,7 @@ loc_26AA8:
 	dc.b	$10
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26AB8:
 	dc.b	$01
 	dc.b	$02
@@ -43346,7 +43346,7 @@ loc_26AB8:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26ABE:
 	dc.b	$01
 	dc.b	$02
@@ -43366,15 +43366,15 @@ loc_26ABE:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26ACE:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26AD2:
 	dc.b	$01
 	dc.b	$03
@@ -43392,7 +43392,7 @@ loc_26AD2:
 	dc.b	$04
 	dc.b	$03
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26AF6:
 	dc.b	$10
 	dc.b	$11
@@ -43411,7 +43411,7 @@ loc_26AF6:
 	dc.b	$00, $00, $00, $00
 	dc.b	$FB
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26B0A:
 	dc.b	$1B
 	dc.b	$1C
@@ -43419,9 +43419,9 @@ loc_26B0A:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26B10:
 	dc.b	$01
 	dc.b	$02
@@ -43429,9 +43429,9 @@ loc_26B10:
 	dc.b	$03
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26B16:
 	dc.b	$01
 	dc.b	$04
@@ -43441,9 +43441,9 @@ loc_26B16:
 	dc.b	$05, $05, $05, $05, $05
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26B2A:
 	dc.b	$06
 	dc.b	$07
@@ -43463,9 +43463,9 @@ loc_26B2A:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26B3C:
 	dc.b	$01
 	dc.b	$03
@@ -43479,9 +43479,9 @@ loc_26B3C:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26B4A:
 	dc.b	$01
 	dc.b	$08
@@ -43503,9 +43503,9 @@ loc_26B4A:
 	dc.b	$08
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26B72:
 	dc.b	$01
 	dc.b	$05
@@ -43514,7 +43514,7 @@ loc_26B72:
 	dc.b	$06, $06, $06, $06, $06, $06
 	dc.b	$07, $07, $07
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26B80:
 	dc.b	$0D
 	dc.b	$0E
@@ -43538,7 +43538,7 @@ loc_26B80:
 	dc.b	$FD
 	dc.b	$00, $00, $00, $00, $00
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26B9A:
 	dc.b	$20
 	dc.b	$21
@@ -43558,15 +43558,15 @@ loc_26B9A:
 	dc.b	$F8
 	dc.b	$00, $00, $00
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26BAE:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26BB2:
 	dc.b	$01
 	dc.b	$03
@@ -43576,9 +43576,9 @@ loc_26BB2:
 	dc.b	$03
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26BC0:
 	dc.b	$05
 	dc.b	$06
@@ -43596,9 +43596,9 @@ loc_26BC0:
 	dc.b	$0F
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26BD0:
 	dc.b	$07
 	dc.b	$08
@@ -43608,15 +43608,15 @@ loc_26BD0:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26BD6:
 	dc.b	$F0
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26BD8:
 	dc.b	$EF
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26BDA:
 	dc.b	$07
 	dc.b	$0A
@@ -43642,7 +43642,7 @@ loc_26BDA:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26BF0:
 	dc.b	$1C, $1C
 	dc.b	$1D, $1D
@@ -43653,7 +43653,7 @@ loc_26BF0:
 	dc.b	$22, $22
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26C00:
 	dc.b	$0E
 	dc.b	$0F
@@ -43667,7 +43667,7 @@ loc_26C00:
 	dc.b	$17
 	dc.b	$F8
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26C0C:
 	dc.b	$23, $23
 	dc.b	$24, $24
@@ -43695,9 +43695,9 @@ loc_26C0C:
 	dc.b	$32
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C3A:
 	dc.b	$05
 	dc.b	$06
@@ -43705,9 +43705,9 @@ loc_26C3A:
 	dc.b	$08
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C40:
 	dc.b	$01
 	dc.b	$02
@@ -43715,17 +43715,17 @@ loc_26C40:
 	dc.b	$04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C46:
 	dc.b	$F0
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26C48:
 	dc.b	$EF
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26C4A:
 	dc.b	$09
 	dc.b	$0A
@@ -43737,9 +43737,9 @@ loc_26C4A:
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C54:
 	dc.b	$10
 	dc.b	$11
@@ -43763,7 +43763,7 @@ loc_26C54:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26C6A:
 	dc.b	$1A
 	dc.b	$1B
@@ -43779,17 +43779,17 @@ loc_26C6A:
 	dc.b	$F8
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C78:
 	dc.b	$01, $01, $01
 	dc.b	$02, $02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C80:
 	dc.b	$01
 	dc.b	$02
@@ -43815,9 +43815,9 @@ loc_26C80:
 	dc.b	$07
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26C98:
 	dc.b	$EF
 	dc.b	$01
@@ -43829,7 +43829,7 @@ loc_26C98:
 	dc.b	$06
 	dc.b	$05
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26CA2:
 	dc.b	$11
 	dc.b	$12
@@ -43858,9 +43858,9 @@ loc_26CA2:
 	dc.b	$FD
 	dc.b	$FE ;0x20
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26CC4:
 	dc.b	$0B
 	dc.b	$0C
@@ -43872,15 +43872,15 @@ loc_26CC4:
 	dc.b	$F8
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26CDE:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26CE2:
 	dc.b	$03
 	dc.b	$04
@@ -43896,7 +43896,7 @@ loc_26CE2:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26CF2:
 	dc.b	$03
 	dc.b	$04
@@ -43917,9 +43917,9 @@ loc_26CF2:
 	dc.b	$02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26D08:
 	dc.b	$01
 	dc.b	$05
@@ -43937,7 +43937,7 @@ loc_26D08:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26D18:
 	dc.b	$01
 	dc.b	$02
@@ -43950,16 +43950,16 @@ loc_26D18:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26D28:
 	dc.b	$01, $01, $01, $01, $01, $01, $01, $01, $01, $01
 	dc.b	$02, $02, $02, $02
 	dc.b	$03, $03, $03, $03
 	dc.b	$02, $02, $02
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26D3E:
 	dc.b	$01, $01, $01
 	dc.b	$02, $02, $02
@@ -43975,9 +43975,9 @@ loc_26D3E:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26D56:
 	dc.b	$01, $01, $01
 	dc.b	$02, $02, $02
@@ -43993,18 +43993,18 @@ loc_26D56:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26D6E:
 	dc.b	$00, $00
 	dc.b	$08, $08, $08, $08, $08, $08, $08
 	dc.b	$FD
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26D7A:
 	dc.b	$01, $01, $01, $01
 	dc.b	$02
@@ -44017,7 +44017,7 @@ loc_26D7A:
 	dc.b	$09
 	dc.b	$01
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26D88:
 	dc.b	$0A
 	dc.b	$0B
@@ -44033,9 +44033,9 @@ loc_26D88:
 	dc.b	$0A
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26D96:
 	dc.b	$0A
 	dc.b	$0B
@@ -44057,9 +44057,9 @@ loc_26D96:
 	dc.b	$0A
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26DAA:
 	dc.b	$11
 	dc.b	$12
@@ -44073,9 +44073,9 @@ loc_26DAA:
 	dc.b	$11
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26DB6:
 	dc.b	$01, $01
 	dc.b	$02, $02
@@ -44083,7 +44083,7 @@ loc_26DB6:
 ; ---------------------------------------------------------------------
 
 	even
-	
+
 loc_26DBC:
 	dc.b	$03
 	dc.b	$04
@@ -44100,9 +44100,9 @@ loc_26DBC:
 	dc.b	$0D
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26DCC:
 	dc.b	$03
 	dc.b	$0E, $0E, $0E, $0E
@@ -44110,9 +44110,9 @@ loc_26DCC:
 	dc.b	$04, $04, $04, $04, $04, $04
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26DDA:
 	dc.b	$00, $00
 	dc.b	$0F
@@ -44123,9 +44123,9 @@ loc_26DDA:
 	dc.b	$00
 	dc.b	$FE
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26DE4:
 	dc.b	$01, $01, $01, $01, $01
 	dc.b	$02, $02, $02
@@ -44133,9 +44133,9 @@ loc_26DE4:
 	dc.b	$02, $02, $02
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26DF4:
 	dc.b	$01
 	dc.b	$04
@@ -44154,13 +44154,13 @@ loc_26DF4:
 	dc.b	$01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26E06:
 	dc.b	$EF
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26E08:
 	dc.b	$0C
 	dc.b	$0E
@@ -44189,7 +44189,7 @@ loc_26E1A:
 	dc.b	$03, $03
 	dc.b	$02, $02
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26E28:
 	dc.b	$01, $01
 	dc.b	$02, $02
@@ -44211,21 +44211,21 @@ loc_26E28:
 	dc.b	$01, $01, $01
 	dc.b	$FF
 ; ---------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26E50:
 	dc.b	$12
 	dc.b	$13
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26E54:
 	dc.b	$03
 	dc.b	$04
 	dc.b	$05
 	dc.b	$FF
-; ---------------------------------------------------------------------	
+; ---------------------------------------------------------------------
 loc_26E58:
 	dc.b	$06
 	dc.b	$07
@@ -44259,7 +44259,7 @@ loc_26E78:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_26E80:
 	dc.b	$01
 	dc.b	$02
@@ -44269,7 +44269,7 @@ loc_26E80:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_26E86:
 	dc.b	$01
 	dc.b	$04
@@ -44286,9 +44286,9 @@ loc_26E86:
 	dc.b	$0C
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26EA0:
 	dc.b	$0D
 	dc.b	$0E
@@ -44340,9 +44340,9 @@ loc_26EBE:
 	dc.b	$05
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26ED2:
 	dc.b	$03
 	dc.b	$02
@@ -44406,9 +44406,9 @@ loc_26EF8:
 	dc.b	$FD
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26F0E:
 	dc.b	$01, $01, $01, $01, $01, $01
 	dc.b	$03, $03, $03, $03, $03, $03
@@ -44416,9 +44416,9 @@ loc_26F0E:
 	dc.b	$02, $02, $02, $02, $02, $02
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26F28:
 	dc.b	$04
 	dc.b	$05
@@ -44463,9 +44463,9 @@ loc_26F54:
 	dc.b	$18
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26F60:
 	dc.b	$01
 	dc.b	$02
@@ -44497,9 +44497,9 @@ loc_26F60:
 	dc.b	$03
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26F7E:
 	dc.b	$03
 	dc.b	$04
@@ -44590,9 +44590,9 @@ loc_26FCC:
 	dc.b	$04
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_26FD2:
 	dc.b	$F0
 	dc.b	$01
@@ -44684,9 +44684,9 @@ loc_2704E:
 	dc.b	$08, $08
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_27084:
 	dc.b	$05, $05, $05
 	dc.b	$06, $06, $06
@@ -44700,7 +44700,7 @@ loc_27084:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_270AA:
 	dc.b	$12
 	dc.b	$13
@@ -44832,7 +44832,7 @@ CharBattle_AnimOffsets:
 	dc.w	AnimOff_ItemNoEffect-CharBattle_AnimOffsets
 	dc.w	AnimOff_DrkFrcSideEffect-CharBattle_AnimOffsets
 ; ==========================================================================
-	
+
 AnimOff_RolfAttack:
 	dc.b	$04, $04, $04
 	dc.b	$05
@@ -44843,10 +44843,10 @@ AnimOff_RolfAttack:
 	dc.b	$00
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
-	
+
+
 AnimOff_NeiAttack:
 	dc.b	$04, $04, $04
 	dc.b	$05
@@ -44878,7 +44878,7 @@ AnimOff_AmyAttack:
 	dc.b	$00
 	dc.b	$FF
 ; --------------------------------------------------------------------------
-	
+
 	even
 
 
@@ -44906,7 +44906,7 @@ AnimOff_AnnaAttack:
 
 	even
 
-	
+
 AnimOff_KainAttack:
 	dc.b	$04, $04, $04
 	dc.b	$05
@@ -44930,7 +44930,7 @@ AnimOff_ShirAttack:
 
 	even
 
-	
+
 AnimOff_GunSingleEnemy:
 	dc.b	$01, $01, $01, $01
 	dc.b	$03
@@ -44968,7 +44968,7 @@ AnimOff_GunMultEnemies:
 
 	even
 
-	
+
 AnimOff_ItemNoEffect:
 	dc.b	$01, $01, $01, $01
 	dc.b	$02, $02, $02, $02, $02, $02
@@ -44981,7 +44981,7 @@ AnimOff_DrkFrcSideEffect:
 	dc.b	$FD
 	dc.b	$FF
 ; ==========================================================================
-	
+
 ; ==========================================================================
 loc_27226:
 	dc.w	loc_27290-loc_27226
@@ -45038,7 +45038,7 @@ loc_27226:
 	dc.w	loc_27334-loc_27226
 	dc.w	loc_27356-loc_27226
 ; ==========================================================================
-	
+
 loc_27290:
 	dc.b	$01
 	dc.b	$02
@@ -45055,10 +45055,10 @@ loc_27290:
 	dc.b	$0F
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_272A0:
 	dc.b	$01
 	dc.b	$02
@@ -45081,7 +45081,7 @@ loc_272A0:
 	dc.b	$11
 	dc.b	$12
 	dc.b	$FE
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_272B6:
 	dc.b	$01
 	dc.b	$02
@@ -45103,7 +45103,7 @@ loc_272B6:
 	dc.b	$0B
 	dc.b	$0C
 	dc.b	$FE
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_272CA:
 	dc.b	$01
 	dc.b	$02
@@ -45119,7 +45119,7 @@ loc_272CA:
 	dc.b	$05
 	dc.b	$06
 	dc.b	$FE
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_272D8:
 	dc.b	$01
 	dc.b	$02
@@ -45136,7 +45136,7 @@ loc_272D8:
 
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_272E4:
 	dc.b	$01
 	dc.b	$02
@@ -45150,10 +45150,10 @@ loc_272E4:
 	dc.b	$F9
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_272F0:
 	dc.b	$01
 	dc.b	$02
@@ -45175,7 +45175,7 @@ loc_272F0:
 	dc.b	$FB
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
 
 ; --------------------------------------------------------------------------
@@ -45202,7 +45202,7 @@ loc_27304:
 
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_27318:
 	dc.b	$01
 	dc.b	$02
@@ -45215,10 +45215,10 @@ loc_27318:
 	dc.b	$FB
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_27326:
 	dc.b	$01
 	dc.b	$02
@@ -45231,10 +45231,10 @@ loc_27326:
 	dc.b	$FD
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_27334:
 	dc.b	$01
 	dc.b	$02
@@ -45253,7 +45253,7 @@ loc_27334:
 
 	even
 
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_27342:
 	dc.b	$01
 	dc.b	$02
@@ -45287,7 +45287,7 @@ loc_27356:
 	dc.b	$00
 	dc.b	$FB
 	dc.b	$FE
-	
+
 ; ==========================================================================
 loc_27364:
 	dc.w	loc_273F4-loc_27364
@@ -45363,7 +45363,7 @@ loc_27364:
 	dc.w	loc_276A6-loc_27364
 	dc.w	loc_276B6-loc_27364
 ; ==========================================================================
-	
+
 loc_273F4:
 	dc.b	$01
 	dc.b	$02
@@ -45518,7 +45518,7 @@ loc_27484:
 	dc.b	$FE
 ; --------------------------------------------------------------------------
 	even
-	
+
 loc_27494:
 	dc.b	$01
 	dc.b	$02
@@ -45538,7 +45538,7 @@ loc_2749A:
 	dc.b	$FE
 ; --------------------------------------------------------------------------
 	even
-	
+
 loc_274A4:
 	dc.b	$01
 	dc.b	$02
@@ -45552,9 +45552,9 @@ loc_274A4:
 	dc.b	$08
 	dc.b	$FE
 ; --------------------------------------------------------------------------
-	
+
 	even
-	
+
 loc_274B0:
 	dc.b	$01
 	dc.b	$02
@@ -45566,7 +45566,7 @@ loc_274B0:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_274B8:
 	dc.b	$01
 	dc.b	$02
@@ -45584,13 +45584,13 @@ loc_274B8:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_274C6:
 	dc.b	$01
 	dc.b	$02
 	dc.b	$03, $03
 	dc.b	$04, $04
-	
+
 loc_274CC:
 	dc.b	$05
 	dc.b	$06
@@ -45625,7 +45625,7 @@ loc_274D8:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_274EA:
 	dc.b	$01
 	dc.b	$02
@@ -45705,7 +45705,7 @@ loc_27524:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_27532:
 	dc.b	$19
 	dc.b	$1A
@@ -45723,7 +45723,7 @@ loc_27532:
 	dc.b	$21
 	dc.b	$22
 	dc.b	$FE
-; --------------------------------------------------------------------------	
+; --------------------------------------------------------------------------
 loc_27542:
 	dc.b	$01
 	dc.b	$02
@@ -45737,7 +45737,7 @@ loc_27542:
 ; --------------------------------------------------------------------------
 
 	even
-	
+
 loc_2754C:
 	dc.b	$01
 	dc.b	$02
@@ -45791,7 +45791,7 @@ loc_27572:
 	dc.b	$09
 	dc.b	$0A
 	dc.b	$FE
-; -----------------------------------------------------------------------------	
+; -----------------------------------------------------------------------------
 loc_2757E:
 	dc.b	$01
 	dc.b	$02, $02
@@ -45812,7 +45812,7 @@ loc_2757E:
 ; ------------------------------------------------------------------------------
 
 	even
-	
+
 loc_27594:
 	dc.b	$0B
 	dc.b	$0C
@@ -45822,7 +45822,7 @@ loc_27594:
 	dc.b	$10
 	dc.b	$FD
 	dc.b	$FE
-; -------------------------------------------------------------------------------	
+; -------------------------------------------------------------------------------
 loc_2759C:
 	dc.b	$0B
 	dc.b	$0C
@@ -45834,7 +45834,7 @@ loc_2759C:
 	dc.b	$14
 	dc.b	$FD
 	dc.b	$FE
-; --------------------------------------------------------------------------------	
+; --------------------------------------------------------------------------------
 loc_275A6:
 	dc.b	$0B
 	dc.b	$0C
@@ -45848,7 +45848,7 @@ loc_275A6:
 	dc.b	$14
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------------------	
+; ---------------------------------------------------------------------------------
 loc_275B2:
 	dc.b	$01
 	dc.b	$02
@@ -45858,7 +45858,7 @@ loc_275B2:
 	dc.b	$10
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------------------	
+; ---------------------------------------------------------------------------------
 loc_275BA:
 	dc.b	$01
 	dc.b	$02
@@ -45870,7 +45870,7 @@ loc_275BA:
 	dc.b	$14
 	dc.b	$FD
 	dc.b	$FE
-; ---------------------------------------------------------------------------------	
+; ---------------------------------------------------------------------------------
 loc_275C4:
 	dc.b	$01
 	dc.b	$02
@@ -45884,7 +45884,7 @@ loc_275C4:
 	dc.b	$14
 	dc.b	$FD
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
+; ----------------------------------------------------------------------------------
 loc_275D0:
 	dc.b	$06
 	dc.b	$07
@@ -45894,7 +45894,7 @@ loc_275D0:
 	dc.b	$10
 	dc.b	$FD
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
+; ----------------------------------------------------------------------------------
 loc_275D8:
 	dc.b	$06
 	dc.b	$07
@@ -45906,7 +45906,7 @@ loc_275D8:
 	dc.b	$14
 	dc.b	$FD
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_275E2:
 	dc.b	$06
 	dc.b	$07
@@ -45920,7 +45920,7 @@ loc_275E2:
 	dc.b	$14
 	dc.b	$FD
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_275EE:
 	dc.b	$06
 	dc.b	$07
@@ -45930,7 +45930,7 @@ loc_275EE:
 	dc.b	$0A
 	dc.b	$0B
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_275F6:
 	dc.b	$0C
 	dc.b	$0D
@@ -45943,10 +45943,10 @@ loc_275F6:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
-	
+; ----------------------------------------------------------------------------------
+
 	even
-	
+
 loc_27602:
 	dc.b	$0A
 	dc.b	$0B
@@ -45958,10 +45958,10 @@ loc_27602:
 	dc.b	$0F
 	dc.b	$10
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
-	
+; ----------------------------------------------------------------------------------
+
 	even
-	
+
 loc_2760E:
 	dc.b	$01
 	dc.b	$02
@@ -45979,7 +45979,7 @@ loc_2760E:
 	dc.b	$0D
 	dc.b	$0E
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_2761E:
 	dc.b	$01
 	dc.b	$02
@@ -46006,10 +46006,10 @@ loc_2761E:
 	dc.b	$0D
 	dc.b	$0E
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
-	
+; ----------------------------------------------------------------------------------
+
 	even
-	
+
 loc_27638:
 	dc.b	$01
 	dc.b	$02
@@ -46025,10 +46025,10 @@ loc_27638:
 	dc.b	$0B
 	dc.b	$0C
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
-	
+; ----------------------------------------------------------------------------------
+
 	even
-	
+
 loc_27648:
 	dc.b	$09
 	dc.b	$0A
@@ -46043,10 +46043,10 @@ loc_27648:
 	dc.b	$11
 	dc.b	$12
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
-	
+; ----------------------------------------------------------------------------------
+
 	even
-	
+
 loc_27656:
 	dc.b	$01
 	dc.b	$02
@@ -46064,7 +46064,7 @@ loc_27656:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_27666:
 	dc.b	$03
 	dc.b	$04
@@ -46082,7 +46082,7 @@ loc_27666:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_27676:
 	dc.b	$05
 	dc.b	$06
@@ -46100,7 +46100,7 @@ loc_27676:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_27686:
 	dc.b	$07
 	dc.b	$08
@@ -46118,7 +46118,7 @@ loc_27686:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_27696:
 	dc.b	$09
 	dc.b	$0A
@@ -46136,7 +46136,7 @@ loc_27696:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------	
+; ----------------------------------------------------------------------------------
 loc_276A6:
 	dc.b	$0B
 	dc.b	$0C
@@ -46154,7 +46154,7 @@ loc_276A6:
 	dc.b	$13
 	dc.b	$14
 	dc.b	$FE
-; ----------------------------------------------------------------------------------		
+; ----------------------------------------------------------------------------------
 loc_276B6:
 	dc.b	$0D
 	dc.b	$0E
@@ -46173,7 +46173,7 @@ loc_276B6:
 	dc.b	$14
 	dc.b	$FE
 ; ==========================================================================
-	
+
 ; ==========================================================================
 ; Weapon properties
 ;
@@ -46191,62 +46191,62 @@ WeaponProp_Knife:
 	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
-	
+
 WeaponProp_Dagger:
 	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
-	
+
 WeaponProp_Scalpel:
 	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
-	
+
 WeaponProp_SteelBar:
 	dc.b	$00, $00, SFXID_Claw, $00
 	dc.l	$04000000|Map_WeaponBar
 	dc.l	0
-	
+
 WeaponProp_Boomerang:
 	dc.b	$00, $02, SFXID_Boomerang, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$25000000|Map_WpnSlasherAttack
-	
+
 WeaponProp_Slasher:
 	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$26000000|Map_WpnSlasherAttack
-	
+
 WeaponProp_Sword:
 	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$81000000|Map_WeaponSword
 	dc.l	0
-	
+
 WeaponProp_Whip:
 	dc.b	$00, $00, SFXID_Whip, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
-	
+
 WeaponProp_CrmcSword:
 	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$81000000|Map_WeaponSword
 	dc.l	0
-	
+
 WeaponProp_CeramKnife:
 	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
-	
+
 WeaponProp_CeramBar:
 	dc.b	$00, $00, SFXID_Claw, $00
 	dc.l	$04000000|Map_WeaponBar
 	dc.l	0
-	
+
 WeaponProp_LasrSlshr:
 	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$27000000|Map_WpnSlasherAttack
-	
+
 WeaponProp_LasrSword:
 	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$82000000|Map_WpnLaserSwd
@@ -46256,22 +46256,22 @@ WeaponProp_LaserBar:
 	dc.b	$00, $00, SFXID_Claw, $00
 	dc.l	$85000000|Map_WpnLaserBar
 	dc.l	0
-	
+
 WeaponProp_LaserKnife:
 	dc.b	$00, $00, SFXID_NeifirstAttack, $00
 	dc.l	$81000000|Map_WeaponSword
 	dc.l	0
-	
+
 WeaponProp_SwdOfAnger:
 	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$82000000|Map_WpnLaserSwd
 	dc.l	0
-	
+
 WeaponProp_FireSlshr:
 	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$28000000|Map_WpnSlasherAttack
-	
+
 WeaponProp_FireStaff:
 	dc.b	$00, $00, SFXID_Whip, $00
 	dc.l	$06000000|Map_WpnFireStaff
@@ -46281,97 +46281,97 @@ WeaponProp_LacnMace:
 	dc.b	$00, $00, SFXID_Whip, $00
 	dc.l	Map_WeaponKnife
 	dc.l	0
-	
+
 WeaponProp_LacDagger:
 	dc.b	$00, $00, SFXID_Boomerang, $00
 	dc.l	$82000000|Map_WpnLaserSwd
 	dc.l	0
-	
+
 WeaponProp_ACSlasher:
 	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$A9000000|Map_WpnSlasherAttack
-	
+
 WeaponProp_LacSword:
 	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$03000000|Map_WpnLacSword
 	dc.l	0
-	
+
 WeaponProp_NeiSword:
 	dc.b	$00, $00, SFXID_Sword, $00
 	dc.l	$03000000|Map_WpnLacSword
 	dc.l	0
-	
+
 WeaponProp_NeiSlasher:
 	dc.b	$00, $01, SFXID_Slasher, $00
 	dc.l	$07000000|Map_WpnSlasherThrown
 	dc.l	$AA000000|Map_WpnSlasherAttack
-	
+
 WeaponProp_BowGun:
 	dc.b	$05, $01, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	0
-	
+
 WeaponProp_SonicGun:
 	dc.b	$07, $01, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	0
-	
+
 WeaponProp_Shotgun:
 	dc.b	$0A, $02, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	$39000000|Map_WpnBowGun
-	
+
 WeaponProp_SilentShot:
 	dc.b	$01, $01, SFXID_AmoebaAttack, $00
 	dc.l	$8C000000|Map_FanbiAcidShot
 	dc.l	0
-	
+
 WeaponProp_PoisonShot:
 	dc.b	$0A, $01, SFXID_AmoebaAttack, $00
 	dc.l	$8C000000|Map_FanbiAcidShot
 	dc.l	0
-	
+
 WeaponProp_AcidShot:
 	dc.b	$14, $01, SFXID_AmoebaAttack, $00
 	dc.l	$8C000000|Map_FanbiAcidShot
 	dc.l	0
-	
+
 WeaponProp_Cannon:
 	dc.b	$1C, $01, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	0
-	
+
 WeaponProp_Vulcan:
 	dc.b	$10, $03, SFXID_Shotgun, $00
 	dc.l	$08000000|Map_WpnBowGun
 	dc.l	$3A000000|Map_WpnBowGun
-	
+
 WeaponProp_LaserShot:
 	dc.b	$23, $01, SFXID_StrongGun, $00
 	dc.l	$09000000|Map_TsuAndLaserShot
 	dc.l	0
-	
+
 WeaponProp_LsrCannon:
 	dc.b	$35, $01, SFXID_StrongGun, $00
 	dc.l	$09000000|Map_TsuAndLaserShot
 	dc.l	0
-	
+
 WeaponProp_PlsCannon:
 	dc.b	$3C, $01, SFXID_StrongGun, $00
 	dc.l	$8A000000|Map_WeaponPulse
 	dc.l	0
-	
+
 WeaponProp_PulseVlcn:
 	dc.b	$12, $04, SFXID_StrongGun, $00
 	dc.l	$8A000000|Map_WeaponPulse
 	dc.l	$BB000000|Map_WeaponPulse
-	
+
 WeaponProp_Neishot:
 	dc.b	$64, $01, SFXID_StrongGun, $00
 	dc.l	$0B000000|Map_WpnNeiShotFired
 	dc.l	$3E000000|Map_MegidAndNeiShotAttack
-	
+
 ; ==========================================================================
 
 
@@ -46390,57 +46390,57 @@ TechProp_Foi:
 	dc.b	$E5, SFXID_Foi
 	dc.l	$0D000000|Map_TechFoi
 	dc.l	Map_TechFoi
-	
+
 TechProp_Gifoi:
 	dc.b	$E5, SFXID_Foi
 	dc.l	$0D000000|Map_TechFoi
 	dc.l	Map_TechFoi
-	
+
 TechProp_Nafoi:
 	dc.b	$E5, SFXID_Foi
 	dc.l	$0D000000|Map_TechFoi
 	dc.l	Map_TechFoi
-	
+
 TechProp_Zan:
 	dc.b	$E5, SFXID_Zan
 	dc.l	$0E000000|Map_TechZanCast
 	dc.l	$3C000000|Map_TechZanAttack
-	
+
 TechProp_Gizan:
 	dc.b	$E5, SFXID_Zan
 	dc.l	$0E000000|Map_TechZanCast
 	dc.l	$3C000000|Map_TechZanAttack
-	
+
 TechProp_Nazan:
 	dc.b	$E5, SFXID_Zan
 	dc.l	$0E000000|Map_TechZanCast
 	dc.l	$3D000000|Map_TechZanAttack
-	
+
 TechProp_Gra:
 	dc.b	$E5, SFXID_Vol
 	dc.l	$0F000000|Map_TechGraCast
 	dc.l	$2B000000|Map_TechGraAttack
-	
+
 TechProp_Gigra:
 	dc.b	$E5, SFXID_Vol
 	dc.l	$0F000000|Map_TechGraCast
 	dc.l	$2B000000|Map_TechGraAttack
-	
+
 TechProp_Nagra:
 	dc.b	$E5, SFXID_Vol
 	dc.l	$0F000000|Map_TechGraCast
 	dc.l	$2C000000|Map_TechGraAttack
-	
+
 TechProp_Tsu:
 	dc.b	$E5, SFXID_Tsu
 	dc.l	$10000000|Map_TechTsuCast
 	dc.l	$40000000|Map_TsuAndLaserShot
-	
+
 TechProp_Githu:
 	dc.b	$E5, SFXID_Tsu
 	dc.l	$10000000|Map_TechTsuCast
 	dc.l	$40000000|Map_TsuAndLaserShot
-	
+
 TechProp_Nathu:
 	dc.b	$E5, SFXID_Tsu
 	dc.l	$10000000|Map_TechTsuCast
@@ -46450,122 +46450,122 @@ TechProp_Shift:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
-	
+
 TechProp_Fanbi:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$12000000|Map_TechShiftCast
 	dc.l	$9B000000|Map_FanbiAcidShot
-	
+
 TechProp_Eijia:
 	dc.b	$FF, SFXID_Eijia
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	Map_TechEijiaAttack
-	
+
 TechProp_Brose:
 	dc.b	$7F, SFXID_Eijia
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	$44000000|Map_TechEijiaAttack
-	
+
 TechProp_Conte:
 	dc.b	$FF, SFXID_Eijia
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	$44000000|Map_TechEijiaAttack
-	
+
 TechProp_Gaj:
 	dc.b	$FF, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$33000000|Map_TechGajAttack
-	
+
 TechProp_Gigaj:
 	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$34000000|Map_TechGajAttack
-	
+
 TechProp_Nagaj:
 	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$35000000|Map_TechGajAttack
-	
+
 TechProp_Sag:
 	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$01000000|Map_TechGajAttack
-	
+
 TechProp_Gisag:
 	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$02000000|Map_TechGajAttack
-	
+
 TechProp_Nasag:
 	dc.b	$E5, SFXID_Gaj
 	dc.l	$14000000|Map_TechGajCast
 	dc.l	$03000000|Map_TechGajAttack
-	
+
 TechProp_Gen:
 	dc.b	$E5, SFXID_Foi
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Sagen:
 	dc.b	$E5, SFXID_Foi
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Vol:
 	dc.b	$99, SFXID_Vol
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Savol:
 	dc.b	$B2, SFXID_Vol
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Shiza:
 	dc.b	$FF, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Doran:
 	dc.b	$CC, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Rimit:
 	dc.b	$7F, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Shinb:
 	dc.b	$FF, SFXID_Shinb
 	dc.l	$95000000|Map_TechGen
 	dc.l	$BF000000|Map_TechGen
-	
+
 TechProp_Forsa:
 	dc.b	$7F, SFXID_Shinb
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	Map_TechEijiaAttack
-	
+
 TechProp_Rimet:
 	dc.b	$66, SFXID_Shinb
 	dc.l	$13000000|Map_TechGraCast
 	dc.l	$44000000|Map_TechEijiaAttack
 
-TechProp_Shu:	
+TechProp_Shu:
 	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
-	
+
 TechProp_Sashu:
 	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
-	
+
 TechProp_Deban:
 	dc.b	$FF, SFXID_Deban
 	dc.l	$16000000|Map_TechShiftCast
 	dc.l	$2F000000|Map_TechDebanAttack
-	
+
 TechProp_Ner:
 	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
@@ -46575,77 +46575,77 @@ TechProp_Saner:
 	dc.b	$FF, SFXID_Deban
 	dc.l	$11000000|Map_TechShiftCast
 	dc.l	$AE000000|Map_TechShiftAttack
-	
+
 TechProp_Res:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Gires:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Nares:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Sar:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Gisar:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Nasar:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Sak:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$18000000|Map_TechSakCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Nasak:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$18000000|Map_TechSakCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Anti:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Rever:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
-TechProp_Ryuka:	
+
+TechProp_Ryuka:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Hinas:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Musik:
 	dc.b	$FF, SFXID_Healed
 	dc.l	$17000000|Map_TechShiftCast
 	dc.l	$2D000000|Map_TechShiftCast
-	
+
 TechProp_Megid:
 	dc.b	$FF, SFXID_Gaj
 	dc.l	$19000000|Map_TechMegidCast
 	dc.l	$3E000000|Map_MegidAndNeiShotAttack
-	
+
 ; ==========================================================================
 
 
@@ -46680,155 +46680,155 @@ WeaponTechArtPtrs:
 	dc.l	TechArt_Sak				; $18
 	dc.l	TechArt_Megid			; $19
 ; ==========================================================================
-	
+
 ; ------------------------------------
 WpnArt_Knife:
 	dc.w	0
 	dc.l	KnifeArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_Sword:
 	dc.w	0
 	dc.l	SwordArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_LaserSword:
 	dc.w	0
 	dc.l	LaserSwordArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_LacoSword:
 	dc.w	0
 	dc.l	LacoSwordArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_SteelBar:
 	dc.w	0
 	dc.l	SteelBarArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_LaserBar:
 	dc.w	0
 	dc.l	LaserBarArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_FireStaff:
 	dc.w	0
 	dc.l	FireStaffArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_Slasher:
 	dc.w	1
 	dc.l	SlasherThrownArt
 	dc.w	$8000
 	dc.l	SlasherAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_Bowgun:
 	dc.w	0
 	dc.l	BowgunArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_LaserShot:
 	dc.w	0
 	dc.l	LaserShotArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_PulseCannon:
 	dc.w	0
 	dc.l	PulseCannonArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_NeiShot:
 	dc.w	1
 	dc.l	NeiShotFiredArt
 	dc.w	$8000
 	dc.l	NeiShotAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 WpnArt_AcidShot:
 	dc.w	0
 	dc.l	AcidShotArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Foi:
 	dc.w	0
 	dc.l	FoiArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Zan:
 	dc.w	1
 	dc.l	ZanCastArt
 	dc.w	$8000
 	dc.l	ZanAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Gra:
 	dc.w	1
 	dc.l	GraCastArt
 	dc.w	$8000
 	dc.l	GraAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Tsu:
 	dc.w	1
 	dc.l	TsuCastArt
 	dc.w	$8000
 	dc.l	LaserShotArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Shift:
 	dc.w	1
 	dc.l	ShiftCastArt
 	dc.w	$8000
 	dc.l	ShiftAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Fanbi:
 	dc.w	1
 	dc.l	ShiftCastArt
 	dc.w	$8000
 	dc.l	AcidShotArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Eijia:
 	dc.w	1
 	dc.l	GraCastArt
 	dc.w	$8000
 	dc.l	EijiaAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Gaj:
 	dc.w	1
 	dc.l	GajCastArt
 	dc.w	$8000
 	dc.l	GajAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Gen:
 	dc.w	0
 	dc.l	GenArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Deban:
 	dc.w	1
 	dc.l	ShiftCastArt
 	dc.w	$8000
 	dc.l	DebanAttackArt
 	dc.w	$9000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Res:
 	dc.w	0
 	dc.l	ShiftCastArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Sak:
 	dc.w	1
 	dc.l	SakCastArt
 	dc.w	$9000
 	dc.l	ShiftCastArt
 	dc.w	$8000
-; ------------------------------------	
+; ------------------------------------
 TechArt_Megid:
 	dc.w	1
 	dc.l	MegidCastArt
@@ -46838,7 +46838,7 @@ TechArt_Megid:
 ; ------------------------------------
 
 ; ==========================================================================
-	
+
 MapData:
 
 Map_MotaviaOutside:
@@ -46848,15 +46848,15 @@ Map_MotaviaOutside:
 	dc.l	loc_29B64
 	dc.l	$03000000|loc_28664
 	dc.b	$A, MusicID_Restoration
-	
+
 Map_SkureB2:
 	dc.w	$8156
 	dc.l	$41000000|loc_4A370
 	dc.l	$3F000000|loc_5801A
-	dc.l	$18000000|loc_29C06	
-	dc.l	$04000000|loc_286F0	
+	dc.l	$18000000|loc_29C06
+	dc.l	$04000000|loc_286F0
 	dc.b	$83, MusicID_SilentZone
-	
+
 Map_SkureB1:
 	dc.w	$8156
 	dc.l	$42000000|loc_4A632
@@ -46864,7 +46864,7 @@ Map_SkureB1:
 	dc.l	$18000000|loc_29C06
 	dc.l	$04000000|loc_28758
 	dc.b	$83, MusicID_SilentZone
-	
+
 Map_DezolisSkure:
 	dc.w	$8188
 	dc.l	loc_4A944
@@ -46874,21 +46874,21 @@ Map_DezolisSkure:
 	dc.b	$80, MusicID_SilentZone
 
 Map_Paseo:
-	dc.w	$0224	
+	dc.w	$0224
 	dc.l	loc_4B5E8
 	dc.l	loc_4B4FC
-	dc.l	$01000000|loc_29C6C	
-	dc.l	$05000000|loc_28864	
+	dc.l	$01000000|loc_29C6C
+	dc.l	$05000000|loc_28864
 	dc.b	$00, MusicID_Pleasure
-	
+
 Map_Arima:
 	dc.w	$0222
 	dc.l	loc_4B786
 	dc.l	loc_4B720
 	dc.l	$01000000|loc_29C6C
-	dc.l	$05000000|loc_2889C	
+	dc.l	$05000000|loc_2889C
 	dc.b	$00, MusicID_Pleasure
-	
+
 Map_Oputa:
 	dc.w	$0234
 	dc.l	loc_4B9BE
@@ -46896,7 +46896,7 @@ Map_Oputa:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$05000000|loc_288B6
 	dc.b	$01, MusicID_Pleasure
-	
+
 Map_Zema:
 	dc.w	$0214
 	dc.l	loc_4BC08
@@ -46904,7 +46904,7 @@ Map_Zema:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$05000000|loc_288E8
 	dc.b	$00, MusicID_Pleasure
-	
+
 Map_Kueri:
 	dc.w	$0232
 	dc.l	loc_4BDC0
@@ -46912,7 +46912,7 @@ Map_Kueri:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$05000000|loc_28914
 	dc.b	$01, MusicID_Pleasure
-	
+
 Map_Piata:
 	dc.w	$0234
 	dc.l	loc_4C060
@@ -46920,7 +46920,7 @@ Map_Piata:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$05000000|loc_28946
 	dc.b	$01, MusicID_Pleasure
-	
+
 Map_Aukba:
 	dc.w	$8222
 	dc.l	loc_4C2A8
@@ -46928,7 +46928,7 @@ Map_Aukba:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$4C000000|loc_28978
 	dc.b	$02, MusicID_ExcitingTown
-	
+
 Map_Zosa:
 	dc.w	$8222
 	dc.l	loc_4C3F0
@@ -46936,7 +46936,7 @@ Map_Zosa:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$4C000000|loc_289A4
 	dc.b	$02, MusicID_ExcitingTown
-	
+
 Map_Ryuon:
 	dc.w	$8214
 	dc.l	loc_4C52A
@@ -46944,7 +46944,7 @@ Map_Ryuon:
 	dc.l	$01000000|loc_29C6C
 	dc.l	$4C000000|loc_289D0
 	dc.b	$02, MusicID_ExcitingTown
-	
+
 Map_TubeNearPaseo:
 	dc.w	$0522
 	dc.l	loc_4C5AE
@@ -46952,39 +46952,39 @@ Map_TubeNearPaseo:
 	dc.l	$11000000|loc_29CF2
 	dc.l	$09000000|loc_289FC
 	dc.b	$04, MusicID_Restoration
-	
+
 Map_DarumTube:
 	dc.w	$0512
 	dc.l	loc_4C618
 	dc.l	$2B000000|loc_4C618
 	dc.l	$11000000|loc_29CF2
-	dc.l	$09000000|loc_28A0A	
+	dc.l	$09000000|loc_28A0A
 	dc.b	$04, MusicID_Restoration
-	
+
 Map_TubeLockedDoor:
-	dc.w	$0522	
+	dc.w	$0522
 	dc.l	loc_4C650
 	dc.l	$2C000000|loc_4C650
 	dc.l	$11000000|loc_29CF2
-	dc.l	$09000000|loc_28A24	
+	dc.l	$09000000|loc_28A24
 	dc.b	$07, MusicID_Restoration
-	
+
 Map_EsperMansionB1:
-	dc.w	$8612	
+	dc.w	$8612
 	dc.l	loc_4C6BA
 	dc.l	loc_57FC4
 	dc.l	$19000000|loc_29DD6
 	dc.l	$3D000000|loc_28A32
 	dc.b	$85, MusicID_Violation
-	
+
 Map_EsperMansionF1:
 	dc.w	$8622
 	dc.l	loc_4C700
 	dc.l	loc_57FC4
 	dc.l	$19000000|loc_29DD6
-	dc.l	$3D000000|loc_28A3A	
+	dc.l	$3D000000|loc_28A3A
 	dc.b	$8B, MusicID_Violation
-	
+
 Map_Uzo:
 	dc.w	$036C
 	dc.l	$1E000000|loc_4C7A6
@@ -46992,7 +46992,7 @@ Map_Uzo:
 	dc.l	$19000000|loc_29D72
 	dc.l	$06000000|loc_28A42
 	dc.b	$84, MusicID_SecretWays
-	
+
 Map_UnderwaterPassage:
 	dc.w	$0338
 	dc.l	$1F000000|loc_4D544
@@ -47000,7 +47000,7 @@ Map_UnderwaterPassage:
 	dc.l	$19000000|loc_29D72
 	dc.l	$07000000|loc_28A92
 	dc.b	$80, MusicID_SecretWays
-	
+
 Map_CreviceB2:
 	dc.w	$8322
 	dc.l	loc_4D92A
@@ -47008,7 +47008,7 @@ Map_CreviceB2:
 	dc.l	$18000000|loc_29D72
 	dc.l	$37000000|loc_28AA0
 	dc.b	$80, MusicID_SecretWays
-	
+
 Map_CreviceB1:
 	dc.w	$8344
 	dc.l	loc_4DA1A
@@ -47016,7 +47016,7 @@ Map_CreviceB1:
 	dc.l	$18000000|loc_29D72
 	dc.l	$37000000|loc_28AB4
 	dc.b	$80, MusicID_SecretWays
-	
+
 Map_CreviceGroundF:
 	dc.w	$8356
 	dc.l	loc_4DD24
@@ -47024,7 +47024,7 @@ Map_CreviceGroundF:
 	dc.l	$18000000|loc_29D72
 	dc.l	$37000000|loc_28AE0
 	dc.b	$80, MusicID_SecretWays
-	
+
 Map_ShureGroundF:
 	dc.w	$0536
 	dc.l	$10000000|loc_4E160
@@ -47032,7 +47032,7 @@ Map_ShureGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28B12
 	dc.b	$87, MusicID_Advanced
-	
+
 Map_ShureF1:
 	dc.w	$0536
 	dc.l	$11000000|loc_4E3E2
@@ -47040,7 +47040,7 @@ Map_ShureF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28B32
 	dc.b	$87, MusicID_Advanced
-	
+
 Map_ShureF2:
 	dc.w	$0536
 	dc.l	$12000000|loc_4E66A
@@ -47048,7 +47048,7 @@ Map_ShureF2:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28B6A
 	dc.b	$87, MusicID_Advanced
-	
+
 Map_ShureF3:
 	dc.w	$0536
 	dc.l	$13000000|loc_4E92E
@@ -47056,7 +47056,7 @@ Map_ShureF3:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28B8A
 	dc.b	$87, MusicID_Advanced
-	
+
 Map_NidoGroundF:
 	dc.w	$0546
 	dc.l	$14000000|loc_4EBE0
@@ -47064,7 +47064,7 @@ Map_NidoGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28B92
 	dc.b	$88, MusicID_Advanced
-	
+
 Map_NidoF1:
 	dc.w	$0546
 	dc.l	$14000000|loc_4EF46
@@ -47072,7 +47072,7 @@ Map_NidoF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28BBE
 	dc.b	$88, MusicID_Advanced
-	
+
 Map_NidoF2:
 	dc.w	$0546
 	dc.l	$15000000|loc_4F2A6
@@ -47080,7 +47080,7 @@ Map_NidoF2:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0E000000|loc_28BEA
 	dc.b	$87, MusicID_Advanced
-	
+
 Map_RoronB5:
 	dc.w	$0542
 	dc.l	$1D000000|loc_4F5FE
@@ -47088,7 +47088,7 @@ Map_RoronB5:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$10000000|loc_28BFE
 	dc.b	$89, MusicID_Advanced
-	
+
 Map_RoronB4:
 	dc.w	$0522
 	dc.l	$1D000000|loc_4F76E
@@ -47096,7 +47096,7 @@ Map_RoronB4:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$10000000|loc_28C06
 	dc.b	$89, MusicID_Advanced
-	
+
 Map_RoronB3:
 	dc.w	$0524
 	dc.l	$1C000000|loc_4F818
@@ -47104,7 +47104,7 @@ Map_RoronB3:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$10000000|loc_28C0E
 	dc.b	$89, MusicID_Advanced
-	
+
 Map_RoronB2:
 	dc.w	$0526
 	dc.l	$1C000000|loc_4F9E4
@@ -47112,7 +47112,7 @@ Map_RoronB2:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$10000000|loc_28C28
 	dc.b	$89, MusicID_Advanced
-	
+
 Map_RoronB1:
 	dc.w	$0556
 	dc.l	$1B000000|loc_4FB5A
@@ -47120,7 +47120,7 @@ Map_RoronB1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$10000000|loc_28C3C
 	dc.b	$89, MusicID_Advanced
-	
+
 Map_RoronGroundF:
 	dc.w	$0522
 	dc.l	$1A000000|loc_4FEE6
@@ -47128,7 +47128,7 @@ Map_RoronGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$10000000|loc_28C68
 	dc.b	$89, MusicID_Advanced
-	
+
 Map_YellowDamGroundF:
 	dc.w	$0536
 	dc.l	loc_4FF7E
@@ -47136,7 +47136,7 @@ Map_YellowDamGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0B000000|loc_28C76
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_YellowDamF1:
 	dc.w	$0536
 	dc.l	loc_50198
@@ -47144,7 +47144,7 @@ Map_YellowDamF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0B000000|loc_28CBA
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_YellowDamF2:
 	dc.w	$0536
 	dc.l	loc_503E8
@@ -47152,7 +47152,7 @@ Map_YellowDamF2:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0B000000|loc_28D0A
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_YellowDamF3:
 	dc.w	$0536
 	dc.l	loc_50652
@@ -47160,7 +47160,7 @@ Map_YellowDamF3:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0B000000|loc_28D4E
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_RedDamGroundF:
 	dc.w	$0526
 	dc.l	loc_508AC
@@ -47168,7 +47168,7 @@ Map_RedDamGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0D000000|loc_28D74
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_RedDamF1:
 	dc.w	$0526
 	dc.l	loc_50A86
@@ -47176,7 +47176,7 @@ Map_RedDamF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0D000000|loc_28DA0
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_RedDamF2:
 	dc.w	$0526
 	dc.l	loc_50C7C
@@ -47192,7 +47192,7 @@ Map_BlueDamGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0A000000|loc_28E1C
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_BlueDamF1:
 	dc.w	$0544
 	dc.l	loc_5103C
@@ -47200,7 +47200,7 @@ Map_BlueDamF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0A000000|loc_28E48
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_BlueDamF2:
 	dc.w	$0544
 	dc.l	loc_51250
@@ -47208,7 +47208,7 @@ Map_BlueDamF2:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0A000000|loc_28E80
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_BlueDamF3:
 	dc.w	$0544
 	dc.l	loc_51482
@@ -47216,7 +47216,7 @@ Map_BlueDamF3:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0A000000|loc_28EBE
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_BlueDamF4:
 	dc.w	$0544
 	dc.l	loc_516B8
@@ -47224,7 +47224,7 @@ Map_BlueDamF4:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0A000000|loc_28F08
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_GreenDamGroundF:
 	dc.w	$053C
 	dc.l	loc_518D0
@@ -47232,7 +47232,7 @@ Map_GreenDamGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0C000000|loc_28F34
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_GreenDamF1:
 	dc.w	$053C
 	dc.l	loc_51DFA
@@ -47240,7 +47240,7 @@ Map_GreenDamF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0C000000|loc_29020
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_BiosystemsLabB1:
 	dc.w	$0556
 	dc.l	$16000000|loc_522DE
@@ -47248,7 +47248,7 @@ Map_BiosystemsLabB1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$33000000|loc_290FA
 	dc.b	$88, MusicID_Advanced
-	
+
 Map_BiosystemsLabGroundF:
 	dc.w	$0556
 	dc.l	$17000000|loc_5271E
@@ -47256,7 +47256,7 @@ Map_BiosystemsLabGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$33000000|loc_29102
 	dc.b	$88, MusicID_Advanced
-	
+
 Map_BiosystemsLabF1:
 	dc.w	$0556
 	dc.l	$18000000|loc_52B52
@@ -47264,23 +47264,23 @@ Map_BiosystemsLabF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$33000000|loc_2913A
 	dc.b	$88, MusicID_Advanced
-	
+
 Map_BiosystemsLabF2:
 	dc.w	$0556
 	dc.l	$19000000|loc_52F8E
 	dc.l	$2B000000|loc_5808A
 	dc.l	$19000000|loc_29CF2
-	dc.l	$33000000|loc_29166	
+	dc.l	$33000000|loc_29166
 	dc.b	$88, MusicID_Advanced
-	
+
 Map_ClimatrolGroundF:
-	dc.w	$0536	
+	dc.w	$0536
 	dc.l	$20000000|loc_533D6
 	dc.l	$2C000000|loc_5808A
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_2917A
 	dc.b	$83, MusicID_Advanced
-	
+
 Map_ClimatrolF1:
 	dc.w	$0522
 	dc.l	$21000000|loc_5354E
@@ -47288,7 +47288,7 @@ Map_ClimatrolF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_29188
 	dc.b	$83, MusicID_Advanced
-	
+
 Map_ClimatrolF2:
 	dc.w	$0522
 	dc.l	$21000000|loc_535C2
@@ -47296,7 +47296,7 @@ Map_ClimatrolF2:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_29196
 	dc.b	$86, MusicID_Advanced
-	
+
 Map_ClimatrolF3:
 	dc.w	$0522
 	dc.l	$21000000|loc_5364A
@@ -47304,7 +47304,7 @@ Map_ClimatrolF3:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_291A4
 	dc.b	$86, MusicID_Advanced
-	
+
 Map_ClimatrolF4:
 	dc.w	$0536
 	dc.l	$22000000|loc_536D2
@@ -47312,7 +47312,7 @@ Map_ClimatrolF4:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_291B2
 	dc.b	$86, MusicID_Advanced
-	
+
 Map_ClimatrolF5:
 	dc.w	$0536
 	dc.l	$23000000|loc_5392C
@@ -47320,7 +47320,7 @@ Map_ClimatrolF5:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_291EA
 	dc.b	$86, MusicID_Advanced
-	
+
 Map_ClimatrolF6:
 	dc.w	$0536
 	dc.l	$24000000|loc_53BAA
@@ -47328,7 +47328,7 @@ Map_ClimatrolF6:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_29294
 	dc.b	$86, MusicID_Advanced
-	
+
 Map_ClimatrolF7:
 	dc.w	$0536
 	dc.l	$25000000|loc_53E04
@@ -47336,7 +47336,7 @@ Map_ClimatrolF7:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$0F000000|loc_29344
 	dc.b	$86, MusicID_Advanced
-	
+
 Map_ControlTowerGroundF:
 	dc.w	$0536
 	dc.l	$30000000|loc_54086
@@ -47344,7 +47344,7 @@ Map_ControlTowerGroundF:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$34000000|loc_2937C
 	dc.b	$87, MusicID_Mystery
-	
+
 Map_ControlTowerF1:
 	dc.w	$0536
 	dc.l	$31000000|loc_54300
@@ -47352,7 +47352,7 @@ Map_ControlTowerF1:
 	dc.l	$19000000|loc_29CF2
 	dc.l	$34000000|loc_29522
 	dc.b	$88, MusicID_Mystery
-	
+
 Map_TubeNearZema:
 	dc.w	$0522
 	dc.l	loc_4C5AE
@@ -47360,7 +47360,7 @@ Map_TubeNearZema:
 	dc.l	$11000000|loc_29CF2
 	dc.l	$09000000|loc_296C2
 	dc.b	$07, MusicID_Restoration
-	
+
 Map_Gaira:
 	dc.w	$0534
 	dc.l	loc_580EE
@@ -47368,24 +47368,24 @@ Map_Gaira:
 	dc.l	$05000000+loc_29CF2
 	dc.l	$38000000+loc_296D0
 	dc.b	$0D, MusicID_Mystery
-	
+
 
 Map_Gaira_Copy:
 	dc.w	$0534
 	dc.l	loc_580EE
-	dc.l	$3D000000|loc_5455E	
+	dc.l	$3D000000|loc_5455E
 	dc.l	$05000000|loc_29CF2
-	dc.l	$38000000|loc_296D0	
+	dc.l	$38000000|loc_296D0
 	dc.b	$0D, MusicID_Mystery
-	
+
 Map_NavalGroundF:
-	dc.w	$8634	
+	dc.w	$8634
 	dc.l	loc_54752
 	dc.l	$45000000|loc_57FC4
 	dc.l	$19000000|loc_29DD6
 	dc.l	$3F000000|loc_296D0
 	dc.b	$86, MusicID_Violation
-	
+
 Map_NavalF1:
 	dc.w	$8634
 	dc.l	loc_548DE
@@ -47393,7 +47393,7 @@ Map_NavalF1:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$3F000000|loc_296DE
 	dc.b	$86, MusicID_Violation
-	
+
 Map_NavalF2:
 	dc.w	$8634
 	dc.l	loc_54A72
@@ -47401,7 +47401,7 @@ Map_NavalF2:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$3F000000|loc_296F8
 	dc.b	$86, MusicID_Violation
-	
+
 Map_NavalF3:
 	dc.w	$8634
 	dc.l	loc_54C04
@@ -47409,7 +47409,7 @@ Map_NavalF3:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$3F000000|loc_29712
 	dc.b	$86, MusicID_Violation
-	
+
 Map_NavalF4:
 	dc.w	$8634
 	dc.l	loc_54D98
@@ -47417,7 +47417,7 @@ Map_NavalF4:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$3F000000|loc_2972C
 	dc.b	$86, MusicID_Violation
-	
+
 Map_MenobeGroundF:
 	dc.w	$8646
 	dc.l	loc_54F24
@@ -47425,7 +47425,7 @@ Map_MenobeGroundF:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$40000000|loc_2973A
 	dc.b	$86, MusicID_Violation
-	
+
 Map_MenobeF1:
 	dc.w	$8646
 	dc.l	loc_552B2
@@ -47433,7 +47433,7 @@ Map_MenobeF1:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$40000000|loc_2977E
 	dc.b	$86, MusicID_Violation
-	
+
 Map_MenobeF2:
 	dc.w	$8646
 	dc.l	loc_5558E
@@ -47441,7 +47441,7 @@ Map_MenobeF2:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$40000000|loc_297E6
 	dc.b	$86, MusicID_Violation
-	
+
 Map_MenobeF3:
 	dc.w	$8646
 	dc.l	loc_5586A
@@ -47449,7 +47449,7 @@ Map_MenobeF3:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$40000000|loc_29848
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoB6:
 	dc.w	$8666
 	dc.l	loc_55AD4
@@ -47457,7 +47457,7 @@ Map_IkutoB6:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_29886
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoB5:
 	dc.w	$8666
 	dc.l	loc_55E84
@@ -47465,7 +47465,7 @@ Map_IkutoB5:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_2988E
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoB4:
 	dc.w	$8666
 	dc.l	loc_56346
@@ -47473,7 +47473,7 @@ Map_IkutoB4:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_2989C
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoB3:
 	dc.w	$8636
 	dc.l	loc_56818
@@ -47481,7 +47481,7 @@ Map_IkutoB3:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_298AA
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoB2:
 	dc.w	$8624
 	dc.l	loc_56A5A
@@ -47489,7 +47489,7 @@ Map_IkutoB2:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_298B8
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoB1:
 	dc.w	$8622
 	dc.l	loc_56B5C
@@ -47497,7 +47497,7 @@ Map_IkutoB1:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_298C6
 	dc.b	$86, MusicID_Violation
-	
+
 Map_IkutoGroundF:
 	dc.w	$8612
 	dc.l	loc_56BF4
@@ -47505,7 +47505,7 @@ Map_IkutoGroundF:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$41000000|loc_298D4
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronGroundF:
 	dc.w	$8636
 	dc.l	loc_56C34
@@ -47513,7 +47513,7 @@ Map_GuaronGroundF:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_298DC
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF1:
 	dc.w	$8626
 	dc.l	loc_56ED0
@@ -47521,7 +47521,7 @@ Map_GuaronF1:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_2990E
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF2:
 	dc.w	$8622
 	dc.l	loc_57094
@@ -47529,7 +47529,7 @@ Map_GuaronF2:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_29946
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF3:
 	dc.w	$8622
 	dc.l	loc_57094
@@ -47537,15 +47537,15 @@ Map_GuaronF3:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_29954
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF4:
-	dc.w	$8622	
+	dc.w	$8622
 	dc.l	loc_57094
 	dc.l	$4E000000|loc_57FC4
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_29962
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF5:
 	dc.w	$8622
 	dc.l	loc_5711E
@@ -47553,15 +47553,15 @@ Map_GuaronF5:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_29970
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF6:
 	dc.w	$8622
 	dc.l	loc_5711E
 	dc.l	$4E000000|loc_57FC4
-	dc.l	$19000000|loc_29DD6	
+	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_2997E
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF7:
 	dc.w	$8634
 	dc.l	loc_571A8
@@ -47569,31 +47569,31 @@ Map_GuaronF7:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_2998C
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF8:
 	dc.w	$8624
 	dc.l	loc_57354
 	dc.l	$4F000000|loc_57FC4
-	dc.l	$19000000|loc_29DD6	
+	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_2999A
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF9:
 	dc.w	$8622
 	dc.l	loc_57468
 	dc.l	$50000000|loc_57FC4
-	dc.l	$19000000|loc_29DD6	
+	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_299A8
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF10:
 	dc.w	$8622
 	dc.l	loc_57468
 	dc.l	$50000000|loc_57FC4
-	dc.l	$19000000|loc_29DD6	
-	dc.l	$42000000|loc_299B6	
+	dc.l	$19000000|loc_29DD6
+	dc.l	$42000000|loc_299B6
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF11:
 	dc.w	$8622
 	dc.l	loc_57468
@@ -47601,39 +47601,39 @@ Map_GuaronF11:
 	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_299C4
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF12:
 	dc.w	$8622
 	dc.l	loc_574D6
 	dc.l	$50000000|loc_57FC4
-	dc.l	$19000000|loc_29DD6	
+	dc.l	$19000000|loc_29DD6
 	dc.l	$42000000|loc_299D2
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF13:
 	dc.w	$8622
 	dc.l	loc_574D6
 	dc.l	$50000000|loc_57FC4
 	dc.l	$19000000|loc_29DD6
-	dc.l	$42000000|loc_299E0	
+	dc.l	$42000000|loc_299E0
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF14:
 	dc.w	$8622
 	dc.l	loc_574D6
 	dc.l	$50000000|loc_57FC4
 	dc.l	$19000000|loc_29DD6
-	dc.l	$42000000|loc_299EE	
+	dc.l	$42000000|loc_299EE
 	dc.b	$86, MusicID_Violation
-	
+
 Map_GuaronF15:
 	dc.w	$8622
 	dc.l	loc_57544
 	dc.l	$51000000|loc_57FC4
 	dc.l	$19000000|loc_29DD6
-	dc.l	$42000000|loc_299FC	
+	dc.l	$42000000|loc_299FC
 	dc.b	$86, MusicID_Violation
-	
+
 Map_NoahGroundF:
 	dc.w	$8674
 	dc.l	loc_5811C
@@ -47641,17 +47641,17 @@ Map_NoahGroundF:
 	dc.l	$05000000|loc_29DD6
 	dc.l	$3E000000|loc_29A04
 	dc.b	$C, MusicID_Under
-	
+
 Map_NoahF1:
 	dc.w	$8694
 	dc.l	loc_5811C
 	dc.l	$53000000|loc_57A52
-	dc.l	$05000000|loc_29DD6	
+	dc.l	$05000000|loc_29DD6
 	dc.l	$3E000000|loc_29AB4
 	dc.b	$C, MusicID_Under
 
 ; =============================================
-loc_283EE:	
+loc_283EE:
 	dc.w	loc_2840A-loc_283EE
 	dc.w	loc_28424-loc_283EE
 	dc.w	loc_28444-loc_283EE
@@ -47666,7 +47666,7 @@ loc_283EE:
 	dc.w	loc_28504-loc_283EE
 	dc.w	loc_28518-loc_283EE
 	dc.w	loc_2852C-loc_283EE
-; =============================================	
+; =============================================
 
 loc_2840A:
 	dc.w	3
@@ -47678,9 +47678,9 @@ loc_2840A:
 	dc.b	$92, $60 ;0x0 (0x0002841C-0x0002841E, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_58A5C
 	dc.w	$97C0
-	
+
 loc_28424:
-	dc.w	4	
+	dc.w	4
 	dc.l	loc_59A10
 	dc.b	$80, $00 ;0x0 (0x0002842A-0x0002842C, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5814A
@@ -47691,30 +47691,30 @@ loc_28424:
 	dc.b	$92, $60 ;0x0 (0x0002843C-0x0002843E, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_58A5C
 	dc.w	$97C0
-	
+
 loc_28444:
-	dc.w	0	
+	dc.w	0
 	dc.l	loc_59272
 	dc.w	$8000
-	
+
 loc_2844C:
-	dc.w	1	
+	dc.w	1
 	dc.l	loc_59FB6
 	dc.b	$80, $00 ;0x0 (0x00028452-0x00028454, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D710
 	dc.w	$93A0
-	
+
 loc_2845A:
-	dc.w	2	
+	dc.w	2
 	dc.l	loc_5AE9C
 	dc.b	$80, $00 ;0x0 (0x00028460-0x00028462, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5A886
 	dc.b	$88, $80 ;0x0 (0x00028466-0x00028468, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5A410
 	dc.w	$9140
-	
+
 loc_2846E:
-	dc.w	3	
+	dc.w	3
 	dc.l	loc_5B5B4
 	dc.b	$80, $00 ;0x0 (0x00028474-0x00028476, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5C67E
@@ -47723,9 +47723,9 @@ loc_2846E:
 	dc.b	$8B, $40 ;0x0 (0x00028480-0x00028482, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5BCA2
 	dc.w	$8FA0
-	
+
 loc_28488:
-	dc.w	4	
+	dc.w	4
 	dc.l	loc_5AE9C
 	dc.b	$80, $00 ;0x0 (0x0002848E-0x00028490, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D05E
@@ -47736,9 +47736,9 @@ loc_28488:
 	dc.b	$93, $A0 ;0x0 (0x000284A0-0x000284A2, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D1A8
 	dc.w	$96E0
-	
+
 loc_284A8:
-	dc.w	4	
+	dc.w	4
 	dc.l	loc_5B452
 	dc.b	$80, $00 ;0x0 (0x000284AE-0x000284B0, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5A886
@@ -47749,9 +47749,9 @@ loc_284A8:
 	dc.b	$93, $A0 ;0x0 (0x000284C0-0x000284C2, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D1A8
 	dc.w	$96E0
-	
+
 loc_284C8:
-	dc.w	3	
+	dc.w	3
 	dc.l	loc_5AE9C
 	dc.b	$80, $00 ;0x0 (0x000284CE-0x000284D0, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D560
@@ -47760,43 +47760,43 @@ loc_284C8:
 	dc.b	$93, $A0 ;0x0 (0x000284DA-0x000284DC, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D1A8
 	dc.w	$96E0
-	
+
 loc_284E2:
-	dc.w	2	
+	dc.w	2
 	dc.l	loc_59A10
 	dc.b	$80, $00 ;0x0 (0x000284E8-0x000284EA, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D710
 	dc.b	$93, $A0 ;0x0 (0x000284EE-0x000284F0, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D1A8
 	dc.w	$96E0
-	
+
 loc_284F6:
-	dc.w	1	
+	dc.w	1
 	dc.l	loc_5D98E
 	dc.b	$80, $00 ;0x0 (0x000284FC-0x000284FE, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5E322
 	dc.w	$86E0
-	
+
 loc_28504:
-	dc.w	2	
+	dc.w	2
 	dc.l	loc_5B5B4
 	dc.b	$80, $00 ;0x0 (0x0002850A-0x0002850C, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5C67E
 	dc.b	$89, $20 ;0x0 (0x00028510-0x00028512, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D560
 	dc.w	$9140
-	
+
 loc_28518:
-	dc.w	2	
+	dc.w	2
 	dc.l	loc_5C900
 	dc.b	$80, $00 ;0x0 (0x0002851E-0x00028520, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5DFEA
 	dc.b	$89, $80 ;0x0 (0x00028524-0x00028526, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D560
 	dc.w	$9140
-	
+
 loc_2852C:
-	dc.w	3	
+	dc.w	3
 	dc.l	loc_5D12C
 	dc.b	$64, $00 ;0x0 (0x00028532-0x00028534, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D12C
@@ -47805,7 +47805,7 @@ loc_2852C:
 	dc.b	$66, $00 ;0x0 (0x0002853E-0x00028540, Entry count: 0x00000002) [Unknown data]
 	dc.l	loc_5D12C
 	dc.b	$67, $00 ;0x0 (0x00028544-0x00028546, Entry count: 0x00000002) [Unknown data]
-	
+
 
 ; ==============================================================
 ; 1st byte = Map ID
@@ -47911,8 +47911,8 @@ loc_28546:
 ; ==============================================================
 
 	even
-	
-	
+
+
 loc_28664:
 	dc.b	$39, $49, $00, $04, $09, $02, $33, $59, $00, $05, $09, $02, $29, $39, $00, $06
 	dc.b	$2D, $28, $47, $37, $00, $07, $09, $02, $55, $25, $00, $08, $02 ;0x100
@@ -47923,8 +47923,8 @@ loc_28664:
 	dc.b	$0F, $1B, $09, $41, $2D, $00, $24, $19, $0A, $51, $51, $00, $29, $19, $2F, $41
 	dc.b	$5B, $00, $2B, $1F, $36, $2F, $41, $00, $30, $11, $5D, $3B, $23, $00, $33, $4D ;0x160
 	dc.b	$30, $77, $5B, $00, $23, $02, $0F, $61, $AD, $00, $12, $5D, $87, $FF, $FF
-	
-loc_286F0:	
+
+loc_286F0:
 	dc.b	$0D, $3B, $00, $02, $0E, $3B, $0D, $4B, $00, $02, $0E, $4B, $1D, $17, $00, $02, $1E ;0x180
 	dc.b	$17, $1F, $3B, $00, $02, $20, $3B, $1F, $45, $00, $02, $20, $45, $25, $1D, $00
 	dc.b	$02, $26, $1D, $25, $29, $00, $02, $26, $29, $29, $3B, $00, $02, $2A, $3B, $2D ;0x1A0
@@ -47932,7 +47932,7 @@ loc_286F0:
 	dc.b	$49, $37, $2F, $00, $02, $38, $2F, $39, $11, $00, $02, $3A, $11, $41, $25, $00
 	dc.b	$02, $42, $25, $41, $35, $00, $02, $42, $35, $49, $29, $00, $02, $4A, $29, $49
 	dc.b	$4F, $00, $02, $4A, $4D, $FF, $FF
-	
+
 loc_28758:
 	dc.b	$0D, $2F, $00, $03, $2E, $2F, $0D, $5B, $00 ;0x1E0
 	dc.b	$03, $2E, $5B, $1D, $2F, $00, $03, $3E, $2F, $29, $11, $00, $03, $4A, $11, $37
@@ -47961,159 +47961,159 @@ loc_28864:
 	dc.b	$08, $00, $1B, $3A, $06, $0E, $05, $01, $05, $3A, $05, $0D, $05 ;0x300
 	dc.b	$02, $0F, $20, $08, $15, $00, $00, $11, $3A, $07, $0C, $04, $00, $1B, $07, $03
 	dc.b	$0B, $00, $00, $11, $07, $0F, $1E, $00, $00, $FF, $FF
-	
+
 loc_2889C:
 	dc.b	$1B, $13, $0F, $1E, $00 ;0x320
 	dc.b	$00, $05, $15, $04, $0A, $0A, $00, $07, $05, $03, $0B, $00, $00, $11, $05, $05
 	dc.b	$0D, $05, $03, $FF, $FF
-	
+
 loc_288B6:
 	dc.b	$13, $27, $02, $09, $00, $00, $0B, $37, $04, $0A, $0F ;0x340
 	dc.b	$00, $0B, $27, $06, $0E, $05, $05, $05, $1D, $05, $0D, $05, $06, $07, $2D, $07
 	dc.b	$0C, $04, $04, $07, $39, $03, $0B, $00, $00, $07, $07, $0C, $0F, $00, $00, $13 ;0x360
 	dc.b	$39, $0F, $1E, $00, $00, $FF, $FF
-	
+
 loc_288E8:
 	dc.b	$0B, $2D, $06, $0E, $05, $08, $05, $07, $07, $0C, $04, $07, $05, $31, $05, $0D
 	dc.b	$05, $09, $0B, $17, $02, $09, $00, $00, $07 ;0x380
 	dc.b	$13, $04, $0A, $14, $00, $0B, $13, $03, $0B, $00, $00, $07, $29, $0F, $1E, $00
 	dc.b	$00, $FF, $FF
-	
+
 loc_28914:
 	dc.b	$25, $05, $03, $0B, $00, $00, $11, $1B, $02, $09, $00, $00, $1D ;0x3A0
 	dc.b	$05, $07, $0C, $05, $0A, $1D, $1B, $04, $0A, $1E, $00, $11, $05, $06, $0E, $05
 	dc.b	$0B, $15, $1B, $05, $0D, $05, $0C, $27, $0F, $0D, $0C, $00, $00, $15, $05, $0F ;0x3C0
 	dc.b	$1E, $00, $00, $FF, $FF
-	
+
 loc_28946:
 	dc.b	$19, $35, $02, $09, $00, $00, $25, $39, $07, $0C, $05, $0D, $15, $29, $04, $0A
 	dc.b	$2D, $00, $29, $31, $05, $0D, $05, $0F, $25, $29, $03 ;0x3E0
 	dc.b	$0B, $00, $00, $21, $29, $06, $0E, $05, $0E, $19, $27, $0F, $1E, $00, $00, $17
 	dc.b	$09, $01, $3E, $29, $2E, $FF, $FF
-	
+
 loc_28978:
 	dc.b	$05, $07, $02, $10, $00, $00, $11, $0D, $04 ;0x400
 	dc.b	$11, $32, $00, $11, $19, $07, $13, $01, $10, $19, $09, $03, $0B, $00, $00, $0B
 	dc.b	$1B, $06, $10, $05, $11, $17, $05, $05, $11, $05, $12, $19, $19, $0F, $13, $01 ;0x420
 	dc.b	$00, $FF, $FF
-	
+
 loc_289A4:
 	dc.b	$17, $0B, $06, $11, $05, $14, $07, $09, $05, $13, $05, $15, $05, $15, $02, $10
 	dc.b	$00, $00, $0F, $13, $07, $12, $01, $13, $11, $07, $04, $11, $32 ;0x440
 	dc.b	$00, $19, $13, $03, $0B, $00, $00, $13, $13, $0F, $13, $01, $00, $FF, $FF
-	
+
 loc_289D0:
 	dc.b	$07, $1F, $02, $10, $00, $00, $0B, $2D, $04, $10, $32, $00, $05, $33, $03, $0B, $00 ;0x460
 	dc.b	$00, $05, $09, $06, $12, $05, $17, $09, $0D, $05, $13, $05, $18, $0B, $29, $07
 	dc.b	$10, $01, $16, $05, $0F, $0F, $13, $01, $00, $FF, $FF
-	
+
 loc_289FC:
 	dc.b	$07, $09, $00, $00, $2D, $49, $1E, $09, $00, $00, $35, $49, $FF, $FF
-	
+
 loc_28A0A:
 	dc.b	$09, $03, $00, $00, $15, $3E, $0B, $03, $00, $00, $15, $3E, $09, $1C, $00, $00
 	dc.b	$15, $43, $0B, $1C, $00, $00, $15 ;0x4A0
 	dc.b	$43, $FF, $FF
-	
+
 loc_28A24:
 	dc.b	$07, $09, $00, $00, $3F, $29, $1E, $09, $00, $00, $45, $29, $FF, $FF
-	
+
 loc_28A32:
 	dc.b	$0D, $0F, $00, $11, $0E, $0F, $FF, $FF
-	
+
 loc_28A3A:
 	dc.b	$0D, $0F, $00, $10, $0E, $10, $FF, $FF
-	
+
 loc_28A42:
 	dc.b	$5F, $87, $00, $00, $61, $AE, $17, $55, $00, $12, $22, $50, $19, $6D, $00, $12
 	dc.b	$24, $74, $1B, $97, $00, $12, $34, $90, $21, $51, $00, $12, $18, $54, $23 ;0x4E0
 	dc.b	$75, $00, $12, $1A, $6C, $31, $37, $00, $12, $32, $A6, $31, $A7, $00, $12, $32
 	dc.b	$36, $33, $91, $00, $12, $1C, $96, $39, $3B, $00, $12, $4C, $68, $4B, $69, $00 ;0x500
 	dc.b	$12, $3A, $3A, $4D, $15, $00, $12, $56, $AC, $55, $AD, $00, $12, $4E, $14, $FF, $FF
-	
+
 loc_28A92:
 	dc.b	$17, $6F, $00, $00, $0F, $9F, $1D, $03, $00, $36, $08, $52, $FF, $FF
-	
+
 loc_28AA0:
 	dc.b	$0B ;0x520
 	dc.b	$0B, $00, $15, $1B, $2E, $0F, $1B, $00, $15, $1F, $3C, $1B, $13, $00, $15, $2E
 	dc.b	$33, $FF, $FF
-	
+
 loc_28AB4:
 	dc.b	$09, $2F, $00, $16, $0A, $2F, $23, $35, $00, $16, $23, $36, $25 ;0x540
 	dc.b	$13, $00, $16, $26, $13, $3D, $33, $00, $16, $4D, $34, $1B, $2D, $00, $14, $0B
 	dc.b	$0C, $1F, $3B, $00, $14, $10, $1B, $2D, $33, $00, $14, $1B, $14, $FF, $FF
-	
+
 loc_28AE0:
 	dc.b	$17 ;0x560
 	dc.b	$5B, $00, $03, $1F, $20, $1B, $03, $00, $03, $1F, $09, $39, $23, $00, $03, $2D
 	dc.b	$11, $4D, $27, $00, $03, $34, $14, $09, $2F, $00, $15, $0A, $2E, $23, $35, $00 ;0x580
 	dc.b	$15, $23, $36, $25, $13, $00, $15, $26, $13, $4D, $33, $00, $15, $3D, $34, $FF, $FF
-	
+
 loc_28B12:
 	dc.b	$0F, $17, $00, $18, $0F, $15, $13, $4B, $00, $18, $14, $4A, $19, $31, $00 ;0x5A0
 	dc.b	$18, $1A, $30, $23, $17, $00, $18, $23, $17, $25, $4B, $00, $18, $25, $49, $FF, $FF
-	
+
 loc_28B32:
 	dc.b	$0F, $17, $00, $17, $10, $16, $13, $4B, $00, $17, $13, $49, $19, $31, $00 ;0x5C0
 	dc.b	$17, $1A, $30, $23, $19, $00, $17, $23, $15, $25, $4B, $00, $17, $25, $49, $11
 	dc.b	$13, $00, $19, $11, $11, $0B, $4B, $00, $19, $0C, $4A, $1D, $11, $00, $19, $1E ;0x5E0
 	dc.b	$10, $23, $4F, $00, $19, $24, $4E, $FF, $FF
-	
+
 loc_28B6A:
 	dc.b	$11, $13, $00, $18, $11, $11, $0B, $4B, $00, $18, $0C, $4A, $1D, $11, $00, $18
 	dc.b	$1E, $10, $23, $4F, $00, $18, $24 ;0x600
 	dc.b	$4E, $1F, $45, $00, $1A, $1F, $43, $FF, $FF
-	
+
 loc_28B8A:
 	dc.b	$1F, $45, $00, $19, $1F, $43, $FF, $FF
-	
+
 loc_28B92:
 	dc.b	$2D, $34, $00, $1B, $2B, $34, $2D, $36, $00, $1B, $2B, $35, $2D, $37, $00 ;0x620
 	dc.b	$1B, $2E, $37, $09, $43, $00, $1C, $0A, $42, $17, $09, $00, $1C, $17, $07, $1D
 	dc.b	$49, $00, $1C, $1D, $47, $21, $21, $00, $1C, $22, $20, $FF, $FF
-	
+
 loc_28BBE:
 	dc.b	$09, $43, $00 ;0x640
 	dc.b	$1B, $0A, $42, $17, $09, $00, $1B, $18, $08, $1D, $49, $00, $1B, $1D, $47, $21
 	dc.b	$21, $00, $1B, $22, $20, $17, $15, $00, $1D, $17, $13, $23, $59, $00, $1D, $24 ;0x660
 	dc.b	$58, $2F, $09, $00, $1D, $2F, $07, $FF, $FF
-	
+
 loc_28BEA:
 	dc.b	$17, $15, $00, $1C, $17, $13, $23, $59, $00, $1C, $24, $58, $2F, $09, $00, $1C
 	dc.b	$2F, $07, $FF, $FF
-	
+
 loc_28BFE:
 	dc.b	$05, $07, $00, $20, $16, $06, $FF, $FF
-	
+
 loc_28C06:
 	dc.b	$09, $19, $00, $21, $0A, $58, $FF, $FF
-	
+
 loc_28C0E:
 	dc.b	$07, $27, $00, $22, $25, $06, $05, $3B, $00, $22, $25, $19, $1B, $27, $00, $22
 	dc.b	$3B, $08, $15 ;0x6A0
 	dc.b	$07, $00, $1E, $06, $06, $FF, $FF
-	
+
 loc_28C28:
 	dc.b	$15, $19, $00, $22, $16, $56, $19, $07, $00, $22, $1A, $46, $09, $59, $00, $1F
 	dc.b	$09, $17, $FF, $FF
-	
+
 loc_28C3C:
 	dc.b	$29, $2D, $00, $23, $0A ;0x6C0
 	dc.b	$0C, $37, $33, $00, $23, $18, $12, $15, $57, $00, $21, $16, $1A, $19, $47, $00
 	dc.b	$21, $1A, $06, $27, $07, $00, $20, $07, $25, $25, $1B, $00, $20, $05, $39, $3B ;0x6E0
 	dc.b	$07, $00, $20, $1B, $28, $FF, $FF
-	
+
 loc_28C68:
 	dc.b	$09, $0D, $00, $22, $2A, $2C, $17, $13, $00, $22, $38, $32, $FF, $FF
-	
+
 loc_28C76:
 	dc.b	$19, $09, $00, $00, $41, $2C, $1B, $10, $00, $24, $19 ;0x700
 	dc.b	$10, $1B, $12, $00, $24, $1C, $11, $09, $0B, $00, $25, $0A, $0B, $15, $19, $00
 	dc.b	$25, $15, $17, $15, $57, $00, $25, $15, $55, $19, $31, $00, $25, $19, $2F, $19 ;0x720
 	dc.b	$43, $00, $25, $1A, $43, $1B, $19, $00, $25, $1C, $19, $1B, $57, $00, $25, $1C
 	dc.b	$57, $27, $0B, $00, $25, $28, $0B, $FF, $FF
-	
+
 loc_28CBA:
 	dc.b	$09, $0B, $00, $24, $0A, $0B, $15 ;0x740
 	dc.b	$19, $00, $24, $16, $19, $15, $57, $00, $24, $16, $57, $19, $31, $00, $24, $19
@@ -48121,25 +48121,25 @@ loc_28CBA:
 	dc.b	$24, $1C, $57, $27, $0B, $00, $24, $28, $0B, $09, $5B, $00, $26, $0A, $5B, $0B
 	dc.b	$1B, $00, $26, $0C, $1B, $0B, $3B, $00, $26, $0B, $3C, $0D, $2D, $00, $26, $0D ;0x780
 	dc.b	$2B, $15, $09, $00, $26, $16, $09, $FF, $FF
-	
+
 loc_28D0A:
 	dc.b	$09, $5B, $00, $25, $09, $59, $0B, $1B, $00, $25, $0C, $1B, $0B, $3B, $00, $25
 	dc.b	$0C, $3B, $0D, $2D, $00, $25, $0E ;0x7A0
 	dc.b	$2D, $15, $09, $00, $25, $16, $09, $19, $1B, $00, $27, $1A, $18, $19, $2D, $00
 	dc.b	$27, $1A, $2D, $19, $47, $00, $27, $1A, $47, $25, $21, $00, $27, $23, $21, $25 ;0x7C0
 	dc.b	$3B, $00, $27, $23, $3B, $29, $51, $00, $27, $27, $51, $FF, $FF
-	
+
 loc_28D4E:
 	dc.b	$19, $1B, $00, $26, $1A, $1B, $19, $2D, $00, $26, $1A, $2D, $19, $47, $00, $26
 	dc.b	$1A, $47, $25 ;0x7E0
 	dc.b	$21, $00, $26, $23, $21, $25, $3B, $00, $26, $23, $3B, $29, $51, $00, $26, $27
 	dc.b	$51, $FF, $FF
-	
+
 loc_28D74:
 	dc.b	$05, $25, $00, $29, $05, $26, $05, $3B, $00, $29, $05, $39, $05 ;0x800
 	dc.b	$5B, $00, $29, $05, $59, $09, $17, $00, $29, $0A, $17, $11, $17, $00, $29, $12
 	dc.b	$17, $1B, $05, $00, $29, $1B, $06, $1B, $5B, $00, $29, $1B, $59, $FF, $FF
-	
+
 loc_28DA0:
 	dc.b	$1B
 	dc.b	$2F, $00, $00, $52, $51, $11, $30, $00, $29, $0F, $30, $11, $32, $00, $29, $12
@@ -48148,31 +48148,31 @@ loc_28DA0:
 	dc.b	$05, $00, $28, $1B, $06, $1B, $5B, $00, $28, $1B, $59, $05, $05, $00, $2A, $05 ;0x860
 	dc.b	$06, $0F, $57, $00, $2A, $0D, $57, $13, $49, $00, $2A, $14, $49, $15, $27, $00
 	dc.b	$2A, $16, $27, $1B, $1B, $00, $2A, $1B, $19, $FF, $FF
-	
+
 loc_28DFC:
 	dc.b	$05, $05, $00, $29, $05 ;0x880
 	dc.b	$06, $0F, $57, $00, $29, $10, $57, $13, $49, $00, $29, $14, $49, $15, $27, $00
 	dc.b	$29, $16, $27, $1B, $1B, $00, $29, $1B, $19, $FF, $FF
-	
+
 loc_28E1C:
 	dc.b	$21, $37, $00, $00, $41 ;0x8A0
 	dc.b	$5C, $1B, $36, $00, $2B, $19, $36, $1B, $38, $00, $2B, $1C, $37, $0D, $17, $00
 	dc.b	$2C, $0D, $15, $27, $11, $00, $2C, $27, $0F, $2B, $37, $00, $2C, $2B, $35, $3B ;0x8C0
 	dc.b	$17, $00, $2C, $39, $16, $FF, $FF
-	
+
 loc_28E48:
 	dc.b	$0D, $17, $00, $2B, $0D, $15, $27, $11, $00, $2B, $27, $0F, $2B, $37, $00, $2B
 	dc.b	$2B, $35, $3B, $17, $00, $2B, $39, $16, $05 ;0x8E0
 	dc.b	$1B, $00, $2D, $05, $19, $19, $2F, $00, $2D, $19, $2D, $29, $07, $00, $2D, $2A
 	dc.b	$06, $2B, $2F, $00, $2D, $2B, $2D, $33, $1B, $00, $2D, $31, $19, $FF, $FF
-	
+
 loc_28E80:
 	dc.b	$05 ;0x900
 	dc.b	$1B, $00, $2C, $05, $19, $19, $2F, $00, $2C, $19, $2D, $29, $07, $00, $2C, $2A
 	dc.b	$06, $2B, $2F, $00, $2C, $2B, $2D, $33, $1B, $00, $2C, $33, $19, $05, $05, $00 ;0x920
 	dc.b	$2E, $06, $04, $0F, $0D, $00, $2E, $0F, $0B, $17, $23, $00, $2E, $17, $21, $23
 	dc.b	$1D, $00, $2E, $21, $1B, $3B, $19, $00, $2E, $3B, $17, $FF, $FF
-	
+
 loc_28EBE:
 	dc.b	$05, $05, $00 ;0x940
 	dc.b	$2D, $06, $04, $0F, $0D, $00, $2D, $0F, $0B, $17, $23, $00, $2D, $17, $21, $23
@@ -48180,14 +48180,14 @@ loc_28EBE:
 	dc.b	$16, $0F, $19, $00, $2F, $0F, $17, $15, $31, $00, $2F, $15, $2F, $21, $21, $00
 	dc.b	$2F, $1F, $20, $25, $31, $00, $2F, $26, $30, $31, $19, $00, $2F, $31, $17, $3B ;0x980
 	dc.b	$09, $00, $2F, $3B, $07, $FF, $FF
-	
-loc_28F08:	
+
+loc_28F08:
 	dc.b	$05, $17, $00, $2E, $06, $16, $0F, $19, $00, $2E, $0F, $17, $15, $31, $00, $2E
 	dc.b	$15, $2F, $21, $21, $00, $2E, $1F, $20, $25 ;0x9A0
 	dc.b	$31, $00, $2E, $26, $30, $31, $19, $00, $2E, $31, $17, $3B, $09, $00, $2E, $3B
 	dc.b	$07, $FF, $FF
-	
-loc_28F34:	
+
+loc_28F34:
 	dc.b	$11, $5F, $00, $00, $2C, $41, $19, $5E, $00, $30, $1A, $5E, $19 ;0x9C0
 	dc.b	$60, $00, $30, $17, $5F, $07, $11, $00, $31, $07, $0F, $07, $37, $00, $31, $07
 	dc.b	$35, $07, $89, $00, $31, $08, $88, $09, $15, $00, $31, $0A, $14, $09, $23, $00 ;0x9E0
@@ -48223,42 +48223,42 @@ loc_29020:
 
 loc_290FA:
 	dc.b	$3B, $09, $00, $33, $39, $09, $FF, $FF
-	
+
 loc_29102:
 	dc.b	$49, $2F, $00, $33, $47, $2F, $49, $31, $00, $33, $4B, $30, $3B, $09, $00, $32
 	dc.b	$3C, $09, $05, $29, $00, $34, $06, $29, $15, $31, $00, $34, $13, $31, $19 ;0xBA0
 	dc.b	$39, $00, $34, $17, $39, $2B, $17, $00, $34, $29, $17, $2F, $45, $00, $34, $30
 	dc.b	$45, $35, $37, $00, $34, $35, $35, $FF, $FF
-	
+
 loc_2913A:
 	dc.b	$05, $29, $00, $33, $06, $29, $15 ;0xBC0
 	dc.b	$31, $00, $33, $15, $2F, $19, $39, $00, $33, $17, $39, $2B, $17, $00, $33, $29
 	dc.b	$17, $2F, $45, $00, $33, $30, $45, $35, $37, $00, $33, $35, $35, $1B, $4F, $00 ;0xBE0
 	dc.b	$35, $1C, $4F, $FF, $FF
-	
+
 loc_29166:
 	dc.b	$2F, $2F, $00, $35, $2D, $2F, $2F, $31, $00, $35, $30, $30, $1B, $4F, $00, $34
 	dc.b	$1C, $4F, $FF, $FF
-	
+
 loc_2917A:
 	dc.b	$07, $53, $00, $13, $1D, $04, $25 ;0xC00
 	dc.b	$05, $00, $37, $16, $06, $FF, $FF
-	
+
 loc_29188:
 	dc.b	$15, $07, $00, $36, $26, $04, $11, $19, $00, $38, $11, $17, $FF, $FF
-	
+
 loc_29196:
 	dc.b	$11, $19, $00, $37, $11, $17, $07, $0F, $00, $39, $07, $0D, $FF, $FF
-	
+
 loc_291A4:
 	dc.b	$07, $0F, $00, $38, $07, $0D, $19, $11, $00, $3A, $19, $2F, $FF, $FF
-	
+
 loc_291B2:
 	dc.b	$19, $31, $00, $39, $19, $0F, $05, $03, $00, $3B, $06, $02, $05, $19, $00 ;0xC40
 	dc.b	$3B, $06, $18, $05, $4B, $00, $3B, $05, $4A, $05, $5D, $00, $3B, $06, $5C, $2B
 	dc.b	$03, $00, $3B, $2C, $02, $2B, $19, $00, $3B, $2C, $18, $2B, $4B, $00, $3B, $2C ;0xC60
 	dc.b	$4A, $2B, $5D, $00, $3B, $2C, $5C, $FF, $FF
-	
+
 loc_291EA:
 	dc.b	$05, $03, $00, $3A, $06, $02, $05, $19, $00, $3A, $06, $18, $05, $4B, $00, $3A
 	dc.b	$06, $4A, $05, $5D, $00, $3A, $06 ;0xC80
@@ -48271,7 +48271,7 @@ loc_291EA:
 	dc.b	$3B, $21, $03, $00, $3C, $1F, $02, $21, $57, $00, $3C, $21, $55, $21, $5D, $00
 	dc.b	$3C, $22, $5C, $23, $19, $00, $3C, $24, $18, $25, $2B, $00, $3C, $25, $29, $27 ;0xD00
 	dc.b	$33, $00, $3C, $27, $34, $27, $5D, $00, $3C, $28, $5C, $2B, $2F, $00, $3C, $2B, $2D, $FF, $FF
-	
+
 loc_29294:
 	dc.b	$05, $1D, $00, $3B, $06, $1C, $05, $2F, $00, $3B, $06, $2E, $07 ;0xD20
 	dc.b	$0B, $00, $3B, $08, $0A, $0F, $41, $00, $3B, $0F, $42, $11, $53, $00, $3B, $12
@@ -48285,13 +48285,13 @@ loc_29294:
 	dc.b	$3D, $0E, $4C, $13, $39, $00, $3D, $13, $3A, $27, $41, $00, $3D, $25, $41, $27
 	dc.b	$53, $00, $3D, $27, $51, $2B, $03, $00, $3D, $29, $03, $2B, $43, $00, $3D, $2B ;0xDC0
 	dc.b	$44, $FF, $FF
-	
+
 loc_29344:
 	dc.b	$05, $03, $00, $3C, $05, $04, $07, $25, $00, $3C, $08, $24, $0B, $59, $00, $3C
 	dc.b	$0C, $58, $0D, $4D, $00, $3C, $0E, $4C, $13, $39, $00, $3C, $13 ;0xDE0
 	dc.b	$37, $27, $41, $00, $3C, $27, $3F, $27, $53, $00, $3C, $27, $51, $2B, $03, $00
 	dc.b	$3C, $29, $03, $2B, $43, $00, $3C, $2B, $41, $FF, $FF
-	
+
 loc_2937C:
 	dc.b	$2B, $2F, $00, $09, $18 ;0xE00
 	dc.b	$09, $05, $03, $00, $3F, $06, $03, $05, $07, $00, $3F, $06, $07, $05, $0B, $00
@@ -48321,7 +48321,7 @@ loc_2937C:
 	dc.b	$46, $2B, $49, $00, $3F, $2B, $47, $2B, $4D, $00, $3F, $2B, $4E, $2B, $51, $00
 	dc.b	$3F, $2B, $4F, $2B, $55, $00, $3F, $2B, $56, $2B, $59, $00, $3F, $2B, $57, $FF ;0xFA0
 	dc.b	$FF
-	
+
 loc_29522:
 	dc.b	$05, $03, $00, $3E, $06, $03, $05, $07, $00, $3E, $06, $07, $05, $0B, $00, $3E
 	dc.b	$06, $0B, $05, $0F, $00, $3E, $06, $0F, $05, $13, $00, $3E, $06, $13, $05 ;0xFC0
@@ -48350,36 +48350,36 @@ loc_29522:
 	dc.b	$45, $2B, $49, $00, $3E, $29, $49, $2B, $4D, $00, $3E, $29, $4D, $2B, $51, $00
 	dc.b	$3E, $29, $51, $2B, $55, $00, $3E, $29, $55, $2B, $59, $00, $3E, $29, $59, $FF ;0x1140
 	dc.b	$FF
-	
+
 loc_296C2:
 	dc.b	$07, $09, $00, $00, $4D, $39, $1E, $09, $00, $00, $51, $39, $FF, $FF
-	
+
 loc_296D0:
 	dc.b	$05, $19, $00, $44, $05, $17, $29, $2D, $00, $44, $29, $2E, $FF, $FF
-	
+
 loc_296DE:
 	dc.b	$05, $19, $00 ;0x1160
 	dc.b	$43, $06, $19, $29, $2D, $00, $43, $27, $2D, $05, $1D, $00, $45, $05, $1B, $29
 	dc.b	$29, $00, $45, $29, $2A, $FF, $FF
-	
+
 loc_296F8:
 	dc.b	$05, $1D, $00, $44, $03, $1D, $29, $29, $00 ;0x1180
 	dc.b	$44, $29, $27, $05, $21, $00, $46, $05, $1F, $29, $25, $00, $46, $29, $26, $FF, $FF
-	
+
 loc_29712:
 	dc.b	$05, $21, $00, $45, $03, $21, $29, $25, $00, $45, $29, $23, $05, $25, $00 ;0x11A0
 	dc.b	$47, $05, $26, $29, $21, $00, $47, $29, $22, $FF, $FF
-	
+
 loc_2972C:
 	dc.b	$05, $25, $00, $46, $03, $25, $29, $21, $00, $46, $29, $1F, $FF, $FF
-	
+
 loc_2973A:
 	dc.b	$13, $29, $00, $49, $14, $29, $13 ;0x11C0
 	dc.b	$39, $00, $49, $14, $39, $15, $31, $00, $49, $13, $31, $1B, $41, $00, $49, $1C
 	dc.b	$41, $1F, $13, $00, $49, $20, $13, $23, $49, $00, $49, $21, $49, $25, $1F, $00 ;0x11E0
 	dc.b	$49, $26, $1F, $2D, $47, $00, $49, $2D, $45, $2F, $25, $00, $49, $30, $25, $35
 	dc.b	$21, $00, $49, $35, $1F, $39, $37, $00, $49, $3A, $37, $FF, $FF
-	
+
 loc_2977E:
 	dc.b	$13, $29, $00 ;0x1200
 	dc.b	$48, $14, $29, $13, $39, $00, $48, $14, $39, $15, $31, $00, $48, $13, $31, $1B
@@ -48389,7 +48389,7 @@ loc_2977E:
 	dc.b	$19, $00, $4A, $17, $19, $19, $4F, $00, $4A, $19, $50, $25, $41, $00, $4A, $25
 	dc.b	$42, $29, $1B, $00, $4A, $2A, $1B, $2F, $41, $00, $4A, $30, $41, $31, $49, $00 ;0x1260
 	dc.b	$4A, $32, $49, $FF, $FF
-	
+
 loc_297E6:
 	dc.b	$19, $19, $00, $49, $1A, $19, $19, $4F, $00, $49, $1A, $4F, $25, $41, $00, $49
 	dc.b	$26, $41, $29, $1B, $00, $49, $29, $19, $2F, $41, $00 ;0x1280
@@ -48398,90 +48398,90 @@ loc_297E6:
 	dc.b	$49, $19, $53, $00, $4B, $1A, $53, $1D, $51, $00, $4B, $1E, $51, $1F, $27, $00
 	dc.b	$4B, $20, $27, $25, $49, $00, $4B, $25, $47, $29, $15, $00, $4B, $2A, $15, $35 ;0x12C0
 	dc.b	$29, $00, $4B, $33, $29, $FF, $FF
-	
+
 loc_29848:
 	dc.b	$13, $29, $00, $4A, $13, $2A, $13, $39, $00, $4A, $13, $3A, $19, $0F, $00, $4A
 	dc.b	$1A, $0F, $19, $49, $00, $4A, $1A, $49, $19 ;0x12E0
 	dc.b	$53, $00, $4A, $19, $51, $1D, $51, $00, $4A, $1E, $51, $1F, $27, $00, $4A, $20
 	dc.b	$27, $25, $49, $00, $4A, $26, $49, $29, $15, $00, $4A, $29, $16, $35, $29, $00 ;0x1300
 	dc.b	$4A, $33, $29, $FF, $FF
-	
+
 loc_29886:
 	dc.b	$27, $53, $00, $4D, $27, $54, $FF, $FF
-	
+
 loc_2988E:
 	dc.b	$27, $53, $00, $4C, $27, $51, $27, $59, $00, $4E, $27, $57, $FF, $FF
-	
+
 loc_2989C:
 	dc.b	$27, $53, $00, $4F, $0F, $54, $27, $59, $00, $4D, $27, $57, $FF, $FF
-	
+
 loc_298AA:
 	dc.b	$0F, $53, $00, $4E, $27, $54, $0F, $59, $00, $50, $0F, $37, $FF, $FF
-	
+
 loc_298B8:
 	dc.b	$0F, $33, $00, $51, $0F, $1D, $0F, $39, $00, $4F, $0F, $57, $FF, $FF
-	
+
 loc_298C6:
 	dc.b	$11, $1D, $00, $50, $0F, $34, $0D, $1D, $00, $52, $06, $1D, $FF, $FF
-	
+
 loc_298D4:
 	dc.b	$05, $1D, $00, $51, $0E, $1D, $FF, $FF
-	
+
 loc_298DC:
 	dc.b	$07, $4F, $00, $54, $05 ;0x1360
 	dc.b	$51, $19, $03, $00, $54, $04, $09, $19, $0D, $00, $54, $04, $12, $19, $4D, $00
 	dc.b	$54, $15, $50, $1B, $25, $00, $54, $1A, $27, $1B, $39, $00, $54, $19, $3B, $23 ;0x1380
 	dc.b	$03, $00, $54, $0B, $09, $23, $0D, $00, $54, $0B, $13, $FF, $FF
-	
+
 loc_2990E:
 	dc.b	$03, $09, $00, $53, $1A, $03, $03, $13, $00, $53, $1A, $0C, $05, $53, $00, $53
 	dc.b	$08, $4D, $0D ;0x13A0
 	dc.b	$09, $00, $53, $21, $04, $0D, $13, $00, $53, $23, $0B, $17, $51, $00, $53, $1A
 	dc.b	$4C, $19, $29, $00, $53, $1C, $24, $19, $3D, $00, $53, $19, $39, $11, $29, $00 ;0x13C0
 	dc.b	$55, $0B, $0D, $FF, $FF
-	
+
 loc_29946:
 	dc.b	$0B, $0F, $00, $54, $11, $27, $13, $0F, $00, $58, $13, $10, $FF, $FF
-	
+
 loc_29954:
 	dc.b	$0B, $0F, $00, $58, $0B, $0D, $13, $0F, $00, $59, $13, $10, $FF, $FF
-	
+
 loc_29962:
 	dc.b	$0B, $0F, $00, $59, $0B, $0D, $13, $0F, $00, $5A, $13, $2A, $FF, $FF
-	
+
 loc_29970:
 	dc.b	$0B, $0F, $00, $56, $0B, $10, $13, $0F, $00, $55, $13, $0D, $FF, $FF
-	
+
 loc_2997E:
 	dc.b	$0B, $0F, $00, $57, $0B, $10, $13, $0F, $00, $56, $13, $0D, $FF, $FF
-	
+
 loc_2998C:
 	dc.b	$0B, $29, $00, $5B, $0F, $0A, $13, $29, $00, $57, $13, $0D, $FF, $FF
-	
+
 loc_2999A:
 	dc.b	$0F, $09, $00, $5A, $0B, $27, $17, $09, $00, $5C, $11, $10, $FF, $FF
-	
+
 loc_299A8:
 	dc.b	$09, $0F, $00, $5F, $09, $10, $11, $0F, $00, $5B, $17, $07, $FF, $FF
-	
+
 loc_299B6:
 	dc.b	$09, $0F, $00, $60, $09, $10, $11, $0F, $00, $5F, $11, $0D, $FF, $FF
-	
+
 loc_299C4:
 	dc.b	$09, $0F, $00, $61, $09, $10, $11, $0F, $00, $60, $11, $0D, $FF, $FF
-	
+
 loc_299D2:
 	dc.b	$09, $0F, $00, $5C, $09, $0D, $11, $0F, $00, $5D, $11, $10, $FF, $FF
-	
+
 loc_299E0:
 	dc.b	$09, $0F, $00, $5D, $09, $0D, $11, $0F, $00, $5E, $11, $10, $FF, $FF
-	
+
 loc_299EE:
 	dc.b	$09, $0F, $00, $5E, $09, $0D, $11, $0F, $00, $62, $15, $10, $FF, $FF
-	
+
 loc_299FC:
 	dc.b	$15, $0F, $00, $61, $11, $10, $FF, $FF
-	
+
 loc_29A04:
 	dc.b	$03, $0D, $00, $64, $24, $0D, $03, $35, $00, $64, $24, $35, $0F, $17, $00, $64
 	dc.b	$2F, $15, $0F, $2B, $00, $64, $30, $2B, $17, $0F, $00, $64, $38 ;0x14A0
@@ -48495,7 +48495,7 @@ loc_29A04:
 	dc.b	$64, $7E, $0F, $5D, $33, $00, $64, $7E, $33, $5D, $3B, $00, $64, $7D, $39, $67 ;0x1520
 	dc.b	$0F, $00, $64, $87, $10, $67, $33, $00, $64, $87, $31, $69, $07, $00, $64, $87
 	dc.b	$07, $FF, $FF
-	
+
 loc_29AB4:
 	dc.b	$23, $0D, $00, $63, $04, $0D, $23, $35, $00, $63, $04, $35, $2F ;0x1540
 	dc.b	$17, $00, $63, $10, $17, $2F, $2B, $00, $63, $10, $2A, $59, $3B, $00, $63, $39
@@ -48509,7 +48509,7 @@ loc_29AB4:
 	dc.b	$63, $5E, $0F, $7D, $33, $00, $63, $5E, $33, $7D, $3B, $00, $63, $5E, $3B, $87
 	dc.b	$0F, $00, $63, $65, $0F, $87, $33, $00, $63, $65, $33, $89, $07, $00, $63, $67 ;0x15E0
 	dc.b	$06, $FF, $FF ;0x1600
-	
+
 loc_29B64:
 	dc.b	$00 ;0x0 (0x00029B64-0x00029B65, Entry count: 0x00000001) [Unknown data]
 	dc.b	$CC
@@ -48548,7 +48548,7 @@ loc_29B64:
 	dc.b	$AF
 	dc.b	$0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_29C06:
 	dc.b	$00, $0F, $0F, $0F
 	dc.b	$0F, $0B, $07, $0F, $0F, $0E, $0D, $0F, $0F, $AA, $55, $33, $0F, $01, $05, $03
@@ -48558,7 +48558,7 @@ loc_29C06:
 	dc.b	$0B, $07, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
 	dc.b	$0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $FF, $FF, $FF ;0x60
 	dc.b	$FF, $00
-	
+
 loc_29C6C:
 	dc.b	$00, $00, $00, $8C, $0C, $0C, $0C, $00, $00, $8C, $04, $00, $00, $8C, $0C, $8C
 	dc.b	$0C, $0C, $00, $00, $8C, $04, $00, $CC, $00, $00, $8C, $4C, $8C, $04 ;0x80
@@ -48569,7 +48569,7 @@ loc_29C6C:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $0F, $0F, $0F, $0F, $0F, $0F, $0F
 	dc.b	$0F, $0F, $0F, $00, $F0, $00, $00, $00, $00, $00, $00, $00, $00, $0F, $0F, $0C ;0xE0
 	dc.b	$03, $0E, $0D, $0F, $09, $07, $0B, $06
-	
+
 loc_29CF2:
 	dc.b	$0C, $0C, $0C, $0C, $0C, $0D, $0D, $0E, $0E, $0D, $0E, $0D, $05, $0A, $05, $0A
 	dc.b	$0D, $0E, $0E, $0D, $0E, $0D, $00, $0C ;0x100
@@ -48580,7 +48580,7 @@ loc_29CF2:
 	dc.b	$00, $00, $0A, $05, $0C, $0C, $00, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $03, $0F
 	dc.b	$0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $00, $0F, $0F, $0C, $0A, $04, $08, $A5 ;0x160
 	dc.b	$5A, $CC, $00, $00, $00, $0C, $04, $00
-	
+
 loc_29D72:
 	dc.b	$0F, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00 ;0x180
@@ -48589,14 +48589,14 @@ loc_29D72:
 	dc.b	$0F, $0F, $0F, $FF, $0F, $0F, $0F, $0F, $0F, $0F, $00, $00, $0F, $F5, $F0, $00
 	dc.b	$00, $0F, $0F, $0C, $0C, $0C, $0F, $0C, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0 ;0x1C0
 	dc.b	$F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0
-	
+
 loc_29DD6:
 	dc.b	$0F, $FF, $EE, $FF, $F0, $0C, $0C, $0C, $0C, $0C, $00, $04, $08, $05, $0A, $00
 	dc.b	$0F, $0F, $0F, $0F ;0x1E0
 	dc.b	$0F, $0F, $00, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $00, $0D, $0E, $0E, $0D, $0E
 	dc.b	$0D, $05, $0A, $0F, $00, $0F, $0F, $0F, $00, $0F, $0F, $0F, $0F, $0F, $0F, $F0 ;0x200
 	dc.b	$0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F ;0x220
-	
+
 loc_29E16:
 	dc.b	$0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F ;0x0 (0x00029E16-0x00029E24, Entry count: 0x0000000E) [Unknown data]
 	dc.b	$CC
@@ -48634,7 +48634,7 @@ loc_29E16:
 	dc.b	$0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $00
 	dc.b	$00, $00, $00, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F ;0x0 (0x00029E94-0x00029EB8, Entry count: 0x00000024) [Unknown data]
 	dc.b	$0F, $0F, $0F, $0F ;0x20
-	
+
 
 FontsIconsArt:
 	dc.b	$01, $BB, $FF, $88, $B8, $88, $11, $11, $11, $16, $66, $66, $16, $16, $BA, $AA
@@ -48856,9 +48856,9 @@ FontsIconsArt:
 	dc.b	$FF, $F0, $00, $11, $11, $11, $11, $55, $55, $55, $55, $66, $66, $66, $66, $02
 	dc.b	$65, $22, $22, $22, $01, $51, $11, $11, $11, $10, $BB, $B6, $BB, $B6, $BB, $B6 ;0xD80
 	dc.b	$BB, $B6, $BB, $B6, $11, $11, $55, $55, $55, $66, $66, $66, $FF ;0xDA0
-	
+
 	even
-	
+
 
 SegaLogoArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FF, $01, $00, $FC, $88, $00, $00, $01, $11, $01, $16
@@ -48946,22 +48946,22 @@ SegaLogoArt:
 	dc.b	$11, $11, $FF ;0x520
 
 	even
-	
+
 
 SegaLogoTileInd:
 	dc.w	$0001, $0002, $0003, $0004, $0005, $0006, $0007, $0008, $0009, $000A, $000B, $000C, $000D, $000E
 	dc.w	$000F, $0010, $0011, $0012, $0013, $0014, $0015, $0016, $0017, $0018, $0019, $001A, $001B, $001C, $001D, $001E, $001F, $0020 ;0x0 (0x0002B18A-0x0002B1EA, Entry count: 0x00000060)
 	dc.w	$0021, $0022, $0023, $0024, $0025, $0026, $0027, $0028, $0029, $002A, $002B, $002C, $002D, $002E
 	dc.w	$002F, $0030 ;0x20
-	
+
 ; ---------------------------------------------------------------------------------
 ; filler free space - can be replaced with even
 
 	rept 6
 	dc.b	0
 	endm
-; ---------------------------------------------------------------------------------	
-	
+; ---------------------------------------------------------------------------------
+
 loc_2B1F0:
 	dc.b	$01, $00, $FC, $C8, $88, $8C, $02, $AA, $2A, $AA, $02, $AC, $CC, $02, $AA, $A4
 	dc.b	$02, $A4, $23, $02, $43, $23, $A3, $33, $02, $02, $08, $08, $88, $88, $AB, $00 ;0x0 (0x0002B1F0-0x0002D9A9, Entry count: 0x000027B9)
@@ -49599,15 +49599,15 @@ loc_2B1F0:
 	dc.b	$44, $00, $11, $13, $73, $33, $92, $52, $B2, $34, $92, $34, $92, $22, $22, $99 ;0x2780
 	dc.b	$99, $99, $02, $22, $80, $02, $2C, $80, $00, $33, $11, $11, $7F, $20, $DD, $D2
 	dc.b	$2D, $DD, $20, $2D, $DD, $DD, $DD, $20, $FF ;0x27A0
-	
+
 	even
 
 LibrPortraitArt: binclude "art\librarian_portrait.bin"
-	
+
 	even
 
 MotSaveEmplPortArt: binclude "art\mot_save_empl_port.bin"
-	
+
 	even
 
 MotDoctorPortraitArt: binclude "art\mot_doctor_port.bin"
@@ -49615,61 +49615,61 @@ MotDoctorPortraitArt: binclude "art\mot_doctor_port.bin"
 CLGrandmaPortraitArt: binclude "art\cl_grandma_port.bin"
 
 MotItemSelPortArt: binclude "art\mot_item_sel_port.bin"
-	
+
 	even
-	
+
 MotWpnSelPortArt: binclude "art\mot_wpn_sel_port.bin"
-	
+
 MotArmSelPortArt: binclude "art\mot_arm_sel_port.bin"
-	
+
 UstvestiaPortraitArt: binclude "art\ustvestia_portrait.bin"
-	
-	even	
-	
-DezolianPortraitArt: binclude "art\dezolian_portrait.bin"
-	
-CentTowOutPortArt: binclude "art\cen_tow_out_port.bin"
-	
-GovernorPortraitArt: binclude "art\governor_portrait.bin"
-	
-ItemKeeperPortArt: binclude "art\item_keeper_port.bin"
-	
+
 	even
-	
+
+DezolianPortraitArt: binclude "art\dezolian_portrait.bin"
+
+CentTowOutPortArt: binclude "art\cen_tow_out_port.bin"
+
+GovernorPortraitArt: binclude "art\governor_portrait.bin"
+
+ItemKeeperPortArt: binclude "art\item_keeper_port.bin"
+
+	even
+
 SpaceshipPortArt: binclude "art\cen_tow_roof_port.bin"
-	
-TylerSpaceshipArt:	binclude "art\tyler_spaceship_art.bin"	
+
+TylerSpaceshipArt:	binclude "art\tyler_spaceship_art.bin"
 
 RolfPortraitArt: binclude "art\rolf_portrait.bin"
-	
+
 NeiPortraitArt: binclude "art\nei_portrait.bin"
-	
+
 RudoPortraitArt: binclude "art\rudo_portrait.bin"
-	
+
 AmyPortraitArt: binclude "art\amy_portrait.bin"
 
 HughPortraitArt: binclude "art\hugh_portrait.bin"
-	
+
 AnnaPortraitArt: binclude "art\anna_portrait.bin"
-	
+
 	even
 
 KainPortraitArt: binclude "art\kain_portrait.bin"
-	
+
 	even
-	
+
 ShirPortraitArt: binclude "art\shir_portrait.bin"
-	
+
 	even
-	
+
 LibrGraphPortArt: binclude "art\graph_portrait.bin"
-	
+
 	even
-	
+
 RadarPortraitArt: binclude "art\radar_portrait.bin"
-	
+
 MotTeleEmplPortArt: binclude "art\mot_tele_empl.bin"
-	
+
 LutzPortraitArt:
 	dc.b	$01, $DD, $FF, $FF, $FF, $FF, $02, $11, $77, $73, $11, $00, $DD, $00, $08, $8C
 	dc.b	$EE, $F1, $F1, $DF, $F1, $DF, $F1, $DF, $F1, $DF, $02, $11, $FC, $00, $00, $88 ;0x0 (0x00039758-0x00039DBE, Entry count: 0x00000666)
@@ -49808,7 +49808,7 @@ loc_39E9C:
 	dc.b	$01 ;0x0 (0x00039EB7-0x00039EB8, Entry count: 0x00000001)
 	dc.b	$FF, $FF, $FF, $DF, $FF ;0x0 (0x00039EB8-0x00039EBD, Entry count: 0x00000005)
 	dc.b	$FA, $01, $FF, $FF, $FF, $FF, $F7, $F8, $FF ;0x0 (0x00039EBD-0x00039EC6, Entry count: 0x00000009)
-	
+
 ; ===================================================
 loc_39EC6:
 	dc.w	$81E4
@@ -49843,7 +49843,7 @@ loc_39EC6:
 	dc.b	$05, $14, $17
 	dc.b	$74, $28, $F4
 	dc.b	$FF
-	
+
 	dc.b	$73, $9C, $E7, $39, $CE, $FC, $B7, $F6, $39 ;0x40
 	dc.b	$24, $08, $10, $23, $77, $F3, $87, $24, $DC, $21, $60, $6E, $4B, $40, $E5, $A6
 	dc.b	$51, $A2, $F2, $48, $CA, $37, $45, $A0, $46, $90, $34, $81, $B9, $20, $69, $02 ;0x60
@@ -50483,9 +50483,9 @@ loc_39EC6:
 	dc.b	$B4, $FD, $EB, $9C, $E7, $5C, $E7, $71, $BA, $DF, $A9, $CB, $F5, $2E, $73, $9C ;0x2800
 	dc.b	$E7, $39, $CE, $73, $9C, $EE, $37, $00, $00 ;0x2820
 ; ===================================================
-	
+
 	even
-	
+
 loc_3C6F4:
 	dc.b	$81, $3D ;0x0 (0x0003C6F4-0x0003C6F6, Entry count: 0x00000002) [Unknown data]
 	dc.b	$80, $03, $00, $14, $04, $25, $11, $36, $33, $46, $34, $57, $72, $67, $75, $74
@@ -50887,9 +50887,9 @@ loc_3C6F4:
 	dc.b	$A8, $D5, $3A, $1D, $46, $AA, $26, $B3, $BB, $51, $31, $4D, $C5, $75, $A7, $F1
 	dc.b	$E9, $5B, $FF, $33, $49, $63, $8C, $7E, $89, $3F, $53, $A7, $87, $2F, $3E, $57 ;0x18C0
 	dc.b	$8F, $DC, $C6, $FF, $DC, $8F, $0A, $7E, $6E, $92, $A0, $A0, $00 ;0x18E0
-	
+
 	even
-	
+
 loc_3DFE4:
 	dc.b	$81, $BA ;0x0 (0x0003DFE4-0x0003DFE6, Entry count: 0x00000002) [Unknown data]
 	dc.b	$80, $03, $00, $14, $08, $25, $14, $36, $2A, $46, $2C, $56, $30, $66, $34, $74
@@ -51561,7 +51561,7 @@ loc_3DFE4:
 	dc.b	$6E, $0C, $7B, $81, $38 ;0x0 (0x0003FFD9-0x0003FFDE, Entry count: 0x00000005)
 	dc.b	$B8, $DC ;0x0 (0x0003FFDE-0x0003FFE0, Entry count: 0x00000002)
 	dc.b	$48, $5E, $4A, $70, $E4, $00 ;0x0 (0x0003FFE0-0x0003FFE6, Entry count: 0x00000006)
-	
+
 loc_3FFE6:
 	dc.b	$81, $0E, $80, $04, $02, $14, $06, $25, $12, $36, $2B, $46, $2A, $56, $2E, $66
 	dc.b	$2F, $74, $04, $81, $03, $00, $15, $13, $27, $6A, $37 ;0x0 (0x0003FFE6-0x00040001, Entry count: 0x0000001B) [Unknown data]
@@ -51869,9 +51869,9 @@ loc_3FFE6:
 	dc.b	$BB, $1C, $FD, $5B, $BB, $37, $62, $89, $71, $E9, $71, $E8, $95, $7F, $B3, $77 ;0x12C0
 	dc.b	$7F, $EF, $37, $61, $BE, $F8, $BD, $CE, $AC, $74, $34, $AB, $1D, $3A, $9B, $A8
 	dc.b	$9F, $7F, $E6, $18, $C8, $00 ;0x12E0
-	
+
 	even
-	
+
 loc_412F8:
 	dc.b	$02, $00, $CC, $0F, $DF, $FF, $07, $30, $F0, $20, $00, $70, $10, $02, $07, $B0
 	dc.b	$E0, $00, $00, $00, $40, $0F, $FF, $FF, $10, $10, $10, $10, $01, $01, $00, $F4 ;0x0 (0x000412F8-0x0004148F, Entry count: 0x00000197)
@@ -51899,9 +51899,9 @@ loc_412F8:
 	dc.b	$01, $10, $10, $10, $10, $07, $02, $00, $8F, $F3, $10, $1F, $07, $70, $00, $60 ;0x160
 	dc.b	$60, $70, $70, $01, $10, $10, $10, $10, $01, $01, $00, $1F, $FF, $D4, $FF, $07
 	dc.b	$07, $07, $01, $70, $70, $70, $FF ;0x180
-	
+
 	even
-	
+
 loc_41490:
 	dc.b	$82, $3A, $80 ;0x0 (0x00041490-0x00041493, Entry count: 0x00000003) [Unknown data]
 	dc.b	$03, $00, $14, $06, $25, $12, $36, $2A, $46, $31, $56, $27, $66, $2F, $74, $04
@@ -52548,9 +52548,9 @@ loc_41490:
 	dc.b	$29, $F9, $71, $3D, $0C, $5F, $D3, $0F, $FF, $2A, $22, $22, $26, $37, $5F, $72 ;0x2800
 	dc.b	$22, $22, $22, $22, $22, $23, $6B, $BF, $5A, $22, $5A, $FB, $22, $22, $22, $22
 	dc.b	$22, $4B, $5D, $FA, $D1, $11, $11, $11, $12, $56, $9C, $00 ;0x2820
-	
+
 	even
-	
+
 loc_43CD0:
 	dc.b	$80, $F1, $80, $03, $00, $14, $06 ;0x0 (0x00043CD0-0x00043CD7, Entry count: 0x00000007) [Unknown data]
 	dc.b	$25, $0E, $36, $2F, $46, $31, $56, $36, $67, $6A, $74, $08, $81, $03, $01, $16
@@ -52942,7 +52942,7 @@ loc_43CD0:
 	dc.b	$05, $A6, $41, $14, $52, $1C, $81, $6E, $C9, $D9 ;0x0 (0x00044EF5-0x00044F0F, Entry count: 0x0000001A)
 	dc.b	$1F, $D9, $0A, $39, $4A, $84, $1B, $82, $04, $1B, $86, $E7, $50, $50, $61, $5C
 	dc.b	$1C, $85, $18, $AC, $35, $31, $40, $8C, $91, $A8, $00 ;0x0 (0x00044F0F-0x00044F2A, Entry count: 0x0000001B)
-	
+
 loc_44F2A:
 	dc.b	$01, $40, $AA, $AA, $AA, $AA, $09, $0A, $09, $0A, $0B, $0C, $0B, $0C, $09, $0A
 	dc.b	$09, $0A, $0B, $0C, $0B, $0C, $01, $60, $00, $A0, $AA, $AA, $E0, $0D, $E0, $0E ;0x0 (0x00044F2A-0x00045D55, Entry count: 0x00000E2B)
@@ -53171,9 +53171,9 @@ loc_44F2A:
 	dc.b	$AA, $AA, $AA, $AA, $01, $02, $01, $02, $03, $04, $03, $04, $09, $02, $01, $02
 	dc.b	$0B, $0C, $03, $04, $01, $40, $AA, $AA, $AA, $AA, $01, $02, $01, $02, $03, $04 ;0xE00
 	dc.b	$03, $04, $01, $02, $01, $0A, $03, $04, $0B, $0C, $FF ;0xE20
-	
+
 	even
-	
+
 loc_45D56:
 	dc.b	$02, $40, $AA, $AA, $AA, $AA, $01, $55, $55, $55, $55, $01, $40, $AA, $AA, $AA
 	dc.b	$AA, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0E, $0E ;0x0 (0x00045D56-0x000462F1, Entry count: 0x0000059B)
@@ -53797,9 +53797,9 @@ loc_470DE:
 	dc.b	$0C, $A1, $00, $AA, $AA, $A2, $8E, $8F, $81, $82, $92, $93, $85, $86, $96, $97 ;0x840
 	dc.b	$89, $02, $00, $FF, $00, $00, $00, $A1, $00, $AA, $AA, $AA, $83, $84, $8C, $8D
 	dc.b	$87, $88, $90, $91, $8A, $8B, $94, $95, $FF ;0x860
-	
+
 	even
-	
+
 loc_47958:
 	dc.b	$01, $40, $00, $AA, $AA, $AA, $C0, $01, $C0, $02, $C0, $03, $C0, $04, $05, $06
 	dc.b	$06, $07, $08, $09, $09, $0A, $0B, $0C, $0C, $0D, $01, $40, $00, $AA, $AA, $AA ;0x0 (0x00047958-0x000481B7, Entry count: 0x0000085F)
@@ -54187,9 +54187,9 @@ loc_484A2:
 	dc.b	$84, $8C, $8D, $87, $88, $90, $91, $8A, $8B, $94, $95, $01, $00, $FF, $FF, $FF
 	dc.b	$FF, $02, $60, $AA, $AA, $AA, $AA, $F2, $14, $55, $55, $51, $F1, $F3, $F4, $02 ;0x620
 	dc.b	$60, $AA, $AA, $AA, $AA, $F2, $55, $51, $45, $55, $F5, $F6, $FF ;0x640
-	
+
 	even
-	
+
 loc_48AF0:
 	dc.b	$01, $1A, $FF, $FF, $FF, $FF, $01, $1A, $FF, $FF, $FF, $FF, $01, $1A, $FF, $FF
 	dc.b	$FF, $FF, $01, $1A, $FF, $FF, $FF, $FF, $01, $1A, $FF, $FF, $FF, $FF, $01, $1A ;0x0 (0x00048AF0-0x00049662, Entry count: 0x00000B72)
@@ -54649,7 +54649,7 @@ loc_498E8:
 	dc.b	$00, $43, $4B, $A1, $9F, $A1, $01, $89, $FF, $C7, $FF, $FF, $9F, $A0, $A1, $01
 	dc.b	$89, $FF, $FF, $FF, $FC, $9F, $A0, $01, $89, $7F, $C7, $FF, $FF, $A1, $9F, $A0 ;0xA60
 	dc.b	$A1, $01, $89, $FF, $FF, $FF, $FF, $FF ;0xA80
-	
+
 loc_4A370:
 	dc.b	$01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF
 	dc.b	$FF, $FF, $01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF, $FF, $FF, $01, $10 ;0x0 (0x0004A370-0x0004A944, Entry count: 0x000005D4) [Unknown data]
@@ -54696,7 +54696,7 @@ loc_4A370:
 	dc.b	$12, $23, $12, $01, $10, $E3, $FF, $FC, $7F, $16, $1B, $17, $16, $1B, $17, $01
 	dc.b	$10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF, $FF ;0x2A0
 	dc.b	$FF, $FF
-	
+
 loc_4A632:
 	dc.b	$01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF
 	dc.b	$FF, $FF, $01, $10, $FF, $FF, $FF, $FF, $01, $10, $FF, $FF, $FF, $FF ;0x2C0
@@ -55132,7 +55132,7 @@ loc_4B84E:
 	dc.b	$00, $00, $FE, $39, $23, $23, $7D, $23, $23, $03, $53, $FF, $FF, $00, $00, $00
 	dc.b	$00, $00, $9C, $BB, $23, $00, $00, $63, $44, $02, $53, $FF, $FF, $00, $00, $00 ;0x20
 	dc.b	$00, $00, $DD, $7F, $23, $23, $7D, $01, $00, $FF, $FF, $FF, $FF, $FF ;0x40
-	
+
 loc_4B9BE:
 	dc.b	$01, $53, $FF, $FF, $FF, $FF, $02, $52, $7F, $F0, $E3, $E2, $56, $00, $07, $1C
 	dc.b	$0C, $53, $00, $00, $53, $02, $52, $47, $B0, $00, $C2, $56, $38, $04, $3F, $1C ;0x0 (0x0004B9BE-0x0004BB6B, Entry count: 0x000001AD)
@@ -55413,9 +55413,9 @@ loc_4C700:
 	dc.b	$02, $60, $06, $0A, $33, $CC, $19, $98, $01, $0E, $08, $09, $0D, $01, $01, $0E
 	dc.b	$06, $05, $0D, $01, $03, $01, $80, $01, $FF, $FF, $16, $78, $1E, $00, $00, $0A ;0x80
 	dc.b	$07, $E0, $00, $00, $FF ;0xA0
-	
+
 	even
-	
+
 loc_4C7A6:
 	dc.b	$01, $00, $FF, $FF, $FF, $FF, $01, $00, $FF, $FF, $FF, $FF, $01, $00, $FF, $FF
 	dc.b	$FF, $FF, $01, $00, $FF, $FF, $FF, $FF, $01, $00, $FF, $FF, $FF, $FF, $01 ;0x0 (0x0004C7A6-0x0004D92A, Entry count: 0x00001185) [Unknown data]
@@ -55635,7 +55635,7 @@ loc_4C7A6:
 	dc.b	$34, $3D, $34, $3D, $3D, $34, $3D, $34, $34, $3D, $01, $01, $83, $8F, $F8, $FF ;0xD60
 	dc.b	$3D, $34, $03, $34, $3F, $3D, $34, $3F, $3D, $34, $3F, $01, $01, $FF, $FF, $FF
 	dc.b	$FF, $01, $01, $FF, $FF, $FF, $FF, $01, $01, $EF, $FF, $FF, $FF, $32, $FF
-	
+
 loc_4D544:
 	dc.b	$01
 	dc.b	$44, $FF, $FF, $FF, $FF, $01, $44, $FF, $FF, $FF, $FF, $01, $33, $02, $00, $20
@@ -55717,9 +55717,9 @@ loc_4D92A:
 	dc.b	$40, $34, $38, $4E, $10, $06, $38, $49, $4A, $0B, $02, $0A, $3D, $34, $3F, $09
 	dc.b	$41, $45, $06, $49, $4D, $07, $06, $49, $02, $44, $80, $09, $C0, $1F, $4B, $00 ;0xC0
 	dc.b	$06, $3F, $E0, $4D, $02, $07, $05, $05, $05, $48, $05, $08, $0A, $49, $FF ;0xE0
-	
+
 	even
-	
+
 loc_4DA1A:
 	dc.b	$01, $44, $FF, $FF, $FF, $FF, $01, $44, $FF, $FF, $07, $07, $4A, $35, $33, $37
 	dc.b	$49, $4A, $35, $33, $37, $49, $01, $44, $FF, $FF, $00, $01, $4A, $36, $34, $38 ;0x0 (0x0004DA1A-0x0004DAA1, Entry count: 0x00000087)
@@ -55842,7 +55842,7 @@ loc_4DD24:
 	dc.b	$0A, $49, $4A, $36, $0B, $0A, $3D, $38, $49, $01, $44, $FF, $FF, $C3, $01, $4A ;0x400
 	dc.b	$45, $08, $4C, $4A, $46, $08, $07, $05, $06, $49, $01, $44, $FF, $FF, $FF, $FF
 	dc.b	$02, $44, $E7, $83, $FF, $FF, $4B, $18, $7C, $00, $00, $FF ;0x420
-	
+
 loc_4E160:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $F8, $00, $00, $00, $00, $03
 	dc.b	$FF, $39, $02, $33, $7F, $FE, $00, $1F, $00, $00, $00, $FF, $C0, $38, $39, $38 ;0x0 (0x0004E160-0x0004FF7E, Entry count: 0x00001E1E) [Unknown data]
@@ -55885,7 +55885,7 @@ loc_4E160:
 	dc.b	$02, $33, $F8, $00, $7F, $FE, $17, $03, $FF, $00, $00, $35, $34, $35, $02, $17
 	dc.b	$FF, $C0, $00, $00, $33, $00, $1F, $FF, $FF, $34, $01, $33, $FF, $FF, $FF, $FF ;0x260
 	dc.b	$FF, $00
-	
+
 loc_4E3E2:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $F8, $00, $00, $00, $00, $03
 	dc.b	$FF, $39, $02, $33, $7F, $FE, $00, $1F, $00, $00, $00, $FB, $C0, $38 ;0x280
@@ -55928,8 +55928,8 @@ loc_4E3E2:
 	dc.b	$C0, $5D, $34, $35, $5C, $59, $5D, $34, $02, $33, $F8, $00, $7F, $FE, $17, $03
 	dc.b	$FF, $00, $00, $35, $34, $35, $02, $17, $FF, $C0, $00, $00, $33, $00, $1F, $FF ;0x4E0
 	dc.b	$FF, $34, $01, $33, $FF, $FF, $FF, $FF, $FF, $00
-	
-loc_4E66A:	
+
+loc_4E66A:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $F8, $00, $00, $00, $00, $03
 	dc.b	$FB, $39, $1B, $02, $33, $7F ;0x500
 	dc.b	$FE, $00, $1F, $00, $00, $00, $FF, $C0, $38, $39, $38, $02, $33, $F0, $00, $3F
@@ -55975,7 +55975,7 @@ loc_4E66A:
 	dc.b	$C0, $33, $3F, $FC, $00, $0F, $36, $35, $5C, $0F, $5D, $34, $02, $33, $F8, $00
 	dc.b	$3F, $FE, $17, $03, $FF, $80, $00, $35, $34, $35, $02, $17, $EF, $C0, $00, $00 ;0x7A0
 	dc.b	$33, $00, $1F, $FF, $FF, $11, $34, $01, $33, $FF, $FF, $FF, $FF, $FF
-	
+
 loc_4E92E:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $F8, $00, $00, $00, $00, $03
 	dc.b	$FF, $39 ;0x7C0
@@ -56021,7 +56021,7 @@ loc_4E92E:
 	dc.b	$00, $0F, $16, $00, $00, $FF, $C0, $13, $17, $34, $35, $5C, $5D, $34, $02, $33 ;0xA40
 	dc.b	$F8, $00, $7F, $FE, $17, $03, $FF, $00, $00, $35, $34, $35, $02, $17, $FF, $C0
 	dc.b	$00, $00, $33, $00, $1F, $FF, $FF, $34, $01, $33, $FF, $FF, $FF, $FF, $FF, $00 ;0xA60
-	
+
 loc_4EBE0:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $00
 	dc.b	$00, $83, $00, $00, $6F, $9E, $38, $39, $1B, $38, $39, $03, $04, $38, $02, $33 ;0xA80
@@ -56078,7 +56078,7 @@ loc_4EBE0:
 	dc.b	$33, $00, $7F, $FF, $FF, $5D, $34, $02, $33, $C0, $00, $00, $FF, $17, $1E, $79
 	dc.b	$FE, $00, $35, $34, $35, $34, $35, $34, $01, $33, $FF, $FF, $FF, $FF, $01, $33 ;0xDC0
 	dc.b	$FF, $FF, $FF, $FF, $FF, $00
-	
+
 loc_4EF46:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $00
 	dc.b	$00, $83, $00, $00, $7F, $9E, $38, $39, $38, $39 ;0xDE0
@@ -56135,7 +56135,7 @@ loc_4EF46:
 	dc.b	$00, $33, $00, $7F, $FF, $FF, $5D, $34, $02, $33, $C0, $00, $00, $FF, $17, $1E
 	dc.b	$79, $FE, $00, $35, $34, $35, $34, $35, $34, $01, $33, $FF, $FF, $FF, $FF, $01 ;0x1120
 	dc.b	$33, $FF, $FF, $FF, $FF, $FF
-	
+
 loc_4F2A6:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $00
 	dc.b	$00, $03, $00, $00, $6F, $9E, $78, $39, $1C, $38 ;0x1140
@@ -56191,7 +56191,7 @@ loc_4F2A6:
 	dc.b	$5C, $5D, $5C, $02, $16, $FE, $00, $00, $00, $33, $00, $7F, $FF, $FF, $5D, $34 ;0x1460
 	dc.b	$02, $33, $C0, $00, $00, $FF, $17, $1E, $79, $FE, $00, $35, $34, $35, $34, $35
 	dc.b	$34, $01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $FF
-	
+
 loc_4F5FE:
 	dc.b	$02, $33 ;0x1480
 	dc.b	$FF, $FF, $C0, $03, $00, $00, $00, $1F, $F8, $39, $38, $01, $16, $0F, $F8, $3F
@@ -56217,7 +56217,7 @@ loc_4F5FE:
 	dc.b	$37, $1E, $0D, $00, $00, $0C, $1D, $36, $33, $33, $37, $36, $33, $01, $16, $3E
 	dc.b	$FC, $0F, $F8, $33, $37, $58, $36, $33, $33, $35, $5C, $59, $5D, $34, $33, $02 ;0x15E0
 	dc.b	$33, $C0, $03, $FF, $FF, $17, $1F, $F8, $00, $00, $35, $34, $FF, $00
-	
+
 loc_4F76E:
 	dc.b	$02, $33, $FF, $FF, $C0, $03, $00, $00, $00, $1F, $F8, $39, $38, $01, $16, $1F, $F8, $3D ;0x1600
 	dc.b	$BC, $33, $39, $0A, $0B, $38, $33, $33, $37, $75, $76, $36, $33, $01, $16, $3D
@@ -56230,7 +56230,7 @@ loc_4F76E:
 	dc.b	$36, $33, $33, $5A, $00, $0A, $0B, $00, $5B, $33, $01, $16, $3F, $FC, $1F, $F8 ;0x1680
 	dc.b	$33, $37, $36, $33, $33, $35, $5C, $5D, $34, $33, $02, $33, $C0, $03, $FF, $FF
 	dc.b	$17, $1F, $F8, $00, $00, $35, $34, $FF
-	
+
 loc_4F818:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33 ;0x16A0
 	dc.b	$FF, $FF, $80, $E1, $00, $00, $00, $3E, $0C, $39, $38, $39, $38, $02, $33, $FF
@@ -56262,7 +56262,7 @@ loc_4F818:
 	dc.b	$01, $86, $4F, $30, $0B, $38, $33, $33, $5A, $01, $52, $4B, $4C, $52, $52, $4B
 	dc.b	$4C, $52, $52, $01, $16, $1A, $5F, $7F, $FC, $4B, $4C, $52, $50, $3B, $3D, $50 ;0x1860
 	dc.b	$4E, $36, $33, $FF
-	
+
 loc_4F9E4:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $02, $33, $80, $1F
 	dc.b	$80, $7F, $00, $3F, $C0, $3F, $00, $39, $38, $39, $38, $02 ;0x1880
@@ -56288,7 +56288,7 @@ loc_4F9E4:
 	dc.b	$FC, $00, $00, $33, $00, $01, $FF, $FF, $16, $16, $16, $13, $34, $02, $33, $81 ;0x19C0
 	dc.b	$00, $0F, $FF, $17, $3C, $7F, $E0, $00, $35, $34, $35, $34, $01, $33, $FF, $FF
 	dc.b	$FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $FF, $00
-	
+
 loc_4FB5A:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF ;0x19E0
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $80, $03, $FF, $FF, $00, $3F, $F8, $00
@@ -56348,7 +56348,7 @@ loc_4FB5A:
 	dc.b	$33, $FF, $FF, $FF, $FF, $01, $33, $FF, $87, $FF, $FF, $37, $16, $16, $36, $01
 	dc.b	$33, $FF, $FF, $FF, $87, $35, $17, $17, $34, $01, $33, $FF, $FF, $FF, $FF, $01 ;0x1D60
 	dc.b	$33, $FF, $FF, $FF, $FF, $FF
-	
+
 loc_4FEE6:
 	dc.b	$02, $33, $FF, $FF, $80, $01, $70, $00, $00, $7F, $FE, $02, $70, $71, $8E, $60
 	dc.b	$06, $16, $00, $00, $07, $E0, $33, $39, $00, $01 ;0x1D80
@@ -56726,7 +56726,7 @@ loc_51250:
 	dc.b	$33, $80, $01, $FF, $FF, $37, $16, $16, $16, $13, $17, $17, $17, $17, $5C, $16 ;0x160
 	dc.b	$31, $16, $36, $02, $33, $83, $C1, $FF, $FF, $17, $38, $1C, $00, $00, $35, $34
 	dc.b	$35, $34, $01, $33, $FF, $FF, $FF, $FF, $FF ;0x180
-	
+
 loc_51482:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $83, $C1, $FF, $FF, $00, $38, $1C, $00
 	dc.b	$00, $39, $38, $39, $38, $01, $33, $80, $01, $FF, $FF, $37, $30, $16, $16, $0B ;0x0 (0x00051482-0x000514EA, Entry count: 0x00000068)
@@ -56969,7 +56969,7 @@ loc_51DFA:
 	dc.b	$33, $C0, $07, $FE, $01, $16, $3F, $F8, $00, $00, $17, $00, $00, $00, $FC, $35
 	dc.b	$34, $01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF ;0x4C0
 	dc.b	$FF, $FF, $FF, $FF ;0x4E0
-	
+
 loc_522DE:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $E0, $07, $00, $00, $00, $0F
 	dc.b	$F0, $39, $38, $02, $33, $FF, $FF, $E0, $07, $00, $00, $00, $0F, $F0, $39, $38 ;0x0 (0x000522DE-0x00054752, Entry count: 0x00002474) [Unknown data]
@@ -57039,7 +57039,7 @@ loc_522DE:
 	dc.b	$33, $FF, $FF, $C0, $03, $16, $00, $00, $0F, $F0, $35, $5C, $5D, $34, $02, $33 ;0x400
 	dc.b	$E0, $07, $FF, $FF, $17, $0D, $F0, $00, $00, $35, $11, $34, $02, $33, $E0, $07
 	dc.b	$FF, $FF, $17, $0F, $F0, $00, $00, $35, $34, $01, $33, $FF, $FF, $FF, $FF, $FF ;0x420
-	
+
 loc_5271E:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $02, $33, $E0, $07
 	dc.b	$FF, $FF, $00, $0F, $F0, $00, $00, $39, $38, $01, $33, $FF, $FF, $C0, $03, $39 ;0x440
@@ -57250,7 +57250,7 @@ loc_52F8E:
 	dc.b	$33, $C0, $03, $FF, $FF, $16, $0F, $F0, $00, $00, $35, $5C, $5D, $34, $02, $33 ;0x10C0
 	dc.b	$FF, $FF, $E0, $07, $17, $00, $00, $0F, $F0, $35, $34, $01, $33, $FF, $FF, $FF
 	dc.b	$FF, $01, $33, $FF, $FF, $FF, $FF, $FF
-	
+
 loc_533D6:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33 ;0x10E0
 	dc.b	$FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF
@@ -57276,7 +57276,7 @@ loc_533D6:
 	dc.b	$00, $33, $00, $00, $FF, $FF, $36, $01, $17, $3F, $FF, $FF, $FE, $33, $35, $34
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF ;0x1240
 	dc.b	$FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $01, $33, $FF, $FF, $FF, $FF, $FF, $00
-	
+
 loc_5354E:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $03, $33, $C0, $03, $C0, $03, $00, $1F, $F8, $00 ;0x1260
 	dc.b	$00, $16, $00, $00, $1F, $F8, $39, $38, $37, $36, $02, $33, $C0, $03, $C0, $03
@@ -57286,7 +57286,7 @@ loc_5354E:
 	dc.b	$F8, $1F, $F8, $37, $30, $36, $37, $36, $03, $33, $C0, $03, $C0, $03, $16, $1F
 	dc.b	$F8, $00, $00, $17, $00, $00, $1F, $F8, $37, $36, $35, $34, $01, $33, $FF, $FF ;0x12C0
 	dc.b	$FF, $FF, $FF, $00
-	
+
 loc_535C2:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $03, $33, $C0, $03, $C0, $03, $00, $1F, $F8, $00
 	dc.b	$00, $16, $00, $00, $1E, $F8, $39, $38, $37, $31, $36, $03 ;0x12E0
@@ -57297,7 +57297,7 @@ loc_535C2:
 	dc.b	$C0, $03, $16, $18, $18, $1F, $F8, $3A, $07, $E0, $00, $00, $37, $36, $37, $36
 	dc.b	$03, $33, $C0, $03, $C0, $03, $16, $1F, $F8, $00, $00, $17, $00, $00, $1F, $F8 ;0x1340
 	dc.b	$37, $36, $35, $34, $01, $33, $FF, $FF, $FF, $FF, $FF, $00
-	
+
 loc_5364A:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $03, $33, $C0, $03, $C0, $03, $00, $1F, $F8, $00
 	dc.b	$00, $16, $00, $00 ;0x1360
@@ -57309,7 +57309,7 @@ loc_5364A:
 	dc.b	$E0, $00, $00, $37, $36, $37, $36, $03, $33, $C0, $03, $C0, $03, $16, $1F, $78 ;0x13C0
 	dc.b	$00, $00, $17, $00, $00, $1F, $F8, $37, $31, $36, $35, $34, $01, $33, $FF, $FF
 	dc.b	$FF, $FF, $FF, $00
-	
+
 loc_536D2:
 	dc.b	$01, $33, $FF, $FF, $FC, $9F, $37, $49, $49, $36, $02, $33 ;0x13E0
 	dc.b	$FF, $FF, $00, $00, $00, $00, $00, $7F, $FF, $39, $01, $00, $FC, $1B, $FF, $FE
@@ -57391,7 +57391,7 @@ loc_5392C:
 	dc.b	$4F, $6D, $6F, $30, $4F, $4F, $30, $36, $01, $17, $7F, $FF, $FA, $4F, $35, $18
 	dc.b	$18, $19, $18, $19, $02, $17, $3C, $7E, $00, $00, $33, $00, $00, $FF, $FF, $18 ;0x18A0
 	dc.b	$19, $18, $19, $19, $34, $01, $33, $FF, $FF, $FF, $FF, $FF
-	
+
 loc_53BAA:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $00, $00, $00, $00, $00, $7F
 	dc.b	$FF, $39, $01, $00 ;0x18C0
@@ -57432,7 +57432,7 @@ loc_53BAA:
 	dc.b	$16, $FE, $FF, $9F, $FE, $30, $31, $52, $36, $01, $17, $7F, $FF, $FF, $FF, $35
 	dc.b	$02, $17, $9F, $FE, $00, $00, $33, $00, $00, $FF, $FF, $19, $19, $34, $01, $33 ;0x1B00
 	dc.b	$FF, $FF, $FF, $FF, $FF, $00
-	
+
 loc_53E04:
 	dc.b	$01, $33, $FF, $FF, $FE, $BF, $49, $49, $02, $33, $FF, $FF, $00, $00, $00, $00
 	dc.b	$00, $7F, $FF, $39, $01, $00, $FE, $3F, $FF, $FE ;0x1B20
@@ -57475,7 +57475,7 @@ loc_53E04:
 	dc.b	$49, $49, $50, $4F, $30, $36, $01, $17, $7F, $FF, $FE, $3C, $35, $49, $16, $49
 	dc.b	$18, $19, $02, $17, $FF, $FE, $00, $00, $33, $00, $00, $FF, $FF, $34, $01, $33 ;0x1D80
 	dc.b	$FE, $BF, $FF, $FF, $49, $49, $FF, $00
-	
+
 loc_54086:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $00, $00, $00, $00, $00, $7F
 	dc.b	$FF, $39, $01, $00, $FF, $FF, $FF, $FE ;0x1DA0
@@ -57518,7 +57518,7 @@ loc_54086:
 	dc.b	$AE, $18, $1F, $FE, $10, $41, $35, $19, $19, $19, $02, $18, $FF, $E0, $00, $00
 	dc.b	$33, $00, $00, $FF, $FF, $19, $17, $17, $17, $34, $01, $33, $FF, $FF, $FF, $FF ;0x2000
 	dc.b	$FF, $00
-	
+
 loc_54300:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $02, $33, $FF, $FF, $00, $00, $00, $00, $00, $55
 	dc.b	$75, $39, $1C, $1C, $1C, $1C, $1C, $1B, $02, $00, $5F, $F5, $55, $56 ;0x2020
@@ -57558,8 +57558,8 @@ loc_54300:
 	dc.b	$A8, $16, $13, $91, $15, $16, $0F, $0E, $0F, $0E, $0F, $0F, $36, $01, $17, $7B ;0x2240
 	dc.b	$BF, $BB, $BB, $35, $10, $11, $11, $10, $11, $10, $02, $17, $BF, $BE, $00, $00
 	dc.b	$33, $00, $00, $FF, $FF, $11, $11, $34, $01, $33, $FF, $FF, $FF, $FF, $FF, $00 ;0x2260
-	
-loc_5455E:	
+
+loc_5455E:
 	dc.b	$01, $33, $FF, $FF, $FF, $FF, $01, $33, $8F, $C0, $F8, $FF, $04, $00, $03, $04
 	dc.b	$1B, $00, $00, $1C, $03, $04, $00, $03, $01, $33, $8F, $80, $78, $FF, $0E, $16 ;0x2280
 	dc.b	$0F, $04, $0C, $0F, $16, $16, $0E, $0D, $03, $0E, $16, $0F, $01, $33, $8F, $00
@@ -58373,9 +58373,9 @@ loc_57468:
 	dc.b	$26, $02, $00, $E0, $0F, $F0, $1F, $0A, $06, $C0, $03, $80, $22, $0B, $03, $0C
 	dc.b	$21, $22, $0B, $0C, $21, $01, $00, $F8, $3F, $FF, $FF, $22, $05, $05, $05, $21 ;0x40
 	dc.b	$01, $00, $FF, $FF, $FF, $FF, $01, $00, $FF, $FF, $FF, $FF, $FF ;0x60
-	
+
 	even
-	
+
 loc_574D6:
 	dc.b	$01, $00, $FF, $FF, $FF, $FF, $01, $00, $F8, $3F, $F0, $1F, $09, $05, $05, $05
 	dc.b	$08, $09, $0D, $0A, $0A, $0A, $0E, $08, $02, $00, $E0, $0F, $E0, $0F, $0A, $06 ;0x0 (0x000574D6-0x00057543, Entry count: 0x0000006D)
@@ -58384,9 +58384,9 @@ loc_574D6:
 	dc.b	$26, $02, $00, $E0, $0F, $F0, $1F, $0A, $06, $C0, $03, $80, $22, $0B, $02, $0C
 	dc.b	$21, $22, $0B, $0C, $21, $01, $00, $F8, $3F, $FF, $FF, $22, $05, $05, $05, $21 ;0x40
 	dc.b	$01, $00, $FF, $FF, $FF, $FF, $01, $00, $FF, $FF, $FF, $FF, $FF ;0x60
-	
+
 	even
-	
+
 loc_57544:
 	dc.b	$02, $00, $FF, $FF, $E3, $8F, $0A, $00, $00, $1C, $70, $03, $00, $C1, $07, $80
 	dc.b	$03, $0A, $30, $18, $6F, $EC, $12, $0E, $E0, $10, $10, $02, $00, $80, $03, $80 ;0x0 (0x00057544-0x000575BD, Entry count: 0x00000079)
@@ -58396,9 +58396,9 @@ loc_57544:
 	dc.b	$05, $05, $05, $0D, $12, $02, $00, $80, $03, $80, $03, $0A, $7A, $BC, $7B, $BC ;0x40
 	dc.b	$12, $03, $12, $12, $12, $02, $00, $C1, $07, $E3, $8F, $0A, $2E, $E8, $1C, $70
 	dc.b	$11, $11, $01, $00, $FF, $FF, $FF, $FF, $FF ;0x60
-	
-	even 
-	
+
+	even
+
 loc_575BE:
 	dc.b	$01, $05, $0F, $FF, $FF, $F8, $44, $44, $44, $09, $08, $44, $44, $01, $0A, $0D
 	dc.b	$FF, $FF, $D8, $44, $44, $09, $0D, $02, $02, $0E, $08, $44, $02, $0A, $1F ;0x0 (0x000575BD-0x00057FC4, Entry count: 0x00000A07) [Unknown data]
@@ -58474,7 +58474,7 @@ loc_575BE:
 	dc.b	$22, $0B, $0C, $21, $22, $0B, $0C, $21, $22, $0B, $0C, $21, $02, $44, $E0, $1E ;0x460
 	dc.b	$3C, $03, $05, $0F, $C0, $81, $F8, $22, $21, $22, $21, $22, $21, $01, $44, $FF
 	dc.b	$FF, $FF, $FF, $FF, $00
-	
+
 loc_57A52:
 	dc.b	$01, $44, $FF, $FF, $FF, $FF, $02, $44, $FF, $C0, $01 ;0x480
 	dc.b	$FF, $05, $00, $1F, $FC, $00, $09, $08, $02, $44, $FF, $80, $00, $FF, $0A, $00
@@ -58564,7 +58564,7 @@ loc_57A52:
 	dc.b	$0A, $0F, $FC, $1F, $F8, $44, $44, $22, $0B, $0C, $05, $05, $05, $0B, $0C, $21
 	dc.b	$44, $02, $44, $E0, $01, $C0, $03, $05, $0F, $FC, $1F, $F8, $22, $21, $22, $21 ;0x9E0
 	dc.b	$01, $44, $FF, $FF, $FF, $FF, $FF ;0xA00
-	
+
 loc_57FC4:
 	dc.b	$04, $40, $AA, $AA, $00, $00, $41, $55, $55, $00, $00, $42, $00, $00, $AA, $AA
 	dc.b	$43, $00, $00, $55, $55, $04, $40, $AA, $AA, $00, $00, $41, $55, $55, $00, $00 ;0x0 (0x00057FC4-0x00058019, Entry count: 0x00000055)
@@ -58572,9 +58572,9 @@ loc_57FC4:
 	dc.b	$41, $55, $55, $00, $00, $42, $00, $00, $AA, $AA, $43, $00, $00, $55, $55, $04 ;0x20
 	dc.b	$40, $AA, $AA, $00, $00, $41, $55, $55, $00, $00, $42, $00, $00, $AA, $AA, $43
 	dc.b	$00, $00, $55, $55, $FF ;0x40
-	
+
 	even
-	
+
 loc_5801A:
 	dc.b	$04, $65, $AA, $AA, $00, $00, $66, $55, $55, $00, $00, $67, $00, $00, $AA, $AA
 	dc.b	$68, $00, $00, $55, $55, $04, $65, $AA, $AA, $00, $00, $66, $55, $55, $00, $00 ;0x0 (0x0005801A-0x0005806F, Entry count: 0x00000055)
@@ -58582,15 +58582,15 @@ loc_5801A:
 	dc.b	$66, $55, $55, $00, $00, $67, $00, $00, $AA, $AA, $68, $00, $00, $55, $55, $04 ;0x20
 	dc.b	$65, $AA, $AA, $00, $00, $66, $55, $55, $00, $00, $67, $00, $00, $AA, $AA, $68
 	dc.b	$00, $00, $55, $55, $FF ;0x40
-	
+
 	even
-	
+
 loc_58070:
 	dc.b	$01, $64, $FF, $FF, $FF, $FF, $01, $64, $FF, $FF, $FF, $FF, $01, $64, $FF, $FF
 	dc.b	$FF, $FF, $01, $64, $FF, $FF, $FF, $FF, $FF ;0x0 (0x00058070-0x00058089, Entry count: 0x00000019)
-	
+
 	even
-	
+
 loc_5808A:
 	dc.b	$01, $33, $00, $00, $B7, $DB, $29, $2C, $28, $29, $2B, $28, $29, $2D, $28, $29
 	dc.b	$2C, $28, $29, $2B, $28, $27, $2A, $2A, $2A, $2A, $01, $33, $00, $00, $FE ;0x0 (0x00058089-0x000580EE, Entry count: 0x00000065) [Unknown data]
@@ -58599,21 +58599,21 @@ loc_5808A:
 	dc.b	$2D, $28, $29, $2C, $28, $29, $27, $28, $2D, $2A, $2A, $01, $33, $00, $00, $F6
 	dc.b	$FB, $29, $2D, $28, $29, $2C, $28, $29, $2C, $28, $29, $2D, $28, $29, $2C, $28 ;0x40
 	dc.b	$27, $2A, $2A, $2A, $FF ;0x60
-	
+
 loc_580EE:
 	dc.b	$02, $7F, $AA, $AA, $55, $55, $80, $55, $55, $AA, $AA, $02, $7F, $AA, $AA, $55
 	dc.b	$55, $80, $55, $55, $AA, $AA, $02, $7F, $AA, $AA, $55, $55, $80, $55, $55, $AA ;0x0 (0x000580EE-0x0005811B, Entry count: 0x0000002D)
 	dc.b	$AA, $02, $7F, $AA, $AA, $55, $55, $80, $55, $55, $AA, $AA, $FF ;0x20
-	
+
 	even
-	
+
 loc_5811C:
 	dc.b	$02, $45, $AA, $AA, $55, $55, $46, $55, $55, $AA, $AA, $02, $45, $AA, $AA, $55
 	dc.b	$55, $46, $55, $55, $AA, $AA, $02, $45, $AA, $AA, $55, $55, $46, $55, $55, $AA ;0x0 (0x0005811C-0x00058149, Entry count: 0x0000002D)
 	dc.b	$AA, $02, $46, $AA, $AA, $55, $55, $46, $55, $55, $AA, $AA, $FF ;0x20
-	
+
 	even
-	
+
 loc_5814A:
 	dc.b	$01, $00, $FC, $C8, $88, $8C, $02, $22, $27, $77, $02, $77, $44, $02, $74, $44
 	dc.b	$02, $73, $23, $02, $33, $23, $23, $33, $01, $02, $24, $08, $88, $88, $00, $00 ;0x0 (0x0005814A-0x00058645, Entry count: 0x000004FB)
@@ -58697,7 +58697,7 @@ loc_5814A:
 	dc.b	$73, $11, $3F, $62, $62, $62, $62, $20, $20, $20, $FF ;0x4E0
 
 	even
-	
+
 loc_58646:
 	dc.b	$01, $00, $FF, $CC, $88, $88, $02, $22, $2E, $EF, $02, $EE, $E4, $02, $EE, $44
 	dc.b	$02, $E4, $24, $2E, $E3, $23, $01, $00, $88, $88, $88, $00, $2E, $E3, $33, $2E ;0x0 (0x00058646-0x000589CC, Entry count: 0x00000386)
@@ -58756,7 +58756,7 @@ loc_58646:
 	dc.b	$33, $92, $34, $62, $16, $92, $34, $99, $24, $99, $92, $22, $22, $44, $44, $02
 	dc.b	$22, $80, $02, $2C, $80, $00, $33, $11, $11, $7F, $20, $66, $62, $26, $66, $20 ;0x360
 	dc.b	$26, $66, $66, $66, $20, $FF ;0x380
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -58774,41 +58774,41 @@ Map_MotaYoungMan:
 	dc.w	loc_58A0E-Map_MotaYoungMan
 	dc.w	loc_58A0E-Map_MotaYoungMan
 	dc.w	loc_58A0E-Map_MotaYoungMan
-	
+
 loc_589E4:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 loc_589EA:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $08, $F8
-	
+
 loc_589F0:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $10, $F8
-	
+
 loc_589F6:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $18, $F8
-	
+
 loc_589FC:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $20, $F8
-	
+
 loc_58A02:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $28, $F8
-	
+
 loc_58A08:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $30, $F8
-	
+
 loc_58A0E:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $30, $F8
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -58826,41 +58826,41 @@ Map_MotaYoungWoman:
 	dc.w	loc_58A4A-Map_MotaYoungWoman
 	dc.w	loc_58A50-Map_MotaYoungWoman
 	dc.w	loc_58A56-Map_MotaYoungWoman
-	
+
 loc_58A2C:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 loc_58A32:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $08, $F8
-	
+
 loc_58A38:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $10, $F8
-	
+
 loc_58A3E:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $18, $F8
-	
+
 loc_58A44:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $20, $F8
-	
+
 loc_58A4A:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $10, $F8
-	
+
 loc_58A50:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $18, $F8
-	
+
 loc_58A56:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $20, $F8
-	
+
 ; ==================================================================
-	
+
 loc_58A5C:
 	dc.b	$01, $00, $FF, $EC, $CC, $88, $22, $02, $44, $24, $44, $24, $24, $02, $43, $23
 	dc.b	$02, $33, $11, $00, $00, $00, $21, $11, $00, $02, $21, $33, $00, $2D, $C2, $22 ;0x0 (0x00058A5C-0x00058B78, Entry count: 0x0000011C)
@@ -59062,7 +59062,7 @@ loc_58A5C:
 	dc.b	$F2 ;0x0 (0x00058DF7-0x00058DF8, Entry count: 0x00000001)
 	dc.b	$20, $20 ;0x0 (0x00058DF8-0x00058DFA, Entry count: 0x00000002)
 	dc.b	$F2, $F2, $22, $20, $22, $22, $20, $22, $20, $FF ;0x0 (0x00058DFA-0x00058E04, Entry count: 0x0000000A)
-	
+
 loc_58E04:
 	dc.b	$02, $00, $CC, $88, $88, $C8, $02, $20, $44, $44, $04, $22, $2A, $AA, $AA, $AA
 	dc.b	$AA, $A4, $A4, $24, $33, $23, $23, $33, $12, $33, $01, $00, $80, $00, $08, $CC ;0x0 (0x00058E04-0x000591E1, Entry count: 0x000003DD)
@@ -59126,9 +59126,9 @@ loc_58E04:
 	dc.b	$AA, $BB, $AA, $BB, $44, $BB, $4A, $B2, $56, $02, $20, $44, $44, $44, $40, $00 ;0x3A0
 	dc.b	$33, $33, $33, $37, $34, $34, $34, $34, $34, $24, $F2, $62, $01, $00, $77, $77
 	dc.b	$33, $3F, $42, $42, $62, $22, $F2, $20, $22, $22, $22, $20, $FF ;0x3C0
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -59146,44 +59146,44 @@ Map_MotaOldMan:
 	dc.w	loc_59218-Map_MotaOldMan
 	dc.w	loc_5921E-Map_MotaOldMan
 	dc.w	loc_59224-Map_MotaOldMan
-	
+
 loc_591FA:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 loc_59200:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $08, $F8
-	
+
 loc_59206:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $10, $F8
-	
+
 loc_5920C:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $18, $F8
-	
+
 loc_59212:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $20, $F8
-	
+
 loc_59218:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $10, $F8
-	
+
 loc_5921E:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $18, $F8
-	
+
 loc_59224:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $20, $F8
 
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
+; -----------------------------------------------------------------
 
 Map_MotaChild:
 	dc.w	loc_59254-Map_MotaChild
@@ -59198,7 +59198,7 @@ Map_MotaChild:
 	dc.w	loc_5926C-Map_MotaChild
 	dc.w	loc_5926C-Map_MotaChild
 	dc.w	loc_5926C-Map_MotaChild
-	
+
 loc_59242:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $00, $F8
@@ -59206,31 +59206,31 @@ loc_59242:
 loc_59248:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $06, $F8
-	
+
 loc_5924E:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $0C, $F8
-	
+
 loc_59254:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $12, $F8
-	
+
 loc_5925A:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $18, $F8
-	
+
 loc_59260:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $1E, $F8
-	
+
 loc_59266:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $24, $F8
-	
+
 loc_5926C:
 	dc.b	$01
 	dc.b	$E8, $06, $08, $24, $F8
-	
+
 ; =======================================================
 
 loc_59272:
@@ -59459,7 +59459,7 @@ loc_59A10:
 	dc.b	$33, $33, $33, $20, $00, $44, $44, $44, $2C, $D2, $D2, $D2, $CD, $CD, $B2, $2D
 	dc.b	$DD, $DD, $02, $00, $33, $31, $10, $1F, $22, $00, $00, $2E, $E0, $DD, $20, $DD ;0x480
 	dc.b	$20, $DD, $20, $DD, $D2, $20, $99, $DD, $20, $FF ;0x4A0
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -59477,93 +59477,93 @@ loc_59EBA:
 	dc.w	loc_59F3E-loc_59EBA
 	dc.w	loc_59F4A-loc_59EBA
 	dc.w	loc_59F56-loc_59EBA
-	
+
 loc_59ED2:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $00, $F8
 	dc.b	$F8, $04, $00, $08, $F8
-	
+
 	even
-	
+
 loc_59EDE:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $0A, $F8
 	dc.b	$F8, $04, $00, $12, $F8
-	
+
 	even
-	
+
 loc_59EEA:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $14, $F8
 	dc.b	$F8, $04, $00, $1C, $F8
-	
+
 	even
-	
+
 loc_59EF6:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $1E, $F8
 	dc.b	$F8, $04, $00, $08, $F8
-	
+
 	even
-	
+
 loc_59F02:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $26, $F8
 	dc.b	$F8, $04, $00, $12, $F8
-	
+
 	even
-	
+
 loc_59F0E:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $2E, $F8
 	dc.b	$F8, $04, $00, $1C, $F8
-	
+
 	even
-	
+
 loc_59F1A:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $36, $F8
 	dc.b	$F8, $04, $00, $3E, $F8
-	
+
 	even
-	
+
 loc_59F26:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $40, $F8
 	dc.b	$F8, $04, $00, $48, $F8
-	
+
 	even
-	
+
 loc_59F32:
 	dc.b	$02
 	dc.b	$D8, $07, $00, $4A, $F8
 	dc.b	$F8, $04, $00, $52, $F8
-	
+
 	even
-	
+
 loc_59F3E:
 	dc.b	$02
 	dc.b	$D8, $07, $08, $36, $F8
 	dc.b	$F8, $04, $08, $3E, $F8
-	
+
 	even
-	
+
 loc_59F4A:
 	dc.b	$02
 	dc.b	$D8, $07, $08, $40, $F8
 	dc.b	$F8, $04, $08, $48, $F8
-	
+
 	even
-	
+
 loc_59F56:
 	dc.b	$02
 	dc.b	$D8, $07, $08, $4A, $F8
 	dc.b	$F8, $04, $08, $52, $F8
 
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -59581,48 +59581,48 @@ loc_59F62:
 	dc.w	loc_59FAA-loc_59F62
 	dc.w	loc_59FB0-loc_59F62
 	dc.w	loc_59FB0-loc_59F62
-	
+
 loc_59F7A:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $00, $F8
-	
+
 loc_59F80:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $06, $F8
-	
+
 loc_59F86:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $0C, $F8
-	
+
 loc_59F8C:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $12, $F8
-	
+
 loc_59F92:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $18, $F8
-	
+
 loc_59F98:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $1E, $F8
-	
+
 loc_59F9E:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $24, $F8
-	
+
 loc_59FA4:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $2A, $F8
-	
+
 loc_59FAA:
 	dc.b	$01
 	dc.b	$E8, $06, $08, $24, $F8
-	
+
 loc_59FB0:
 	dc.b	$01
 	dc.b	$E8, $06, $08, $2A, $F8
-	
-; =======================================================	
+
+; =======================================================
 
 loc_59FB6:
 	dc.b	$02, $00, $D8, $88, $88, $88, $02, $05, $55, $44, $00, $20, $12, $C2, $C2, $C7
@@ -59713,64 +59713,64 @@ loc_5A394:
 	dc.w	loc_5A3FE-loc_5A394
 	dc.w	loc_5A404-loc_5A394
 	dc.w	loc_5A40A-loc_5A394
-	
+
 loc_5A3BC:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $00, $F0
-	
+
 loc_5A3C2:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $04, $F0
-	
+
 loc_5A3C8:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $08, $F0
-	
+
 loc_5A3CE:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $0C, $F0
-	
+
 loc_5A3D4:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $10, $F0
-	
+
 loc_5A3DA:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $14, $F0
-	
+
 loc_5A3E0:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $18, $F0
-	
+
 loc_5A3E6:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $1C, $F0
-	
+
 loc_5A3EC:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $20, $F0
-	
+
 loc_5A3F2:
 	dc.b	$01
 	dc.b	$E7, $05, $00, $24, $F0
-	
+
 loc_5A3F8:
 	dc.b	$01
 	dc.b	$E7, $05, $08, $18, $F0
-	
+
 loc_5A3FE:
 	dc.b	$01
 	dc.b	$E7, $05, $08, $1C, $F0
-	
+
 loc_5A404:
 	dc.b	$01
 	dc.b	$E7, $05, $08, $20, $F0
-	
+
 loc_5A40A:
 	dc.b	$01
 	dc.b	$E7, $05, $08, $24, $F0
-	
-; =======================================================		
+
+; =======================================================
 
 loc_5A410:
 	dc.b	$02, $00, $F8, $80, $00, $00, $02, $04, $08, $88, $88, $22, $22, $21, $15, $55
@@ -60230,11 +60230,11 @@ loc_5B452:
 	dc.b	$B2, $2B, $00, $00, $00, $00, $01, $00, $FF, $FF, $FF, $F7, $22, $02, $22, $4C
 	dc.b	$21, $1F, $E0, $00, $33, $10, $00, $1F, $66, $55, $55, $26, $26, $62, $62, $62 ;0x80
 	dc.b	$66, $FF ;0xA0
-	
+
 ; -----------------------------------------------------------------
 ; Darum Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_Darum:
 	dc.w	Map_Darum_Idle-Map_Darum
 	dc.w	Map_Darum_Walking_1-Map_Darum
@@ -60242,15 +60242,15 @@ Map_Darum:
 	dc.w	Map_Darum_Swinging_1-Map_Darum
 	dc.w	Map_Darum_Swinging_2-Map_Darum
 	dc.w	Map_Darum_Swinging_3-Map_Darum
-	
+
 Map_Darum_Idle:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 Map_Darum_Walking_1:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $08, $F8
-	
+
 Map_Darum_Walking_2:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $10, $F8
@@ -60258,11 +60258,11 @@ Map_Darum_Walking_2:
 Map_Darum_Swinging_1:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $18, $F8
-	
+
 Map_Darum_Swinging_2:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $20, $F8
-	
+
 Map_Darum_Swinging_3:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $28, $F8
@@ -60284,27 +60284,27 @@ Map_Teim:
 	dc.w	loc_5B55C-Map_Teim
 	dc.w	loc_5B562-Map_Teim
 	dc.w	loc_5B568-Map_Teim
-	
+
 loc_5B538:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 loc_5B53E:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $08, $F8
-	
+
 loc_5B544:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $10, $F8
-	
+
 loc_5B54A:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $18, $F8
-	
+
 loc_5B550:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $20, $F8
-	
+
 loc_5B556:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $28, $F8
@@ -60312,69 +60312,69 @@ loc_5B556:
 loc_5B55C:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $30, $F8
-	
+
 loc_5B562:
 	dc.b	$01
 	dc.b	$E8, $06, $00, $38, $F8
-	
+
 loc_5B568:
 	dc.b	$02
 	dc.b	$F0, $09, $00, $3E, $E8
 	dc.b	$F8, $00, $00, $44, $00
 
-; =================================================================	
+; =================================================================
 
 	even
 
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5B574:
 	dc.w	loc_5B57E-loc_5B574
 	dc.w	loc_5B584-loc_5B574
 	dc.w	loc_5B58A-loc_5B574
 	dc.w	loc_5B590-loc_5B574
 	dc.w	loc_5B596-loc_5B574
-	
+
 loc_5B57E:
 	dc.b	$01
 	dc.b	$F0, $09, $00, $00, $F0
-	
+
 loc_5B584:
 	dc.b	$01
 	dc.b	$E0, $0F, $00, $06, $F0
-	
+
 loc_5B58A:
 	dc.b	$01
 	dc.b	$E0, $0F, $00, $16, $F0
-	
+
 loc_5B590:
 	dc.b	$01
 	dc.b	$E0, $0F, $00, $26, $F0
-	
+
 loc_5B596:
 	dc.b	$04
 	dc.b	$E0, $04, $00, $36, $F0
 	dc.b	$F0, $0D, $00, $38, $F0
 	dc.b	$E8, $08, $00, $40, $F8
 	dc.b	$E0, $00, $00, $43, $08
-	
-; =================================================================	
+
+; =================================================================
 
 	even
 
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5B5AC:
 	dc.w	loc_5B5AE-loc_5B5AC
-	
+
 loc_5B5AE:
 	dc.b	$01
 	dc.b	$F0, $0D, $00, $00, $F0
-	
+
 ; =================================================================
 
 loc_5B5B4:
@@ -60704,9 +60704,9 @@ loc_5C67E:
 	dc.b	$22, $CD, $D5, $23, $42, $DD, $D5, $23, $20, $DD, $D2, $22, $00, $CC, $DD, $20
 	dc.b	$00, $03, $DD, $44, $4C, $C8, $80, $20, $22, $22, $20, $40, $00, $11, $11, $13 ;0x160
 	dc.b	$37, $CC, $CC, $CD, $D2, $22, $FF ;0x180
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -60724,92 +60724,92 @@ loc_5C806:
 	dc.w	loc_5C854-loc_5C806
 	dc.w	loc_5C85A-loc_5C806
 	dc.w	loc_5C860-loc_5C806
-	
+
 loc_5C81E:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 loc_5C824:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $08, $F8
-	
+
 loc_5C82A:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $10, $F8
-	
+
 loc_5C830:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $18, $F8
-	
+
 loc_5C836:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $20, $F8
-	
+
 loc_5C83C:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $28, $F8
-	
+
 loc_5C842:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $30, $F8
-	
+
 loc_5C848:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $38, $F8
-	
+
 loc_5C84E:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $40, $F8
-	
+
 loc_5C854:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $30, $F8
-	
+
 loc_5C85A:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $38, $F8
-	
+
 loc_5C860:
 	dc.b	$01
 	dc.b	$E0, $07, $08, $40, $F8
 
-; =================================================================	
-	
+; =================================================================
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5C866:
 	dc.w	loc_5C86E-loc_5C866
 	dc.w	loc_5C87A-loc_5C866
 	dc.w	loc_5C880-loc_5C866
 	dc.w	loc_5C896-loc_5C866
-	
+
 loc_5C86E:
 	dc.b	$02
 	dc.b	$E8, $0F, $00, $00, $E0
 	dc.b	$E8, $0F, $00, $10, $00
-	
+
 	even
-	
+
 loc_5C87A:
 	dc.b	$01
 	dc.b	$E8, $0A, $00, $20, $E8
-	
+
 loc_5C880:
 	dc.b	$04
 	dc.b	$D8, $0F, $00, $29, $E8
 	dc.b	$D8, $07, $00, $39, $08
 	dc.b	$F8, $0C, $00, $41, $E8
 	dc.b	$F8, $04, $00, $45, $08
-	
+
 	even
-	
-loc_5C896:	
+
+loc_5C896:
 	dc.b	$02
 	dc.b	$D8, $0B, $00, $47, $E8
 	dc.b	$F8, $08, $00, $53, $E8
-	
+
 ; =================================================================
 
 	even
@@ -60817,27 +60817,27 @@ loc_5C896:
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5C8A2:
 	dc.w	loc_5C8A8-loc_5C8A2
 	dc.w	loc_5C8B8-loc_5C8A2
 	dc.w	loc_5C8CE-loc_5C8A2
-	
+
 loc_5C8A8:
 	dc.b	$03
 	dc.b	$F0, $0D, $00, $00, $E8
 	dc.b	$F0, $01, $00, $08, $08
 	dc.b	$F0, $01, $00, $0A, $10
-	
+
 loc_5C8B8:
 	dc.b	$04
 	dc.b	$E8, $04, $00, $0C, $F8
 	dc.b	$F0, $0D, $00, $0E, $E8
 	dc.b	$F0, $01, $00, $16, $08
 	dc.b	$F0, $01, $00, $0A, $10
-	
+
 	even
-	
+
 loc_5C8CE:
 	dc.b	$04
 	dc.b	$E8, $04, $00, $18, $F8
@@ -60848,27 +60848,27 @@ loc_5C8CE:
 ; =================================================================
 
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5C8E4:
 	dc.w	loc_5C8E8-loc_5C8E4
 	dc.w	loc_5C8F4-loc_5C8E4
-	
+
 loc_5C8E8:
 	dc.b	$02
 	dc.b	$E0, $07, $00, $00, $F0
 	dc.b	$E0, $07, $08, $00, $00
-	
+
 	even
-	
+
 loc_5C8F4:
 	dc.b	$02
 	dc.b	$E0, $03, $00, $08, $F8
 	dc.b	$E0, $03, $00, $0C, $00
-	
+
 ; =======================================================
 
 	even
@@ -60973,9 +60973,9 @@ loc_5C900:
 	dc.b	$00, $00, $17, $7C, $0C, $C1, $C1, $10, $02, $CC, $22, $44, $44, $44, $11, $01
 	dc.b	$11, $12, $22, $00, $0C, $C1, $00, $0C, $00, $C1, $00, $C1, $00, $C1, $0C, $10 ;0x600
 	dc.b	$0C, $10, $0C, $10, $01, $00, $37, $7F, $FF, $FF, $11, $10, $11, $10, $FF ;0x620
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -60991,22 +60991,22 @@ loc_5CF30:
 	dc.w	loc_5CF44-loc_5CF30
 	dc.w	loc_5CF5A-loc_5CF30
 	dc.w	loc_5CF6A-loc_5CF30
-	
+
 loc_5CF44:
 	dc.b	$04
 	dc.b	$D8, $08, $00, $00, $F0
 	dc.b	$E0, $0D, $00, $03, $F0
 	dc.b	$F0, $08, $00, $0B, $F8
 	dc.b	$F8, $04, $00, $0E, $F8
-	
+
 	even
-	
+
 loc_5CF5A:
 	dc.b	$03
 	dc.b	$D8, $04, $00, $10, $F8
 	dc.b	$E0, $0D, $00, $12, $F0
 	dc.b	$F0, $05, $00, $1A, $F8
-	
+
 loc_5CF6A:
 	dc.b	$07
 	dc.b	$D0, $01, $00, $1E, $E8
@@ -61016,46 +61016,46 @@ loc_5CF6A:
 	dc.b	$F0, $04, $08, $2C, $00
 	dc.b	$F8, $08, $00, $2E, $E8
 	dc.b	$F8, $08, $08, $2E, $00
-	
+
 loc_5CF8E:
 	dc.b	$02
 	dc.b	$00, $03, $00, $31, $FC
 	dc.b	$20, $03, $00, $35, $FC
-	
+
 	even
-	
+
 loc_5CF9A:
 	dc.b	$02
 	dc.b	$00, $03, $00, $39, $FC
 	dc.b	$20, $03, $00, $3D, $FC
-	
+
 	even
-	
+
 loc_5CFA6:
 	dc.b	$02
 	dc.b	$00, $03, $08, $31, $FC
 	dc.b	$20, $03, $08, $35, $FC
-	
+
 	even
-	
+
 loc_5CFB2:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $41, $F8
 	dc.b	$F8, $00, $08, $41, $00
 	dc.b	$00, $00, $10, $41, $F8
 	dc.b	$00, $00, $18, $41, $00
-	
+
 	even
-	
+
 loc_5CFC8:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $42, $F8
 	dc.b	$F8, $00, $08, $42, $00
 	dc.b	$00, $00, $10, $42, $F8
 	dc.b	$00, $00, $18, $42, $00
-	
+
 	even
-	
+
 loc_5CFDE:
 	dc.b	$09
 	dc.b	$F4, $00, $00, $43, $F4
@@ -61067,7 +61067,7 @@ loc_5CFDE:
 	dc.b	$FC, $00, $00, $45, $F4
 	dc.b	$FC, $00, $08, $45, $04
 	dc.b	$FC, $00, $00, $46, $FC
-	
+
 loc_5D00C:
 	dc.b	$10
 	dc.b	$F0, $00, $00, $47, $F0
@@ -61086,11 +61086,11 @@ loc_5D00C:
 	dc.b	$F8, $00, $08, $4A, $00
 	dc.b	$00, $00, $10, $4A, $F8
 	dc.b	$00, $00, $18, $4A, $00
-	
+
 ; =======================================================
-	
+
 	even
-	
+
 loc_5D05E:
 	dc.b	$01, $00, $F9, $88, $88, $88, $02, $22, $02, $11, $22, $02, $1A, $AA, $02, $AA
 	dc.b	$A5, $2A, $AB, $55, $2A, $A5, $25, $2A, $A5, $21, $01, $00, $88, $88, $88, $80 ;0x0 (0x0005D05E-0x0005D12B, Entry count: 0x000000CD)
@@ -61112,38 +61112,38 @@ loc_5D12C:
 	dc.b	$73, $08, $10, $51, $10, $55, $51, $11, $11, $10, $05, $55, $55, $10, $51, $10
 	dc.b	$05, $51, $11, $11, $05, $55, $55, $03, $00, $EC, $02, $EC, $13, $11, $02, $C0 ;0x20
 	dc.b	$02, $C0, $55, $00, $2C, $00, $2C, $10, $50, $50, $10, $10, $50, $FF ;0x40
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5D17A:
 	dc.w	loc_5D17C-loc_5D17A
-	
+
 loc_5D17C:
 	dc.b	$01
 	dc.b	$E0, $07, $00, $00, $F8
-	
+
 ; =================================================================
-	
+
 loc_5D182:
 	dc.b	$01, $00, $F3, $F7, $F8, $CF, $89, $90, $0A, $02, $55, $60, $22, $22, $01, $00
 	dc.b	$F4, $F3, $1F, $FF, $B0, $0B, $B0, $02, $56, $20, $22 ;0x0 (0x0005D17D-0x0005D1A8, Entry count: 0x0000002B) [Unknown data]
 	dc.b	$20, $FF, $00
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5D1A0:
 	dc.w	loc_5D1A2-loc_5D1A0
-	
+
 loc_5D1A2:
 	dc.b	$01
 	dc.b	$F8, $01, $00, $00, $FC
-	
+
 ; =================================================================
-	
+
 loc_5D1A8:
 	dc.b	$04, $00, $FF, $00, $00, $00, $88, $00, $87, $78, $00, $77, $00, $70, $07, $00
 	dc.b	$99, $00, $00, $00, $77, $98, $98, $A9, $A9, $02, $A9, $88, $88, $88, $88, $99 ;0x0 (0x0005D1A8-0x0005D4F7, Entry count: 0x0000034F)
@@ -61198,19 +61198,19 @@ loc_5D1A8:
 	dc.b	$B9, $9A, $A9, $99, $9A, $0A, $AA, $AA, $01, $00, $99, $99, $9F, $FF, $01, $10
 	dc.b	$01, $10, $01, $10, $01, $10, $01, $10, $01, $00, $88, $FF, $FF, $FF, $01, $11 ;0x320
 	dc.b	$11, $01, $11, $11, $01, $00, $33, $FF, $FF, $FF, $11, $10, $11, $10, $FF ;0x340
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5D4F8:
 	dc.w	loc_5D500-loc_5D4F8
 	dc.w	loc_5D51A-loc_5D4F8
 	dc.w	loc_5D534-loc_5D4F8
 	dc.w	loc_5D540-loc_5D4F8
-	
+
 loc_5D500:
 	dc.b	$05
 	dc.b	$E0, $01, $00, $00, $F0
@@ -61218,7 +61218,7 @@ loc_5D500:
 	dc.b	$F0, $01, $00, $02, $F0
 	dc.b	$F0, $01, $08, $02, $08
 	dc.b	$E0, $07, $00, $04, $F8
-	
+
 loc_5D51A:
 	dc.b	$05
 	dc.b	$E0, $01, $00, $0C, $F0
@@ -61226,14 +61226,14 @@ loc_5D51A:
 	dc.b	$F0, $01, $00, $0E, $F0
 	dc.b	$F0, $01, $08, $02, $08
 	dc.b	$E0, $07, $00, $10, $F8
-	
+
 loc_5D534:
 	dc.b	$02
 	dc.b	$E0, $03, $00, $18, $F0
 	dc.b	$E0, $03, $00, $1C, $08
-	
+
 	even
-	
+
 loc_5D540:
 	dc.b	$06
 	dc.b	$E0, $04, $00, $20, $E8
@@ -61242,11 +61242,11 @@ loc_5D540:
 	dc.b	$E8, $02, $00, $27, $08
 	dc.b	$F0, $00, $00, $2A, $E8
 	dc.b	$F0, $04, $00, $2B, $10
-	
+
 ; =======================================================
 
 	even
-	
+
 loc_5D560:
 	dc.b	$01, $00, $FF, $FF, $FF, $FE, $22, $03, $00, $CC, $C8, $88, $88, $02, $20, $04
 	dc.b	$44, $44, $AA, $01, $11, $11, $01, $11, $21, $21, $1A, $11, $1A, $1A, $11, $11 ;0x0 (0x0005D560-0x0005D6FF, Entry count: 0x0000019F)
@@ -61274,27 +61274,27 @@ loc_5D560:
 	dc.b	$11, $33, $11, $11, $AB, $B6, $AA, $A6, $55, $52, $66, $62, $BB, $B6, $BB, $B6 ;0x160
 	dc.b	$BB, $B6, $22, $B6, $02, $20, $22, $22, $22, $04, $00, $11, $11, $11, $33, $22
 	dc.b	$B6, $22, $B6, $66, $66, $BB, $B6, $BB, $66, $B6, $B6, $66, $62, $22, $FF ;0x180
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5D700:
 	dc.w	loc_5D704-loc_5D700
 	dc.w	loc_5D70A-loc_5D700
-	
+
 loc_5D704:
 	dc.b	$01
 	dc.b	$E8, $0A, $00, $00, $F4
-	
+
 loc_5D70A:
 	dc.b	$01
 	dc.b	$E8, $0A, $00, $09, $F4
-	
-; ================================================================	
-	
+
+; ================================================================
+
 loc_5D710:
 	dc.b	$01, $00, $FF, $FE, $EC, $C8, $02, $22, $02, $22, $22, $62, $02, $26, $62, $03
 	dc.b	$00, $88, $88, $88, $88, $02, $44, $44, $44, $44, $62, $13, $11, $11, $30, $66 ;0x0 (0x0005D710-0x0005D942, Entry count: 0x00000232)
@@ -61331,11 +61331,11 @@ loc_5D710:
 	dc.b	$22, $22, $22, $00, $11, $11, $11, $11, $55, $66, $55, $26, $55, $B6, $55, $A6
 	dc.b	$55, $A6, $56, $B6, $16, $26, $56, $66, $02, $20, $22, $22, $20, $40, $00, $11 ;0x200
 	dc.b	$11, $13, $37, $51, $66, $16, $16, $56, $55, $15, $66, $16, $62, $16, $22, $12, $22, $FF ;0x220
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5D942:
 	dc.w	loc_5D94A-loc_5D942
 	dc.w	loc_5D950-loc_5D942
@@ -61343,27 +61343,27 @@ loc_5D942:
 loc_5D946:
 	dc.w	loc_5D95C-loc_5D946
 	dc.w	loc_5D962-loc_5D946
-	
+
 loc_5D94A:
 	dc.b	$01
 	dc.b	$E8, $0E, $00, $00, $F0 ;0x0 (0x0005D94B-0x0005D950, Entry count: 0x00000005) [Unknown data]
-	
+
 loc_5D950:
 	dc.b	$02
 	dc.b	$E0, $04, $00, $0C, $F8
 	dc.b	$E8, $0E, $00, $0E, $F0
-	
+
 	even
-	
+
 loc_5D95C:
 	dc.b	$01
 	dc.b	$E0, $0E, $00, $00, $E8
-	
+
 loc_5D962:
 	dc.b	$02
 	dc.b	$D8, $04, $00, $0C, $F0
 	dc.b	$E0, $0E, $00, $0E, $E8
-	
+
 ; =======================================================
 
 	even
@@ -61391,8 +61391,8 @@ loc_5D986:
 	dc.w	loc_5E316-loc_5D986
 
 loc_5D98C:
-	dc.w	loc_5E31C-loc_5D98C 
-	
+	dc.w	loc_5E31C-loc_5D98C
+
 loc_5D98E:
 	dc.b	$01, $00, $FF, $DC, $CC, $88, $02, $22, $20, $25, $20, $22, $22, $02, $25, $22
 	dc.b	$02, $15, $62, $03, $00, $88, $88, $88, $88, $02, $44, $44, $44, $44, $22, $31 ;0x0 (0x0005D98E-0x0005DEEA, Entry count: 0x0000055C)
@@ -61480,7 +61480,7 @@ loc_5D98E:
 	dc.b	$D1, $00, $F0, $00, $00, $00, $00, $0F, $FF, $66, $21, $11, $16, $25, $55, $56 ;0x520
 	dc.b	$62, $26, $66, $65, $62, $01, $00, $00, $00, $FF, $FF, $55, $25, $55, $16, $11
 	dc.b	$21, $11, $16, $26, $26, $66, $56, $22, $22, $22, $22, $FF ;0x540
-	
+
 loc_5DEEA:
 	dc.b	$06
 	dc.b	$F0, $02, $00, $00, $F4
@@ -61489,9 +61489,9 @@ loc_5DEEA:
 	dc.b	$08, $00, $00, $06, $F4
 	dc.b	$08, $00, $00, $07, $FC
 	dc.b	$08, $00, $08, $06, $04
-	
+
 	even
-	
+
 loc_5DF0A:
 	dc.b	$06
 	dc.b	$F0, $02, $00, $08, $F4
@@ -61500,9 +61500,9 @@ loc_5DF0A:
 	dc.b	$08, $00, $00, $06, $F4
 	dc.b	$08, $00, $00, $07, $FC
 	dc.b	$08, $00, $08, $06, $04
-	
+
 	even
-	
+
 loc_5DF2A:
 	dc.b	$06
 	dc.b	$F0, $00, $00, $0E, $F4
@@ -61511,9 +61511,9 @@ loc_5DF2A:
 	dc.b	$F8, $02, $00, $0F, $F4
 	dc.b	$F8, $02, $00, $12, $FC
 	dc.b	$F8, $02, $00, $15, $04
-	
+
 	even
-	
+
 loc_5DF4A:
 	dc.b	$06
 	dc.b	$F0, $00, $00, $0E, $F4
@@ -61522,9 +61522,9 @@ loc_5DF4A:
 	dc.b	$F8, $02, $00, $18, $F4
 	dc.b	$F8, $02, $00, $1B, $FC
 	dc.b	$F8, $02, $00, $1E, $04
-	
+
 	even
-	
+
 loc_5DF6A:
 	dc.b	$06
 	dc.b	$F4, $00, $00, $21, $08
@@ -61533,9 +61533,9 @@ loc_5DF6A:
 	dc.b	$F4, $08, $00, $24, $F0
 	dc.b	$FC, $08, $00, $27, $F0
 	dc.b	$04, $08, $00, $2A, $F0
-	
+
 	even
-	
+
 loc_5DF8A:
 	dc.b	$06
 	dc.b	$F4, $00, $00, $21, $08
@@ -61544,9 +61544,9 @@ loc_5DF8A:
 	dc.b	$F4, $08, $00, $2D, $F0
 	dc.b	$FC, $08, $00, $30, $F0
 	dc.b	$04, $08, $00, $33, $F0
-	
+
 	even
-	
+
 loc_5DFAA:
 	dc.b	$06
 	dc.b	$F4, $00, $08, $21, $F0
@@ -61555,9 +61555,9 @@ loc_5DFAA:
 	dc.b	$F4, $08, $08, $24, $F8
 	dc.b	$FC, $08, $08, $27, $F8
 	dc.b	$04, $08, $08, $2A, $F8
-	
+
 	even
-	
+
 loc_5DFCA:
 	dc.b	$06
 	dc.b	$F4, $00, $08, $21, $F0
@@ -61566,11 +61566,11 @@ loc_5DFCA:
 	dc.b	$F4, $08, $08, $2D, $F8
 	dc.b	$FC, $08, $08, $30, $F8
 	dc.b	$04, $08, $08, $33, $F8
-	
+
 ; =======================================================
-	
+
 	even
-	
+
 loc_5DFEA:
 	dc.b	$02, $00, $F9, $8C, $C8, $00, $02, $04, $50, $24, $80, $20, $12, $25, $22, $62
 	dc.b	$22, $22, $21, $11, $12, $21, $15, $55, $56, $02, $22, $C0, $10, $24, $11, $00 ;0x0 (0x0005DFEA-0x0005E30A, Entry count: 0x00000320)
@@ -61622,25 +61622,25 @@ loc_5DFEA:
 	dc.b	$66, $86, $22, $22, $62, $62, $26, $56, $62, $16, $62, $25, $22, $22, $22, $03 ;0x2E0
 	dc.b	$22, $88, $88, $88, $88, $20, $44, $44, $44, $44, $00, $33, $33, $33, $33, $02
 	dc.b	$22, $88, $CC, $CC, $C8, $00, $33, $31, $11, $37, $20, $20, $20, $20, $20, $FF ;0x300
-	
+
 loc_5E30A:
 	dc.b	$01
 	dc.b	$E0, $0B, $00, $00, $F4
-	
+
 loc_5E310:
 	dc.b	$01
 	dc.b	$E0, $0B, $00, $0C, $F4
-	
+
 loc_5E316:
 	dc.b	$01
 	dc.b	$E0, $0B, $00, $18, $F4
-	
+
 loc_5E31C:
 	dc.b	$01
 	dc.b	$E8, $00, $00, $00, $F0
-	
+
 ; =======================================================
-	
+
 loc_5E322:
 	dc.b	$01, $00, $FF, $FF, $FF, $FC, $08, $A0, $01, $00, $EF, $FF, $FF, $FF, $86, $01
 	dc.b	$00, $C8, $99, $91, $11, $8A, $60, $08, $6A, $80, $86, $A6, $86, $A8, $8A, $60 ;0x0 (0x0005E322-0x0005E515, Entry count: 0x000001F3)
@@ -61674,19 +61674,19 @@ loc_5E322:
 	dc.b	$01, $00, $FF, $FF, $F7, $7F, $60, $60, $01, $00, $77, $7F, $7F, $77, $A0, $60 ;0x1C0
 	dc.b	$A0, $A0, $60, $60, $01, $00, $7F, $77, $37, $3F, $60, $60, $A0, $68, $60, $68
 	dc.b	$80, $80, $FF ;0x1E0
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_5E516:
 	dc.w	loc_5E51E-loc_5E516
 	dc.w	loc_5E538-loc_5E516
 	dc.w	loc_5E552-loc_5E516
 	dc.w	loc_5E56C-loc_5E516
-	
+
 loc_5E51E:
 	dc.b	$05
 	dc.b	$F0, $04, $00, $00, $F0
@@ -61694,7 +61694,7 @@ loc_5E51E:
 	dc.b	$F8, $01, $00, $02, $F0
 	dc.b	$F8, $01, $08, $02, $08
 	dc.b	$F8, $06, $00, $04, $F8
-	
+
 loc_5E538:
 	dc.b	$05
 	dc.b	$F0, $04, $00, $0A, $F0
@@ -61702,7 +61702,7 @@ loc_5E538:
 	dc.b	$F8, $01, $00, $0C, $F0
 	dc.b	$F8, $01, $08, $0C, $08
 	dc.b	$F8, $06, $00, $0E, $F8
-	
+
 loc_5E552:
 	dc.b	$05
 	dc.b	$F0, $04, $00, $14, $F0
@@ -61710,7 +61710,7 @@ loc_5E552:
 	dc.b	$F8, $01, $00, $16, $F0
 	dc.b	$F8, $01, $08, $16, $08
 	dc.b	$F8, $06, $00, $18, $F8
-	
+
 loc_5E56C:
 	dc.b	$05
 	dc.b	$F0, $04, $00, $1E, $F0
@@ -61718,9 +61718,9 @@ loc_5E56C:
 	dc.b	$F8, $01, $00, $20, $F0
 	dc.b	$F8, $01, $08, $20, $08
 	dc.b	$F8, $06, $00, $22, $F8
-	
+
 ; =======================================================
-	
+
 SlasherThrownArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FC, $55 ;0x0 (0x0005E56D-0x0005EA64, Entry count: 0x000004F7) [Unknown data]
 	dc.b	$55, $01, $00, $FF, $FF, $FF, $F3, $55, $66, $01, $00, $93, $33, $39, $98, $15
@@ -61783,7 +61783,7 @@ SlasherThrownArt:
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_WpnSlasherThrown:
 	dc.w	Map_WpnSlasherThrown_1-Map_WpnSlasherThrown
 	dc.w	Map_WpnSlasherThrown_2-Map_WpnSlasherThrown
@@ -61812,165 +61812,165 @@ Map_WpnSlasherThrown:
 	dc.w	Map_WpnSlasherThrown_19-Map_WpnSlasherThrown
 	dc.w	Map_WpnSlasherThrown_1A-Map_WpnSlasherThrown
 	dc.w	Map_WpnSlasherThrown_1B-Map_WpnSlasherThrown
-	
+
 Map_WpnSlasherThrown_1:
 	dc.b	$03
 	dc.b	$28, $04, $00, $00, $00
 	dc.b	$30, $09, $00, $02, $00
 	dc.b	$40, $00, $00, $08, $10
-	
+
 Map_WpnSlasherThrown_2:
 	dc.b	$04
 	dc.b	$28, $04, $00, $09, $F8
 	dc.b	$28, $00, $00, $0B, $10
 	dc.b	$30, $0C, $00, $0C, $00
 	dc.b	$38, $08, $00, $10, $08
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_3:
 	dc.b	$01
 	dc.b	$20, $0A, $00, $13, $F8
-	
+
 Map_WpnSlasherThrown_4:
 	dc.b	$03
 	dc.b	$18, $0C, $00, $1C, $F0
 	dc.b	$20, $00, $00, $20, $F0
 	dc.b	$20, $04, $00, $21, $08
-	
+
 Map_WpnSlasherThrown_5:
 	dc.b	$02
 	dc.b	$18, $04, $00, $23, $F0
 	dc.b	$20, $00, $00, $25, $F0
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_6:
 	dc.b	$02
 	dc.b	$10, $00, $00, $26, $F0
 	dc.b	$18, $04, $00, $27, $F0
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_7:
 	dc.b	$02
 	dc.b	$00, $00, $18, $25, $F8
 	dc.b	$08, $04, $00, $29, $F0
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_8:
 	dc.b	$02
 	dc.b	$F8, $04, $00, $2B, $F0
 	dc.b	$00, $00, $00, $2D, $F8
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_9:
 	dc.b	$01
 	dc.b	$F0, $01, $00, $2E, $F0
-	
+
 Map_WpnSlasherThrown_A:
 	dc.b	$01
 	dc.b	$F8, $04, $00, $30, $F0
-	
+
 Map_WpnSlasherThrown_B:
 	dc.b	$01
 	dc.b	$F0, $01, $18, $2E, $F8
-	
+
 Map_WpnSlasherThrown_C:
 	dc.b	$01
 	dc.b	$F0, $04, $00, $32, $F0
-	
+
 Map_WpnSlasherThrown_D:
 	dc.b	$01
 	dc.b	$F0, $01, $00, $34, $F0
-	
+
 Map_WpnSlasherThrown_E:
 	dc.b	$01
 	dc.b	$F0, $01, $00, $36, $F0
-	
+
 Map_WpnSlasherThrown_F:
 	dc.b	$01
 	dc.b	$F0, $01, $00, $38, $F0
-	
+
 Map_WpnSlasherThrown_10:
 	dc.b	$01
 	dc.b	$F0, $01, $00, $3A, $F0
-	
+
 Map_WpnSlasherThrown_11:
 	dc.b	$01
 	dc.b	$F8, $04, $00, $3C, $F0
-	
+
 Map_WpnSlasherThrown_12:
 	dc.b	$02
 	dc.b	$F0, $00, $00, $3E, $F8
 	dc.b	$F8, $04, $00, $3F, $F0
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_13:
 	dc.b	$01
 	dc.b	$F0, $04, $00, $41, $F0
-	
+
 Map_WpnSlasherThrown_14:
 	dc.b	$02
 	dc.b	$F0, $04, $00, $43, $F0
 	dc.b	$F8, $00, $00, $45, $F0
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_15:
 	dc.b	$02
 	dc.b	$F8, $00, $08, $3E, $F8
 	dc.b	$00, $04, $08, $3F, $F8
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_16:
 	dc.b	$02
 	dc.b	$F8, $04, $08, $43, $F8
 	dc.b	$00, $00, $08, $45, $00
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_17:
 	dc.b	$01
 	dc.b	$00, $04, $08, $3C, $F8
-	
+
 Map_WpnSlasherThrown_18:
 	dc.b	$01
 	dc.b	$F8, $04, $08, $41, $F8
-	
+
 Map_WpnSlasherThrown_19:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $46, $F8
 	dc.b	$F8, $00, $08, $46, $00
 	dc.b	$00, $00, $10, $46, $F8
 	dc.b	$00, $00, $18, $46, $00
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_1A:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $47, $F8
 	dc.b	$F8, $00, $08, $47, $00
 	dc.b	$00, $00, $00, $48, $F8
 	dc.b	$00, $00, $18, $47, $00
-	
+
 	even
-	
+
 Map_WpnSlasherThrown_1B:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $49, $F8
 	dc.b	$F8, $00, $00, $4A, $00
 	dc.b	$00, $00, $18, $4A, $F8
 	dc.b	$00, $00, $18, $49, $00
-	
+
 ; =======================================================
-	
+
 	even
-	
+
 SlasherAttackArt:
 	dc.b	$01, $00, $FF, $80, $8F, $FF, $0D, $CC, $D0, $CC, $CC, $11, $1C, $0D, $CC, $D0
 	dc.b	$01, $00, $FF, $F0, $FF, $FF, $DD, $DD, $DD, $DD, $02, $00, $FF, $80, $8F, $FF ;0x0 (0x0005EA64-0x0005EF93, Entry count: 0x0000052F)
@@ -62055,13 +62055,13 @@ SlasherAttackArt:
 	dc.b	$00, $FF, $FF, $F7, $FD, $0B, $0B, $01, $00, $FF, $7F, $FF, $FF, $B0, $01, $00
 	dc.b	$7F, $FF, $FF, $EF, $B0, $B0, $01, $00, $FF, $FF, $FB, $EF, $B0, $0B, $01, $00 ;0x500
 	dc.b	$FD, $FF, $FF, $FD, $0B, $B0, $01, $00, $7F, $FE, $FF, $FF, $B0, $0B, $FF ;0x520
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_WpnSlasherAttack:
 	dc.w	Map_WpnSlasherAttack_1-Map_WpnSlasherAttack
 	dc.w	Map_WpnSlasherAttack_2-Map_WpnSlasherAttack
@@ -62097,21 +62097,21 @@ Map_WpnSlasherAttack:
 	dc.w	Map_WpnSlasherAttack_20-Map_WpnSlasherAttack
 	dc.w	Map_WpnSlasherAttack_21-Map_WpnSlasherAttack
 	dc.w	Map_WpnSlasherAttack_22-Map_WpnSlasherAttack
-	
+
 Map_WpnSlasherAttack_1:
 	dc.b	$01
 	dc.b	$10, $00, $00, $80, $00
-	
+
 Map_WpnSlasherAttack_2:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $81, $00
-	
+
 Map_WpnSlasherAttack_3:
 	dc.b	$03
 	dc.b	$10, $00, $00, $81, $00
 	dc.b	$10, $00, $00, $81, $08
 	dc.b	$10, $0C, $00, $85, $10
-	
+
 Map_WpnSlasherAttack_4:
 	dc.b	$06
 	dc.b	$10, $00, $00, $81, $00
@@ -62120,26 +62120,26 @@ Map_WpnSlasherAttack_4:
 	dc.b	$10, $00, $00, $81, $18
 	dc.b	$10, $00, $00, $81, $20
 	dc.b	$10, $00, $00, $81, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_5:
 	dc.b	$04
 	dc.b	$10, $00, $00, $89, $08
 	dc.b	$10, $00, $00, $8A, $10
 	dc.b	$10, $00, $00, $8B, $18
 	dc.b	$10, $00, $08, $8A, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_6:
 	dc.b	$01
 	dc.b	$10, $00, $00, $8C, $00
-	
+
 Map_WpnSlasherAttack_7:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $8D, $00
-	
+
 Map_WpnSlasherAttack_8:
 	dc.b	$03
 	dc.b	$10, $00, $00, $8D, $00
@@ -62154,7 +62154,7 @@ Map_WpnSlasherAttack_9:
 	dc.b	$10, $00, $00, $8D, $18
 	dc.b	$10, $00, $00, $8D, $20
 	dc.b	$10, $00, $00, $8D, $28
-	
+
 	even
 
 Map_WpnSlasherAttack_A:
@@ -62163,23 +62163,23 @@ Map_WpnSlasherAttack_A:
 	dc.b	$10, $00, $00, $96, $10
 	dc.b	$10, $00, $00, $97, $18
 	dc.b	$10, $00, $08, $96, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_B:
 	dc.b	$01
 	dc.b	$10, $00, $00, $98, $00
-	
+
 Map_WpnSlasherAttack_C:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $99, $00
-	
+
 Map_WpnSlasherAttack_D:
 	dc.b	$03
 	dc.b	$10, $00, $00, $9D, $00
 	dc.b	$10, $00, $00, $9D, $08
 	dc.b	$10, $0C, $00, $9E, $10
-	
+
 Map_WpnSlasherAttack_E:
 	dc.b	$06
 	dc.b	$10, $00, $00, $A2, $00
@@ -62188,33 +62188,33 @@ Map_WpnSlasherAttack_E:
 	dc.b	$10, $00, $00, $A3, $18
 	dc.b	$10, $00, $00, $A3, $20
 	dc.b	$10, $00, $00, $A4, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_F:
 	dc.b	$04
 	dc.b	$10, $08, $00, $A5, $00
 	dc.b	$10, $00, $00, $A8, $18
 	dc.b	$10, $00, $00, $A8, $20
 	dc.b	$10, $00, $00, $A9, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_10:
 	dc.b	$01
 	dc.b	$10, $00, $00, $AA, $00
-	
+
 Map_WpnSlasherAttack_11:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $AB, $00
-	
+
 Map_WpnSlasherAttack_12:
 	dc.b	$02
 	dc.b	$10, $0C, $00, $AF, $00
 	dc.b	$10, $04, $00, $B3, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_13:
 	dc.b	$06
 	dc.b	$10, $00, $00, $B5, $00
@@ -62223,9 +62223,9 @@ Map_WpnSlasherAttack_13:
 	dc.b	$10, $04, $00, $B7, $10
 	dc.b	$10, $04, $00, $B6, $18
 	dc.b	$10, $04, $00, $B6, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_14:
 	dc.b	$06
 	dc.b	$10, $00, $00, $B9, $00
@@ -62234,32 +62234,32 @@ Map_WpnSlasherAttack_14:
 	dc.b	$10, $00, $00, $BA, $18
 	dc.b	$10, $00, $00, $BA, $20
 	dc.b	$10, $00, $10, $B6, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_15:
 	dc.b	$04
 	dc.b	$10, $00, $00, $BB, $08
 	dc.b	$10, $00, $00, $BC, $10
 	dc.b	$10, $00, $00, $BD, $18
 	dc.b	$10, $00, $08, $BC, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_16:
 	dc.b	$02
 	dc.b	$10, $00, $00, $BE, $10
 	dc.b	$10, $00, $08, $BE, $18
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_17:
 	dc.b	$02
 	dc.b	$10, $00, $00, $BF, $10
 	dc.b	$10, $00, $08, $BF, $18
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_18:
 	dc.b	$06
 	dc.b	$08, $00, $00, $C0, $10
@@ -62268,26 +62268,26 @@ Map_WpnSlasherAttack_18:
 	dc.b	$18, $00, $18, $C0, $18
 	dc.b	$10, $00, $00, $C1, $10
 	dc.b	$10, $00, $08, $C1, $18
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_19:
 	dc.b	$01
 	dc.b	$10, $00, $00, $C2, $00
-	
+
 Map_WpnSlasherAttack_1A:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $C3, $00
-	
+
 Map_WpnSlasherAttack_1B:
 	dc.b	$04
 	dc.b	$10, $00, $00, $C7, $00
 	dc.b	$10, $00, $00, $B5, $08
 	dc.b	$10, $00, $00, $B5, $10
 	dc.b	$10, $08, $00, $C8, $18
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_1C:
 	dc.b	$05
 	dc.b	$10, $00, $00, $CB, $00
@@ -62295,7 +62295,7 @@ Map_WpnSlasherAttack_1C:
 	dc.b	$10, $00, $00, $CB, $10
 	dc.b	$10, $04, $00, $CC, $18
 	dc.b	$10, $04, $00, $CB, $20
-	
+
 Map_WpnSlasherAttack_1D:
 	dc.b	$06
 	dc.b	$10, $00, $00, $8D, $00
@@ -62304,9 +62304,9 @@ Map_WpnSlasherAttack_1D:
 	dc.b	$10, $00, $00, $8D, $18
 	dc.b	$10, $00, $00, $8D, $20
 	dc.b	$10, $00, $00, $8D, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_1E:
 	dc.b	$06
 	dc.b	$10, $00, $00, $C7, $00
@@ -62315,18 +62315,18 @@ Map_WpnSlasherAttack_1E:
 	dc.b	$10, $00, $00, $C7, $18
 	dc.b	$10, $00, $00, $C7, $20
 	dc.b	$10, $00, $00, $C7, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_1F:
 	dc.b	$04
 	dc.b	$10, $00, $00, $CE, $08
 	dc.b	$10, $00, $00, $CF, $10
 	dc.b	$10, $00, $00, $D0, $18
 	dc.b	$10, $00, $08, $CF, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_20:
 	dc.b	$06
 	dc.b	$10, $00, $00, $D1, $00
@@ -62335,21 +62335,21 @@ Map_WpnSlasherAttack_20:
 	dc.b	$10, $00, $00, $D4, $18
 	dc.b	$10, $00, $00, $D5, $20
 	dc.b	$10, $00, $00, $D6, $28
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_21:
 	dc.b	$02
 	dc.b	$10, $0C, $00, $D7, $00
 	dc.b	$10, $04, $00, $DB, $20
-	
+
 	even
-	
+
 Map_WpnSlasherAttack_22:
 	dc.b	$02
 	dc.b	$10, $08, $00, $DD, $00
 	dc.b	$10, $08, $00, $E0, $18
-	
+
 ; =======================================================
 
 	even
@@ -62446,13 +62446,13 @@ GraAttackArt:
 	dc.b	$0E, $0E, $E0, $01, $00, $FF, $FF, $FB, $FF, $0B, $01, $00, $FF, $FF, $F7, $FD
 	dc.b	$0B, $B0, $01, $00, $F3, $BF, $DC, $FF, $0B, $B0, $BB, $BB, $0B, $B0, $01, $00 ;0x580
 	dc.b	$FF, $FF, $F7, $3B, $A0, $0A, $A0, $0E, $FF ;0x5A0
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechGraAttack:
 	dc.w	loc_5F7F6-Map_TechGraAttack
 	dc.w	loc_5F834-Map_TechGraAttack
@@ -62461,7 +62461,7 @@ Map_TechGraAttack:
 	dc.w	loc_5F9B6-Map_TechGraAttack
 	dc.w	loc_5FA08-Map_TechGraAttack
 	dc.w	loc_5FA32-Map_TechGraAttack
-	
+
 loc_5F7F6:
 	dc.b	$0C
 	dc.b	$B8, $05, $00, $80, $80
@@ -62476,9 +62476,9 @@ loc_5F7F6:
 	dc.b	$48, $05, $18, $80, $70
 	dc.b	$48, $00, $18, $84, $60
 	dc.b	$40, $0C, $18, $85, $58
-	
+
 	even
-	
+
 loc_5F834:
 	dc.b	$18
 	dc.b	$B8, $04, $00, $89, $80
@@ -62505,9 +62505,9 @@ loc_5F834:
 	dc.b	$40, $00, $18, $93, $50
 	dc.b	$38, $08, $18, $94, $48
 	dc.b	$30, $08, $18, $97, $40
-	
+
 	even
-	
+
 loc_5F8AE:
 	dc.b	$1C
 	dc.b	$B8, $04, $00, $9A, $80
@@ -62538,9 +62538,9 @@ loc_5F8AE:
 	dc.b	$30, $04, $18, $A7, $38
 	dc.b	$28, $08, $18, $A9, $28
 	dc.b	$20, $00, $18, $AC, $28
-	
+
 	even
-	
+
 loc_5F93C:
 	dc.b	$18
 	dc.b	$C0, $04, $00, $AD, $88
@@ -62567,9 +62567,9 @@ loc_5F93C:
 	dc.b	$30, $0C, $18, $B6, $38
 	dc.b	$28, $0C, $18, $BA, $28
 	dc.b	$20, $04, $18, $BE, $20
-	
+
 	even
-	
+
 loc_5F9B6:
 	dc.b	$10
 	dc.b	$D0, $00, $00, $C0, $A8
@@ -62588,9 +62588,9 @@ loc_5F9B6:
 	dc.b	$30, $04, $18, $C1, $40
 	dc.b	$28, $0C, $18, $C3, $28
 	dc.b	$20, $04, $18, $C7, $18
-	
+
 	even
-	
+
 loc_5FA08:
 	dc.b	$08
 	dc.b	$E0, $08, $00, $C9, $C0
@@ -62601,9 +62601,9 @@ loc_5FA08:
 	dc.b	$20, $08, $10, $CC, $D0
 	dc.b	$28, $08, $18, $C9, $28
 	dc.b	$20, $08, $18, $CC, $18
-	
+
 	even
-	
+
 loc_5FA32:
 	dc.b	$08
 	dc.b	$E0, $04, $00, $CF, $C8
@@ -62614,11 +62614,11 @@ loc_5FA32:
 	dc.b	$20, $04, $10, $D1, $D8
 	dc.b	$28, $04, $18, $CF, $28
 	dc.b	$20, $04, $18, $D1, $18
-	
-; =======================================================	
-	
+
+; =======================================================
+
 	even
-	
+
 ShiftCastArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FB, $40, $01, $00, $FF, $FF, $FE, $FF, $04, $01, $00
 	dc.b	$3A, $EE, $77, $5C, $04, $14, $40, $04, $41, $04, $40, $14, $40, $04, $41, $40 ;0x0 (0x0005FA5C-0x0005FE65, Entry count: 0x00000409)
@@ -62690,7 +62690,7 @@ ShiftAttackArt:
 	dc.b	$01, $00, $FF, $FB, $9B, $FF, $0C, $C1, $C0, $0C, $01, $00, $FB, $BB, $0B, $BB
 	dc.b	$0C, $01, $01, $C1, $11, $11, $C0, $01, $01, $0C, $01, $00, $FB, $FF, $6F, $FB ;0x0 (0x0005FE66-0x0006057F, Entry count: 0x00000719)
 	dc.b	$0D, $D0, $D0, $0D, $01, $00, $FB, $BF, $4F, $BB, $0C, $0D, $CD, $0D, $C0, $0D, $0C, $FF
-	
+
 DebanAttackArt:
 	dc.b	$01, $00, $FE, $DB, $BB, $77, $BB, $BB, $0B, $B0, $B0, $0B, $0B, $01 ;0x20
 	dc.b	$00, $FF, $FF, $EE, $DD, $0B, $B0, $0B, $B0, $01, $00, $FE, $93, $7F, $FF, $BB
@@ -62803,9 +62803,9 @@ DebanAttackArt:
 	dc.b	$0B, $0B, $0B, $B0, $B0, $B0, $B0, $01, $00, $FF, $F7, $FF, $77, $B0, $0B, $0B ;0x6E0
 	dc.b	$01, $00, $FB, $FF, $FF, $FE, $B0, $B0, $01, $00, $F7, $FF, $FE, $FF, $B0, $B0
 	dc.b	$01, $00, $FF, $FF, $FF, $7D, $BB, $BB, $FF ;0x700
-	
+
 	even
-	
+
 GraCastArt:
 	dc.b	$01, $00, $FF, $FF, $77, $77, $B0, $BB, $0B, $0A, $01, $00, $FF, $FF, $EE, $EE
 	dc.b	$0B, $0B, $B0, $A0, $01, $00, $DE, $FF, $FF, $FF, $BB, $BA, $01, $00, $FF, $FF ;0x0 (0x00060580-0x00060E65, Entry count: 0x000008E5)
@@ -62841,7 +62841,7 @@ GraCastArt:
 	dc.b	$01, $00, $FD, $DD, $44, $66, $A0, $A0, $E0, $A0, $E0, $0A, $E0, $10, $0E, $0E ;0x1E0
 	dc.b	$E0, $0E, $E0, $01, $00, $09, $6F, $F6, $90, $10, $E0, $0E, $01, $10, $01, $E1
 	dc.b	$1E, $E1, $1E, $10, $01, $10, $E0, $0E, $01, $FF
-	
+
 TsuCastArt:
 	dc.b	$01, $00, $BD, $DD, $98, $9D ;0x200
 	dc.b	$0C, $C0, $C0, $C0, $0C, $1C, $C1, $11, $C0, $0C, $1C, $C0, $02, $00, $BB, $BB
@@ -62897,7 +62897,7 @@ TsuCastArt:
 	dc.b	$01, $E0, $E1, $01, $E0, $E1, $01, $E0, $E1, $01, $E0, $0E, $10, $1E, $0E, $10
 	dc.b	$1E, $03, $EE, $96, $00, $00, $96, $00, $60, $9F, $F6, $09, $11, $09, $60, $09 ;0x540
 	dc.b	$60, $FF
-	
+
 SakCastArt:
 	dc.b	$01, $00, $FF, $FF, $DF, $EE, $90, $80, $07, $01, $00, $FF, $FF, $FF, $F6, $80
 	dc.b	$08, $01, $00, $EF, $FF, $FF, $FE, $08, $08, $02, $00, $60, $09, $90 ;0x560
@@ -62956,11 +62956,11 @@ SakCastArt:
 	dc.b	$FF, $FF, $09, $09, $01, $00, $FF, $7B, $08, $CE, $90, $99, $09, $99, $99, $90
 	dc.b	$99, $98, $89, $99, $98, $09, $01, $00, $FF, $FF, $F7, $10, $88, $77, $88, $80 ;0x8C0
 	dc.b	$88, $77, $78, $88, $FF ;0x8E0
-	
+
 	even
-	
+
 KnifeArt:	binclude "art\knife_art.bin"
-	
+
 SwordArt:
 	dc.b	$01, $00, $EE, $DD, $BB, $77, $0E, $E0, $0E, $E0, $0C, $C0, $0C, $C0, $01, $00
 	dc.b	$EC, $C9, $93, $37, $EC, $0E, $CE, $EC, $E0, $0E, $CE, $C1, $E0, $0C ;0xE0
@@ -62975,9 +62975,9 @@ SwordArt:
 	dc.b	$C0, $0C, $01, $00, $EF, $DF, $BF, $7F, $0C, $0C, $0E, $0E, $01, $00, $FF, $DD
 	dc.b	$F3, $37, $0E, $C0, $0E, $C0, $E0, $E0, $CE, $01, $00, $77, $B9, $9D, $EF, $E0 ;0x180
 	dc.b	$0C, $1E, $E1, $E0, $0E, $10, $0C, $E0, $FF ;0x1A0
-	
+
 	even
-	
+
 LaserSwordArt:
 	dc.b	$01, $00, $EE, $DD, $BB, $77, $0E, $E0, $0E, $E0, $04, $40, $04, $40, $01, $00
 	dc.b	$EC, $C9, $93, $37, $E4, $0E, $4E, $E4, $E0, $0E, $4E, $41, $E0, $04, $14, $41 ;0x0 (0x00061010-0x00061ACD, Entry count: 0x00000ABD)
@@ -63003,7 +63003,7 @@ LaserSwordArt:
 	dc.b	$01, $00, $7F, $FF, $FF, $FF, $40, $01, $00, $FF, $FE, $B7, $FF, $B0, $0B, $B0 ;0x140
 	dc.b	$01, $00, $FF, $F7, $DE, $FF, $0B, $B0, $0B, $01, $00, $DF, $FD, $FF, $BF, $0B
 	dc.b	$B0, $0B, $01, $00, $FB, $FF, $DF, $FD, $0B, $B0, $0B, $FF
-	
+
 LacoSwordArt:
 	dc.b	$01, $00, $FF, $FF ;0x160
 	dc.b	$FF, $FE, $0E, $01, $00, $EE, $D9, $93, $37, $0E, $E0, $EE, $0E, $EE, $E1, $E0
@@ -63082,7 +63082,7 @@ LacoSwordArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $DB, $0B, $0B, $01, $00, $BF, $F7, $FF, $FF, $B0, $0B ;0x600
 	dc.b	$01, $00, $FD, $FB, $FF, $FF, $B0, $0B, $02, $00, $FD, $AD, $FF, $3F, $0B, $02
 	dc.b	$52, $00, $C0, $01, $00, $FF, $FE, $DF, $FF, $B0, $B0, $FF
-	
+
 SteelBarArt:
 	dc.b	$01, $00, $FF, $FF ;0x620
 	dc.b	$FE, $ED, $0C, $C0, $01, $01, $00, $CA, $94, $29, $5B, $10, $0C, $01, $C0, $C0
@@ -63108,7 +63108,7 @@ SteelBarArt:
 	dc.b	$FF, $7B, $0D, $0D, $0D, $01, $00, $FF, $7F, $FF, $FF, $D0, $01, $00, $FF, $FB
 	dc.b	$FF, $FF, $D0, $01, $00, $FF, $DF, $FF, $FF, $D0, $01, $00, $FF, $F7, $FF, $F3 ;0x780
 	dc.b	$0D, $D0, $0D, $FF
-	
+
 LaserBarArt:
 	dc.b	$01, $00, $FF, $FF, $FE, $ED, $01, $10, $01, $01, $00, $DB, $B4, $29, $53, $60
 	dc.b	$05, $50, $01, $60, $06, $10, $05, $60, $50, $05, $05, $50 ;0x7A0
@@ -63144,7 +63144,7 @@ LaserBarArt:
 	dc.b	$01, $C0, $0E, $01, $10, $0C, $E0, $01, $00, $FD, $FF, $FF, $DF, $06, $50, $01 ;0x980
 	dc.b	$00, $FF, $FB, $FF, $FF, $01, $01, $00, $FF, $FD, $FF, $FF, $06, $01, $00, $DF
 	dc.b	$FF, $FB, $FF, $50, $01, $FF
-	
+
 FireStaffArt:
 	dc.b	$01, $00, $EE, $EA, $CC, $80, $08, $08, $08, $08 ;0x9A0
 	dc.b	$87, $88, $87, $87, $7C, $08, $87, $CC, $88, $87, $7C, $C1, $01, $00, $F7, $75
@@ -63163,9 +63163,9 @@ FireStaffArt:
 	dc.b	$E0, $0C, $0C, $CC, $77, $77, $CC, $CC, $01, $00, $77, $77, $77, $73, $70, $70 ;0xA80
 	dc.b	$70, $70, $C0, $C0, $CC, $CC, $CC, $01, $00, $FF, $F7, $FF, $FF, $90, $01, $00
 	dc.b	$FF, $FF, $FD, $FF, $09, $01, $00, $FF, $FF, $FF, $FB, $09, $FF ;0xAA0
-	
+
 	even
-	
+
 GajCastArt:
 	dc.b	$01, $00, $FF, $FF, $DD, $EE, $0D, $0D, $D0, $D0, $01, $00, $FF, $FF, $BB, $77
 	dc.b	$D0, $D0, $0D, $0D, $01, $00, $FF, $FF, $FD, $EF, $DD, $DD, $01, $00, $FE, $DF ;0x0 (0x00061ACE-0x00062687, Entry count: 0x00000BB9)
@@ -63273,7 +63273,7 @@ GajCastArt:
 	dc.b	$FF, $FF, $D0, $01, $00, $99, $99, $9F, $9F, $0D, $D0, $0C, $C0, $0D, $D0, $0C ;0x660
 	dc.b	$C0, $0D, $D0, $0D, $D0, $01, $00, $DF, $BF, $FD, $FF, $D0, $0D, $D0, $01, $00
 	dc.b	$FF, $BF, $FF, $FF, $0D, $FF
-	
+
 GajAttackArt:
 	dc.b	$02, $00, $EE, $EE, $EE, $EE, $0D, $11, $11, $11 ;0x680
 	dc.b	$11, $02, $00, $EE, $EE, $EE, $EE, $0D, $11, $11, $11, $11, $01, $00, $EE, $EE
@@ -63358,9 +63358,9 @@ GajAttackArt:
 	dc.b	$9E, $B5, $BB, $DF, $06, $40, $4A, $40, $20, $60, $60, $60, $01, $00, $69, $EB ;0xB80
 	dc.b	$FD, $7D, $60, $60, $60, $06, $60, $06, $60, $06, $06, $02, $00, $E8, $D7, $F3
 	dc.b	$FF, $60, $17, $28, $00, $00, $06, $06, $FF ;0xBA0
-	
+
 	even
-	
+
 BowgunArt:
 	dc.b	$01, $00, $FF, $FF, $CC, $EE, $07, $70, $07, $C7, $7C, $7C, $01, $00, $EE, $EE
 	dc.b	$CE, $FF, $07, $07, $7C, $7C, $07, $C7, $70, $01, $00, $FF, $FD, $91, $11, $77 ;0x0 (0x00062688-0x00063387, Entry count: 0x00000CFF)
@@ -63437,7 +63437,7 @@ LaserShotArt:
 	dc.b	$01, $00, $99, $CC, $CE, $EF, $0B, $0A, $0B, $0A, $B0, $A0, $B0, $A0, $0B, $0A ;0x440
 	dc.b	$B0, $0B, $01, $00, $FF, $FF, $F7, $31, $A0, $0A, $A0, $B0, $0A, $A0, $01, $00
 	dc.b	$09, $EF, $FF, $FF, $0B, $B0, $0A, $AA, $0B, $BB, $BB, $FF
-	
+
 PulseCannonArt:
 	dc.b	$01, $00, $FF, $FE ;0x460
 	dc.b	$EE, $C8, $08, $01, $81, $08, $81, $08, $11, $11, $01, $00, $F7, $B9, $8C, $CC
@@ -63470,7 +63470,7 @@ PulseCannonArt:
 	dc.b	$90, $69, $69, $01, $00, $EE, $FF, $FF, $FF, $90, $09, $01, $00, $FF, $73, $8E ;0x620
 	dc.b	$FF, $99, $09, $99, $09, $99, $99, $99, $01, $00, $FF, $FD, $FF, $FB, $09, $09
 	dc.b	$01, $00, $FB, $FF, $DD, $DD, $09, $90, $90, $09, $09, $FF
-	
+
 NeiShotFiredArt:
 	dc.b	$01, $00, $FF, $FF ;0x640
 	dc.b	$FF, $DD, $01, $0E, $01, $00, $FF, $FF, $BB, $BF, $10, $0E, $0F, $01, $00, $FF
@@ -63579,9 +63579,9 @@ NeiShotFiredArt:
 	dc.b	$FF, $0F, $F0, $F0, $01, $00, $BB, $BD, $DD, $EF, $0F, $0F, $0F, $F0, $F0, $0F ;0xCC0
 	dc.b	$FF, $01, $00, $FF, $F3, $9D, $EE, $FF, $F0, $0F, $F0, $0F, $F0, $F0, $01, $00
 	dc.b	$EE, $EE, $ED, $93, $0F, $0F, $0F, $F0, $F0, $0F, $0F, $F0, $FF, $F0, $FF ;0xCE0
-	
+
 	even
-	
+
 ZanCastArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FD, $60, $01, $00, $FF, $FF, $7F, $FF, $60, $01, $00
 	dc.b	$FF, $FF, $FE, $CC, $66, $06, $50, $01, $60, $01, $00, $DC, $EF, $FF, $FF, $06 ;0x0 (0x00063388-0x000638E5, Entry count: 0x0000055D)
@@ -63669,9 +63669,9 @@ ZanCastArt:
 	dc.b	$DD, $FF, $FF, $60, $06, $01, $00, $FE, $D7, $3F, $FF, $66, $06, $66, $06, $66 ;0x520
 	dc.b	$01, $00, $B7, $FF, $FF, $FF, $60, $66, $01, $00, $77, $7B, $FF, $FF, $60, $06
 	dc.b	$06, $60, $01, $00, $EC, $DF, $FF, $FF, $06, $06, $60, $60, $FF ;0x540
-	
+
 	even
-	
+
 ZanAttackArt:
 	dc.b	$01, $00, $73, $8E, $FF, $FF, $06, $06, $60, $06, $66, $60, $06, $01, $00, $FF
 	dc.b	$F0, $EF, $FF, $66, $66, $66, $60, $06, $01, $00, $FF, $FF, $0F, $FF, $66, $66 ;0x0 (0x000638E6-0x00063FC1, Entry count: 0x000006DB)
@@ -63783,9 +63783,9 @@ ZanAttackArt:
 	dc.b	$00, $0E, $55, $00, $E0, $E0, $E0, $11, $00, $0E, $0E, $00, $66, $66, $66, $60 ;0x6A0
 	dc.b	$56, $15, $51, $16, $51, $06, $03, $00, $FF, $00, $00, $00, $55, $00, $0F, $0F
 	dc.b	$0F, $11, $00, $00, $F0, $F0, $66, $66, $66, $66, $FF ;0x6C0
-	
+
 	even
-	
+
 FoiArt:
 	dc.b	$01, $00, $FF, $EE, $EE, $EE, $08, $87, $87, $08, $08, $87, $01, $00, $FF, $77
 	dc.b	$37, $77, $80, $78, $80, $08, $80, $80, $78, $01, $00, $7F, $80, $00, $00, $80 ;0x0 (0x00063FC2-0x0006457D, Entry count: 0x000005BB)
@@ -63879,9 +63879,9 @@ FoiArt:
 	dc.b	$FF, $FF, $07, $70, $07, $70, $77, $07, $01, $00, $FF, $7B, $DF, $FF, $88, $88 ;0x580
 	dc.b	$80, $01, $00, $FF, $FD, $BB, $BB, $80, $08, $08, $80, $80, $01, $00, $FF, $7F
 	dc.b	$FF, $FF, $90, $01, $00, $FF, $FF, $FF, $FB, $90, $FF ;0x5A0
-	
+
 	even
-	
+
 MegidCastArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FE, $0A, $01, $00, $EE, $EE, $EE, $EE, $0A, $AE, $AE
 	dc.b	$AE, $AE, $AE, $0A, $0A, $01, $00, $FF, $FF, $F8, $00, $AA, $AA, $A0, $AA, $EE ;0x0 (0x0006457E-0x0006493F, Entry count: 0x000003C1)
@@ -64114,9 +64114,9 @@ NeiShotAttackArt:
 	dc.b	$89, $98, $09, $89, $90, $09, $90, $90, $01, $00, $FF, $77, $75, $77, $90, $99 ;0xA40
 	dc.b	$90, $89, $90, $09, $09, $01, $00, $B3, $FF, $FF, $FF, $09, $09, $09, $01, $00
 	dc.b	$FF, $EF, $CA, $C4, $90, $09, $80, $09, $99, $89, $79, $09, $09, $99, $FF ;0xA60
-	
+
 	even
-	
+
 GenArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FE, $09, $02, $00, $FF, $F9, $00, $00, $99, $00, $00
 	dc.b	$69, $90, $09, $90, $09, $90, $98, $89, $88, $88, $98, $81, $18, $89, $01, $00 ;0x0 (0x000653C0-0x0006575B, Entry count: 0x0000039B)
@@ -64176,9 +64176,9 @@ GenArt:
 	dc.b	$08, $08, $10, $10, $08, $08, $90, $90, $01, $00, $7B, $DE, $FF, $FF, $88, $11 ;0x360
 	dc.b	$88, $99, $01, $00, $FF, $FF, $ED, $B7, $99, $88, $11, $88, $01, $00, $FF, $FF
 	dc.b	$FE, $FF, $90, $01, $00, $FF, $FF, $FF, $DF, $09, $FF ;0x380
-	
+
 	even
-	
+
 EijiaAttackArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $EE, $0A, $A1, $01, $00, $16, $FF, $FF, $FF, $1A, $AA
 	dc.b	$AA, $A0, $AA, $01, $00, $33, $BD, $DE, $FF, $0A, $A0, $A0, $0A, $0A, $A0, $0A ;0x0 (0x0006575C-0x000660A4, Entry count: 0x00000948)
@@ -64287,7 +64287,7 @@ EijiaAttackArt:
 	dc.b	$0A, $01, $00, $FF, $7B, $FE, $BF, $0E, $0A, $A0, $A0, $01, $00, $FD, $FF, $BE
 	dc.b	$BF, $0A, $0A, $A0, $E0, $01, $00, $F7, $FF, $BF, $FF, $0A, $A0, $01, $00, $BF ;0x680
 	dc.b	$BB, $BF, $BF, $A0, $A0, $0A, $E0, $0A, $01, $00, $FF, $FA, $FF, $EF, $E0, $0A, $A0, $FF
-	
+
 AcidShotArt:
 	dc.b	$01, $00, $FF, $FD, $EE, $DD, $0C, $CC, $C0, $0C, $0C, $01, $00, $BB ;0x6A0
 	dc.b	$87, $FF, $FF, $C0, $CC, $CC, $CC, $CC, $CC, $01, $00, $FE, $C6, $BF, $FF, $C0
@@ -64331,7 +64331,7 @@ AcidShotArt:
 	dc.b	$0C, $EC, $C0, $01, $00, $CC, $00, $10, $CD, $CC, $EC, $CC, $EC, $0C, $CC, $CE
 	dc.b	$EC, $CE, $EE, $EE, $C0, $CC, $EE, $EC, $0C, $CC, $CE, $C0, $CE, $C0, $0C, $01 ;0x920
 	dc.b	$00, $FD, $F7, $FF, $FF, $0C, $0C, $FF ;0x940
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -64365,7 +64365,7 @@ Map_TechShiftCast:
 	dc.w	loc_66422-Map_TechShiftCast
 	dc.w	loc_66428-Map_TechShiftCast
 	dc.w	loc_6642E-Map_TechShiftCast
-	
+
 loc_660DC:
 	dc.b	$05
 	dc.b	$20, $00, $00, $00, $20
@@ -64373,7 +64373,7 @@ loc_660DC:
 	dc.b	$28, $00, $00, $01, $18
 	dc.b	$28, $00, $18, $01, $28
 	dc.b	$28, $00, $00, $02, $20
-	
+
 loc_660F6:
 	dc.b	$05
 	dc.b	$20, $00, $00, $03, $20
@@ -64381,16 +64381,16 @@ loc_660F6:
 	dc.b	$28, $00, $00, $04, $18
 	dc.b	$28, $00, $18, $04, $28
 	dc.b	$28, $00, $00, $05, $20
-	
+
 loc_66110:
 	dc.b	$04
 	dc.b	$20, $00, $00, $06, $20
 	dc.b	$30, $00, $18, $06, $20
 	dc.b	$28, $00, $00, $07, $18
 	dc.b	$28, $00, $18, $07, $28
-	
+
 	even
-	
+
 loc_66126:
 	dc.b	$08
 	dc.b	$20, $00, $00, $08, $20
@@ -64401,9 +64401,9 @@ loc_66126:
 	dc.b	$20, $00, $00, $03, $28
 	dc.b	$30, $00, $18, $03, $18
 	dc.b	$30, $00, $18, $04, $28
-	
+
 	even
-	
+
 loc_66150:
 	dc.b	$08
 	dc.b	$20, $00, $00, $0B, $20
@@ -64414,9 +64414,9 @@ loc_66150:
 	dc.b	$20, $00, $00, $0E, $28
 	dc.b	$30, $00, $18, $0E, $18
 	dc.b	$30, $00, $18, $0D, $28
-	
+
 	even
-	
+
 loc_6617A:
 	dc.b	$08
 	dc.b	$20, $00, $00, $0F, $20
@@ -64427,9 +64427,9 @@ loc_6617A:
 	dc.b	$20, $00, $00, $12, $28
 	dc.b	$30, $00, $18, $12, $18
 	dc.b	$30, $00, $18, $11, $28
-	
+
 	even
-	
+
 loc_661A4:
 	dc.b	$08
 	dc.b	$18, $08, $00, $13, $10
@@ -64440,7 +64440,7 @@ loc_661A4:
 	dc.b	$28, $02, $00, $1C, $18
 	dc.b	$18, $02, $18, $19, $30
 	dc.b	$18, $02, $18, $1C, $28
-	
+
 	even
 
 loc_661CE:
@@ -64453,7 +64453,7 @@ loc_661CE:
 	dc.b	$30, $09, $18, $23, $20
 	dc.b	$28, $06, $00, $29, $10
 	dc.b	$18, $06, $18, $29, $28
-	
+
 	even
 
 loc_661F8:
@@ -64466,7 +64466,7 @@ loc_661F8:
 	dc.b	$18, $00, $00, $36, $30
 	dc.b	$38, $00, $18, $36, $10
 	dc.b	$38, $00, $18, $35, $30
-	
+
 	even
 
 loc_66222:
@@ -64479,9 +64479,9 @@ loc_66222:
 	dc.b	$38, $04, $08, $3A, $28
 	dc.b	$20, $02, $00, $3C, $10
 	dc.b	$20, $02, $08, $3C, $30
-	
-	even	
-	
+
+	even
+
 loc_6624C:
 	dc.b	$08
 	dc.b	$18, $04, $00, $3F, $10
@@ -64492,9 +64492,9 @@ loc_6624C:
 	dc.b	$30, $01, $08, $42, $30
 	dc.b	$40, $00, $00, $44, $18
 	dc.b	$40, $00, $08, $44, $28
-	
-	even	
-	
+
+	even
+
 loc_66276:
 	dc.b	$08
 	dc.b	$24, $04, $00, $45, $14
@@ -64505,9 +64505,9 @@ loc_66276:
 	dc.b	$3C, $01, $00, $4D, $2C
 	dc.b	$4C, $00, $18, $4A, $FC
 	dc.b	$54, $00, $00, $4F, $24
-	
+
 	even
-	
+
 loc_662A0:
 	dc.b	$08
 	dc.b	$24, $04, $00, $50, $14
@@ -64518,9 +64518,9 @@ loc_662A0:
 	dc.b	$34, $01, $00, $56, $FC
 	dc.b	$3C, $01, $18, $56, $2C
 	dc.b	$44, $01, $18, $54, $24
-	
+
 	even
-	
+
 loc_662CA:
 	dc.b	$08
 	dc.b	$2C, $08, $00, $2F, $0C
@@ -64531,9 +64531,9 @@ loc_662CA:
 	dc.b	$2C, $00, $00, $36, $24
 	dc.b	$4C, $00, $18, $36, $04
 	dc.b	$4C, $00, $18, $35, $24
-	
+
 	even
-	
+
 loc_662F4:
 	dc.b	$08
 	dc.b	$24, $04, $00, $1F, $14
@@ -64544,9 +64544,9 @@ loc_662F4:
 	dc.b	$44, $09, $18, $23, $14
 	dc.b	$3C, $06, $00, $29, $04
 	dc.b	$2C, $06, $18, $29, $1C
-	
+
 	even
-	
+
 loc_6631E:
 	dc.b	$08
 	dc.b	$2C, $08, $00, $13, $04
@@ -64557,9 +64557,9 @@ loc_6631E:
 	dc.b	$3C, $02, $00, $1C, $0C
 	dc.b	$2C, $02, $18, $1C, $1C
 	dc.b	$2C, $02, $18, $19, $24
-	
+
 	even
-	
+
 loc_66348:
 	dc.b	$08
 	dc.b	$34, $00, $00, $0F, $14
@@ -64570,9 +64570,9 @@ loc_66348:
 	dc.b	$34, $00, $00, $12, $1C
 	dc.b	$44, $00, $18, $12, $0C
 	dc.b	$44, $00, $18, $11, $1C
-	
+
 	even
-	
+
 loc_66372:
 	dc.b	$08
 	dc.b	$34, $00, $00, $0B, $14
@@ -64583,9 +64583,9 @@ loc_66372:
 	dc.b	$34, $00, $00, $0E, $1C
 	dc.b	$44, $00, $18, $0E, $0C
 	dc.b	$44, $00, $18, $0D, $1C
-	
+
 	even
-	
+
 loc_6639C:
 	dc.b	$08
 	dc.b	$34, $00, $00, $58, $14
@@ -64596,18 +64596,18 @@ loc_6639C:
 	dc.b	$34, $00, $00, $03, $1C
 	dc.b	$44, $00, $18, $03, $0C
 	dc.b	$44, $00, $18, $04, $1C
-	
+
 	even
-	
+
 loc_663C6:
 	dc.b	$04
 	dc.b	$34, $00, $00, $06, $14
 	dc.b	$44, $00, $18, $06, $14
 	dc.b	$3C, $00, $00, $07, $0C
 	dc.b	$3C, $00, $18, $07, $1C
-	
+
 	even
-	
+
 loc_663DC:
 	dc.b	$05
 	dc.b	$34, $00, $00, $03, $14
@@ -64615,7 +64615,7 @@ loc_663DC:
 	dc.b	$3C, $00, $00, $04, $0C
 	dc.b	$3C, $00, $18, $04, $1C
 	dc.b	$3C, $00, $00, $05, $14
-	
+
 loc_663F6:
 	dc.b	$05
 	dc.b	$34, $00, $00, $00, $14
@@ -64623,27 +64623,27 @@ loc_663F6:
 	dc.b	$3C, $00, $00, $01, $0C
 	dc.b	$3C, $00, $18, $01, $1C
 	dc.b	$3C, $00, $00, $02, $14
-	
+
 loc_66410:
 	dc.b	$01
 	dc.b	$3C, $00, $00, $5A, $14
-	
+
 loc_66416:
 	dc.b	$01
 	dc.b	$3C, $00, $00, $5B, $14
-	
+
 loc_6641C:
 	dc.b	$01
 	dc.b	$3C, $00, $00, $5C, $14
-	
+
 loc_66422:
 	dc.b	$01
 	dc.b	$3C, $00, $00, $5D, $14
-	
+
 loc_66428:
 	dc.b	$01
 	dc.b	$3C, $00, $00, $5E, $14
-	
+
 loc_6642E:
 	dc.b	$05
 	dc.b	$3C, $00, $00, $5F, $14
@@ -64651,13 +64651,13 @@ loc_6642E:
 	dc.b	$34, $00, $10, $3D, $1C
 	dc.b	$44, $00, $08, $3D, $0C
 	dc.b	$44, $00, $00, $3D, $1C
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechShiftAttack:
 	dc.w	loc_6645C-Map_TechShiftAttack
 	dc.w	loc_66462-Map_TechShiftAttack
@@ -64669,20 +64669,20 @@ Map_TechShiftAttack:
 	dc.w	loc_66564-Map_TechShiftAttack
 	dc.w	loc_66584-Map_TechShiftAttack
 	dc.w	loc_6659E-Map_TechShiftAttack
-	
+
 loc_6645C:
 	dc.b	$01
 	dc.b	$30, $00, $00, $80, $00
-	
+
 loc_66462:
 	dc.b	$04
 	dc.b	$28, $00, $00, $80, $20
 	dc.b	$30, $00, $00, $81, $00
 	dc.b	$48, $00, $00, $80, $08
 	dc.b	$50, $00, $00, $80, $18
-	
+
 	even
-	
+
 loc_66478:
 	dc.b	$07
 	dc.b	$28, $00, $00, $80, $10
@@ -64692,7 +64692,7 @@ loc_66478:
 	dc.b	$48, $00, $00, $81, $08
 	dc.b	$50, $00, $00, $81, $18
 	dc.b	$50, $00, $00, $80, $20
-	
+
 loc_6649C:
 	dc.b	$09
 	dc.b	$28, $00, $00, $80, $00
@@ -64704,7 +64704,7 @@ loc_6649C:
 	dc.b	$48, $00, $00, $82, $08
 	dc.b	$50, $00, $00, $82, $18
 	dc.b	$50, $00, $00, $81, $20
-	
+
 loc_664CA:
 	dc.b	$0B
 	dc.b	$28, $00, $00, $81, $00
@@ -64718,7 +64718,7 @@ loc_664CA:
 	dc.b	$48, $00, $00, $80, $10
 	dc.b	$50, $00, $00, $82, $20
 	dc.b	$58, $00, $00, $80, $28
-	
+
 loc_66502:
 	dc.b	$09
 	dc.b	$28, $00, $00, $82, $00
@@ -64730,7 +64730,7 @@ loc_66502:
 	dc.b	$48, $00, $00, $83, $10
 	dc.b	$50, $00, $00, $80, $00
 	dc.b	$58, $00, $00, $81, $28
-	
+
 loc_66530:
 	dc.b	$0A
 	dc.b	$28, $00, $00, $82, $28
@@ -64743,9 +64743,9 @@ loc_66530:
 	dc.b	$50, $00, $00, $81, $00
 	dc.b	$58, $00, $00, $80, $10
 	dc.b	$58, $00, $00, $82, $28
-	
+
 	even
-	
+
 loc_66564:
 	dc.b	$06
 	dc.b	$38, $00, $00, $81, $10
@@ -64754,9 +64754,9 @@ loc_66564:
 	dc.b	$48, $00, $00, $81, $28
 	dc.b	$50, $00, $00, $82, $00
 	dc.b	$58, $00, $00, $81, $10
-	
+
 	even
-	
+
 loc_66584:
 	dc.b	$05
 	dc.b	$38, $00, $00, $82, $10
@@ -64764,17 +64764,17 @@ loc_66584:
 	dc.b	$40, $00, $00, $82, $00
 	dc.b	$48, $00, $00, $82, $28
 	dc.b	$58, $00, $00, $82, $10
-	
+
 loc_6659E:
 	dc.b	$01
 	dc.b	$40, $00, $00, $82, $18
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Map_TechDebanAttack:
 	dc.w	loc_665C0-Map_TechDebanAttack
 	dc.w	loc_665D6-Map_TechDebanAttack
@@ -64790,16 +64790,16 @@ Map_TechDebanAttack:
 	dc.w	loc_6680E-Map_TechDebanAttack
 	dc.w	loc_6682E-Map_TechDebanAttack
 	dc.w	loc_6683E-Map_TechDebanAttack
-	
+
 loc_665C0:
 	dc.b	$04
 	dc.b	$20, $00, $00, $80, $10
 	dc.b	$20, $00, $08, $80, $18
 	dc.b	$28, $00, $10, $80, $10
 	dc.b	$28, $00, $18, $80, $18
-	
+
 	even
-	
+
 loc_665D6:
 	dc.b	$0C
 	dc.b	$18, $00, $00, $81, $08
@@ -64814,9 +64814,9 @@ loc_665D6:
 	dc.b	$20, $00, $08, $86, $18
 	dc.b	$28, $00, $10, $86, $10
 	dc.b	$28, $00, $18, $86, $18
-	
+
 	even
-	
+
 loc_66614:
 	dc.b	$08
 	dc.b	$10, $0C, $00, $87, $08
@@ -64827,9 +64827,9 @@ loc_66614:
 	dc.b	$18, $05, $08, $8F, $18
 	dc.b	$28, $05, $10, $8F, $08
 	dc.b	$28, $05, $18, $8F, $18
-	
+
 	even
-	
+
 loc_6663E:
 	dc.b	$0C
 	dc.b	$10, $0C, $00, $93, $08
@@ -64844,9 +64844,9 @@ loc_6663E:
 	dc.b	$30, $04, $10, $9C, $10
 	dc.b	$20, $01, $00, $9E, $08
 	dc.b	$20, $01, $08, $9E, $20
-	
+
 	even
-	
+
 loc_6667C:
 	dc.b	$08
 	dc.b	$10, $0C, $00, $A0, $08
@@ -64857,9 +64857,9 @@ loc_6667C:
 	dc.b	$18, $00, $08, $A8, $20
 	dc.b	$30, $00, $10, $A8, $08
 	dc.b	$30, $00, $18, $A8, $20
-	
+
 	even
-	
+
 loc_666A6:
 	dc.b	$08
 	dc.b	$10, $00, $00, $A9, $00
@@ -64870,9 +64870,9 @@ loc_666A6:
 	dc.b	$38, $0C, $10, $AA, $08
 	dc.b	$18, $03, $00, $AE, $00
 	dc.b	$18, $03, $08, $AE, $28
-	
+
 	even
-	
+
 loc_666D0:
 	dc.b	$08
 	dc.b	$10, $00, $00, $B2, $00
@@ -64883,9 +64883,9 @@ loc_666D0:
 	dc.b	$38, $0C, $10, $B3, $08
 	dc.b	$18, $03, $00, $B7, $00
 	dc.b	$18, $03, $08, $B7, $28
-	
+
 	even
-	
+
 loc_666FA:
 	dc.b	$09
 	dc.b	$10, $00, $00, $87, $00
@@ -64897,7 +64897,7 @@ loc_666FA:
 	dc.b	$18, $03, $00, $C3, $00
 	dc.b	$18, $00, $00, $C7, $20
 	dc.b	$18, $03, $00, $C8, $28
-	
+
 loc_66728:
 	dc.b	$12
 	dc.b	$10, $00, $00, $B2, $00
@@ -64918,9 +64918,9 @@ loc_66728:
 	dc.b	$18, $00, $00, $DF, $10
 	dc.b	$20, $00, $00, $DF, $18
 	dc.b	$28, $00, $00, $DF, $20
-	
+
 	even
-	
+
 loc_66784:
 	dc.b	$12
 	dc.b	$10, $00, $00, $B2, $00
@@ -64941,9 +64941,9 @@ loc_66784:
 	dc.b	$20, $00, $18, $DF, $08
 	dc.b	$28, $00, $18, $DF, $10
 	dc.b	$30, $00, $18, $DF, $18
-	
+
 	even
-	
+
 loc_667E0:
 	dc.b	$09
 	dc.b	$10, $00, $00, $B2, $00
@@ -64955,7 +64955,7 @@ loc_667E0:
 	dc.b	$18, $03, $00, $E4, $00
 	dc.b	$18, $03, $08, $D5, $28
 	dc.b	$30, $00, $18, $C7, $08
-	
+
 loc_6680E:
 	dc.b	$06
 	dc.b	$10, $00, $00, $B2, $00
@@ -64964,28 +64964,28 @@ loc_6680E:
 	dc.b	$38, $0C, $00, $EC, $08
 	dc.b	$10, $04, $00, $BB, $08
 	dc.b	$28, $01, $00, $F0, $28
-	
+
 	even
-	
+
 loc_6682E:
 	dc.b	$03
 	dc.b	$10, $08, $00, $F2, $00
 	dc.b	$18, $03, $00, $F5, $00
 	dc.b	$38, $04, $00, $F9, $08
-	
+
 loc_6683E:
 	dc.b	$02
 	dc.b	$10, $04, $18, $EE, $08
 	dc.b	$18, $01, $18, $F0, $00
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechGraCast:
 	dc.w	loc_6685C-Map_TechGraCast
 	dc.w	loc_66886-Map_TechGraCast
@@ -64996,7 +64996,7 @@ Map_TechGraCast:
 	dc.w	loc_669C0-Map_TechGraCast
 	dc.w	loc_66A16-Map_TechGraCast
 	dc.w	loc_66A80-Map_TechGraCast
-	
+
 loc_6685C:
 	dc.b	$08
 	dc.b	$10, $00, $00, $00, $18
@@ -65007,9 +65007,9 @@ loc_6685C:
 	dc.b	$30, $00, $10, $02, $08
 	dc.b	$20, $00, $08, $02, $38
 	dc.b	$30, $00, $18, $02, $38
-	
+
 	even
-	
+
 loc_66886:
 	dc.b	$08
 	dc.b	$10, $01, $00, $03, $18
@@ -65020,9 +65020,9 @@ loc_66886:
 	dc.b	$30, $04, $10, $05, $08
 	dc.b	$20, $04, $08, $05, $30
 	dc.b	$30, $04, $18, $05, $30
-	
+
 	even
-	
+
 loc_668B0:
 	dc.b	$10
 	dc.b	$10, $00, $00, $07, $20
@@ -65041,9 +65041,9 @@ loc_668B0:
 	dc.b	$30, $00, $00, $0C, $10
 	dc.b	$20, $00, $18, $0C, $30
 	dc.b	$30, $00, $08, $0C, $30
-	
+
 	even
-	
+
 loc_66902:
 	dc.b	$08
 	dc.b	$10, $01, $00, $0D, $20
@@ -65054,9 +65054,9 @@ loc_66902:
 	dc.b	$18, $05, $08, $11, $28
 	dc.b	$30, $05, $10, $11, $10
 	dc.b	$30, $05, $18, $11, $28
-	
+
 	even
-	
+
 loc_6692C:
 	dc.b	$0C
 	dc.b	$18, $08, $00, $15, $18
@@ -65071,9 +65071,9 @@ loc_6692C:
 	dc.b	$30, $00, $18, $1C, $20
 	dc.b	$28, $00, $00, $1D, $18
 	dc.b	$28, $00, $18, $1D, $28
-	
+
 	even
-	
+
 loc_6696A:
 	dc.b	$11
 	dc.b	$10, $00, $00, $1E, $18
@@ -65093,7 +65093,7 @@ loc_6696A:
 	dc.b	$28, $00, $00, $22, $18
 	dc.b	$28, $00, $18, $22, $28
 	dc.b	$28, $00, $00, $23, $20
-	
+
 loc_669C0:
 	dc.b	$11
 	dc.b	$10, $01, $00, $03, $18
@@ -65113,7 +65113,7 @@ loc_669C0:
 	dc.b	$28, $00, $00, $26, $18
 	dc.b	$28, $00, $18, $26, $28
 	dc.b	$28, $00, $00, $27, $20
-	
+
 loc_66A16:
 	dc.b	$15
 	dc.b	$10, $00, $00, $07, $20
@@ -65137,7 +65137,7 @@ loc_66A16:
 	dc.b	$20, $00, $00, $29, $20
 	dc.b	$30, $00, $18, $29, $20
 	dc.b	$28, $00, $00, $2A, $20
-	
+
 loc_66A80:
 	dc.b	$09
 	dc.b	$20, $00, $00, $20, $18
@@ -65149,13 +65149,13 @@ loc_66A80:
 	dc.b	$20, $00, $00, $2C, $20
 	dc.b	$30, $00, $18, $2C, $20
 	dc.b	$28, $00, $00, $2D, $20
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechTsuCast:
 	dc.w	loc_66ABA-Map_TechTsuCast
 	dc.w	loc_66AC0-Map_TechTsuCast
@@ -65163,31 +65163,31 @@ Map_TechTsuCast:
 	dc.w	loc_66AD2-Map_TechTsuCast
 	dc.w	loc_66AE8-Map_TechTsuCast
 	dc.w	loc_66B3E-Map_TechTsuCast
-	
+
 loc_66ABA:
 	dc.b	$01
 	dc.b	$B8, $00, $00, $00, $20
-	
+
 loc_66AC0:
 	dc.b	$01
 	dc.b	$B8, $02, $00, $01, $20
-	
+
 loc_66AC6:
 	dc.b	$02
 	dc.b	$B8, $03, $00, $04, $20
 	dc.b	$D8, $02, $00, $08, $20
-	
+
 	even
-	
+
 loc_66AD2:
 	dc.b	$04
 	dc.b	$B8, $03, $00, $0B, $20
 	dc.b	$D8, $03, $00, $0F, $20
 	dc.b	$F8, $03, $00, $13, $20
 	dc.b	$18, $02, $00, $17, $20
-	
+
 	even
-	
+
 loc_66AE8:
 	dc.b	$11
 	dc.b	$B8, $00, $00, $1A, $20
@@ -65207,7 +65207,7 @@ loc_66AE8:
 	dc.b	$28, $00, $00, $24, $18
 	dc.b	$28, $00, $08, $24, $28
 	dc.b	$28, $00, $00, $25, $20
-	
+
 loc_66B3E:
 	dc.b	$0B
 	dc.b	$B8, $03, $00, $26, $20
@@ -65221,13 +65221,13 @@ loc_66B3E:
 	dc.b	$28, $00, $00, $36, $18
 	dc.b	$28, $00, $08, $36, $28
 	dc.b	$30, $00, $00, $37, $20
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-		
+; -----------------------------------------------------------------
+
 Map_TechSakCast:
 	dc.w	loc_66B8E-Map_TechSakCast
 	dc.w	loc_66BBC-Map_TechSakCast
@@ -65241,7 +65241,7 @@ Map_TechSakCast:
 	dc.w	loc_66CC8-Map_TechSakCast
 	dc.w	loc_66D0A-Map_TechSakCast
 	dc.w	loc_66D38-Map_TechSakCast
-	
+
 loc_66B8E:
 	dc.b	$09
 	dc.b	$20, $00, $00, $80, $18
@@ -65253,7 +65253,7 @@ loc_66B8E:
 	dc.b	$28, $00, $00, $82, $18
 	dc.b	$28, $00, $08, $82, $28
 	dc.b	$28, $00, $00, $83, $20
-	
+
 loc_66BBC:
 	dc.b	$05
 	dc.b	$20, $00, $00, $84, $20
@@ -65261,7 +65261,7 @@ loc_66BBC:
 	dc.b	$28, $00, $00, $85, $18
 	dc.b	$28, $00, $18, $85, $28
 	dc.b	$28, $00, $00, $86, $20
-	
+
 loc_66BD6:
 	dc.b	$05
 	dc.b	$20, $00, $08, $84, $20
@@ -65269,7 +65269,7 @@ loc_66BD6:
 	dc.b	$28, $00, $10, $85, $18
 	dc.b	$28, $00, $08, $85, $28
 	dc.b	$28, $00, $08, $86, $20
-	
+
 loc_66BF0:
 	dc.b	$09
 	dc.b	$20, $00, $00, $87, $18
@@ -65281,7 +65281,7 @@ loc_66BF0:
 	dc.b	$28, $00, $00, $89, $18
 	dc.b	$28, $00, $08, $89, $28
 	dc.b	$28, $00, $00, $8A, $20
-	
+
 loc_66C1E:
 	dc.b	$05
 	dc.b	$20, $00, $00, $8B, $20
@@ -65289,7 +65289,7 @@ loc_66C1E:
 	dc.b	$28, $00, $00, $8C, $18
 	dc.b	$28, $00, $18, $8C, $28
 	dc.b	$28, $00, $00, $8D, $20
-	
+
 loc_66C38:
 	dc.b	$05
 	dc.b	$20, $00, $08, $8B, $20
@@ -65297,7 +65297,7 @@ loc_66C38:
 	dc.b	$28, $00, $10, $8C, $18
 	dc.b	$28, $00, $08, $8C, $28
 	dc.b	$28, $00, $08, $8D, $20
-	
+
 loc_66C52:
 	dc.b	$09
 	dc.b	$18, $04, $00, $8E, $10
@@ -65309,7 +65309,7 @@ loc_66C52:
 	dc.b	$28, $01, $00, $94, $18
 	dc.b	$20, $01, $18, $94, $28
 	dc.b	$28, $00, $00, $96, $20
-	
+
 loc_66C80:
 	dc.b	$09
 	dc.b	$18, $04, $00, $97, $18
@@ -65321,7 +65321,7 @@ loc_66C80:
 	dc.b	$28, $01, $00, $9D, $18
 	dc.b	$20, $01, $18, $9D, $28
 	dc.b	$28, $00, $00, $9F, $20
-	
+
 loc_66CAE:
 	dc.b	$05
 	dc.b	$18, $05, $00, $A0, $20
@@ -65329,7 +65329,7 @@ loc_66CAE:
 	dc.b	$20, $05, $00, $A4, $10
 	dc.b	$28, $05, $18, $A4, $28
 	dc.b	$28, $00, $08, $9F, $20
-	
+
 loc_66CC8:
 	dc.b	$0D
 	dc.b	$10, $04, $00, $A8, $08
@@ -65345,7 +65345,7 @@ loc_66CC8:
 	dc.b	$28, $00, $00, $B1, $18
 	dc.b	$28, $00, $08, $B1, $28
 	dc.b	$28, $00, $00, $B2, $20
-	
+
 loc_66D0A:
 	dc.b	$09
 	dc.b	$08, $02, $00, $B3, $18
@@ -65357,7 +65357,7 @@ loc_66D0A:
 	dc.b	$28, $04, $00, $BB, $10
 	dc.b	$28, $04, $18, $BB, $28
 	dc.b	$28, $00, $00, $BD, $20
-	
+
 loc_66D38:
 	dc.b	$09
 	dc.b	$08, $02, $00, $BE, $28
@@ -65369,35 +65369,35 @@ loc_66D38:
 	dc.b	$28, $04, $10, $BB, $10
 	dc.b	$28, $04, $08, $BB, $28
 	dc.b	$28, $00, $08, $BD, $20
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Knife, Whip, Scalpel, etc...)
 ; -----------------------------------------------------------------
-	
+
 Map_WeaponKnife:
 	dc.w	Map_WeaponKnife_1-Map_WeaponKnife
 	dc.w	Map_WeaponKnife_2-Map_WeaponKnife
 	dc.w	Map_WeaponKnife_3-Map_WeaponKnife
 	dc.w	Map_WeaponKnife_4-Map_WeaponKnife
-	
+
 Map_WeaponKnife_1:
 	dc.b	$02
 	dc.b	$00, $00, $00, $00, $28
 	dc.b	$08, $00, $00, $01, $20
-	
+
 	even
-	
+
 Map_WeaponKnife_2:
 	dc.b	$04
 	dc.b	$10, $00, $00, $02, $10
 	dc.b	$18, $00, $18, $02, $18
 	dc.b	$08, $05, $00, $03, $18
 	dc.b	$18, $05, $00, $07, $08
-	
+
 	even
-	
+
 Map_WeaponKnife_3:
 	dc.b	$06
 	dc.b	$10, $00, $00, $0B, $10
@@ -65406,27 +65406,27 @@ Map_WeaponKnife_3:
 	dc.b	$18, $00, $18, $0B, $18
 	dc.b	$20, $00, $00, $0E, $08
 	dc.b	$28, $00, $00, $00, $00
-	
+
 	even
-	
+
 Map_WeaponKnife_4:
 	dc.b	$03
 	dc.b	$18, $00, $08, $03, $10
 	dc.b	$20, $00, $00, $0F, $08
 	dc.b	$28, $00, $00, $10, $00
 
-; =================================================================	
-	
+; =================================================================
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Sword, Laser Knife, etc)
 ; -----------------------------------------------------------------
-	
+
 Map_WeaponSword:
 	dc.w	Map_WeaponSword_1-Map_WeaponSword
 	dc.w	Map_WeaponSword_2-Map_WeaponSword
 	dc.w	Map_WeaponSword_3-Map_WeaponSword
 	dc.w	Map_WeaponSword_4-Map_WeaponSword
-	
+
 Map_WeaponSword_1:
 	dc.b	$06
 	dc.b	$00, $00, $00, $00, $28
@@ -65435,9 +65435,9 @@ Map_WeaponSword_1:
 	dc.b	$18, $00, $18, $02, $18
 	dc.b	$10, $00, $00, $03, $18
 	dc.b	$18, $00, $18, $03, $10
-	
+
 	even
-	
+
 Map_WeaponSword_2:
 	dc.b	$0A
 	dc.b	$10, $00, $00, $04, $10
@@ -65450,9 +65450,9 @@ Map_WeaponSword_2:
 	dc.b	$08, $00, $18, $07, $20
 	dc.b	$10, $00, $18, $06, $18
 	dc.b	$10, $00, $18, $05, $20
-	
+
 	even
-	
+
 Map_WeaponSword_3:
 	dc.b	$06
 	dc.b	$28, $00, $18, $00, $00
@@ -65461,9 +65461,9 @@ Map_WeaponSword_3:
 	dc.b	$10, $00, $00, $09, $18
 	dc.b	$18, $00, $00, $0A, $10
 	dc.b	$18, $00, $18, $08, $18
-	
+
 	even
-	
+
 Map_WeaponSword_4:
 	dc.b	$06
 	dc.b	$28, $00, $00, $0B, $00
@@ -65472,14 +65472,14 @@ Map_WeaponSword_4:
 	dc.b	$10, $00, $08, $0D, $18
 	dc.b	$18, $00, $10, $0D, $10
 	dc.b	$18, $00, $18, $0D, $18
-	
+
 ; =================================================================
 
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Laser Sword, Sword of Anger, Lac Dagger)
-; -----------------------------------------------------------------	
+; -----------------------------------------------------------------
 
 Map_WpnLaserSwd:
 	dc.w	Map_WpnLaserSwd_1-Map_WpnLaserSwd
@@ -65489,14 +65489,14 @@ Map_WpnLaserSwd:
 	dc.w	Map_WpnLaserSwd_5-Map_WpnLaserSwd
 	dc.w	Map_WpnLaserSwd_6-Map_WpnLaserSwd
 	dc.w	Map_WpnLaserSwd_7-Map_WpnLaserSwd
-	
+
 Map_WpnLaserSwd_1:
 	dc.b	$02
 	dc.b	$00, $00, $00, $00, $28
 	dc.b	$08, $00, $00, $01, $20
-	
+
 	even
-	
+
 Map_WpnLaserSwd_2:
 	dc.b	$0A
 	dc.b	$10, $00, $00, $02, $10
@@ -65509,9 +65509,9 @@ Map_WpnLaserSwd_2:
 	dc.b	$10, $00, $00, $05, $18
 	dc.b	$18, $00, $18, $05, $10
 	dc.b	$20, $00, $18, $04, $08
-	
+
 	even
-	
+
 Map_WpnLaserSwd_3:
 	dc.b	$06
 	dc.b	$10, $00, $00, $06, $10
@@ -65520,9 +65520,9 @@ Map_WpnLaserSwd_3:
 	dc.b	$18, $00, $00, $08, $18
 	dc.b	$20, $00, $18, $01, $08
 	dc.b	$28, $00, $18, $00, $00
-	
+
 	even
-	
+
 Map_WpnLaserSwd_4:
 	dc.b	$09
 	dc.b	$08, $00, $00, $09, $18
@@ -65534,7 +65534,7 @@ Map_WpnLaserSwd_4:
 	dc.b	$18, $00, $18, $0B, $18
 	dc.b	$20, $04, $00, $0D, $08
 	dc.b	$28, $00, $00, $0F, $00
-	
+
 Map_WpnLaserSwd_5:
 	dc.b	$0A
 	dc.b	$08, $04, $00, $10, $10
@@ -65547,9 +65547,9 @@ Map_WpnLaserSwd_5:
 	dc.b	$10, $00, $08, $15, $18
 	dc.b	$18, $00, $10, $15, $10
 	dc.b	$18, $00, $18, $15, $18
-	
+
 	even
-	
+
 Map_WpnLaserSwd_6:
 	dc.b	$08
 	dc.b	$08, $04, $00, $16, $10
@@ -65560,24 +65560,24 @@ Map_WpnLaserSwd_6:
 	dc.b	$10, $00, $08, $1A, $18
 	dc.b	$18, $00, $10, $1A, $10
 	dc.b	$18, $00, $18, $1A, $18
-	
+
 	even
-	
+
 Map_WpnLaserSwd_7:
 	dc.b	$04
 	dc.b	$08, $04, $00, $1B, $10
 	dc.b	$10, $01, $00, $1D, $08
 	dc.b	$20, $04, $10, $1B, $10
 	dc.b	$10, $01, $08, $1D, $20
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Laconian and Nei Sword)
 ; -----------------------------------------------------------------
-	
+
 Map_WpnLacSword:
 	dc.w	Map_WpnLacSword_1-Map_WpnLacSword
 	dc.w	Map_WpnLacSword_2-Map_WpnLacSword
@@ -65587,16 +65587,16 @@ Map_WpnLacSword:
 	dc.w	Map_WpnLacSword_6-Map_WpnLacSword
 	dc.w	Map_WpnLacSword_7-Map_WpnLacSword
 	dc.w	Map_WpnLacSword_8-Map_WpnLacSword
-	
+
 Map_WpnLacSword_1:
 	dc.b	$04
 	dc.b	$00, $00, $00, $00, $20
 	dc.b	$08, $00, $18, $00, $28
 	dc.b	$00, $00, $00, $01, $28
 	dc.b	$08, $00, $00, $02, $20
-	
+
 	even
-	
+
 Map_WpnLacSword_2:
 	dc.b	$0A
 	dc.b	$00, $00, $00, $00, $20
@@ -65609,9 +65609,9 @@ Map_WpnLacSword_2:
 	dc.b	$00, $00, $00, $01, $28
 	dc.b	$08, $00, $00, $08, $20
 	dc.b	$10, $00, $00, $08, $18
-	
+
 	even
-	
+
 Map_WpnLacSword_3:
 	dc.b	$0A
 	dc.b	$08, $00, $18, $00, $28
@@ -65624,9 +65624,9 @@ Map_WpnLacSword_3:
 	dc.b	$18, $00, $00, $0F, $10
 	dc.b	$20, $08, $00, $10, $00
 	dc.b	$28, $04, $00, $13, $00
-	
+
 	even
-	
+
 Map_WpnLacSword_4:
 	dc.b	$05
 	dc.b	$00, $00, $00, $15, $28
@@ -65634,7 +65634,7 @@ Map_WpnLacSword_4:
 	dc.b	$18, $00, $18, $16, $10
 	dc.b	$20, $00, $00, $16, $08
 	dc.b	$28, $00, $00, $17, $00
-	
+
 Map_WpnLacSword_5:
 	dc.b	$0A
 	dc.b	$00, $00, $00, $18, $20
@@ -65647,9 +65647,9 @@ Map_WpnLacSword_5:
 	dc.b	$08, $00, $00, $1F, $20
 	dc.b	$10, $00, $00, $20, $18
 	dc.b	$18, $00, $00, $21, $10
-	
+
 	even
-	
+
 Map_WpnLacSword_6:
 	dc.b	$06
 	dc.b	$00, $04, $00, $22, $20
@@ -65658,9 +65658,9 @@ Map_WpnLacSword_6:
 	dc.b	$18, $08, $00, $2B, $08
 	dc.b	$20, $0C, $00, $2E, $00
 	dc.b	$28, $04, $00, $32, $00
-	
+
 	even
-	
+
 Map_WpnLacSword_7:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $34, $18
@@ -65673,9 +65673,9 @@ Map_WpnLacSword_7:
 	dc.b	$20, $00, $00, $3F, $00
 	dc.b	$20, $00, $00, $40, $10
 	dc.b	$28, $04, $00, $41, $00
-	
+
 	even
-	
+
 Map_WpnLacSword_8:
 	dc.b	$08
 	dc.b	$08, $04, $00, $43, $10
@@ -65686,38 +65686,38 @@ Map_WpnLacSword_8:
 	dc.b	$20, $00, $00, $4A, $00
 	dc.b	$20, $00, $00, $4B, $10
 	dc.b	$28, $00, $00, $4C, $08
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Claws or Bars as incorrectly translated in this game)
 ; -----------------------------------------------------------------
-	
+
 Map_WeaponBar:
 	dc.w	Map_WeaponBar_1-Map_WeaponBar
 	dc.w	Map_WeaponBar_2-Map_WeaponBar
 	dc.w	Map_WeaponBar_3-Map_WeaponBar
 	dc.w	Map_WeaponBar_4-Map_WeaponBar
 	dc.w	Map_WeaponBar_5-Map_WeaponBar
-	
+
 Map_WeaponBar_1:
 	dc.b	$02
 	dc.b	$00, $05, $00, $00, $20
 	dc.b	$10, $00, $00, $04, $20
-	
+
 	even
-	
+
 Map_WeaponBar_2:
 	dc.b	$04
 	dc.b	$10, $00, $00, $05, $10
 	dc.b	$18, $00, $18, $05, $18
 	dc.b	$18, $05, $00, $06, $08
 	dc.b	$08, $05, $00, $0A, $18
-	
+
 	even
-	
+
 Map_WeaponBar_3:
 	dc.b	$07
 	dc.b	$10, $00, $00, $0E, $10
@@ -65727,7 +65727,7 @@ Map_WeaponBar_3:
 	dc.b	$18, $00, $00, $11, $08
 	dc.b	$20, $00, $18, $11, $10
 	dc.b	$20, $05, $00, $12, $00
-	
+
 Map_WeaponBar_4:
 	dc.b	$05
 	dc.b	$10, $00, $00, $16, $10
@@ -65735,7 +65735,7 @@ Map_WeaponBar_4:
 	dc.b	$18, $00, $18, $17, $10
 	dc.b	$18, $00, $18, $16, $18
 	dc.b	$20, $05, $00, $18, $00
-	
+
 Map_WeaponBar_5:
 	dc.b	$05
 	dc.b	$10, $00, $00, $1C, $10
@@ -65743,13 +65743,13 @@ Map_WeaponBar_5:
 	dc.b	$18, $00, $18, $1D, $10
 	dc.b	$18, $00, $18, $1C, $18
 	dc.b	$28, $00, $00, $1E, $00
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Laser Claw or Bar)
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Map_WpnLaserBar:
 	dc.w	Map_WpnLaserBar_1-Map_WpnLaserBar
 	dc.w	Map_WpnLaserBar_2-Map_WpnLaserBar
@@ -65758,16 +65758,16 @@ Map_WpnLaserBar:
 	dc.w	Map_WpnLaserBar_5-Map_WpnLaserBar
 	dc.w	Map_WpnLaserBar_6-Map_WpnLaserBar
 	dc.w	Map_WpnLaserBar_7-Map_WpnLaserBar
-	
+
 Map_WpnLaserBar_1:
 	dc.b	$04
 	dc.b	$00, $00, $00, $00, $20
 	dc.b	$00, $00, $00, $01, $28
 	dc.b	$08, $00, $18, $00, $28
 	dc.b	$08, $00, $00, $02, $20
-	
+
 	even
-	
+
 Map_WpnLaserBar_2:
 	dc.b	$07
 	dc.b	$08, $00, $00, $03, $18
@@ -65777,7 +65777,7 @@ Map_WpnLaserBar_2:
 	dc.b	$08, $00, $00, $05, $20
 	dc.b	$10, $00, $00, $06, $18
 	dc.b	$18, $00, $00, $07, $10
-	
+
 Map_WpnLaserBar_3:
 	dc.b	$08
 	dc.b	$20, $00, $00, $00, $00
@@ -65788,9 +65788,9 @@ Map_WpnLaserBar_3:
 	dc.b	$20, $00, $00, $0B, $10
 	dc.b	$10, $05, $00, $0C, $10
 	dc.b	$08, $00, $00, $10, $18
-	
+
 	even
-	
+
 Map_WpnLaserBar_4:
 	dc.b	$05
 	dc.b	$28, $00, $00, $11, $00
@@ -65798,50 +65798,50 @@ Map_WpnLaserBar_4:
 	dc.b	$10, $04, $00, $14, $10
 	dc.b	$18, $04, $00, $16, $10
 	dc.b	$20, $04, $18, $12, $10
-	
+
 Map_WpnLaserBar_5:
 	dc.b	$04
 	dc.b	$28, $00, $00, $18, $00
 	dc.b	$08, $00, $00, $19, $18
 	dc.b	$20, $00, $00, $1A, $10
 	dc.b	$10, $05, $00, $1B, $10
-	
+
 	even
-	
+
 Map_WpnLaserBar_6:
 	dc.b	$04
 	dc.b	$10, $00, $00, $1F, $10
 	dc.b	$18, $00, $00, $20, $10
 	dc.b	$10, $00, $18, $20, $18
 	dc.b	$18, $00, $18, $1F, $18
-	
+
 	even
-	
+
 Map_WpnLaserBar_7:
 	dc.b	$01
 	dc.b	$10, $05, $00, $21, $10
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Fire Staff)
 ; -----------------------------------------------------------------
-	
+
 Map_WpnFireStaff:
 	dc.w	Map_WpnFireStaff_1-Map_WpnFireStaff
 	dc.w	Map_WpnFireStaff_2-Map_WpnFireStaff
 	dc.w	Map_WpnFireStaff_3-Map_WpnFireStaff
 	dc.w	Map_WpnFireStaff_4-Map_WpnFireStaff
-	
+
 Map_WpnFireStaff_1:
 	dc.b	$04
 	dc.b	$10, $00, $00, $00, $10
 	dc.b	$10, $00, $00, $01, $18
 	dc.b	$18, $00, $18, $01, $10
 	dc.b	$18, $00, $18, $00, $18
-	
+
 	even
-	
+
 Map_WpnFireStaff_2:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $02, $08
@@ -65856,9 +65856,9 @@ Map_WpnFireStaff_2:
 	dc.b	$10, $00, $00, $09, $18
 	dc.b	$18, $00, $18, $09, $10
 	dc.b	$18, $00, $18, $08, $18
-	
+
 	even
-	
+
 Map_WpnFireStaff_3:
 	dc.b	$0E
 	dc.b	$00, $00, $00, $0A, $28
@@ -65875,9 +65875,9 @@ Map_WpnFireStaff_3:
 	dc.b	$10, $00, $00, $10, $18
 	dc.b	$18, $00, $18, $10, $10
 	dc.b	$18, $00, $18, $0F, $18
-	
+
 	even
-	
+
 Map_WpnFireStaff_4:
 	dc.b	$08
 	dc.b	$00, $00, $00, $0A, $28
@@ -65888,15 +65888,15 @@ Map_WpnFireStaff_4:
 	dc.b	$10, $00, $00, $13, $08
 	dc.b	$18, $00, $18, $13, $20
 	dc.b	$20, $00, $18, $12, $20
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechGajCast:
 	dc.w	loc_672F4-Map_TechGajCast
 	dc.w	loc_67332-Map_TechGajCast
@@ -65913,7 +65913,7 @@ Map_TechGajCast:
 	dc.w	loc_67570-Map_TechGajCast
 	dc.w	loc_67590-Map_TechGajCast
 	dc.w	loc_675A0-Map_TechGajCast
-	
+
 loc_672F4:
 	dc.b	$0C
 	dc.b	$08, $04, $00, $00, $18
@@ -65928,9 +65928,9 @@ loc_672F4:
 	dc.b	$20, $01, $00, $12, $38
 	dc.b	$40, $04, $18, $10, $20
 	dc.b	$28, $01, $18, $12, $08
-	
+
 	even
-	
+
 loc_67332:
 	dc.b	$11
 	dc.b	$10, $09, $00, $14, $20
@@ -65950,7 +65950,7 @@ loc_67332:
 	dc.b	$28, $00, $00, $27, $18
 	dc.b	$28, $00, $18, $27, $28
 	dc.b	$28, $00, $00, $28, $20
-	
+
 loc_67388:
 	dc.b	$09
 	dc.b	$20, $00, $00, $29, $18
@@ -65962,7 +65962,7 @@ loc_67388:
 	dc.b	$28, $00, $00, $2C, $18
 	dc.b	$28, $00, $18, $2C, $28
 	dc.b	$28, $00, $00, $28, $20
-	
+
 loc_673B6:
 	dc.b	$09
 	dc.b	$10, $0C, $00, $2D, $10
@@ -65974,7 +65974,7 @@ loc_673B6:
 	dc.b	$28, $00, $00, $36, $18
 	dc.b	$28, $00, $08, $36, $28
 	dc.b	$28, $00, $00, $37, $20
-	
+
 loc_673E4:
 	dc.b	$0D
 	dc.b	$10, $09, $00, $38, $18
@@ -65990,7 +65990,7 @@ loc_673E4:
 	dc.b	$28, $00, $00, $47, $18
 	dc.b	$28, $00, $18, $47, $28
 	dc.b	$28, $00, $00, $37, $20
-	
+
 loc_67426:
 	dc.b	$09
 	dc.b	$20, $00, $00, $48, $18
@@ -66002,7 +66002,7 @@ loc_67426:
 	dc.b	$28, $00, $00, $4B, $18
 	dc.b	$28, $00, $18, $4B, $28
 	dc.b	$28, $00, $00, $4C, $20
-	
+
 loc_67454:
 	dc.b	$09
 	dc.b	$20, $00, $00, $4D, $18
@@ -66014,7 +66014,7 @@ loc_67454:
 	dc.b	$28, $00, $00, $4F, $18
 	dc.b	$28, $00, $08, $4F, $28
 	dc.b	$28, $00, $00, $4C, $20
-	
+
 loc_67482:
 	dc.b	$0D
 	dc.b	$18, $00, $00, $50, $20
@@ -66030,7 +66030,7 @@ loc_67482:
 	dc.b	$28, $00, $00, $55, $18
 	dc.b	$28, $00, $08, $55, $28
 	dc.b	$28, $00, $00, $4C, $20
-	
+
 loc_674C4:
 	dc.b	$08
 	dc.b	$20, $00, $00, $56, $18
@@ -66041,9 +66041,9 @@ loc_674C4:
 	dc.b	$28, $00, $08, $4F, $28
 	dc.b	$30, $00, $10, $4E, $20
 	dc.b	$10, $03, $00, $57, $20
-	
+
 	even
-	
+
 loc_674EE:
 	dc.b	$0A
 	dc.b	$30, $00, $10, $4D, $18
@@ -66056,9 +66056,9 @@ loc_674EE:
 	dc.b	$28, $00, $00, $4C, $20
 	dc.b	$00, $03, $00, $5B, $20
 	dc.b	$20, $00, $00, $5F, $20
-	
+
 	even
-	
+
 loc_67522:
 	dc.b	$08
 	dc.b	$30, $00, $00, $60, $18
@@ -66069,9 +66069,9 @@ loc_67522:
 	dc.b	$E0, $03, $00, $63, $20
 	dc.b	$00, $03, $00, $67, $20
 	dc.b	$20, $01, $00, $6B, $20
-	
+
 	even
-	
+
 loc_6754C:
 	dc.b	$07
 	dc.b	$10, $03, $00, $6D, $20
@@ -66081,7 +66081,7 @@ loc_6754C:
 	dc.b	$E8, $01, $00, $66, $20
 	dc.b	$F8, $01, $00, $66, $20
 	dc.b	$08, $00, $00, $66, $20
-	
+
 loc_67570:
 	dc.b	$06
 	dc.b	$00, $02, $00, $71, $20
@@ -66090,25 +66090,25 @@ loc_67570:
 	dc.b	$D8, $01, $00, $66, $20
 	dc.b	$E8, $01, $00, $66, $20
 	dc.b	$F8, $00, $00, $66, $20
-	
+
 	even
-	
+
 loc_67590:
 	dc.b	$03
 	dc.b	$B8, $01, $00, $66, $20
 	dc.b	$C8, $00, $00, $66, $20
 	dc.b	$D0, $03, $00, $74, $20
-	
+
 loc_675A0:
 	dc.b	$01
 	dc.b	$B8, $02, $00, $78, $20
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechGajAttack:
 	dc.w	loc_675CE-Map_TechGajAttack
 	dc.w	loc_675DE-Map_TechGajAttack
@@ -66130,13 +66130,13 @@ Map_TechGajAttack:
 	dc.w	loc_67748-Map_TechGajAttack
 	dc.w	loc_6779A-Map_TechGajAttack
 	dc.w	loc_677B0-Map_TechGajAttack
-	
+
 loc_675CE:
 	dc.b	$03
 	dc.b	$B8, $01, $00, $80, $10
 	dc.b	$C8, $00, $00, $80, $10
 	dc.b	$D0, $04, $00, $82, $10
-	
+
 loc_675DE:
 	dc.b	$05
 	dc.b	$B8, $01, $00, $80, $10
@@ -66144,7 +66144,7 @@ loc_675DE:
 	dc.b	$D8, $01, $00, $80, $10
 	dc.b	$E8, $01, $00, $80, $10
 	dc.b	$F8, $04, $00, $82, $10
-	
+
 loc_675F8:
 	dc.b	$08
 	dc.b	$B8, $01, $00, $80, $10
@@ -66155,9 +66155,9 @@ loc_675F8:
 	dc.b	$08, $01, $00, $80, $10
 	dc.b	$18, $00, $00, $80, $10
 	dc.b	$20, $04, $00, $82, $10
-	
+
 	even
-	
+
 loc_67622:
 	dc.b	$07
 	dc.b	$E8, $01, $00, $84, $10
@@ -66167,26 +66167,26 @@ loc_67622:
 	dc.b	$28, $04, $00, $86, $10
 	dc.b	$30, $00, $00, $88, $10
 	dc.b	$30, $00, $08, $88, $18
-	
+
 loc_67646:
 	dc.b	$04
 	dc.b	$30, $04, $00, $89, $08
 	dc.b	$30, $04, $08, $89, $18
 	dc.b	$18, $01, $00, $8B, $10
 	dc.b	$28, $04, $00, $8D, $10
-	
+
 	even
-	
+
 loc_6765C:
 	dc.b	$01
 	dc.b	$B8, $03, $00, $8F, $00
-	
+
 loc_67662:
 	dc.b	$03
 	dc.b	$B8, $00, $00, $8F, $00
 	dc.b	$C0, $03, $00, $93, $00
 	dc.b	$E0, $03, $00, $8F, $08
-	
+
 loc_67672:
 	dc.b	$05
 	dc.b	$B8, $00, $00, $8F, $00
@@ -66194,32 +66194,32 @@ loc_67672:
 	dc.b	$E0, $00, $00, $8F, $08
 	dc.b	$E8, $03, $00, $93, $08
 	dc.b	$08, $03, $00, $8F, $10
-	
+
 loc_6768C:
 	dc.b	$03
 	dc.b	$E8, $03, $00, $97, $08
 	dc.b	$08, $03, $18, $93, $10
 	dc.b	$28, $05, $00, $9B, $10
-	
+
 loc_6769C:
 	dc.b	$04
 	dc.b	$10, $02, $00, $9F, $10
 	dc.b	$28, $04, $00, $A2, $10
 	dc.b	$30, $04, $00, $89, $08
 	dc.b	$30, $04, $08, $89, $18
-	
+
 	even
-	
+
 loc_676B2:
 	dc.b	$01
 	dc.b	$B8, $03, $08, $8F, $28
-	
+
 loc_676B8:
 	dc.b	$03
 	dc.b	$B8, $00, $08, $8F, $28
 	dc.b	$C0, $03, $08, $93, $28
 	dc.b	$E0, $03, $08, $8F, $20
-	
+
 loc_676C8:
 	dc.b	$05
 	dc.b	$B8, $00, $08, $8F, $28
@@ -66227,22 +66227,22 @@ loc_676C8:
 	dc.b	$E0, $00, $08, $8F, $20
 	dc.b	$E8, $03, $08, $93, $20
 	dc.b	$08, $03, $08, $8F, $18
-	
+
 loc_676E2:
 	dc.b	$03
 	dc.b	$E8, $03, $08, $97, $20
 	dc.b	$08, $03, $10, $93, $18
 	dc.b	$28, $05, $08, $9B, $10
-	
+
 loc_676F2:
 	dc.b	$04
 	dc.b	$10, $02, $08, $9F, $18
 	dc.b	$28, $04, $08, $A2, $10
 	dc.b	$30, $04, $00, $89, $08
 	dc.b	$30, $04, $08, $89, $18
-	
+
 	even
-	
+
 loc_67708:
 	dc.b	$06
 	dc.b	$20, $00, $00, $A4, $10
@@ -66251,9 +66251,9 @@ loc_67708:
 	dc.b	$28, $04, $08, $A5, $18
 	dc.b	$30, $08, $00, $A7, $00
 	dc.b	$30, $08, $08, $A7, $18
-	
+
 	even
-	
+
 loc_67728:
 	dc.b	$06
 	dc.b	$20, $04, $00, $AA, $08
@@ -66262,9 +66262,9 @@ loc_67728:
 	dc.b	$28, $04, $08, $AC, $18
 	dc.b	$30, $04, $00, $AE, $08
 	dc.b	$30, $04, $08, $AE, $18
-	
+
 	even
-	
+
 loc_67748:
 	dc.b	$10
 	dc.b	$10, $00, $00, $B0, $10
@@ -66283,18 +66283,18 @@ loc_67748:
 	dc.b	$28, $04, $00, $B9, $20
 	dc.b	$30, $08, $00, $BB, $00
 	dc.b	$30, $08, $08, $BB, $18
-	
+
 	even
-	
+
 loc_6779A:
 	dc.b	$04
 	dc.b	$10, $0F, $00, $BE, $F8
 	dc.b	$10, $0F, $08, $BE, $18
 	dc.b	$30, $08, $00, $CE, $00
 	dc.b	$30, $08, $08, $CE, $18
-	
+
 	even
-	
+
 loc_677B0:
 	dc.b	$06
 	dc.b	$18, $04, $00, $D1, $F8
@@ -66303,15 +66303,15 @@ loc_677B0:
 	dc.b	$20, $0A, $08, $D3, $20
 	dc.b	$28, $01, $00, $DC, $10
 	dc.b	$28, $01, $08, $DC, $18
-	
+
 ; =================================================================
 
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Bow Gun, Shotgun, Vulcan, etc...)
 ; -----------------------------------------------------------------
-	
+
 Map_WpnBowGun:
 	dc.w	Map_WpnBowGun_1-Map_WpnBowGun
 	dc.w	Map_WpnBowGun_2-Map_WpnBowGun
@@ -66333,15 +66333,15 @@ Map_WpnBowGun:
 	dc.w	Map_WpnBowGun_12-Map_WpnBowGun
 	dc.w	Map_WpnBowGun_13-Map_WpnBowGun
 	dc.w	Map_WpnBowGun_14-Map_WpnBowGun
-	
+
 Map_WpnBowGun_1:
 	dc.b	$01
 	dc.b	$30, $05, $00, $00, $18
-	
+
 Map_WpnBowGun_2:
 	dc.b	$01
 	dc.b	$30, $09, $00, $04, $18
-	
+
 Map_WpnBowGun_3:
 	dc.b	$05
 	dc.b	$28, $00, $00, $0A, $18
@@ -66349,25 +66349,25 @@ Map_WpnBowGun_3:
 	dc.b	$40, $00, $00, $0C, $10
 	dc.b	$40, $04, $00, $0D, $20
 	dc.b	$30, $05, $00, $0F, $18
-	
+
 Map_WpnBowGun_4:
 	dc.b	$04
 	dc.b	$08, $00, $00, $13, $10
 	dc.b	$08, $00, $00, $14, $18
 	dc.b	$10, $00, $18, $14, $10
 	dc.b	$10, $00, $18, $13, $18
-	
+
 	even
-	
+
 Map_WpnBowGun_5:
 	dc.b	$04
 	dc.b	$08, $00, $00, $15, $10
 	dc.b	$08, $00, $00, $16, $18
 	dc.b	$10, $00, $18, $16, $10
 	dc.b	$10, $00, $18, $15, $18
-	
+
 	even
-	
+
 Map_WpnBowGun_6:
 	dc.b	$0C
 	dc.b	$F8, $00, $00, $13, $00
@@ -66382,15 +66382,15 @@ Map_WpnBowGun_6:
 	dc.b	$20, $00, $00, $14, $08
 	dc.b	$28, $00, $18, $14, $00
 	dc.b	$28, $00, $18, $13, $08
-	
+
 	even
-	
+
 Map_WpnBowGun_7:
 	dc.b	$03
 	dc.b	$F8, $05, $00, $17, $00
 	dc.b	$10, $05, $00, $17, $18
 	dc.b	$20, $05, $00, $17, $00
-	
+
 Map_WpnBowGun_8:
 	dc.b	$0C
 	dc.b	$F8, $00, $00, $1B, $00
@@ -66405,9 +66405,9 @@ Map_WpnBowGun_8:
 	dc.b	$20, $00, $00, $1C, $08
 	dc.b	$28, $00, $18, $1C, $00
 	dc.b	$28, $00, $18, $1B, $08
-	
+
 	even
-	
+
 Map_WpnBowGun_9:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $13, $20
@@ -66424,7 +66424,7 @@ Map_WpnBowGun_9:
 	dc.b	$28, $00, $18, $13, $28
 
 	even
-	
+
 Map_WpnBowGun_A:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $15, $20
@@ -66441,7 +66441,7 @@ Map_WpnBowGun_A:
 	dc.b	$28, $00, $18, $15, $28
 
 	even
-	
+
 Map_WpnBowGun_B:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $1B, $20
@@ -66456,88 +66456,88 @@ Map_WpnBowGun_B:
 	dc.b	$20, $00, $00, $1C, $28
 	dc.b	$28, $00, $18, $1C, $20
 	dc.b	$28, $00, $18, $1B, $28
-	
+
 	even
-	
+
 Map_WpnBowGun_C:
 	dc.b	$04
 	dc.b	$00, $00, $00, $13, $00
 	dc.b	$00, $00, $00, $14, $08
 	dc.b	$08, $00, $18, $14, $00
 	dc.b	$08, $00, $18, $13, $08
-	
+
 	even
-	
+
 Map_WpnBowGun_D:
 	dc.b	$04
 	dc.b	$00, $00, $00, $15, $00
 	dc.b	$00, $00, $00, $16, $08
 	dc.b	$08, $00, $18, $16, $00
 	dc.b	$08, $00, $18, $15, $08
-	
+
 	even
-	
+
 Map_WpnBowGun_E:
 	dc.b	$04
 	dc.b	$00, $00, $00, $1B, $00
 	dc.b	$00, $00, $00, $1C, $08
 	dc.b	$08, $00, $18, $1C, $00
 	dc.b	$08, $00, $18, $1B, $08
-	
+
 	even
-	
+
 Map_WpnBowGun_F:
 	dc.b	$04
 	dc.b	$00, $00, $00, $13, $10
 	dc.b	$00, $00, $00, $14, $18
 	dc.b	$08, $00, $18, $14, $10
 	dc.b	$08, $00, $18, $13, $18
-	
+
 	even
-	
+
 Map_WpnBowGun_10:
 	dc.b	$04
 	dc.b	$00, $00, $00, $15, $10
 	dc.b	$00, $00, $00, $16, $18
 	dc.b	$08, $00, $18, $16, $10
 	dc.b	$08, $00, $18, $15, $18
-	
+
 	even
-	
+
 Map_WpnBowGun_11:
 	dc.b	$04
 	dc.b	$00, $00, $00, $1B, $10
 	dc.b	$00, $00, $00, $1C, $18
 	dc.b	$08, $00, $18, $1C, $10
 	dc.b	$08, $00, $18, $1B, $18
-	
+
 	even
-	
+
 Map_WpnBowGun_12:
 	dc.b	$04
 	dc.b	$00, $00, $00, $13, $20
 	dc.b	$00, $00, $00, $14, $28
 	dc.b	$08, $00, $18, $14, $20
 	dc.b	$08, $00, $18, $13, $28
-	
+
 	even
-	
+
 Map_WpnBowGun_13:
 	dc.b	$04
 	dc.b	$00, $00, $00, $15, $20
 	dc.b	$00, $00, $00, $16, $28
 	dc.b	$08, $00, $18, $16, $20
 	dc.b	$08, $00, $18, $15, $28
-	
+
 	even
-	
+
 Map_WpnBowGun_14:
 	dc.b	$04
 	dc.b	$00, $00, $00, $1B, $20
 	dc.b	$00, $00, $00, $1C, $28
 	dc.b	$08, $00, $18, $1C, $20
 	dc.b	$08, $00, $18, $1B, $28
-	
+
 ; =================================================================
 
 	even
@@ -66545,7 +66545,7 @@ Map_WpnBowGun_14:
 ; -----------------------------------------------------------------
 ; Tsu and Weapon Sprite Mappings (Laser Shot and Laser Cannon)
 ; -----------------------------------------------------------------
-	
+
 Map_TsuAndLaserShot:
 	dc.w	Map_TsuAndLaserShot_1-Map_TsuAndLaserShot
 	dc.w	Map_TsuAndLaserShot_2-Map_TsuAndLaserShot
@@ -66558,66 +66558,66 @@ Map_TsuAndLaserShot:
 	dc.w	Map_TsuAndLaserShot_9-Map_TsuAndLaserShot
 	dc.w	Map_TsuAndLaserShot_A-Map_TsuAndLaserShot
 	dc.w	Map_TsuAndLaserShot_B-Map_TsuAndLaserShot
-	
+
 Map_TsuAndLaserShot_1:
 	dc.b	$04
 	dc.b	$30, $00, $00, $80, $18
 	dc.b	$30, $00, $08, $80, $20
 	dc.b	$38, $00, $10, $80, $18
 	dc.b	$38, $00, $18, $80, $20
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_2:
 	dc.b	$04
 	dc.b	$30, $00, $00, $81, $18
 	dc.b	$30, $00, $08, $81, $20
 	dc.b	$38, $00, $10, $81, $18
 	dc.b	$38, $00, $18, $81, $20
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_3:
 	dc.b	$04
 	dc.b	$30, $00, $00, $82, $18
 	dc.b	$30, $00, $08, $82, $20
 	dc.b	$38, $00, $10, $82, $18
 	dc.b	$38, $00, $18, $82, $20
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_4:
 	dc.b	$04
 	dc.b	$30, $00, $00, $83, $18
 	dc.b	$30, $00, $08, $83, $20
 	dc.b	$38, $00, $10, $83, $18
 	dc.b	$38, $00, $18, $83, $20
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_5:
 	dc.b	$03
 	dc.b	$10, $03, $00, $84, $18
 	dc.b	$30, $04, $00, $88, $18
 	dc.b	$38, $00, $00, $8A, $20
-	
+
 Map_TsuAndLaserShot_6:
 	dc.b	$03
 	dc.b	$10, $03, $00, $8B, $18
 	dc.b	$30, $04, $00, $8F, $18
 	dc.b	$38, $00, $00, $91, $20
-	
+
 Map_TsuAndLaserShot_7:
 	dc.b	$01
 	dc.b	$10, $01, $00, $92, $18
-	
+
 Map_TsuAndLaserShot_8:
 	dc.b	$02
 	dc.b	$10, $04, $00, $94, $10
 	dc.b	$18, $00, $00, $96, $18
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_9:
 	dc.b	$06
 	dc.b	$08, $00, $00, $97, $10
@@ -66626,9 +66626,9 @@ Map_TsuAndLaserShot_9:
 	dc.b	$18, $00, $08, $98, $18
 	dc.b	$10, $00, $00, $99, $10
 	dc.b	$10, $00, $08, $99, $18
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_A:
 	dc.b	$06
 	dc.b	$08, $05, $00, $9A, $08
@@ -66637,9 +66637,9 @@ Map_TsuAndLaserShot_A:
 	dc.b	$18, $04, $08, $9E, $18
 	dc.b	$20, $00, $00, $A0, $10
 	dc.b	$20, $00, $08, $A0, $18
-	
+
 	even
-	
+
 Map_TsuAndLaserShot_B:
 	dc.b	$08
 	dc.b	$08, $04, $00, $A1, $08
@@ -66650,15 +66650,15 @@ Map_TsuAndLaserShot_B:
 	dc.b	$18, $04, $08, $A4, $18
 	dc.b	$20, $00, $00, $A6, $10
 	dc.b	$20, $00, $08, $A6, $18
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Weapon Sprite Mappings (Pulse Cannon and Pulse Vulcan)
 ; -----------------------------------------------------------------
-	
+
 Map_WeaponPulse:
 	dc.w	Map_WeaponPulse_1-Map_WeaponPulse
 	dc.w	Map_WeaponPulse_2-Map_WeaponPulse
@@ -66676,25 +66676,25 @@ Map_WeaponPulse:
 	dc.w	Map_WeaponPulse_E-Map_WeaponPulse
 	dc.w	Map_WeaponPulse_F-Map_WeaponPulse
 	dc.w	Map_WeaponPulse_10-Map_WeaponPulse
-	
+
 Map_WeaponPulse_1:
 	dc.b	$04
 	dc.b	$30, $00, $00, $00, $18
 	dc.b	$30, $00, $08, $00, $20
 	dc.b	$38, $00, $10, $00, $18
 	dc.b	$38, $00, $18, $00, $20
-	
+
 	even
-	
+
 Map_WeaponPulse_2:
 	dc.b	$04
 	dc.b	$30, $00, $00, $01, $18
 	dc.b	$30, $00, $08, $01, $20
 	dc.b	$38, $00, $10, $01, $18
 	dc.b	$38, $00, $18, $01, $20
-	
+
 	even
-	
+
 Map_WeaponPulse_3:
 	dc.b	$05
 	dc.b	$30, $05, $00, $02, $18
@@ -66702,7 +66702,7 @@ Map_WeaponPulse_3:
 	dc.b	$30, $00, $00, $06, $28
 	dc.b	$28, $00, $00, $07, $28
 	dc.b	$40, $00, $00, $08, $10
-	
+
 Map_WeaponPulse_4:
 	dc.b	$05
 	dc.b	$28, $00, $08, $07, $10
@@ -66710,16 +66710,16 @@ Map_WeaponPulse_4:
 	dc.b	$30, $00, $08, $06, $10
 	dc.b	$40, $00, $08, $06, $20
 	dc.b	$30, $05, $08, $02, $18
-	
+
 Map_WeaponPulse_5:
 	dc.b	$04
 	dc.b	$30, $00, $00, $09, $18
 	dc.b	$30, $00, $08, $09, $20
 	dc.b	$38, $00, $10, $09, $18
 	dc.b	$38, $00, $18, $09, $20
-	
+
 	even
-	
+
 Map_WeaponPulse_6:
 	dc.b	$0C
 	dc.b	$28, $00, $00, $0A, $18
@@ -66734,9 +66734,9 @@ Map_WeaponPulse_6:
 	dc.b	$30, $00, $08, $0C, $20
 	dc.b	$38, $00, $10, $0C, $18
 	dc.b	$38, $00, $18, $0C, $20
-	
+
 	even
-	
+
 Map_WeaponPulse_7:
 	dc.b	$0C
 	dc.b	$28, $00, $00, $0D, $10
@@ -66751,9 +66751,9 @@ Map_WeaponPulse_7:
 	dc.b	$30, $00, $08, $06, $20
 	dc.b	$38, $00, $10, $06, $18
 	dc.b	$38, $00, $18, $06, $20
-	
+
 	even
-	
+
 Map_WeaponPulse_8:
 	dc.b	$0D
 	dc.b	$28, $00, $00, $12, $10
@@ -66769,7 +66769,7 @@ Map_WeaponPulse_8:
 	dc.b	$38, $00, $10, $14, $10
 	dc.b	$30, $00, $08, $14, $28
 	dc.b	$38, $00, $18, $14, $28
-	
+
 Map_WeaponPulse_9:
 	dc.b	$0C
 	dc.b	$28, $00, $00, $15, $10
@@ -66784,36 +66784,36 @@ Map_WeaponPulse_9:
 	dc.b	$38, $00, $10, $17, $10
 	dc.b	$30, $00, $08, $17, $28
 	dc.b	$38, $00, $18, $17, $28
-	
+
 	even
-	
+
 Map_WeaponPulse_A:
 	dc.b	$04
 	dc.b	$10, $00, $00, $18, $10
 	dc.b	$10, $00, $08, $18, $18
 	dc.b	$18, $00, $10, $18, $10
 	dc.b	$18, $00, $18, $18, $18
-	
+
 	even
-	
+
 Map_WeaponPulse_B:
 	dc.b	$04
 	dc.b	$10, $00, $00, $19, $10
 	dc.b	$10, $00, $08, $19, $18
 	dc.b	$18, $00, $10, $19, $10
 	dc.b	$18, $00, $18, $19, $18
-	
+
 	even
-	
+
 Map_WeaponPulse_C:
 	dc.b	$04
 	dc.b	$10, $00, $00, $1A, $10
 	dc.b	$10, $00, $08, $1A, $18
 	dc.b	$18, $00, $10, $1A, $10
 	dc.b	$18, $00, $18, $1A, $18
-	
+
 	even
-	
+
 Map_WeaponPulse_D:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $0D, $10
@@ -66828,9 +66828,9 @@ Map_WeaponPulse_D:
 	dc.b	$10, $00, $08, $1B, $18
 	dc.b	$18, $00, $10, $1B, $10
 	dc.b	$18, $00, $18, $1B, $18
-	
+
 	even
-	
+
 Map_WeaponPulse_E:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $1C, $10
@@ -66845,9 +66845,9 @@ Map_WeaponPulse_E:
 	dc.b	$10, $00, $08, $1E, $18
 	dc.b	$18, $00, $10, $1E, $10
 	dc.b	$18, $00, $18, $1E, $18
-	
+
 	even
-	
+
 Map_WeaponPulse_F:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $1F, $10
@@ -66862,24 +66862,24 @@ Map_WeaponPulse_F:
 	dc.b	$10, $00, $10, $0D, $18
 	dc.b	$18, $00, $08, $0D, $10
 	dc.b	$18, $00, $00, $0D, $18
-	
+
 	even
-	
+
 Map_WeaponPulse_10:
 	dc.b	$04
 	dc.b	$20, $04, $00, $21, $08
 	dc.b	$20, $04, $08, $21, $18
 	dc.b	$10, $01, $00, $23, $08
 	dc.b	$10, $01, $08, $23, $20
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_WpnNeiShotFired:
 	dc.w	Map_WpnNeiShotFired_1-Map_WpnNeiShotFired
 	dc.w	Map_WpnNeiShotFired_2-Map_WpnNeiShotFired
@@ -66889,7 +66889,7 @@ Map_WpnNeiShotFired:
 	dc.w	Map_WpnNeiShotFired_6-Map_WpnNeiShotFired
 	dc.w	Map_WpnNeiShotFired_7-Map_WpnNeiShotFired
 	dc.w	Map_WpnNeiShotFired_8-Map_WpnNeiShotFired
-	
+
 Map_WpnNeiShotFired_1:
 	dc.b	$07
 	dc.b	$20, $0C, $00, $00, $10
@@ -66899,7 +66899,7 @@ Map_WpnNeiShotFired_1:
 	dc.b	$38, $02, $00, $0F, $10
 	dc.b	$40, $0D, $00, $12, $18
 	dc.b	$30, $05, $00, $1A, $28
-	
+
 Map_WpnNeiShotFired_2:
 	dc.b	$08
 	dc.b	$20, $04, $00, $1E, $18
@@ -66910,9 +66910,9 @@ Map_WpnNeiShotFired_2:
 	dc.b	$30, $05, $00, $2C, $28
 	dc.b	$40, $0C, $00, $30, $18
 	dc.b	$48, $08, $00, $34, $18
-	
+
 	even
-	
+
 Map_WpnNeiShotFired_3
 	dc.b	$06
 	dc.b	$30, $02, $00, $37, $08
@@ -66921,50 +66921,50 @@ Map_WpnNeiShotFired_3
 	dc.b	$38, $06, $00, $43, $28
 	dc.b	$40, $09, $00, $49, $10
 	dc.b	$28, $06, $00, $4F, $10
-	
+
 	even
-	
+
 Map_WpnNeiShotFired_4:
 	dc.b	$03
 	dc.b	$28, $0F, $00, $55, $10
 	dc.b	$48, $04, $00, $65, $18
 	dc.b	$30, $01, $00, $67, $30
-	
+
 Map_WpnNeiShotFired_5:
 	dc.b	$04
 	dc.b	$30, $00, $18, $25, $18
 	dc.b	$30, $00, $00, $69, $20
 	dc.b	$38, $00, $00, $6A, $18
 	dc.b	$38, $00, $00, $6B, $20
-	
+
 	even
-	
+
 Map_WpnNeiShotFired_6:
 	dc.b	$02
 	dc.b	$30, $00, $00, $6C, $20
 	dc.b	$38, $04, $00, $6D, $18
-	
+
 	even
-	
+
 Map_WpnNeiShotFired_7:
 	dc.b	$04
 	dc.b	$30, $08, $00, $6F, $18
 	dc.b	$38, $04, $00, $72, $18
 	dc.b	$40, $00, $00, $74, $18
 	dc.b	$40, $00, $00, $75, $28
-	
+
 	even
-	
+
 Map_WpnNeiShotFired_8:
 	dc.b	$01
 	dc.b	$30, $05, $00, $76, $18
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechZanCast:
 	dc.w	loc_67EE8-Map_TechZanCast
 	dc.w	loc_67F16-Map_TechZanCast
@@ -66978,7 +66978,7 @@ Map_TechZanCast:
 	dc.w	loc_68086-Map_TechZanCast
 	dc.w	loc_680C8-Map_TechZanCast
 	dc.w	loc_680E2-Map_TechZanCast
-	
+
 loc_67EE8:
 	dc.b	$09
 	dc.b	$20, $00, $00, $00, $18
@@ -66990,7 +66990,7 @@ loc_67EE8:
 	dc.b	$28, $00, $00, $03, $18
 	dc.b	$28, $00, $18, $03, $28
 	dc.b	$28, $00, $00, $04, $20
-	
+
 loc_67F16:
 	dc.b	$05
 	dc.b	$20, $00, $00, $05, $20
@@ -66998,7 +66998,7 @@ loc_67F16:
 	dc.b	$28, $00, $00, $06, $18
 	dc.b	$28, $00, $00, $07, $28
 	dc.b	$28, $00, $00, $08, $20
-	
+
 loc_67F30:
 	dc.b	$09
 	dc.b	$20, $00, $00, $09, $18
@@ -67010,7 +67010,7 @@ loc_67F30:
 	dc.b	$28, $00, $00, $0C, $18
 	dc.b	$28, $00, $18, $0C, $28
 	dc.b	$28, $00, $00, $0D, $20
-	
+
 loc_67F5E:
 	dc.b	$05
 	dc.b	$20, $08, $00, $0E, $10
@@ -67018,7 +67018,7 @@ loc_67F5E:
 	dc.b	$30, $08, $18, $0E, $20
 	dc.b	$28, $02, $00, $14, $18
 	dc.b	$28, $00, $00, $17, $20
-	
+
 loc_67F78:
 	dc.b	$05
 	dc.b	$18, $01, $00, $18, $20
@@ -67026,7 +67026,7 @@ loc_67F78:
 	dc.b	$28, $04, $00, $1A, $10
 	dc.b	$28, $04, $18, $1A, $28
 	dc.b	$28, $00, $00, $1C, $20
-	
+
 loc_67F92:
 	dc.b	$09
 	dc.b	$20, $00, $00, $1D, $18
@@ -67038,7 +67038,7 @@ loc_67F92:
 	dc.b	$28, $00, $00, $20, $18
 	dc.b	$28, $00, $18, $20, $28
 	dc.b	$28, $00, $00, $21, $20
-	
+
 loc_67FC0:
 	dc.b	$0D
 	dc.b	$10, $04, $00, $22, $28
@@ -67054,7 +67054,7 @@ loc_67FC0:
 	dc.b	$28, $00, $00, $2B, $18
 	dc.b	$28, $00, $18, $2B, $28
 	dc.b	$28, $00, $00, $2C, $20
-	
+
 loc_68002:
 	dc.b	$0D
 	dc.b	$10, $05, $00, $2D, $18
@@ -67070,7 +67070,7 @@ loc_68002:
 	dc.b	$28, $00, $00, $3C, $18
 	dc.b	$28, $00, $18, $3C, $28
 	dc.b	$28, $00, $00, $3D, $20
-	
+
 loc_68044:
 	dc.b	$0D
 	dc.b	$10, $02, $00, $3E, $10
@@ -67086,7 +67086,7 @@ loc_68044:
 	dc.b	$28, $00, $00, $47, $18
 	dc.b	$28, $00, $18, $47, $28
 	dc.b	$28, $00, $00, $48, $20
-	
+
 loc_68086:
 	dc.b	$0D
 	dc.b	$10, $04, $00, $22, $28
@@ -67102,7 +67102,7 @@ loc_68086:
 	dc.b	$28, $00, $00, $4E, $18
 	dc.b	$28, $00, $18, $4E, $28
 	dc.b	$28, $00, $00, $4F, $20
-	
+
 loc_680C8:
 	dc.b	$05
 	dc.b	$10, $06, $00, $50, $18
@@ -67110,7 +67110,7 @@ loc_680C8:
 	dc.b	$30, $06, $18, $50, $20
 	dc.b	$28, $09, $18, $56, $08
 	dc.b	$28, $00, $00, $5C, $20
-	
+
 loc_680E2:
 	dc.b	$08
 	dc.b	$10, $02, $00, $5D, $10
@@ -67121,15 +67121,15 @@ loc_680E2:
 	dc.b	$20, $00, $00, $64, $28
 	dc.b	$30, $00, $18, $64, $18
 	dc.b	$30, $00, $18, $63, $28
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechZanAttack:
 	dc.w	loc_68128-Map_TechZanAttack
 	dc.w	loc_68138-Map_TechZanAttack
@@ -67145,13 +67145,13 @@ Map_TechZanAttack:
 	dc.w	loc_68376-Map_TechZanAttack
 	dc.w	loc_68390-Map_TechZanAttack
 	dc.w	loc_683AA-Map_TechZanAttack
-	
+
 loc_68128:
 	dc.b	$03
 	dc.b	$30, $08, $00, $80, $FC
 	dc.b	$30, $08, $08, $80, $1C
 	dc.b	$30, $00, $00, $82, $14
-	
+
 loc_68138:
 	dc.b	$05
 	dc.b	$28, $04, $00, $83, $FC
@@ -67159,7 +67159,7 @@ loc_68138:
 	dc.b	$30, $08, $00, $85, $FC
 	dc.b	$30, $08, $08, $85, $1C
 	dc.b	$30, $00, $00, $87, $14
-	
+
 loc_68152:
 	dc.b	$06
 	dc.b	$28, $08, $00, $88, $FC
@@ -67168,9 +67168,9 @@ loc_68152:
 	dc.b	$30, $08, $08, $8B, $1C
 	dc.b	$28, $00, $00, $8A, $14
 	dc.b	$30, $00, $00, $8D, $14
-	
+
 	even
-	
+
 loc_68172:
 	dc.b	$09
 	dc.b	$20, $08, $00, $8E, $FC
@@ -67182,7 +67182,7 @@ loc_68172:
 	dc.b	$20, $00, $00, $90, $14
 	dc.b	$28, $00, $00, $93, $14
 	dc.b	$30, $00, $00, $96, $14
-	
+
 loc_681A0:
 	dc.b	$0D
 	dc.b	$10, $04, $00, $97, $04
@@ -67198,7 +67198,7 @@ loc_681A0:
 	dc.b	$10, $01, $00, $A5, $14
 	dc.b	$20, $01, $00, $A7, $14
 	dc.b	$30, $00, $00, $A4, $14
-	
+
 loc_681E2:
 	dc.b	$10
 	dc.b	$08, $00, $10, $90, $14
@@ -67217,9 +67217,9 @@ loc_681E2:
 	dc.b	$28, $08, $08, $B3, $1C
 	dc.b	$30, $08, $00, $8B, $FC
 	dc.b	$30, $08, $08, $8B, $1C
-	
+
 	even
-	
+
 loc_68234:
 	dc.b	$11
 	dc.b	$00, $02, $00, $B6, $14
@@ -67239,7 +67239,7 @@ loc_68234:
 	dc.b	$28, $08, $08, $BC, $1C
 	dc.b	$30, $08, $00, $8B, $FC
 	dc.b	$30, $08, $08, $8B, $1C
-	
+
 loc_6828A:
 	dc.b	$0F
 	dc.b	$00, $00, $00, $8A, $14
@@ -67257,7 +67257,7 @@ loc_6828A:
 	dc.b	$20, $08, $08, $BC, $1C
 	dc.b	$28, $08, $00, $8B, $FC
 	dc.b	$28, $08, $08, $8B, $1C
-	
+
 loc_682D6:
 	dc.b	$0E
 	dc.b	$00, $01, $00, $BF, $14
@@ -67274,9 +67274,9 @@ loc_682D6:
 	dc.b	$18, $08, $08, $C5, $1C
 	dc.b	$20, $08, $00, $C8, $FC
 	dc.b	$20, $08, $08, $C8, $1C
-	
+
 	even
-	
+
 loc_6831E:
 	dc.b	$0B
 	dc.b	$00, $01, $00, $CB, $14
@@ -67290,7 +67290,7 @@ loc_6831E:
 	dc.b	$10, $08, $08, $9C, $1C
 	dc.b	$18, $08, $00, $D4, $FC
 	dc.b	$18, $08, $08, $D4, $1C
-	
+
 loc_68356:
 	dc.b	$06
 	dc.b	$00, $08, $00, $D7, $FC
@@ -67299,9 +67299,9 @@ loc_68356:
 	dc.b	$08, $08, $08, $DA, $1C
 	dc.b	$00, $00, $00, $D9, $14
 	dc.b	$08, $00, $00, $DC, $14
-	
+
 	even
-	
+
 loc_68376:
 	dc.b	$05
 	dc.b	$00, $01, $00, $B6, $14
@@ -67309,7 +67309,7 @@ loc_68376:
 	dc.b	$00, $08, $08, $88, $1C
 	dc.b	$08, $08, $00, $8B, $FC
 	dc.b	$08, $08, $08, $8B, $1C
-	
+
 loc_68390:
 	dc.b	$05
 	dc.b	$00, $04, $00, $83, $FC
@@ -67317,19 +67317,19 @@ loc_68390:
 	dc.b	$08, $08, $00, $85, $FC
 	dc.b	$08, $08, $08, $85, $1C
 	dc.b	$08, $00, $00, $87, $14
-	
+
 loc_683AA:
 	dc.b	$03
 	dc.b	$08, $08, $00, $80, $FC
 	dc.b	$08, $08, $08, $80, $1C
 	dc.b	$08, $00, $00, $82, $14
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechFoi:
 	dc.w	loc_683DE-Map_TechFoi
 	dc.w	loc_683FE-Map_TechFoi
@@ -67349,7 +67349,7 @@ Map_TechFoi:
 	dc.w	loc_68594-Map_TechFoi
 	dc.w	loc_685D2-Map_TechFoi
 	dc.w	loc_685E8-Map_TechFoi
-	
+
 loc_683DE:
 	dc.b	$06
 	dc.b	$28, $00, $00, $00, $18
@@ -67358,9 +67358,9 @@ loc_683DE:
 	dc.b	$30, $00, $18, $00, $28
 	dc.b	$28, $00, $00, $02, $20
 	dc.b	$30, $00, $18, $02, $20
-	
+
 	even
-	
+
 loc_683FE:
 	dc.b	$06
 	dc.b	$28, $00, $00, $03, $18
@@ -67369,9 +67369,9 @@ loc_683FE:
 	dc.b	$30, $00, $18, $03, $28
 	dc.b	$28, $00, $00, $05, $20
 	dc.b	$30, $00, $10, $05, $20
-	
+
 	even
-	
+
 loc_6841E:
 	dc.b	$08
 	dc.b	$20, $04, $00, $06, $20
@@ -67382,9 +67382,9 @@ loc_6841E:
 	dc.b	$28, $00, $00, $0A, $28
 	dc.b	$30, $00, $18, $0A, $18
 	dc.b	$30, $00, $18, $09, $28
-	
+
 	even
-	
+
 loc_68448:
 	dc.b	$08
 	dc.b	$20, $00, $00, $0B, $18
@@ -67395,9 +67395,9 @@ loc_68448:
 	dc.b	$38, $00, $18, $0D, $20
 	dc.b	$28, $08, $00, $0E, $18
 	dc.b	$30, $08, $18, $0E, $18
-	
+
 	even
-	
+
 loc_68472:
 	dc.b	$06
 	dc.b	$20, $04, $00, $11, $18
@@ -67406,9 +67406,9 @@ loc_68472:
 	dc.b	$20, $00, $18, $13, $28
 	dc.b	$28, $08, $00, $14, $18
 	dc.b	$30, $08, $18, $14, $18
-	
+
 	even
-	
+
 loc_68492:
 	dc.b	$06
 	dc.b	$20, $0C, $00, $17, $10
@@ -67417,58 +67417,58 @@ loc_68492:
 	dc.b	$20, $02, $18, $1B, $30
 	dc.b	$28, $08, $00, $1E, $18
 	dc.b	$30, $08, $18, $1E, $18
-	
+
 	even
-	
+
 loc_684B2:
 	dc.b	$03
 	dc.b	$18, $04, $00, $21, $18
 	dc.b	$20, $04, $00, $23, $18
 	dc.b	$28, $05, $00, $25, $20
-	
+
 loc_684C2:
 	dc.b	$02
 	dc.b	$18, $05, $00, $29, $18
 	dc.b	$28, $00, $00, $2D, $20
-	
+
 	even
-	
+
 loc_684CE:
 	dc.b	$02
 	dc.b	$18, $05, $00, $2E, $18
 	dc.b	$28, $00, $00, $32, $20
-	
+
 	even
-	
+
 loc_684DA:
 	dc.b	$02
 	dc.b	$10, $01, $00, $33, $18
 	dc.b	$20, $04, $00, $35, $18
-	
+
 	even
-	
+
 loc_684E6:
 	dc.b	$01
 	dc.b	$10, $02, $00, $37, $18
-	
+
 loc_684EC:
 	dc.b	$04
 	dc.b	$08, $00, $00, $3A, $10
 	dc.b	$08, $00, $00, $3B, $18
 	dc.b	$10, $00, $18, $3B, $10
 	dc.b	$10, $00, $18, $3A, $18
-	
+
 	even
-	
+
 loc_68502:
 	dc.b	$04
 	dc.b	$08, $00, $00, $3C, $10
 	dc.b	$10, $00, $00, $3D, $10
 	dc.b	$08, $00, $18, $3D, $18
 	dc.b	$10, $00, $18, $3C, $18
-	
+
 	even
-	
+
 loc_68518:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $3E, $10
@@ -67483,9 +67483,9 @@ loc_68518:
 	dc.b	$08, $00, $00, $44, $18
 	dc.b	$10, $00, $00, $45, $10
 	dc.b	$10, $00, $18, $43, $18
-	
+
 	even
-	
+
 loc_68556:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $46, $10
@@ -67500,9 +67500,9 @@ loc_68556:
 	dc.b	$08, $00, $00, $4B, $18
 	dc.b	$10, $00, $18, $4B, $10
 	dc.b	$10, $00, $18, $4A, $18
-	
+
 	even
-	
+
 loc_68594:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $4C, $10
@@ -67517,33 +67517,33 @@ loc_68594:
 	dc.b	$10, $00, $18, $50, $18
 	dc.b	$08, $00, $00, $51, $18
 	dc.b	$10, $00, $18, $51, $10
-	
+
 	even
-	
+
 loc_685D2:
 	dc.b	$04
 	dc.b	$00, $00, $00, $52, $18
 	dc.b	$18, $00, $18, $52, $10
 	dc.b	$08, $00, $00, $53, $08
 	dc.b	$10, $00, $18, $53, $20
-	
+
 	even
-	
+
 loc_685E8:
 	dc.b	$04
 	dc.b	$00, $00, $00, $54, $18
 	dc.b	$18, $00, $18, $54, $10
 	dc.b	$08, $00, $00, $55, $08
 	dc.b	$10, $00, $18, $55, $20
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechMegidCast:
 	dc.w	loc_6860C-Map_TechMegidCast
 	dc.w	loc_68618-Map_TechMegidCast
@@ -67552,23 +67552,23 @@ Map_TechMegidCast:
 	dc.w	loc_68662-Map_TechMegidCast
 	dc.w	loc_68682-Map_TechMegidCast
 	dc.w	loc_686B0-Map_TechMegidCast
-	
+
 loc_6860C:
 	dc.b	$02
 	dc.b	$20, $09, $00, $00, $18
 	dc.b	$30, $04, $00, $06, $20
-	
+
 	even
-	
+
 loc_68618:
 	dc.b	$04
 	dc.b	$20, $06, $00, $08, $20
 	dc.b	$20, $00, $18, $0D, $18
 	dc.b	$30, $00, $18, $04, $18
 	dc.b	$28, $00, $00, $0E, $18
-	
+
 	even
-	
+
 loc_6862E:
 	dc.b	$05
 	dc.b	$20, $04, $00, $0F, $20
@@ -67576,7 +67576,7 @@ loc_6862E:
 	dc.b	$30, $04, $00, $13, $18
 	dc.b	$20, $01, $00, $15, $18
 	dc.b	$28, $00, $00, $09, $20
-	
+
 loc_68648:
 	dc.b	$05
 	dc.b	$20, $08, $00, $17, $18
@@ -67584,7 +67584,7 @@ loc_68648:
 	dc.b	$28, $04, $00, $1D, $10
 	dc.b	$28, $04, $00, $1F, $28
 	dc.b	$28, $00, $00, $09, $20
-	
+
 loc_68662:
 	dc.b	$06
 	dc.b	$28, $04, $00, $21, $00
@@ -67593,9 +67593,9 @@ loc_68662:
 	dc.b	$38, $08, $00, $2F, $18
 	dc.b	$20, $02, $00, $32, $10
 	dc.b	$20, $02, $00, $35, $30
-	
+
 	even
-	
+
 loc_68682:
 	dc.b	$09
 	dc.b	$18, $00, $00, $38, $20
@@ -67607,7 +67607,7 @@ loc_68682:
 	dc.b	$28, $04, $00, $3C, $10
 	dc.b	$28, $04, $00, $3C, $28
 	dc.b	$28, $04, $00, $3C, $38
-	
+
 loc_686B0:
 	dc.b	$0A
 	dc.b	$28, $00, $00, $3E, $F8
@@ -67620,15 +67620,15 @@ loc_686B0:
 	dc.b	$28, $00, $00, $3F, $38
 	dc.b	$28, $00, $00, $3F, $40
 	dc.b	$28, $00, $08, $3E, $48
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_MegidAndNeiShotAttack:
 	dc.w	Map_MegidAndNeiShotAttack_1-Map_MegidAndNeiShotAttack
 	dc.w	Map_MegidAndNeiShotAttack_2-Map_MegidAndNeiShotAttack
@@ -67642,16 +67642,16 @@ Map_MegidAndNeiShotAttack:
 	dc.w	Map_MegidAndNeiShotAttack_A-Map_MegidAndNeiShotAttack
 	dc.w	Map_MegidAndNeiShotAttack_B-Map_MegidAndNeiShotAttack
 	dc.w	Map_MegidAndNeiShotAttack_C-Map_MegidAndNeiShotAttack
-	
+
 Map_MegidAndNeiShotAttack_1:
 	dc.b	$04
 	dc.b	$10, $00, $00, $80, $10
 	dc.b	$18, $00, $18, $80, $18
 	dc.b	$18, $00, $00, $81, $10
 	dc.b	$10, $00, $18, $81, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_2:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $82, $08
@@ -67666,9 +67666,9 @@ Map_MegidAndNeiShotAttack_2:
 	dc.b	$10, $00, $00, $88, $18
 	dc.b	$18, $00, $00, $88, $10
 	dc.b	$18, $00, $00, $88, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_3:
 	dc.b	$10
 	dc.b	$10, $00, $00, $88, $10
@@ -67687,9 +67687,9 @@ Map_MegidAndNeiShotAttack_3:
 	dc.b	$20, $04, $10, $92, $10
 	dc.b	$10, $01, $00, $94, $08
 	dc.b	$10, $01, $08, $94, $20
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_4:
 	dc.b	$08
 	dc.b	$00, $0C, $00, $96, $08
@@ -67700,9 +67700,9 @@ Map_MegidAndNeiShotAttack_4:
 	dc.b	$08, $05, $08, $9E, $18
 	dc.b	$18, $05, $10, $9E, $08
 	dc.b	$18, $05, $18, $9E, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_5:
 	dc.b	$10
 	dc.b	$00, $0C, $00, $A2, $08
@@ -67721,9 +67721,9 @@ Map_MegidAndNeiShotAttack_5:
 	dc.b	$20, $04, $10, $AB, $10
 	dc.b	$10, $01, $00, $AD, $08
 	dc.b	$10, $01, $08, $AD, $20
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_6:
 	dc.b	$10
 	dc.b	$00, $0C, $00, $AF, $08
@@ -67742,9 +67742,9 @@ Map_MegidAndNeiShotAttack_6:
 	dc.b	$10, $00, $00, $88, $18
 	dc.b	$18, $00, $00, $88, $10
 	dc.b	$18, $00, $00, $88, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_7:
 	dc.b	$08
 	dc.b	$00, $0C, $00, $BC, $08
@@ -67755,9 +67755,9 @@ Map_MegidAndNeiShotAttack_7:
 	dc.b	$08, $05, $08, $C4, $18
 	dc.b	$18, $05, $10, $C4, $08
 	dc.b	$18, $05, $18, $C4, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_8:
 	dc.b	$0C
 	dc.b	$00, $05, $00, $C8, $00
@@ -67772,7 +67772,7 @@ Map_MegidAndNeiShotAttack_8:
 	dc.b	$10, $00, $08, $D4, $18
 	dc.b	$18, $00, $10, $D4, $10
 	dc.b	$18, $00, $18, $D4, $18
-	
+
 	even
 
 Map_MegidAndNeiShotAttack_9:
@@ -67785,9 +67785,9 @@ Map_MegidAndNeiShotAttack_9:
 	dc.b	$08, $05, $08, $DD, $18
 	dc.b	$18, $05, $10, $DD, $08
 	dc.b	$18, $05, $18, $DD, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_A:
 	dc.b	$0C
 	dc.b	$00, $05, $00, $E1, $00
@@ -67802,9 +67802,9 @@ Map_MegidAndNeiShotAttack_A:
 	dc.b	$10, $00, $08, $E9, $18
 	dc.b	$18, $00, $10, $E9, $10
 	dc.b	$18, $00, $18, $E9, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_B:
 	dc.b	$0C
 	dc.b	$00, $09, $00, $EA, $00
@@ -67819,9 +67819,9 @@ Map_MegidAndNeiShotAttack_B:
 	dc.b	$10, $00, $08, $F1, $18
 	dc.b	$18, $00, $10, $F1, $10
 	dc.b	$18, $00, $18, $F1, $18
-	
+
 	even
-	
+
 Map_MegidAndNeiShotAttack_C:
 	dc.b	$0C
 	dc.b	$00, $04, $00, $F2, $00
@@ -67836,15 +67836,15 @@ Map_MegidAndNeiShotAttack_C:
 	dc.b	$10, $00, $08, $F5, $18
 	dc.b	$18, $00, $10, $F5, $10
 	dc.b	$18, $00, $18, $F5, $18
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechGen:
 	dc.w	loc_689E0-Map_TechGen
 	dc.w	loc_68A00-Map_TechGen
@@ -67864,7 +67864,7 @@ Map_TechGen:
 	dc.w	loc_68C2E-Map_TechGen
 	dc.w	loc_68C6C-Map_TechGen
 	dc.w	loc_68CAA-Map_TechGen
-	
+
 loc_689E0:
 	dc.b	$06
 	dc.b	$28, $00, $00, $00, $18
@@ -67873,9 +67873,9 @@ loc_689E0:
 	dc.b	$30, $00, $18, $00, $28
 	dc.b	$28, $00, $00, $01, $20
 	dc.b	$30, $00, $10, $01, $20
-	
+
 	even
-	
+
 loc_68A00:
 	dc.b	$06
 	dc.b	$28, $00, $00, $02, $18
@@ -67884,9 +67884,9 @@ loc_68A00:
 	dc.b	$30, $00, $18, $02, $28
 	dc.b	$28, $00, $00, $03, $20
 	dc.b	$30, $00, $10, $03, $20
-	
+
 	even
-	
+
 loc_68A20:
 	dc.b	$08
 	dc.b	$20, $00, $00, $04, $20
@@ -67897,9 +67897,9 @@ loc_68A20:
 	dc.b	$30, $00, $18, $05, $28
 	dc.b	$28, $00, $00, $06, $20
 	dc.b	$30, $00, $10, $06, $20
-	
+
 	even
-	
+
 loc_68A4A:
 	dc.b	$0C
 	dc.b	$20, $00, $00, $07, $18
@@ -67914,7 +67914,7 @@ loc_68A4A:
 	dc.b	$30, $00, $18, $09, $28
 	dc.b	$28, $00, $00, $0A, $20
 	dc.b	$30, $00, $00, $0A, $20
-	
+
 	even
 
 loc_68A88:
@@ -67929,9 +67929,9 @@ loc_68A88:
 	dc.b	$30, $04, $18, $0D, $28
 	dc.b	$20, $01, $00, $0F, $20
 	dc.b	$30, $01, $10, $0F, $20
-	
+
 	even
-	
+
 loc_68ABC:
 	dc.b	$0A
 	dc.b	$18, $05, $00, $11, $08
@@ -67944,9 +67944,9 @@ loc_68ABC:
 	dc.b	$28, $05, $08, $18, $28
 	dc.b	$28, $00, $00, $1C, $20
 	dc.b	$30, $00, $10, $1C, $20
-	
+
 	even
-	
+
 loc_68AF0:
 	dc.b	$12
 	dc.b	$10, $00, $00, $1D, $10
@@ -67967,9 +67967,9 @@ loc_68AF0:
 	dc.b	$30, $00, $18, $23, $28
 	dc.b	$28, $00, $00, $03, $20
 	dc.b	$30, $00, $10, $03, $20
-	
+
 	even
-	
+
 loc_68B4C:
 	dc.b	$16
 	dc.b	$10, $00, $00, $24, $10
@@ -67994,64 +67994,64 @@ loc_68B4C:
 	dc.b	$30, $00, $18, $00, $28
 	dc.b	$28, $00, $00, $01, $20
 	dc.b	$30, $00, $10, $01, $20
-	
+
 	even
-	
+
 loc_68BBC:
 	dc.b	$02
 	dc.b	$08, $01, $00, $26, $00
 	dc.b	$18, $01, $18, $26, $28
-	
+
 	even
-	
+
 loc_68BC8:
 	dc.b	$04
 	dc.b	$10, $0C, $00, $28, $00
 	dc.b	$10, $00, $00, $2C, $20
 	dc.b	$18, $0C, $18, $28, $10
 	dc.b	$18, $00, $18, $2C, $08
-	
+
 	even
-	
+
 loc_68BDE:
 	dc.b	$02
 	dc.b	$10, $08, $00, $2D, $10
 	dc.b	$18, $08, $18, $2D, $08
-	
+
 	even
-	
+
 loc_68BEA:
 	dc.b	$02
 	dc.b	$10, $04, $00, $30, $10
 	dc.b	$18, $04, $18, $30, $10
-	
+
 	even
-	
+
 loc_68BF6:
 	dc.b	$02
 	dc.b	$10, $04, $00, $32, $10
 	dc.b	$18, $04, $18, $32, $10
-	
+
 	even
-	
+
 loc_68C02:
 	dc.b	$04
 	dc.b	$10, $00, $00, $34, $10
 	dc.b	$10, $00, $08, $34, $18
 	dc.b	$18, $00, $10, $34, $10
 	dc.b	$18, $00, $18, $34, $18
-	
+
 	even
-	
+
 loc_68C18:
 	dc.b	$04
 	dc.b	$10, $00, $00, $35, $10
 	dc.b	$10, $00, $08, $35, $18
 	dc.b	$18, $00, $10, $35, $10
 	dc.b	$18, $00, $18, $35, $18
-	
+
 	even
-	
+
 loc_68C2E:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $36, $10
@@ -68066,9 +68066,9 @@ loc_68C2E:
 	dc.b	$10, $00, $08, $38, $18
 	dc.b	$18, $00, $10, $38, $10
 	dc.b	$18, $00, $18, $38, $18
-	
+
 	even
-	
+
 loc_68C6C:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $39, $08
@@ -68083,9 +68083,9 @@ loc_68C6C:
 	dc.b	$20, $04, $10, $3B, $10
 	dc.b	$10, $01, $00, $3D, $08
 	dc.b	$10, $01, $08, $3D, $20
-	
+
 	even
-	
+
 loc_68CAA:
 	dc.b	$08
 	dc.b	$00, $00, $00, $3F, $08
@@ -68096,15 +68096,15 @@ loc_68CAA:
 	dc.b	$08, $00, $08, $40, $28
 	dc.b	$20, $00, $10, $40, $00
 	dc.b	$20, $00, $18, $40, $28
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Map_TechEijiaAttack:
 	dc.w	loc_68CFC-Map_TechEijiaAttack
 	dc.w	loc_68D2A-Map_TechEijiaAttack
@@ -68126,7 +68126,7 @@ Map_TechEijiaAttack:
 	dc.w	loc_68F66-Map_TechEijiaAttack
 	dc.w	loc_68F90-Map_TechEijiaAttack
 	dc.w	loc_68FBA-Map_TechEijiaAttack
-	
+
 loc_68CFC:
 	dc.b	$09
 	dc.b	$10, $00, $00, $80, $10
@@ -68138,7 +68138,7 @@ loc_68CFC:
 	dc.b	$20, $04, $00, $8A, $60
 	dc.b	$28, $0C, $00, $8C, $70
 	dc.b	$28, $00, $00, $90, $90
-	
+
 loc_68D2A:
 	dc.b	$0C
 	dc.b	$10, $00, $00, $91, $10
@@ -68153,9 +68153,9 @@ loc_68D2A:
 	dc.b	$20, $04, $00, $A1, $70
 	dc.b	$28, $00, $00, $A3, $68
 	dc.b	$28, $0C, $00, $A4, $78
-	
+
 	even
-	
+
 loc_68D68:
 	dc.b	$06
 	dc.b	$10, $00, $00, $80, $10
@@ -68164,9 +68164,9 @@ loc_68D68:
 	dc.b	$18, $0C, $00, $A8, $18
 	dc.b	$20, $08, $00, $AC, $38
 	dc.b	$28, $04, $00, $AF, $48
-	
+
 	even
-	
+
 loc_68D88:
 	dc.b	$08
 	dc.b	$10, $00, $00, $91, $10
@@ -68177,9 +68177,9 @@ loc_68D88:
 	dc.b	$20, $0C, $00, $B4, $28
 	dc.b	$20, $04, $00, $B8, $48
 	dc.b	$28, $00, $00, $BA, $50
-	
+
 	even
-	
+
 loc_68DB2:
 	dc.b	$06
 	dc.b	$10, $00, $00, $80, $10
@@ -68188,9 +68188,9 @@ loc_68DB2:
 	dc.b	$18, $08, $00, $BB, $18
 	dc.b	$20, $00, $00, $BE, $30
 	dc.b	$28, $04, $00, $BF, $30
-	
+
 	even
-	
+
 loc_68DD2:
 	dc.b	$07
 	dc.b	$10, $00, $00, $91, $10
@@ -68200,7 +68200,7 @@ loc_68DD2:
 	dc.b	$18, $04, $00, $C2, $20
 	dc.b	$20, $08, $00, $C4, $28
 	dc.b	$28, $00, $00, $C7, $38
-	
+
 loc_68DF6:
 	dc.b	$05
 	dc.b	$10, $00, $00, $80, $10
@@ -68208,7 +68208,7 @@ loc_68DF6:
 	dc.b	$18, $00, $18, $80, $18
 	dc.b	$18, $01, $00, $C8, $10
 	dc.b	$20, $01, $00, $CA, $18
-	
+
 loc_68E10:
 	dc.b	$05
 	dc.b	$10, $00, $00, $91, $10
@@ -68216,7 +68216,7 @@ loc_68E10:
 	dc.b	$18, $00, $00, $CC, $10
 	dc.b	$18, $02, $00, $CD, $18
 	dc.b	$20, $01, $00, $D0, $10
-	
+
 loc_68E2A:
 	dc.b	$06
 	dc.b	$10, $00, $00, $80, $10
@@ -68225,9 +68225,9 @@ loc_68E2A:
 	dc.b	$18, $08, $08, $BB, $00
 	dc.b	$20, $00, $08, $BE, $F8
 	dc.b	$28, $04, $08, $BF, $F0
-	
+
 	even
-	
+
 loc_68E4A:
 	dc.b	$06
 	dc.b	$10, $00, $08, $91, $18
@@ -68236,9 +68236,9 @@ loc_68E4A:
 	dc.b	$18, $08, $08, $C1, $00
 	dc.b	$20, $08, $08, $C4, $F0
 	dc.b	$28, $00, $08, $C7, $F0
-	
+
 	even
-	
+
 loc_68E6A:
 	dc.b	$07
 	dc.b	$10, $00, $08, $80, $18
@@ -68248,7 +68248,7 @@ loc_68E6A:
 	dc.b	$18, $08, $08, $A9, $F8
 	dc.b	$20, $08, $08, $AC, $E0
 	dc.b	$28, $04, $08, $AF, $D8
-	
+
 loc_68E8E:
 	dc.b	$08
 	dc.b	$10, $00, $08, $91, $18
@@ -68259,9 +68259,9 @@ loc_68E8E:
 	dc.b	$20, $0C, $08, $B4, $E8
 	dc.b	$20, $04, $08, $B8, $D8
 	dc.b	$28, $00, $08, $BA, $D8
-	
+
 	even
-	
+
 loc_68EB8:
 	dc.b	$09
 	dc.b	$10, $00, $00, $80, $10
@@ -68273,7 +68273,7 @@ loc_68EB8:
 	dc.b	$20, $04, $00, $8A, $C0
 	dc.b	$28, $0C, $08, $8C, $A0
 	dc.b	$28, $00, $08, $90, $98
-	
+
 loc_68EE6:
 	dc.b	$0C
 	dc.b	$10, $00, $08, $92, $10
@@ -68288,36 +68288,36 @@ loc_68EE6:
 	dc.b	$28, $00, $08, $A3, $C0
 	dc.b	$20, $04, $08, $A1, $B0
 	dc.b	$28, $0C, $08, $A4, $98
-	
+
 	even
-	
+
 loc_68F24:
 	dc.b	$04
 	dc.b	$10, $00, $00, $D2, $10
 	dc.b	$10, $00, $08, $D2, $18
 	dc.b	$18, $00, $10, $D2, $10
 	dc.b	$18, $00, $18, $D2, $18
-	
+
 	even
-	
+
 loc_68F3A:
 	dc.b	$04
 	dc.b	$10, $00, $00, $D3, $10
 	dc.b	$10, $00, $00, $D4, $18
 	dc.b	$18, $00, $18, $D4, $10
 	dc.b	$18, $00, $18, $D3, $18
-	
+
 	even
-	
+
 loc_68F50:
 	dc.b	$04
 	dc.b	$08, $04, $00, $D5, $10
 	dc.b	$20, $04, $18, $D5, $10
 	dc.b	$10, $01, $00, $D7, $08
 	dc.b	$10, $01, $18, $D7, $20
-	
+
 	even
-	
+
 loc_68F66:
 	dc.b	$08
 	dc.b	$00, $0C, $00, $D9, $08
@@ -68328,9 +68328,9 @@ loc_68F66:
 	dc.b	$08, $00, $00, $E2, $20
 	dc.b	$20, $00, $18, $E1, $20
 	dc.b	$20, $00, $18, $E2, $08
-	
+
 	even
-	
+
 loc_68F90:
 	dc.b	$08
 	dc.b	$00, $0C, $00, $E3, $08
@@ -68341,9 +68341,9 @@ loc_68F90:
 	dc.b	$08, $00, $00, $EC, $20
 	dc.b	$20, $00, $18, $EC, $08
 	dc.b	$20, $00, $18, $EB, $20
-	
+
 	even
-	
+
 loc_68FBA:
 	dc.b	$08
 	dc.b	$00, $04, $00, $ED, $08
@@ -68354,15 +68354,15 @@ loc_68FBA:
 	dc.b	$18, $01, $00, $F3, $00
 	dc.b	$08, $01, $18, $F3, $28
 	dc.b	$18, $01, $18, $F1, $28
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Fanbi and Weapon Sprite Mappings (Acid, Silent and Poison Shot)
 ; -----------------------------------------------------------------
-	
+
 Map_FanbiAcidShot:
 	dc.w	Map_FanbiAcidShot_1-Map_FanbiAcidShot
 	dc.w	Map_FanbiAcidShot_2-Map_FanbiAcidShot
@@ -68372,16 +68372,16 @@ Map_FanbiAcidShot:
 	dc.w	Map_FanbiAcidShot_6-Map_FanbiAcidShot
 	dc.w	Map_FanbiAcidShot_7-Map_FanbiAcidShot
 	dc.w	Map_FanbiAcidShot_8-Map_FanbiAcidShot
-	
+
 Map_FanbiAcidShot_1:
 	dc.b	$04
 	dc.b	$30, $0C, $00, $80, $10
 	dc.b	$38, $01, $00, $84, $10
 	dc.b	$38, $01, $00, $86, $28
 	dc.b	$40, $05, $00, $88, $18
-	
+
 	even
-	
+
 Map_FanbiAcidShot_2:
 	dc.b	$0B
 	dc.b	$28, $00, $00, $8C, $18
@@ -68395,7 +68395,7 @@ Map_FanbiAcidShot_2:
 	dc.b	$30, $00, $00, $8E, $18
 	dc.b	$30, $00, $08, $8E, $20
 	dc.b	$38, $04, $00, $8F, $18
-	
+
 Map_FanbiAcidShot_3:
 	dc.b	$05
 	dc.b	$18, $00, $00, $91, $18
@@ -68403,15 +68403,15 @@ Map_FanbiAcidShot_3:
 	dc.b	$20, $00, $00, $92, $10
 	dc.b	$20, $00, $08, $92, $20
 	dc.b	$20, $00, $00, $93, $18
-	
+
 Map_FanbiAcidShot_4:
 	dc.b	$01
 	dc.b	$18, $05, $00, $94, $10
-	
+
 Map_FanbiAcidShot_5:
 	dc.b	$01
 	dc.b	$10, $04, $00, $98, $10
-	
+
 Map_FanbiAcidShot_6:
 	dc.b	$06
 	dc.b	$08, $00, $00, $9A, $10
@@ -68420,9 +68420,9 @@ Map_FanbiAcidShot_6:
 	dc.b	$18, $00, $18, $9A, $18
 	dc.b	$10, $00, $00, $9B, $10
 	dc.b	$10, $00, $08, $9B, $18
-	
+
 	even
-	
+
 Map_FanbiAcidShot_7:
 	dc.b	$06
 	dc.b	$08, $04, $00, $9C, $10
@@ -68431,9 +68431,9 @@ Map_FanbiAcidShot_7:
 	dc.b	$08, $01, $18, $9E, $20
 	dc.b	$10, $00, $00, $A0, $10
 	dc.b	$10, $00, $18, $A0, $18
-	
+
 	even
-	
+
 Map_FanbiAcidShot_8:
 	dc.b	$08
 	dc.b	$00, $08, $00, $A1, $08
@@ -68444,25 +68444,25 @@ Map_FanbiAcidShot_8:
 	dc.b	$18, $04, $18, $A6, $08
 	dc.b	$10, $04, $00, $A8, $08
 	dc.b	$10, $04, $18, $A8, $18
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 TitleScrBGArt:	binclude "art\title_scr_bg_art.bin"
 
 TitleScrCopyrightArt:	binclude "art\tit_scr_copyright_art.bin"
-	
+
 TitleScrWomenArt:	binclude "art\title_scr_women_art.bin"
-		
+
 	even
 
 TitScrPhantasyStarLogoArt:	binclude "art\tit_scr_phan_star_logo_art.bin"
-	
+
 
 TitleScrBGTileInd:	binclude "art\tit_scr_background_tile_ind.bin"
 
-	
+
 loc_6C5DA:
 	dc.b	$20, $02, $20, $09, $20, $04, $20, $08, $20, $0A, $20, $0B, $20, $06, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $20, $02, $20, $09 ;0x0 (0x0006C5DA-0x0006CE9A, Entry count: 0x000008C0) [Unknown data]
@@ -68604,11 +68604,11 @@ loc_6C5DA:
 	dc.b	$28, $06, $00, $00, $20, $07, $28, $06, $00, $00, $20, $07, $28, $06, $20, $07 ;0x880
 	dc.b	$28, $06, $00, $00, $00, $00, $20, $07, $28, $06, $20, $13, $20, $08, $20, $0F
 	dc.b	$20, $0C, $20, $13, $20, $08, $20, $0F, $20, $0C, $20, $08, $20, $03, $20, $01 ;0x8A0
-	
+
 
 TitleScrPlaneATileInd:	binclude "art\tit_scr_bg_tile_ind.bin"
 
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
@@ -68621,7 +68621,7 @@ loc_6D75E:
 	dc.b	$00, $00, $00, $00, $00
 	dc.b	$00, $0C, $00, $01, $10
 	dc.b	$00, $0C, $00, $05, $38
-	
+
 loc_6D76E:
 	dc.b	$0F
 	dc.b	$00, $00, $00, $09, $E0
@@ -68639,10 +68639,10 @@ loc_6D76E:
 	dc.b	$00, $00, $00, $0D, $50
 	dc.b	$00, $00, $00, $11, $58
 	dc.b	$00, $00, $00, $12, $60
-	
+
 ; ==================================================
-	
-	
+
+
 loc_6D7BA:
 	dc.b	$01, $88, $FF, $FF, $FF, $FF, $01, $88, $FF, $FF, $EE, $CC, $86, $66, $86, $34
 	dc.b	$65, $66, $02, $88, $FF, $80, $00, $00, $44, $00, $03, $07, $07, $66, $66, $66 ;0x0 (0x0006D7BA-0x0006F040, Entry count: 0x00001886)
@@ -69705,11 +69705,11 @@ loc_71702:
 	dc.b	$B4, $50, $0B, $4B, $C5, $C9, $B5, $0C, $01, $00, $FF, $FB, $BB, $FF, $B0, $90
 	dc.b	$B0, $01, $00, $FB, $7F, $FF, $FF, $A0, $0A, $01, $00, $FF, $FF, $FD, $FF, $09 ;0x6C0
 	dc.b	$01, $00, $FF, $FF, $FF, $FE, $09, $FF ;0x6E0
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_71DEA:
 	dc.w	loc_71E00-loc_71DEA
 	dc.w	loc_71E2E-loc_71DEA
@@ -69722,7 +69722,7 @@ loc_71DEA:
 	dc.w	loc_71E7C-loc_71DEA
 	dc.w	loc_71E82-loc_71DEA
 	dc.w	loc_71E88-loc_71DEA
-	
+
 loc_71E00:
 	dc.b	$09
 	dc.b	$00, $00, $00, $00, $10
@@ -69734,7 +69734,7 @@ loc_71E00:
 	dc.b	$20, $0E, $00, $14, $28
 	dc.b	$38, $08, $00, $20, $30
 	dc.b	$40, $00, $00, $23, $30
-	
+
 loc_71E2E:
 	dc.b	$05
 	dc.b	$00, $04, $00, $24, $10
@@ -69742,73 +69742,73 @@ loc_71E2E:
 	dc.b	$18, $05, $00, $32, $20
 	dc.b	$20, $08, $00, $36, $08
 	dc.b	$28, $08, $00, $39, $10
-	
+
 loc_71E48:
 	dc.b	$04
 	dc.b	$00, $04, $00, $3C, $10
 	dc.b	$08, $0C, $00, $3E, $00
 	dc.b	$10, $08, $00, $42, $00
 	dc.b	$18, $04, $00, $45, $08
-	
+
 	even
-	
+
 loc_71E5E:
 	dc.b	$01
 	dc.b	$00, $05, $00, $47, $00
-	
+
 loc_71E64:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4B, $00
-	
+
 loc_71E6A:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4C, $00
-	
+
 loc_71E70:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4D, $00
-	
+
 loc_71E76:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4E, $00
-	
+
 loc_71E7C:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4F, $00
-	
+
 loc_71E82:
 	dc.b	$01
 	dc.b	$00, $00, $00, $50, $00
-	
+
 loc_71E88:
 	dc.b	$01
 	dc.b	$00, $00, $18, $50, $00
-	
+
 ; =================================================================
 
 
 Battle_RolfArt:	binclude "art\battle_rolf_art.bin"
-	
+
 Battle_NeiArt: binclude "art\battle_nei_art.bin"
-	
+
 Battle_RudoArt: binclude "art\battle_rudo_art.bin"
-	
+
 	even
-	
+
 Battle_AmyShirArt: binclude "art\battle_amy_shir_art.bin"
 
 	even
-	
+
 Battle_AnnaArt: binclude "art\battle_anna_art.bin"
 
 	even
-	
+
 Battle_HughKainArt: binclude "art\battle_hugh_kain_art.bin"
-	
+
 ; -----------------------------------------------------------------
 ; Rolf Sprite Mappings in battle
 ; -----------------------------------------------------------------
-	
+
 Map_RolfBattle:
 	dc.w	Map_RolfBattle_Idle-Map_RolfBattle
 	dc.w	Map_RolfBattle_Casting-Map_RolfBattle
@@ -69817,7 +69817,7 @@ Map_RolfBattle:
 	dc.w	Map_RolfBattle_Attack_2-Map_RolfBattle
 	dc.w	Map_RolfBattle_Attack_3-Map_RolfBattle
 	dc.w	Map_RolfBattle_Attack_4-Map_RolfBattle
-	
+
 Map_RolfBattle_Idle:
 	dc.b	$07
 	dc.b	$D0, $03, $00, $00, $F8
@@ -69827,7 +69827,7 @@ Map_RolfBattle_Idle:
 	dc.b	$E0, $06, $00, $06, $E8
 	dc.b	$F8, $00, $00, $0C, $F0
 	dc.b	$E0, $07, $00, $0D, $08
-	
+
 Map_RolfBattle_Casting:
 	dc.b	$09
 	dc.b	$D0, $03, $00, $00, $F8
@@ -69839,7 +69839,7 @@ Map_RolfBattle_Casting:
 	dc.b	$C8, $00, $00, $15, $08
 	dc.b	$D0, $06, $00, $16, $08
 	dc.b	$E8, $02, $00, $1C, $08
-	
+
 Map_RolfBattle_Gun:
 	dc.b	$09
 	dc.b	$D0, $03, $00, $00, $F8
@@ -69851,7 +69851,7 @@ Map_RolfBattle_Gun:
 	dc.b	$D8, $03, $00, $23, $08
 	dc.b	$F8, $00, $00, $27, $08
 	dc.b	$E8, $01, $00, $28, $10
-	
+
 Map_RolfBattle_Attack_1:
 	dc.b	$06
 	dc.b	$E8, $08, $00, $2A, $F8
@@ -69860,9 +69860,9 @@ Map_RolfBattle_Attack_1:
 	dc.b	$D0, $0C, $00, $37, $F0
 	dc.b	$D8, $05, $00, $3B, $F8
 	dc.b	$E0, $00, $00, $3F, $08
-	
+
 	even
-	
+
 Map_RolfBattle_Attack_2:
 	dc.b	$05
 	dc.b	$E8, $08, $00, $2A, $F8
@@ -69870,7 +69870,7 @@ Map_RolfBattle_Attack_2:
 	dc.b	$C8, $07, $00, $40, $F8
 	dc.b	$D0, $00, $00, $48, $08
 	dc.b	$E0, $00, $00, $3F, $08
-	
+
 Map_RolfBattle_Attack_3:
 	dc.b	$05
 	dc.b	$C8, $00, $00, $49, $00
@@ -69878,19 +69878,19 @@ Map_RolfBattle_Attack_3:
 	dc.b	$E0, $04, $00, $50, $F8
 	dc.b	$E8, $08, $00, $52, $F8
 	dc.b	$F0, $0D, $00, $55, $F0
-	
+
 Map_RolfBattle_Attack_4:
 	dc.b	$03
 	dc.b	$D8, $04, $00, $5D, $F8
 	dc.b	$E0, $09, $00, $5F, $F0
 	dc.b	$F0, $0D, $00, $65, $F0
-	
+
 ; =================================================================
 
 ; -----------------------------------------------------------------
 ; Nei Sprite Mappings in battle
 ; -----------------------------------------------------------------
-	
+
 Map_NeiBattle:
 	dc.w	Map_NeiBattle_Idle-Map_NeiBattle
 	dc.w	Map_NeiBattle_Casting-Map_NeiBattle
@@ -69900,7 +69900,7 @@ Map_NeiBattle:
 	dc.w	Map_NeiBattle_Attack_3-Map_NeiBattle
 	dc.w	Map_NeiBattle_Attack_4-Map_NeiBattle
 	dc.w	Map_NeiBattle_Attack_5-Map_NeiBattle
-	
+
 Map_NeiBattle_Idle:
 	dc.b	$07
 	dc.b	$D0, $00, $00, $00, $F8
@@ -69910,7 +69910,7 @@ Map_NeiBattle_Idle:
 	dc.b	$D8, $04, $00, $05, $F8
 	dc.b	$E0, $03, $00, $07, $F0
 	dc.b	$E0, $03, $00, $0B, $08
-	
+
 Map_NeiBattle_Casting:
 	dc.b	$07
 	dc.b	$D0, $00, $00, $00, $F8
@@ -69920,16 +69920,16 @@ Map_NeiBattle_Casting:
 	dc.b	$D8, $04, $00, $05, $F8
 	dc.b	$E0, $03, $00, $07, $F0
 	dc.b	$D0, $03, $00, $0F, $08
-	
+
 Map_NeiBattle_Attack_1:
 	dc.b	$04
 	dc.b	$D8, $0D, $00, $13, $F0
 	dc.b	$E8, $09, $00, $1B, $F0
 	dc.b	$F8, $00, $00, $21, $F0
 	dc.b	$F8, $04, $00, $22, $00
-	
+
 	even
-	
+
 Map_NeiBattle_Attack_2:
 	dc.b	$07
 	dc.b	$C8, $00, $00, $24, $00
@@ -69939,7 +69939,7 @@ Map_NeiBattle_Attack_2:
 	dc.b	$F0, $08, $00, $2F, $F0
 	dc.b	$F8, $00, $00, $32, $F0
 	dc.b	$F8, $04, $00, $33, $00
-	
+
 Map_NeiBattle_Attack_3:
 	dc.b	$06
 	dc.b	$C8, $06, $00, $35, $F8
@@ -69948,18 +69948,18 @@ Map_NeiBattle_Attack_3:
 	dc.b	$F0, $0C, $00, $40, $F0
 	dc.b	$F8, $00, $00, $44, $F0
 	dc.b	$F8, $04, $00, $45, $00
-	
+
 	even
-	
+
 Map_NeiBattle_Attack_4:
 	dc.b	$04
 	dc.b	$D8, $0D, $00, $47, $F0
 	dc.b	$E8, $09, $00, $4F, $F0
 	dc.b	$F8, $00, $00, $55, $F0
 	dc.b	$F8, $04, $00, $56, $00
-	
+
 	even
-	
+
 Map_NeiBattle_Attack_5:
 	dc.b	$05
 	dc.b	$D8, $08, $00, $58, $F0
@@ -69967,13 +69967,13 @@ Map_NeiBattle_Attack_5:
 	dc.b	$E8, $09, $00, $4F, $F0
 	dc.b	$F8, $00, $00, $55, $F0
 	dc.b	$F8, $04, $00, $56, $00
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Rudo Sprite Mappings in battle
 ; -----------------------------------------------------------------
-	
+
 Map_RudoBattle:
 	dc.w	Map_RudoBattle_Idle-Map_RudoBattle
 	dc.w	Map_RudoBattle_Casting-Map_RudoBattle
@@ -69982,7 +69982,7 @@ Map_RudoBattle:
 	dc.w	Map_RudoBattle_Attack_2-Map_RudoBattle
 	dc.w	Map_RudoBattle_Attack_3-Map_RudoBattle
 	dc.w	Map_RudoBattle_Attack_4-Map_RudoBattle
-	
+
 Map_RudoBattle_Idle:
 	dc.b	$09
 	dc.b	$D0, $03, $00, $00, $F8
@@ -69994,7 +69994,7 @@ Map_RudoBattle_Idle:
 	dc.b	$F8, $00, $00, $0E, $F0
 	dc.b	$D8, $07, $00, $0F, $08
 	dc.b	$F8, $04, $00, $17, $08
-	
+
 Map_RudoBattle_Casting:
 	dc.b	$0B
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70008,7 +70008,7 @@ Map_RudoBattle_Casting:
 	dc.b	$E8, $01, $00, $24, $08
 	dc.b	$F8, $00, $00, $0E, $F0
 	dc.b	$F8, $00, $08, $0E, $08
-	
+
 Map_RudoBattle_Gun:
 	dc.b	$09
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70020,25 +70020,25 @@ Map_RudoBattle_Gun:
 	dc.b	$D8, $07, $00, $2C, $08
 	dc.b	$F8, $00, $00, $0E, $F0
 	dc.b	$F8, $00, $08, $0E, $08
-	
+
 Map_RudoBattle_Attack_1:
 	dc.b	$04
 	dc.b	$C8, $00, $00, $34, $FC
 	dc.b	$D0, $04, $00, $35, $F4
 	dc.b	$D8, $0C, $00, $37, $EC
 	dc.b	$E0, $0B, $00, $3B, $F4
-	
+
 	even
-	
+
 Map_RudoBattle_Attack_2:
 	dc.b	$04
 	dc.b	$C8, $04, $00, $47, $FC
 	dc.b	$D0, $0A, $00, $49, $F4
 	dc.b	$E8, $04, $00, $52, $FC
 	dc.b	$F0, $09, $00, $54, $F4
-	
+
 	even
-	
+
 Map_RudoBattle_Attack_3:
 	dc.b	$05
 	dc.b	$C8, $04, $00, $5A, $04
@@ -70046,22 +70046,22 @@ Map_RudoBattle_Attack_3:
 	dc.b	$D8, $09, $00, $60, $F4
 	dc.b	$E8, $04, $00, $66, $FC
 	dc.b	$F0, $09, $00, $68, $F4
-	
+
 Map_RudoBattle_Attack_4:
 	dc.b	$04
 	dc.b	$C8, $00, $00, $6E, $FC
 	dc.b	$D0, $06, $00, $6F, $FC
 	dc.b	$E8, $09, $00, $75, $F4
 	dc.b	$F8, $00, $00, $7B, $04
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Amy and Shir Sprite Mappings in battle
 ; -----------------------------------------------------------------
-	
+
 Map_AmyBattle:
 	dc.w	Map_AmyShirBattle_Idle-Map_AmyBattle
 	dc.w	Map_AmyShirBattle_Casting-Map_AmyBattle
@@ -70070,7 +70070,7 @@ Map_AmyBattle:
 	dc.w	Map_AmyShirBattle_Attack_2-Map_AmyBattle
 	dc.w	Map_AmyShirBattle_Attack_3-Map_AmyBattle
 	dc.w	Map_AmyShirBattle_Attack_4-Map_AmyBattle
-	
+
 Map_ShirBattle:
 	dc.w	Map_AmyShirBattle_Idle-Map_ShirBattle
 	dc.w	Map_AmyShirBattle_Casting-Map_ShirBattle
@@ -70079,7 +70079,7 @@ Map_ShirBattle:
 	dc.w	Map_AmyShirBattle_Attack_2-Map_ShirBattle
 	dc.w	Map_AmyShirBattle_Attack_3-Map_ShirBattle
 	dc.w	Map_AmyShirBattle_Attack_4-Map_ShirBattle
-	
+
 Map_AmyShirBattle_Idle:
 	dc.b	$07
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70089,7 +70089,7 @@ Map_AmyShirBattle_Idle:
 	dc.b	$F0, $01, $08, $04, $00
 	dc.b	$E0, $05, $00, $09, $00
 	dc.b	$F0, $01, $00, $0D, $08
-	
+
 Map_AmyShirBattle_Casting:
 	dc.b	$07
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70099,7 +70099,7 @@ Map_AmyShirBattle_Casting:
 	dc.b	$F0, $01, $08, $04, $00
 	dc.b	$D0, $01, $00, $0F, $08
 	dc.b	$E0, $05, $00, $11, $00
-	
+
 Map_AmyShirBattle_Gun:
 	dc.b	$07
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70109,29 +70109,29 @@ Map_AmyShirBattle_Gun:
 	dc.b	$F0, $01, $08, $04, $00
 	dc.b	$D8, $00, $00, $15, $08
 	dc.b	$E0, $05, $00, $16, $00
-	
+
 Map_AmyShirBattle_Attack_1:
 	dc.b	$04
 	dc.b	$D0, $04, $00, $1A, $FC
 	dc.b	$D8, $08, $00, $1C, $FC
 	dc.b	$E0, $0C, $00, $1F, $F4
 	dc.b	$E8, $0A, $00, $23, $F4
-	
+
 	even
-	
+
 Map_AmyShirBattle_Attack_2:
 	dc.b	$02
 	dc.b	$D0, $05, $00, $2C, $FC
 	dc.b	$E0, $0B, $00, $30, $F4
-	
+
 	even
-	
+
 Map_AmyShirBattle_Attack_3:
 	dc.b	$03
 	dc.b	$C8, $01, $00, $3C, $FC
 	dc.b	$D8, $05, $00, $3E, $F4
 	dc.b	$E8, $0A, $00, $42, $F4
-	
+
 Map_AmyShirBattle_Attack_4:
 	dc.b	$03
 	dc.b	$D0, $04, $00, $4B, $F4
@@ -70143,7 +70143,7 @@ Map_AmyShirBattle_Attack_4:
 ; -----------------------------------------------------------------
 ; Hugh and Kain Sprite Mappings in battle
 ; -----------------------------------------------------------------
-	
+
 Map_KainBattle:
 	dc.w	Map_HughKainBattle_Idle-Map_KainBattle
 	dc.w	Map_HughKainBattle_Casting-Map_KainBattle
@@ -70152,7 +70152,7 @@ Map_KainBattle:
 	dc.w	Map_HughKainBattle_Attack_2-Map_KainBattle
 	dc.w	Map_HughKainBattle_Attack_3-Map_KainBattle
 	dc.w	Map_HughKainBattle_Attack_4-Map_KainBattle
-	
+
 Map_HughBattle:
 	dc.w	Map_HughKainBattle_Idle-Map_HughBattle
 	dc.w	Map_HughKainBattle_Casting-Map_HughBattle
@@ -70161,7 +70161,7 @@ Map_HughBattle:
 	dc.w	Map_HughKainBattle_Attack_2-Map_HughBattle
 	dc.w	Map_HughKainBattle_Attack_3-Map_HughBattle
 	dc.w	Map_HughKainBattle_Attack_4-Map_HughBattle
-	
+
 Map_HughKainBattle_Idle:
 	dc.b	$09
 	dc.b	$D0, $01, $00, $00, $F8
@@ -70173,7 +70173,7 @@ Map_HughKainBattle_Idle:
 	dc.b	$E0, $08, $00, $0A, $F8
 	dc.b	$E8, $05, $00, $0D, $08
 	dc.b	$F8, $00, $00, $11, $08
-	
+
 Map_HughKainBattle_Casting:
 	dc.b	$0B
 	dc.b	$D0, $01, $00, $00, $F8
@@ -70187,7 +70187,7 @@ Map_HughKainBattle_Casting:
 	dc.b	$D0, $05, $00, $16, $08
 	dc.b	$E8, $00, $00, $1A, $08
 	dc.b	$F8, $00, $08, $09, $08
-	
+
 Map_HughKainBattle_Gun:
 	dc.b	$09
 	dc.b	$D0, $01, $00, $00, $F8
@@ -70199,7 +70199,7 @@ Map_HughKainBattle_Gun:
 	dc.b	$F8, $00, $00, $09, $F0
 	dc.b	$D8, $03, $00, $22, $08
 	dc.b	$F8, $00, $08, $09, $08
-	
+
 Map_HughKainBattle_Attack_1:
 	dc.b	$05
 	dc.b	$D0, $04, $00, $26, $F4
@@ -70207,16 +70207,16 @@ Map_HughKainBattle_Attack_1:
 	dc.b	$E8, $09, $00, $30, $EC
 	dc.b	$F8, $00, $00, $36, $EC
 	dc.b	$F8, $00, $00, $37, $FC
-	
+
 Map_HughKainBattle_Attack_2:
 	dc.b	$04
 	dc.b	$D0, $04, $00, $38, $EC
 	dc.b	$D8, $0B, $00, $3A, $EC
 	dc.b	$F8, $00, $00, $36, $EC
 	dc.b	$F8, $00, $00, $46, $FC
-	
+
 	even
-	
+
 Map_HughKainBattle_Attack_3:
 	dc.b	$05
 	dc.b	$D0, $04, $00, $47, $EC
@@ -70224,7 +70224,7 @@ Map_HughKainBattle_Attack_3:
 	dc.b	$F0, $00, $00, $52, $EC
 	dc.b	$F0, $01, $00, $53, $FC
 	dc.b	$F8, $00, $00, $36, $EC
-	
+
 Map_HughKainBattle_Attack_4:
 	dc.b	$06
 	dc.b	$D0, $0C, $00, $55, $F4
@@ -70233,15 +70233,15 @@ Map_HughKainBattle_Attack_4:
 	dc.b	$E8, $09, $00, $5E, $EC
 	dc.b	$F8, $00, $00, $64, $EC
 	dc.b	$F8, $00, $00, $65, $FC
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Anna Sprite Mappings in battle
 ; -----------------------------------------------------------------
-	
+
 Map_AnnaBattle:
 	dc.w	Map_AnnaBattle_Idle-Map_AnnaBattle
 	dc.w	Map_AnnaBattle_Casting-Map_AnnaBattle
@@ -70251,7 +70251,7 @@ Map_AnnaBattle:
 	dc.w	Map_AnnaBattle_Attack_3-Map_AnnaBattle
 	dc.w	Map_AnnaBattle_Attack_4-Map_AnnaBattle
 	dc.w	Map_AnnaBattle_Attack_5-Map_AnnaBattle
-	
+
 Map_AnnaBattle_Idle:
 	dc.b	$06
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70260,9 +70260,9 @@ Map_AnnaBattle_Idle:
 	dc.b	$F0, $01, $08, $04, $00
 	dc.b	$E0, $02, $00, $06, $F0
 	dc.b	$E0, $03, $00, $09, $08
-	
+
 	even
-	
+
 Map_AnnaBattle_Casting:
 	dc.b	$07
 	dc.b	$D0, $03, $00, $00, $F8
@@ -70272,7 +70272,7 @@ Map_AnnaBattle_Casting:
 	dc.b	$E0, $02, $00, $06, $F0
 	dc.b	$D0, $03, $00, $0D, $08
 	dc.b	$E0, $00, $00, $11, $10
-	
+
 ; unused sprite
 Map_AnnaBattle_Gun:
 	dc.b	$06
@@ -70282,46 +70282,46 @@ Map_AnnaBattle_Gun:
 	dc.b	$F0, $01, $08, $04, $00
 	dc.b	$E0, $01, $00, $12, $F0
 	dc.b	$D8, $03, $00, $14, $08
-	
+
 	even
-	
+
 Map_AnnaBattle_Attack_1:
 	dc.b	$03
 	dc.b	$D0, $04, $00, $18, $F0
 	dc.b	$D8, $0B, $00, $1A, $F0
 	dc.b	$F8, $04, $00, $26, $F0
-	
+
 Map_AnnaBattle_Attack_2:
 	dc.b	$04
 	dc.b	$D0, $07, $00, $28, $F0
 	dc.b	$E0, $00, $00, $30, $00
 	dc.b	$F0, $08, $00, $31, $F0
 	dc.b	$F8, $04, $00, $34, $F0
-	
+
 	even
-	
+
 Map_AnnaBattle_Attack_3:
 	dc.b	$02
 	dc.b	$D0, $06, $00, $36, $F0
 	dc.b	$E8, $0A, $00, $3C, $F0
-	
+
 	even
-	
+
 Map_AnnaBattle_Attack_4:
 	dc.b	$04
 	dc.b	$C8, $00, $00, $45, $08
 	dc.b	$D0, $08, $00, $46, $F8
 	dc.b	$D8, $0B, $00, $49, $F0
 	dc.b	$F8, $04, $00, $55, $F0
-	
+
 	even
-	
+
 Map_AnnaBattle_Attack_5:
 	dc.b	$03
 	dc.b	$D0, $08, $00, $57, $F0
 	dc.b	$D8, $05, $00, $5A, $F8
 	dc.b	$E8, $0A, $00, $5E, $F0
-	
+
 ; =================================================================
 
 loc_7567A:
@@ -70486,15 +70486,15 @@ loc_762D8:
 	dc.l	$9090099A, $0B099B00, $90000000, $09090000, $00000909, $B0000090, $000000A9, $00D00009, $A0000000, $09000000, $0AA00000, $0A0A0000, $9000A000, $00000AAA, $00000A00, $0000A000 ;0x140
 	dc.l	$00099A00, $B000AA00, $0B009090, $0000000A, $00B00099, $000AA000, $00990000, $90000000, $B0000000, $00000000, $0B000000, $0000B000, $9A00BB00, $09990099, $00A99999, $0009A000
 	dc.l	$000B0B90, $00000B09, $00000009, $000000AA, $00999990, $99A00900, $000D0099, $0B00B000, $990AA000, $009000B0, $9A00000D, $A000B000, $A0000D00, $A0000000, $9A0B0000, $09000000 ;0x160
-	
 
-	
+
+
 Battle_AntArt:	binclude "art\battle_ant_art.bin"
-	
+
 Battle_MosquitoArt:	binclude "art\battle_mosquito_art.bin"
-	
+
 	even
-	
+
 Battle_SpinnerArt:	binclude "art\battle_spinner_art.bin"
 
 Battle_BeeArt:	binclude "art\battle_bee_art.bin"
@@ -70502,31 +70502,31 @@ Battle_BeeArt:	binclude "art\battle_bee_art.bin"
 Battle_PoisonerArt:	binclude "art\battle_poisoner_art.bin"
 
 	even
-	
+
 Battle_HitTailArt:	binclude "art\battle_hittail_art.bin"
-	
+
 	even
-	
+
 Battle_FroggyArt:	binclude "art\battle_froggy_art.bin"
 
 Battle_CarrierArt:	binclude "art\battle_carrier_act.bin"
 
 Battle_WhistleArt:	binclude "art\battle_whistle_art.bin"
-	
+
 	even
-	
+
 Battle_LocustArt:	binclude "art\battle_locust_art.bin"
-	
+
 	even
-	
+
 Battle_AmoebaArt:	binclude "art\battle_amoeba_art.bin"
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Ant Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_AntMap:
 	dc.w	loc_7F4B6-Battle_AntMap
 	dc.w	loc_7F504-Battle_AntMap
@@ -70546,7 +70546,7 @@ Battle_AntMap:
 	dc.w	loc_7F900-Battle_AntMap
 	dc.w	loc_7F906-Battle_AntMap
 	dc.w	loc_7F91C-Battle_AntMap
-	
+
 loc_7F4B6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70557,7 +70557,7 @@ loc_7F4B6:
 	dc.b	$00, $06, $00, $07, $00, $08, $00, $09, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $0B, $00, $0C, $08, $0C, $08, $0B, $08, $0A
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
-	
+
 loc_7F504:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70568,7 +70568,7 @@ loc_7F504:
 	dc.b	$00, $06, $00, $07, $00, $08, $00, $09, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $10, $00, $0C, $08, $0C, $08, $10, $08, $0A
 	dc.b	$00, $0D, $00, $11, $00, $0F, $08, $0F, $08, $11, $08, $0D
-	
+
 loc_7F552:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70579,7 +70579,7 @@ loc_7F552:
 	dc.b	$00, $06, $00, $07, $00, $12, $08, $12, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $0B, $00, $13, $00, $14, $08, $0B, $08, $0A
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
-	
+
 loc_7F5A0:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70590,7 +70590,7 @@ loc_7F5A0:
 	dc.b	$00, $06, $00, $07, $00, $12, $08, $12, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $10, $00, $13, $00, $14, $08, $10, $08, $0A
 	dc.b	$00, $0D, $00, $11, $00, $0F, $08, $0F, $08, $11, $08, $0D
-	
+
 loc_7F5EE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70601,7 +70601,7 @@ loc_7F5EE:
 	dc.b	$00, $06, $00, $07, $00, $12, $08, $12, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $0B, $08, $14, $00, $15, $08, $0B, $08, $0A
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
-	
+
 loc_7F63C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70612,7 +70612,7 @@ loc_7F63C:
 	dc.b	$00, $06, $00, $07, $00, $12, $08, $12, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $10, $08, $14, $00, $15, $08, $10, $08, $0A
 	dc.b	$00, $0D, $00, $11, $00, $0F, $08, $0F, $08, $11, $08, $0D
-	
+
 loc_7F68A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70623,7 +70623,7 @@ loc_7F68A:
 	dc.b	$00, $06, $00, $07, $00, $16, $08, $16, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $0B, $00, $17, $00, $18, $08, $0B, $08, $0A
 	dc.b	$00, $0D, $00, $19, $00, $1A, $08, $1A, $08, $19, $08, $0D
-	
+
 loc_7F6D8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70634,7 +70634,7 @@ loc_7F6D8:
 	dc.b	$00, $06, $00, $22, $00, $23, $00, $24, $00, $25, $08, $06
 	dc.b	$00, $26, $00, $27, $00, $28, $08, $28, $00, $29, $08, $0A
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $00, $2C, $00, $00
-	
+
 loc_7F726:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70645,7 +70645,7 @@ loc_7F726:
 	dc.b	$00, $30, $00, $31, $00, $32, $08, $32, $00, $33, $00, $34
 	dc.b	$00, $0A, $00, $35, $00, $36, $08, $36, $00, $37, $08, $0A
 	dc.b	$00, $00, $00, $38, $00, $39, $08, $39, $08, $38, $00, $00
-	
+
 loc_7F774:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70656,7 +70656,7 @@ loc_7F774:
 	dc.b	$00, $30, $00, $3A, $00, $32, $08, $32, $00, $3B, $00, $34
 	dc.b	$00, $0A, $00, $3C, $00, $36, $08, $36, $00, $3D, $08, $0A
 	dc.b	$00, $00, $00, $38, $00, $39, $08, $39, $08, $38, $00, $00
-	
+
 loc_7F7C2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70667,7 +70667,7 @@ loc_7F7C2:
 	dc.b	$00, $06, $00, $22, $00, $23, $00, $24, $00, $25, $08, $06
 	dc.b	$00, $26, $00, $27, $00, $28, $08, $28, $00, $29, $08, $0A
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $00, $2C, $00, $00
-	
+
 loc_7F810:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70678,7 +70678,7 @@ loc_7F810:
 	dc.b	$00, $30, $00, $31, $00, $32, $08, $32, $00, $33, $00, $34
 	dc.b	$00, $0A, $00, $35, $00, $36, $08, $36, $00, $37, $08, $0A
 	dc.b	$00, $00, $00, $38, $00, $39, $08, $39, $08, $38, $00, $00
-	
+
 loc_7F85E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70689,7 +70689,7 @@ loc_7F85E:
 	dc.b	$00, $30, $00, $3A, $00, $32, $08, $32, $00, $3B, $00, $34
 	dc.b	$00, $0A, $00, $3C, $00, $36, $08, $36, $00, $3D, $08, $0A
 	dc.b	$00, $00, $00, $38, $00, $39, $08, $39, $08, $38, $00, $00
-	
+
 loc_7F8AC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70700,7 +70700,7 @@ loc_7F8AC:
 	dc.b	$00, $30, $00, $31, $00, $32, $08, $32, $00, $33, $00, $34
 	dc.b	$00, $0A, $00, $35, $00, $36, $08, $36, $00, $37, $08, $0A
 	dc.b	$00, $00, $00, $38, $00, $39, $08, $39, $08, $38, $00, $00
-	
+
 loc_7F8FA:
 	dc.b	$01
 	dc.b	$00, $04, $00, $4C, $00
@@ -70708,31 +70708,31 @@ loc_7F8FA:
 loc_7F900:
 	dc.b	$01
 	dc.b	$00, $0D, $00, $4E, $F4
-	
+
 loc_7F906:
 	dc.b	$04
 	dc.b	$08, $04, $00, $56, $E8
 	dc.b	$08, $04, $00, $58, $08
 	dc.b	$10, $09, $00, $5A, $E8
 	dc.b	$10, $09, $00, $60, $00
-	
+
 	even
-	
+
 loc_7F91C:
 	dc.b	$04
 	dc.b	$28, $08, $00, $66, $E8
 	dc.b	$28, $00, $00, $69, $10
 	dc.b	$30, $04, $00, $6A, $E8
 	dc.b	$30, $08, $00, $6C, $00
-	
+
 ; =================================================================
 
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mosquito Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_MosquitoMap:
 	dc.w	loc_7F946-Battle_MosquitoMap
 	dc.w	loc_7F994-Battle_MosquitoMap
@@ -70744,7 +70744,7 @@ Battle_MosquitoMap:
 	dc.w	loc_7FB68-Battle_MosquitoMap
 	dc.w	loc_7FBB6-Battle_MosquitoMap
 	dc.w	loc_7FC04-Battle_MosquitoMap
-	
+
 loc_7F946:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70755,7 +70755,7 @@ loc_7F946:
 	dc.b	$00, $00, $00, $0F, $00, $10, $00, $11, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $13, $00, $14, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7F994:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70766,7 +70766,7 @@ loc_7F994:
 	dc.b	$00, $00, $00, $0F, $00, $10, $00, $11, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $13, $00, $14, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7F9E2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70777,7 +70777,7 @@ loc_7F9E2:
 	dc.b	$00, $00, $00, $0F, $00, $29, $00, $2A, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $2B, $00, $2C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7FA30:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70788,7 +70788,7 @@ loc_7FA30:
 	dc.b	$00, $00, $00, $0F, $00, $29, $00, $2A, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $2B, $00, $2C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7FA7E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70799,7 +70799,7 @@ loc_7FA7E:
 	dc.b	$00, $00, $00, $0F, $00, $3B, $00, $3C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $3D, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7FACC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70821,7 +70821,7 @@ loc_7FB1A:
 	dc.b	$00, $00, $00, $0F, $00, $48, $00, $49, $00, $4A, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $3D, $00, $4B, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7FB68:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70832,7 +70832,7 @@ loc_7FB68:
 	dc.b	$00, $00, $00, $0F, $00, $48, $00, $49, $00, $4A, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $3D, $00, $4B, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $00, $00, $00, $00, $00
-	
+
 loc_7FBB6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70843,7 +70843,7 @@ loc_7FBB6:
 	dc.b	$00, $00, $00, $0F, $00, $55, $00, $56, $00, $57, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $58, $00, $59, $00, $5A, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $5B, $00, $00, $00, $00
-	
+
 loc_7FC04:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70854,13 +70854,13 @@ loc_7FC04:
 	dc.b	$00, $00, $00, $0F, $00, $55, $00, $56, $00, $57, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $58, $00, $59, $00, $5A, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $5B, $00, $00, $00, $00
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Spinner Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_SpinnerMap:
 	dc.w	loc_7FC6E-Battle_SpinnerMap
 	dc.w	loc_7FCBC-Battle_SpinnerMap
@@ -70876,7 +70876,7 @@ Battle_SpinnerMap:
 	dc.w	loc_7FEE6-Battle_SpinnerMap
 	dc.w	loc_7FF06-Battle_SpinnerMap
 	dc.w	loc_7FF4E-Battle_SpinnerMap
-	
+
 loc_7FC6E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70887,8 +70887,8 @@ loc_7FC6E:
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $00, $0E, $10, $0A, $08, $0B
 	dc.b	$00, $00, $00, $0F, $00, $10, $00, $11, $00, $12, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $13, $00, $14, $00, $00, $00, $00
-	
-loc_7FCBC:	
+
+loc_7FCBC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
 	dc.b	$05, $05
@@ -70898,7 +70898,7 @@ loc_7FCBC:
 	dc.b	$00, $20, $00, $21, $00, $22, $00, $23, $00, $24, $08, $20
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $29, $00, $2A, $00, $00, $00, $00
-	
+
 loc_7FD0A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70909,7 +70909,7 @@ loc_7FD0A:
 	dc.b	$00, $3A, $00, $3B, $00, $3C, $00, $3D, $00, $3E, $00, $3F
 	dc.b	$00, $40, $00, $41, $00, $42, $00, $43, $00, $44, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $45, $00, $46, $00, $00, $00, $00
-	
+
 loc_7FD58:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70920,7 +70920,7 @@ loc_7FD58:
 	dc.b	$08, $3F, $00, $4E, $00, $4F, $00, $50, $00, $51, $08, $3A
 	dc.b	$00, $00, $08, $44, $00, $52, $00, $53, $08, $41, $08, $40
 	dc.b	$00, $00, $00, $00, $08, $46, $08, $45, $00, $00, $00, $00
-	
+
 loc_7FDA6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -70931,7 +70931,7 @@ loc_7FDA6:
 	dc.b	$00, $20, $00, $5B, $00, $5C, $00, $5D, $08, $5B, $08, $20
 	dc.b	$00, $00, $08, $28, $00, $5E, $00, $5F, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $00, $08, $2A, $08, $29, $00, $00, $00, $00
-	
+
 loc_7FDF4:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D8
@@ -70940,7 +70940,7 @@ loc_7FDF4:
 	dc.b	$00, $63, $00, $08, $00, $09, $00, $64
 	dc.b	$00, $65, $00, $0D, $00, $0E, $10, $64
 	dc.b	$10, $60, $00, $66, $00, $67, $18, $60
-	
+
 loc_7FE1A:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D8
@@ -70949,7 +70949,7 @@ loc_7FE1A:
 	dc.b	$00, $69, $00, $1D, $00, $1E, $00, $1F
 	dc.b	$00, $6A, $00, $22, $00, $23, $10, $1F
 	dc.b	$10, $68, $00, $6B, $00, $6C, $18, $68
-	
+
 loc_7FE40:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D8
@@ -70958,7 +70958,7 @@ loc_7FE40:
 	dc.b	$00, $35, $00, $36, $00, $37, $00, $38
 	dc.b	$00, $6F, $00, $3C, $00, $3D, $00, $3E
 	dc.b	$10, $6D, $00, $42, $00, $70, $18, $6D
-	
+
 loc_7FE66:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D8
@@ -70967,7 +70967,7 @@ loc_7FE66:
 	dc.b	$00, $4A, $00, $4B, $00, $4C, $00, $4D
 	dc.b	$00, $4E, $00, $4F, $00, $50, $00, $72
 	dc.b	$10, $6D, $08, $53, $00, $53, $18, $6D
-	
+
 loc_7FE8C:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D8
@@ -70976,7 +70976,7 @@ loc_7FE8C:
 	dc.b	$00, $57, $00, $58, $00, $59, $00, $74
 	dc.b	$18, $74, $00, $5C, $00, $5D, $10, $74
 	dc.b	$10, $68, $00, $75, $00, $76, $18, $68
-	
+
 loc_7FEB2:
 	dc.b	$0A
 	dc.b	$D0, $0C, $00, $77, $F0
@@ -70989,9 +70989,9 @@ loc_7FEB2:
 	dc.b	$E0, $04, $00, $7E, $08
 	dc.b	$E8, $04, $18, $7E, $E8
 	dc.b	$E8, $00, $18, $7D, $10
-	
+
 	even
-	
+
 loc_7FEE6:
 	dc.b	$06
 	dc.b	$D0, $0D, $00, $80, $F0
@@ -71000,7 +71000,7 @@ loc_7FEE6:
 	dc.b	$D8, $00, $08, $7B, $10
 	dc.b	$E0, $09, $00, $88, $E8
 	dc.b	$E0, $09, $18, $88, $00
-	
+
 	even
 
 loc_7FF06:
@@ -71019,9 +71019,9 @@ loc_7FF06:
 	dc.b	$D0, $04, $00, $AC, $F0
 	dc.b	$F0, $01, $00, $AE, $18
 	dc.b	$F8, $04, $18, $AC, $00
-	
+
 	even
-	
+
 loc_7FF4E:
 	dc.b	$10
 	dc.b	$C8, $02, $00, $B0, $F0
@@ -71040,15 +71040,15 @@ loc_7FF4E:
 	dc.b	$E0, $00, $10, $A8, $10
 	dc.b	$F0, $04, $18, $BD, $E0
 	dc.b	$E8, $00, $08, $A8, $E8
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Bee Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_BeeMap:
 	dc.w	loc_7FFB4-Battle_BeeMap
 	dc.w	loc_80002-Battle_BeeMap
@@ -71060,7 +71060,7 @@ Battle_BeeMap:
 	dc.w	loc_8018E-Battle_BeeMap
 	dc.w	loc_80194-Battle_BeeMap
 	dc.w	loc_8019A-Battle_BeeMap
-	
+
 loc_7FFB4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71071,7 +71071,7 @@ loc_7FFB4:
 	dc.b	$00, $00, $00, $08, $00, $09, $08, $09, $08, $08, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $08, $0B, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80002:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71082,7 +71082,7 @@ loc_80002:
 	dc.b	$00, $13, $00, $14, $00, $15, $08, $15, $08, $14, $08, $13
 	dc.b	$00, $00, $00, $00, $00, $16, $08, $16, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80050:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71093,7 +71093,7 @@ loc_80050:
 	dc.b	$00, $1E, $00, $1F, $00, $20, $08, $20, $08, $1F, $08, $1E
 	dc.b	$00, $00, $00, $00, $00, $21, $08, $21, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $22, $08, $22, $00, $00, $00, $00
-	
+
 loc_8009E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71104,7 +71104,7 @@ loc_8009E:
 	dc.b	$00, $00, $00, $28, $00, $29, $08, $29, $08, $28, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $2C, $08, $2C, $00, $00, $00, $00
-	
+
 loc_800EC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71115,7 +71115,7 @@ loc_800EC:
 	dc.b	$00, $13, $00, $2E, $00, $2F, $08, $2F, $08, $2E, $08, $13
 	dc.b	$00, $00, $00, $30, $00, $31, $08, $31, $08, $30, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $32, $08, $32, $00, $00, $00, $00
-	
+
 loc_8013A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71126,29 +71126,29 @@ loc_8013A:
 	dc.b	$00, $00, $00, $36, $00, $37, $08, $37, $08, $36, $00, $00
 	dc.b	$00, $00, $00, $38, $00, $39, $08, $39, $08, $38, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $3A, $08, $3A, $00, $00, $00, $00
-	
+
 loc_80188:
 	dc.b	$01
 	dc.b	$08, $04, $00, $3B, $F8
-	
+
 loc_8018E:
 	dc.b	$01
 	dc.b	$08, $04, $00, $3D, $F8
-	
+
 loc_80194:
 	dc.b	$01
 	dc.b	$08, $05, $00, $3F, $F8
-	
+
 loc_8019A:
 	dc.b	$01
 	dc.b	$18, $05, $00, $43, $F8
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Poisoner Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_PoisonerMap:
 	dc.w	loc_801BC-Battle_PoisonerMap
 	dc.w	loc_8020A-Battle_PoisonerMap
@@ -71164,7 +71164,7 @@ Battle_PoisonerMap:
 	dc.w	loc_80486-Battle_PoisonerMap
 	dc.w	loc_80496-Battle_PoisonerMap
 	dc.w	loc_804A6-Battle_PoisonerMap
-	
+
 loc_801BC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71175,7 +71175,7 @@ loc_801BC:
 	dc.b	$00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
 	dc.b	$00, $15, $00, $16, $00, $17, $00, $18, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_8020A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71186,7 +71186,7 @@ loc_8020A:
 	dc.b	$00, $25, $00, $26, $00, $12, $00, $13, $00, $14, $00, $00
 	dc.b	$00, $15, $00, $16, $00, $17, $00, $18, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_80258:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71197,7 +71197,7 @@ loc_80258:
 	dc.b	$00, $33, $00, $34, $00, $35, $00, $36, $00, $37, $00, $00
 	dc.b	$00, $15, $00, $16, $00, $17, $00, $18, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_802A6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71208,7 +71208,7 @@ loc_802A6:
 	dc.b	$00, $33, $00, $40, $00, $41, $00, $42, $00, $43, $00, $00
 	dc.b	$00, $15, $00, $16, $00, $17, $00, $18, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_802F4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71219,7 +71219,7 @@ loc_802F4:
 	dc.b	$00, $25, $00, $48, $00, $49, $00, $42, $00, $43, $00, $00
 	dc.b	$00, $15, $00, $4A, $00, $4B, $00, $18, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_80342:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71230,7 +71230,7 @@ loc_80342:
 	dc.b	$00, $25, $00, $4F, $00, $50, $00, $42, $00, $43, $00, $00
 	dc.b	$00, $15, $00, $51, $00, $52, $00, $18, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $53, $00, $54, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_80390:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71241,7 +71241,7 @@ loc_80390:
 	dc.b	$00, $58, $00, $59, $00, $5A, $00, $5B, $00, $43, $00, $00
 	dc.b	$00, $5C, $00, $5D, $00, $5E, $00, $5F, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $60, $00, $61, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_803DE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71252,7 +71252,7 @@ loc_803DE:
 	dc.b	$00, $33, $00, $69, $00, $6A, $00, $6B, $00, $43, $00, $00
 	dc.b	$00, $15, $00, $6C, $00, $6D, $00, $6E, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $6F, $00, $70, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_8042C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71263,39 +71263,39 @@ loc_8042C:
 	dc.b	$00, $25, $00, $73, $00, $6A, $00, $6B, $00, $43, $00, $00
 	dc.b	$00, $15, $00, $6C, $00, $6D, $00, $6E, $00, $19, $00, $1A
 	dc.b	$00, $1B, $00, $6F, $00, $70, $00, $1E, $00, $1F, $00, $20
-	
+
 loc_8047A:
 	dc.b	$01
 	dc.b	$10, $00, $00, $74, $10
-	
+
 loc_80480:
 	dc.b	$01
 	dc.b	$10, $04, $00, $75, $08
-	
+
 loc_80486:
 	dc.b	$03
 	dc.b	$08, $04, $00, $77, $10
 	dc.b	$10, $09, $00, $79, $08
 	dc.b	$20, $00, $00, $7F, $10
-	
+
 loc_80496:
 	dc.b	$03
 	dc.b	$10, $01, $00, $80, $10
 	dc.b	$20, $05, $00, $82, $08
 	dc.b	$30, $00, $00, $86, $10
-	
+
 loc_804A6:
 	dc.b	$03
 	dc.b	$10, $02, $00, $87, $10
 	dc.b	$28, $09, $00, $8A, $08
 	dc.b	$38, $00, $00, $90, $10
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Hit Tail Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_HitTailMap:
 	dc.w	loc_804F4-Battle_HitTailMap
 	dc.w	loc_805AE-Battle_HitTailMap
@@ -71328,7 +71328,7 @@ Battle_HitTailMap:
 	dc.w	loc_8113A-Battle_HitTailMap
 	dc.w	loc_81178-Battle_HitTailMap
 	dc.w	loc_811B6-Battle_HitTailMap
-	
+
 loc_804F4:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71342,7 +71342,7 @@ loc_804F4:
 	dc.b	$00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21, $00, $22, $08, $1D, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_805AE:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71356,7 +71356,7 @@ loc_805AE:
 	dc.b	$00, $3E, $00, $3F, $00, $40, $00, $41, $00, $42, $00, $43, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80668:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71370,7 +71370,7 @@ loc_80668:
 	dc.b	$00, $61, $00, $62, $00, $63, $00, $64, $00, $65, $00, $66, $08, $61, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80722:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71384,7 +71384,7 @@ loc_80722:
 	dc.b	$00, $3E, $00, $3F, $00, $40, $00, $41, $00, $7C, $00, $7D, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_807DC:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71398,7 +71398,7 @@ loc_807DC:
 	dc.b	$00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21, $00, $22, $08, $1D, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80896:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71412,7 +71412,7 @@ loc_80896:
 	dc.b	$00, $3E, $00, $7E, $00, $7F, $00, $80, $00, $81, $00, $82, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $83, $00, $84, $00, $85, $00, $86, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80950:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71426,7 +71426,7 @@ loc_80950:
 	dc.b	$00, $61, $00, $87, $00, $88, $00, $89, $00, $8A, $00, $8B, $08, $61, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $83, $00, $84, $00, $85, $00, $86, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80A0A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71440,7 +71440,7 @@ loc_80A0A:
 	dc.b	$00, $3E, $00, $8C, $00, $8D, $00, $8E, $00, $8F, $00, $90, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $91, $00, $92, $00, $93, $00, $94, $00, $06, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80AC4:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71454,7 +71454,7 @@ loc_80AC4:
 	dc.b	$00, $95, $00, $96, $00, $97, $00, $98, $00, $99, $00, $9A, $08, $1D, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $9B, $00, $9C, $00, $9D, $00, $9E, $00, $9F, $00, $A0, $00, $A1, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $A2, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $A3, $00, $00, $00, $00, $00, $00
-	
+
 loc_80B7E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71468,7 +71468,7 @@ loc_80B7E:
 	dc.b	$00, $A4, $00, $A5, $00, $A6, $00, $A7, $00, $A8, $00, $A9, $00, $AA, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $AB, $00, $00, $00, $AC, $00, $85, $00, $AD, $00, $AE, $00, $AF, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80C38:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71482,7 +71482,7 @@ loc_80C38:
 	dc.b	$00, $61, $00, $B0, $00, $B1, $00, $B2, $00, $B3, $00, $B4, $08, $61, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $B5, $00, $B6, $00, $B7, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80CF2:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71496,7 +71496,7 @@ loc_80CF2:
 	dc.b	$00, $3E, $00, $B8, $00, $B9, $00, $BA, $00, $BB, $00, $BC, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $BD, $00, $BE, $00, $BF, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_80DAC:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71524,7 +71524,7 @@ loc_80E66:
 	dc.b	$00, $C7, $00, $C8, $00, $C9, $00, $CA, $00, $CB, $00, $CC, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $CD, $00, $CE, $00, $CF, $00, $D0, $00, $D1, $00, $D2, $00, $D3, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $D4, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $D5, $00, $00, $00, $00, $00, $00
-	
+
 loc_80F20:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71538,7 +71538,7 @@ loc_80F20:
 	dc.b	$00, $D6, $00, $D7, $00, $D8, $00, $D9, $00, $DA, $00, $DB, $00, $DC, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $DD, $00, $DE, $00, $DF, $00, $E0, $00, $E1, $00, $E2, $00, $E3, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $E4, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $E5, $00, $00, $00, $00, $00, $00
-	
+
 loc_80FDA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -71552,72 +71552,72 @@ loc_80FDA:
 	dc.b	$00, $C7, $00, $C8, $00, $C9, $00, $CA, $00, $E6, $00, $E7, $08, $3E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $CD, $00, $CE, $00, $CF, $00, $D0, $00, $D1, $00, $D2, $00, $D3, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $D4, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $D5, $00, $00, $00, $00, $00, $00
-	
+
 loc_81094:
 	dc.b	$01
 	dc.b	$30, $00, $00, $E8, $18
-	
+
 loc_8109A:
 	dc.b	$01
 	dc.b	$30, $00, $00, $E9, $18
-	
+
 loc_810A0:
 	dc.b	$03
 	dc.b	$30, $00, $00, $EA, $10
 	dc.b	$30, $00, $08, $EA, $20
 	dc.b	$30, $01, $00, $EB, $18
-	
+
 loc_810B0:
 	dc.b	$02
 	dc.b	$38, $00, $00, $ED, $10
 	dc.b	$40, $04, $00, $EE, $08
-	
+
 	even
-	
+
 loc_810BC:
 	dc.b	$02
 	dc.b	$40, $04, $00, $F0, $00
 	dc.b	$48, $00, $00, $F2, $00
-	
+
 	even
-	
+
 loc_810C8:
 	dc.b	$02
 	dc.b	$38, $00, $00, $F3, $18
 	dc.b	$40, $04, $00, $F4, $10
-	
+
 	even
-	
+
 loc_810D4:
 	dc.b	$03
 	dc.b	$40, $00, $18, $F5, $10
 	dc.b	$40, $00, $00, $F6, $18
 	dc.b	$48, $00, $00, $F7, $10
-	
+
 loc_810E4
 	dc.b	$03
 	dc.b	$40, $00, $08, $F3, $20
 	dc.b	$48, $00, $08, $F5, $20
 	dc.b	$48, $00, $08, $F4, $28
-	
+
 loc_810F4:
 	dc.b	$03
 	dc.b	$40, $00, $08, $F6, $20
 	dc.b	$40, $00, $10, $F5, $28
 	dc.b	$48, $00, $08, $F7, $28
-	
+
 loc_81104:
 	dc.b	$03
 	dc.b	$38, $00, $08, $ED, $28
 	dc.b	$40, $00, $08, $EF, $28
 	dc.b	$40, $00, $08, $EE, $30
-	
+
 loc_81114:
 	dc.b	$03
 	dc.b	$38, $00, $08, $F1, $30
 	dc.b	$38, $00, $08, $F0, $38
 	dc.b	$40, $00, $08, $F2, $38
-	
+
 loc_81124:
 	dc.b	$04
 	dc.b	$10, $00, $00, $F8, $10
@@ -71625,8 +71625,8 @@ loc_81124:
 	dc.b	$18, $00, $10, $F8, $10
 	dc.b	$18, $00, $18, $F8, $18
 
-	even	
-	
+	even
+
 loc_8113A:
 	dc.b	$0C
 	dc.b	$08, $00, $00, $F9, $10
@@ -71641,9 +71641,9 @@ loc_8113A:
 	dc.b	$10, $00, $08, $FA, $18
 	dc.b	$18, $00, $10, $FA, $10
 	dc.b	$18, $00, $18, $FA, $18
-	
+
 	even
-	
+
 loc_81178:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $FB, $10
@@ -71658,9 +71658,9 @@ loc_81178:
 	dc.b	$08, $00, $08, $FC, $20
 	dc.b	$20, $00, $10, $FC, $08
 	dc.b	$20, $00, $18, $FC, $20
-	
+
 	even
-	
+
 loc_811B6:
 	dc.b	$0C
 	dc.b	$00, $00, $00, $FD, $10
@@ -71675,15 +71675,15 @@ loc_811B6:
 	dc.b	$00, $00, $08, $FF, $28
 	dc.b	$28, $00, $10, $FF, $00
 	dc.b	$28, $00, $18, $FF, $28
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Froggy Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_FroggyMap:
 	dc.w	loc_81214-Battle_FroggyMap
 	dc.w	loc_81262-Battle_FroggyMap
@@ -71701,7 +71701,7 @@ Battle_FroggyMap:
 	dc.w	loc_8160A-Battle_FroggyMap
 	dc.w	loc_81658-Battle_FroggyMap
 	dc.w	loc_816A6-Battle_FroggyMap
-	
+
 loc_81214:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71712,7 +71712,7 @@ loc_81214:
 	dc.b	$00, $08, $00, $09, $00, $0A, $08, $0A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $08, $0D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 loc_81262:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71723,7 +71723,7 @@ loc_81262:
 	dc.b	$00, $08, $00, $09, $00, $15, $08, $15, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $16, $08, $16, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $17, $08, $17, $08, $0F, $08, $0E
-	
+
 loc_812B0:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71734,7 +71734,7 @@ loc_812B0:
 	dc.b	$00, $08, $00, $09, $00, $0A, $08, $0A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $08, $0D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 loc_812FE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71745,7 +71745,7 @@ loc_812FE:
 	dc.b	$00, $08, $00, $09, $00, $0A, $08, $0A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $08, $0D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 loc_8134C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71756,7 +71756,7 @@ loc_8134C:
 	dc.b	$00, $08, $00, $09, $00, $0A, $08, $0A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $08, $0D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 loc_8139A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71767,7 +71767,7 @@ loc_8139A:
 	dc.b	$00, $08, $00, $09, $00, $0A, $08, $0A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $08, $0D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 loc_813E8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71778,7 +71778,7 @@ loc_813E8:
 	dc.b	$00, $08, $00, $09, $00, $25, $08, $25, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $26, $08, $26, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $27, $08, $27, $08, $0F, $08, $0E
-	
+
 loc_81436:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71789,7 +71789,7 @@ loc_81436:
 	dc.b	$00, $08, $00, $09, $00, $2A, $08, $2A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $2B, $08, $2B, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $2C, $08, $2C, $08, $0F, $08, $0E
-	
+
 loc_81484:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71800,7 +71800,7 @@ loc_81484:
 	dc.b	$00, $34, $00, $35, $00, $36, $08, $36, $08, $35, $08, $34
 	dc.b	$00, $37, $00, $38, $00, $39, $08, $39, $08, $38, $08, $37
 	dc.b	$00, $0E, $00, $0F, $00, $3A, $08, $3A, $08, $0F, $08, $0E
-	
+
 loc_814D2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71811,7 +71811,7 @@ loc_814D2:
 	dc.b	$00, $42, $00, $43, $00, $44, $08, $44, $08, $43, $08, $42
 	dc.b	$00, $45, $00, $46, $00, $47, $08, $47, $08, $46, $08, $45
 	dc.b	$00, $0E, $00, $0F, $00, $48, $08, $48, $08, $0F, $08, $0E
-	
+
 loc_81520:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71822,7 +71822,7 @@ loc_81520:
 	dc.b	$00, $51, $00, $52, $00, $53, $08, $53, $08, $52, $08, $51
 	dc.b	$00, $54, $00, $55, $00, $56, $08, $56, $08, $55, $08, $54
 	dc.b	$00, $0E, $00, $0F, $00, $57, $08, $57, $08, $0F, $08, $0E
-	
+
 loc_8156E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71833,7 +71833,7 @@ loc_8156E:
 	dc.b	$00, $51, $00, $5D, $00, $5E, $08, $5E, $08, $5D, $08, $51
 	dc.b	$00, $54, $00, $55, $00, $56, $08, $56, $08, $55, $08, $54
 	dc.b	$00, $0E, $00, $0F, $00, $57, $08, $57, $08, $0F, $08, $0E
-	
+
 loc_815BC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71844,7 +71844,7 @@ loc_815BC:
 	dc.b	$00, $65, $00, $66, $00, $67, $08, $67, $08, $66, $08, $65
 	dc.b	$00, $68, $00, $55, $00, $69, $08, $69, $08, $55, $08, $68
 	dc.b	$00, $0E, $00, $0F, $00, $57, $08, $57, $08, $0F, $08, $0E
-	
+
 loc_8160A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71866,7 +71866,7 @@ loc_81658:
 	dc.b	$00, $08, $00, $7B, $00, $7C, $08, $7C, $08, $7B, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $7D, $08, $7D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 loc_816A6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71877,13 +71877,13 @@ loc_816A6:
 	dc.b	$00, $08, $00, $09, $00, $0A, $08, $0A, $08, $09, $08, $08
 	dc.b	$00, $0B, $00, $0C, $00, $0D, $08, $0D, $08, $0C, $08, $0B
 	dc.b	$00, $0E, $00, $0F, $00, $10, $08, $10, $08, $0F, $08, $0E
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Carrier Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_CarrierMap:
 	dc.w	loc_81722-Battle_CarrierMap
 	dc.w	loc_81770-Battle_CarrierMap
@@ -71908,7 +71908,7 @@ Battle_CarrierMap:
 	dc.w	loc_81EA2-Battle_CarrierMap
 	dc.w	loc_81F20-Battle_CarrierMap
 	dc.w	loc_81FE6-Battle_CarrierMap
-	
+
 loc_81722:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71919,7 +71919,7 @@ loc_81722:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $00, $10, $00, $11
 	dc.b	$00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17
 	dc.b	$00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C
-	
+
 loc_81770:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71930,7 +71930,7 @@ loc_81770:
 	dc.b	$08, $11, $08, $10, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$08, $17, $08, $16, $08, $15, $08, $14, $08, $13, $08, $12
 	dc.b	$08, $1C, $08, $1B, $00, $00, $08, $1A, $08, $19, $08, $18
-	
+
 loc_817BE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71941,7 +71941,7 @@ loc_817BE:
 	dc.b	$00, $0D, $00, $0E, $00, $1E, $00, $1F, $00, $10, $00, $11
 	dc.b	$00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17
 	dc.b	$00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C
-	
+
 loc_8180C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71952,7 +71952,7 @@ loc_8180C:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_8185A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -71963,7 +71963,7 @@ loc_8185A:
 	dc.b	$00, $0D, $00, $0E, $00, $1E, $00, $1F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_818A8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D8
@@ -71973,7 +71973,7 @@ loc_818A8:
 	dc.b	$00, $28, $00, $29, $00, $2A, $08, $2A, $08, $29, $08, $28
 	dc.b	$00, $2B, $00, $2C, $00, $2D, $08, $2D, $08, $2C, $08, $2B
 	dc.b	$00, $00, $00, $2E, $00, $2F, $08, $2F, $08, $2E, $00, $00
-	
+
 loc_818EA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D8
@@ -71983,7 +71983,7 @@ loc_818EA:
 	dc.b	$00, $28, $00, $29, $00, $30, $08, $30, $08, $29, $08, $28
 	dc.b	$00, $31, $00, $32, $00, $33, $08, $33, $08, $32, $08, $31
 	dc.b	$00, $00, $00, $34, $00, $35, $08, $35, $08, $34, $00, $00
-	
+
 loc_8192C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D8
@@ -71993,7 +71993,7 @@ loc_8192C:
 	dc.b	$00, $28, $00, $29, $00, $2A, $08, $2A, $08, $29, $08, $28
 	dc.b	$00, $2B, $00, $2C, $00, $36, $08, $36, $08, $2C, $08, $2B
 	dc.b	$00, $00, $00, $2E, $00, $37, $08, $37, $08, $2E, $00, $00
-	
+
 loc_8196E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72004,7 +72004,7 @@ loc_8196E:
 	dc.b	$00, $31, $00, $32, $00, $38, $08, $38, $08, $32, $08, $31
 	dc.b	$00, $00, $00, $39, $00, $3A, $08, $3A, $08, $39, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $3B, $08, $3B, $00, $00, $00, $00
-	
+
 loc_819BC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -72016,7 +72016,7 @@ loc_819BC:
 	dc.b	$00, $3E, $00, $3F, $00, $40, $08, $40, $08, $3F, $08, $3E
 	dc.b	$00, $41, $00, $42, $00, $43, $08, $43, $08, $42, $08, $41
 	dc.b	$00, $00, $00, $44, $00, $45, $08, $45, $08, $44, $00, $00
-	
+
 loc_81A16:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -72028,7 +72028,7 @@ loc_81A16:
 	dc.b	$00, $47, $00, $48, $00, $49, $08, $49, $08, $48, $08, $47
 	dc.b	$00, $4A, $00, $4B, $00, $4C, $08, $4C, $08, $4B, $08, $4A
 	dc.b	$00, $00, $00, $4D, $00, $00, $00, $00, $08, $4D, $00, $00
-	
+
 loc_81A70:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B8
@@ -72042,7 +72042,7 @@ loc_81A70:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_81AE2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B8
@@ -72056,7 +72056,7 @@ loc_81AE2:
 	dc.b	$00, $0D, $00, $0E, $00, $1E, $00, $1F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_81B54:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B8
@@ -72070,7 +72070,7 @@ loc_81B54:
 	dc.b	$08, $11, $08, $10, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$08, $17, $08, $16, $08, $15, $08, $14, $08, $13, $08, $12
 	dc.b	$08, $1C, $08, $1B, $00, $00, $08, $1A, $08, $19, $08, $18
-	
+
 loc_81BC6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B8
@@ -72084,7 +72084,7 @@ loc_81BC6:
 	dc.b	$00, $0D, $00, $0E, $00, $1E, $00, $1F, $00, $10, $00, $11
 	dc.b	$00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17
 	dc.b	$00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C
-	
+
 loc_81C38:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B8
@@ -72098,7 +72098,7 @@ loc_81C38:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $00, $10, $00, $11
 	dc.b	$00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17
 	dc.b	$00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C
-	
+
 loc_81CAA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -72113,7 +72113,7 @@ loc_81CAA:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_81D28:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -72128,7 +72128,7 @@ loc_81D28:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_81DA6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -72143,7 +72143,7 @@ loc_81DA6:
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$00, $20, $00, $21, $00, $14, $08, $14, $08, $21, $08, $20
 	dc.b	$00, $22, $00, $23, $00, $1A, $08, $1A, $08, $23, $08, $22
-	
+
 loc_81E24:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -72158,7 +72158,7 @@ loc_81E24:
 	dc.b	$00, $0D, $00, $0E, $00, $1E, $00, $1F, $00, $10, $00, $11
 	dc.b	$00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00, $17
 	dc.b	$00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C
-	
+
 loc_81EA2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -72173,7 +72173,7 @@ loc_81EA2:
 	dc.b	$08, $11, $08, $10, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$08, $17, $08, $16, $08, $15, $08, $14, $08, $13, $08, $12
 	dc.b	$08, $1C, $08, $1B, $00, $00, $08, $1A, $08, $19, $08, $18
-	
+
 loc_81F20:
 	dc.b	$FF
 	dc.b	$E0, $FF, $A8
@@ -72190,7 +72190,7 @@ loc_81F20:
 	dc.b	$00, $8E, $00, $8F, $00, $90, $00, $91, $08, $91, $08, $90, $08, $8F, $08, $8E
 	dc.b	$00, $92, $00, $93, $00, $94, $00, $95, $08, $95, $08, $94, $08, $93, $08, $92
 	dc.b	$00, $96, $00, $97, $00, $98, $00, $99, $08, $99, $08, $98, $08, $97, $08, $96
-	
+
 loc_81FE6:
 	dc.b	$FF
 	dc.b	$E0, $FF, $A8
@@ -72207,13 +72207,13 @@ loc_81FE6:
 	dc.b	$00, $8E, $00, $8F, $00, $90, $00, $91, $08, $91, $08, $90, $08, $8F, $08, $8E
 	dc.b	$00, $92, $00, $93, $00, $94, $00, $95, $08, $95, $08, $94, $08, $93, $08, $92
 	dc.b	$00, $96, $00, $97, $00, $98, $00, $99, $08, $99, $08, $98, $08, $97, $08, $96
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Whistle Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_WhistleMap:
 	dc.w	loc_820E8-Battle_WhistleMap
 	dc.w	loc_82136-Battle_WhistleMap
@@ -72245,7 +72245,7 @@ Battle_WhistleMap:
 	dc.w	loc_82652-Battle_WhistleMap
 	dc.w	loc_82658-Battle_WhistleMap
 	dc.w	loc_82664-Battle_WhistleMap
-	
+
 loc_820E8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72256,7 +72256,7 @@ loc_820E8:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82136:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72267,7 +72267,7 @@ loc_82136:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82184:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72278,7 +72278,7 @@ loc_82184:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_821D2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72289,7 +72289,7 @@ loc_821D2:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82220:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72300,7 +72300,7 @@ loc_82220:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_8226E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72311,7 +72311,7 @@ loc_8226E:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_822BC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72322,7 +72322,7 @@ loc_822BC:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_8230A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72333,7 +72333,7 @@ loc_8230A:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82358:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72344,7 +72344,7 @@ loc_82358:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_823A6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72355,7 +72355,7 @@ loc_823A6:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_823F4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72366,7 +72366,7 @@ loc_823F4:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82442:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72377,7 +72377,7 @@ loc_82442:
 	dc.b	$00, $00, $00, $07, $00, $08, $00, $09, $08, $07, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82490:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72388,7 +72388,7 @@ loc_82490:
 	dc.b	$00, $00, $00, $38, $00, $08, $00, $09, $08, $38, $00, $00
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_824DE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72399,7 +72399,7 @@ loc_824DE:
 	dc.b	$00, $3B, $00, $3C, $00, $08, $00, $09, $08, $3C, $08, $3B
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_8252C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72410,7 +72410,7 @@ loc_8252C:
 	dc.b	$00, $3B, $00, $3E, $00, $08, $00, $09, $00, $3F, $08, $3B
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_8257A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72421,7 +72421,7 @@ loc_8257A:
 	dc.b	$00, $3B, $00, $42, $00, $08, $00, $09, $08, $42, $08, $3B
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_825C8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72432,73 +72432,73 @@ loc_825C8:
 	dc.b	$00, $46, $00, $47, $00, $08, $00, $09, $08, $47, $08, $46
 	dc.b	$00, $00, $00, $0A, $00, $0B, $00, $0C, $08, $0A, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $08, $0D, $00, $00
-	
+
 loc_82616:
 	dc.b	$01
 	dc.b	$00, $00, $00, $48, $00
-	
+
 loc_8261C:
 	dc.b	$01
 	dc.b	$00, $00, $00, $49, $00
-	
+
 loc_82622:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4A, $00
-	
+
 loc_82628:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4B, $00
-	
+
 loc_8262E:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4C, $00
-	
+
 loc_82634:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4D, $00
-	
+
 loc_8263A:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4E, $00
-	
+
 loc_82640:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4F, $00
-	
+
 loc_82646:
 	dc.b	$01
 	dc.b	$00, $01, $00, $50, $00
-	
+
 loc_8264C:
 	dc.b	$01
 	dc.b	$00, $03, $00, $52, $00
-	
+
 loc_82652:
 	dc.b	$01
 	dc.b	$00, $01, $00, $56, $F4
-	
+
 loc_82658:
 	dc.b	$02
 	dc.b	$00, $01, $00, $58, $F4
 	dc.b	$10, $04, $00, $5A, $F4
-	
+
 	even
-	
+
 loc_82664:
 	dc.b	$04
 	dc.b	$00, $01, $00, $5C, $F4
 	dc.b	$10, $04, $00, $5E, $F4
 	dc.b	$18, $08, $00, $60, $FC
 	dc.b	$20, $04, $00, $63, $FC
-	
+
 ; =================================================================
-	
+
 	even
 
 ; -----------------------------------------------------------------
 ; Locust Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_LocustMap:
 	dc.w	loc_826A2-Battle_LocustMap
 	dc.w	loc_82738-Battle_LocustMap
@@ -72520,7 +72520,7 @@ Battle_LocustMap:
 	dc.w	loc_82CE0-Battle_LocustMap
 	dc.w	loc_82CEC-Battle_LocustMap
 	dc.w	loc_82CF8-Battle_LocustMap
-	
+
 loc_826A2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72537,7 +72537,7 @@ loc_826A2:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $16, $08, $16, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82738:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72554,7 +72554,7 @@ loc_82738:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $2C, $08, $2C, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_827CE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72571,7 +72571,7 @@ loc_827CE:
 	dc.b	$00, $11, $00, $12, $00, $45, $08, $45, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $46, $08, $46, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82864:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72588,7 +72588,7 @@ loc_82864:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $16, $08, $16, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_828FA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72605,7 +72605,7 @@ loc_828FA:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $16, $08, $16, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82990:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72622,7 +72622,7 @@ loc_82990:
 	dc.b	$00, $11, $00, $12, $00, $45, $08, $45, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $46, $08, $46, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82A26:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72639,7 +72639,7 @@ loc_82A26:
 	dc.b	$00, $11, $00, $12, $00, $45, $08, $45, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $46, $08, $46, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82ABC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72656,7 +72656,7 @@ loc_82ABC:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $16, $08, $16, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82B52:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72673,7 +72673,7 @@ loc_82B52:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $16, $08, $16, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82BE8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $A0
@@ -72690,85 +72690,85 @@ loc_82BE8:
 	dc.b	$00, $11, $00, $12, $00, $45, $08, $45, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $46, $08, $46, $08, $15, $08, $14
 	dc.b	$00, $17, $00, $00, $00, $18, $08, $18, $00, $00, $08, $17
-	
+
 loc_82C7E:
 	dc.b	$04
 	dc.b	$38, $04, $00, $68, $08
 	dc.b	$38, $04, $08, $68, $18
 	dc.b	$40, $00, $00, $6A, $10
 	dc.b	$40, $00, $08, $6A, $18
-	
+
 	even
-	
+
 loc_82C94:
 	dc.b	$02
 	dc.b	$38, $08, $00, $6B, $10
 	dc.b	$40, $04, $00, $6E, $10
-	
+
 	even
-	
+
 loc_82CA0:
 	dc.b	$01
 	dc.b	$40, $0C, $00, $70, $08
-	
+
 loc_82CA6:
 	dc.b	$02
 	dc.b	$40, $04, $00, $74, $08
 	dc.b	$48, $08, $00, $76, $08
-	
+
 	even
-	
+
 loc_82CB2:
 	dc.b	$02
 	dc.b	$50, $04, $00, $79, $08
 	dc.b	$50, $04, $08, $79, $18
-	
+
 	even
-	
+
 loc_82CBE:
 	dc.b	$02
 	dc.b	$48, $04, $00, $7B, $18
 	dc.b	$50, $08, $00, $7D, $10
-	
+
 	even
-	
+
 loc_82CCA:
 	dc.b	$04
 	dc.b	$60, $00, $00, $80, $10
 	dc.b	$60, $00, $08, $80, $18
 	dc.b	$68, $08, $00, $81, $00
 	dc.b	$68, $08, $00, $84, $18
-	
+
 	even
-	
+
 loc_82CE0:
 	dc.b	$02
 	dc.b	$68, $08, $00, $87, $00
 	dc.b	$70, $0C, $00, $8A, $00
-	
+
 	even
-	
+
 loc_82CEC:
 	dc.b	$02
 	dc.b	$78, $08, $00, $8E, $00
 	dc.b	$78, $08, $08, $8E, $18
-	
+
 	even
-	
+
 loc_82CF8:
 	dc.b	$02
 	dc.b	$70, $08, $00, $91, $18
 	dc.b	$78, $0C, $00, $94, $10
 
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Amoeba Sprite Mappings
 ; -----------------------------------------------------------------
-	
-Battle_AmoebaMap:	
+
+Battle_AmoebaMap:
 	dc.w	loc_82D30-Battle_AmoebaMap
 	dc.w	loc_82D7E-Battle_AmoebaMap
 	dc.w	loc_82DCC-Battle_AmoebaMap
@@ -72791,7 +72791,7 @@ Battle_AmoebaMap:
 	dc.w	loc_83100-Battle_AmoebaMap
 	dc.w	loc_83110-Battle_AmoebaMap
 	dc.w	loc_83116-Battle_AmoebaMap
-	
+
 loc_82D30:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72802,7 +72802,7 @@ loc_82D30:
 	dc.b	$00, $00, $00, $04, $00, $05, $00, $06, $00, $07, $00, $08
 	dc.b	$00, $09, $00, $0A, $00, $0B, $00, $0C, $00, $0D, $00, $0E
 	dc.b	$00, $0F, $00, $10, $00, $11, $00, $12, $00, $13, $00, $00
-	
+
 loc_82D7E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72813,7 +72813,7 @@ loc_82D7E:
 	dc.b	$00, $00, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$08, $08, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $25, $00, $00
-	
+
 loc_82DCC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72824,7 +72824,7 @@ loc_82DCC:
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $00, $2D
 	dc.b	$00, $2E, $00, $2F, $00, $30, $00, $31, $00, $32, $00, $33
 	dc.b	$00, $34, $00, $35, $00, $36, $00, $37, $00, $38, $00, $00
-	
+
 loc_82E1A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72835,7 +72835,7 @@ loc_82E1A:
 	dc.b	$00, $00, $00, $04, $00, $05, $00, $3A, $00, $07, $00, $08
 	dc.b	$00, $09, $00, $0A, $00, $0B, $00, $0C, $00, $0D, $00, $0E
 	dc.b	$00, $0F, $00, $10, $00, $11, $00, $12, $00, $13, $00, $00
-	
+
 loc_82E68:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72846,7 +72846,7 @@ loc_82E68:
 	dc.b	$00, $00, $00, $17, $00, $18, $00, $3F, $00, $1A, $00, $1B
 	dc.b	$08, $08, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $25, $00, $00
-	
+
 loc_82EB6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72857,7 +72857,7 @@ loc_82EB6:
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $49, $00, $4A, $00, $2D
 	dc.b	$00, $2E, $00, $2F, $00, $30, $00, $31, $00, $32, $00, $33
 	dc.b	$00, $34, $00, $35, $00, $36, $00, $37, $00, $38, $00, $00
-	
+
 loc_82F04:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72868,7 +72868,7 @@ loc_82F04:
 	dc.b	$00, $00, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$08, $08, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $25, $00, $00
-	
+
 loc_82F52:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -72879,7 +72879,7 @@ loc_82F52:
 	dc.b	$00, $00, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$08, $08, $00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $25, $00, $00
-	
+
 loc_82FA0:
 	dc.b	$09
 	dc.b	$00, $00, $00, $5B, $10
@@ -72891,7 +72891,7 @@ loc_82FA0:
 	dc.b	$08, $00, $00, $5D, $10
 	dc.b	$08, $00, $08, $5D, $20
 	dc.b	$08, $00, $00, $5E, $18
-	
+
 loc_82FCE:
 	dc.b	$09
 	dc.b	$08, $00, $00, $5B, $10
@@ -72903,7 +72903,7 @@ loc_82FCE:
 	dc.b	$10, $00, $00, $5D, $10
 	dc.b	$10, $00, $08, $5D, $20
 	dc.b	$10, $00, $00, $5E, $18
-	
+
 loc_82FFC:
 	dc.b	$09
 	dc.b	$10, $00, $00, $5B, $10
@@ -72915,7 +72915,7 @@ loc_82FFC:
 	dc.b	$18, $00, $00, $5D, $10
 	dc.b	$18, $00, $08, $5D, $20
 	dc.b	$18, $00, $00, $5E, $18
-	
+
 loc_8302A:
 	dc.b	$09
 	dc.b	$18, $00, $00, $5B, $10
@@ -72927,7 +72927,7 @@ loc_8302A:
 	dc.b	$20, $00, $00, $5D, $10
 	dc.b	$20, $00, $08, $5D, $20
 	dc.b	$20, $00, $00, $5E, $18
-	
+
 loc_83058:
 	dc.b	$09
 	dc.b	$20, $00, $00, $5B, $10
@@ -72939,7 +72939,7 @@ loc_83058:
 	dc.b	$28, $00, $00, $5D, $10
 	dc.b	$28, $00, $08, $5D, $20
 	dc.b	$28, $00, $00, $5E, $18
-	
+
 loc_83086:
 	dc.b	$09
 	dc.b	$28, $00, $00, $5B, $10
@@ -72951,57 +72951,57 @@ loc_83086:
 	dc.b	$30, $00, $00, $5D, $10
 	dc.b	$30, $00, $08, $5D, $20
 	dc.b	$30, $00, $00, $5E, $18
-	
+
 loc_830B4:
 	dc.b	$03
 	dc.b	$00, $08, $00, $5F, $20
 	dc.b	$08, $08, $00, $62, $20
 	dc.b	$10, $08, $10, $5F, $20
-	
+
 loc_830C4:
 	dc.b	$03
 	dc.b	$00, $08, $00, $65, $38
 	dc.b	$08, $08, $00, $68, $38
 	dc.b	$10, $08, $00, $6B, $38
-	
+
 loc_830D4:
 	dc.b	$03
 	dc.b	$18, $08, $00, $5F, $40
 	dc.b	$20, $08, $00, $62, $40
 	dc.b	$28, $08, $10, $5F, $40
-	
+
 loc_830E4:
 	dc.b	$02
 	dc.b	$18, $0D, $00, $6E, $48
 	dc.b	$28, $04, $00, $76, $48
-	
+
 	even
-	
+
 loc_830F0:
 	dc.b	$03
 	dc.b	$00, $08, $00, $5F, $F0
 	dc.b	$08, $08, $00, $62, $F0
 	dc.b	$10, $08, $10, $5F, $F0
-	
+
 loc_83100:
 	dc.b	$03
 	dc.b	$00, $08, $00, $65, $D8
 	dc.b	$08, $08, $00, $68, $D8
 	dc.b	$10, $08, $00, $6B, $D8
-	
+
 loc_83110:
 	dc.b	$01
 	dc.b	$10, $0A, $00, $78, $C8
-	
+
 loc_83116:
 	dc.b	$02
 	dc.b	$18, $0D, $00, $6E, $C8
 	dc.b	$28, $04, $00, $76, $C8
-	
-; =================================================================	
-	
+
+; =================================================================
+
 	even
-	
+
 Battle_PoleziArt:	binclude "art\battle_polezi_art.bin"
 
 Battle_LeecherArt:	binclude "art\battle_leecher_art.bin"
@@ -74305,13 +74305,13 @@ Battle_CatmanArt:
 	dc.b	$01, $00, $00, $11, $13, $37, $98, $8A, $99, $9A, $88, $8A, $9A, $A0, $88, $9A ;0xE80
 	dc.b	$CA, $89, $9A, $5D, $99, $AC, $D0, $AA, $CD, $DD, $D0, $DD, $01, $00, $77, $FF
 	dc.b	$FF, $FF, $DD, $D0, $FF ;0xEA0
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_PoleziMap:
 	dc.w	loc_8CA8C-Battle_PoleziMap
 	dc.w	loc_8CAF2-Battle_PoleziMap
@@ -74328,7 +74328,7 @@ Battle_PoleziMap:
 	dc.w	loc_8CF54-Battle_PoleziMap
 	dc.w	loc_8CF6A-Battle_PoleziMap
 	dc.w	loc_8CF76-Battle_PoleziMap
-	
+
 loc_8CA8C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74341,7 +74341,7 @@ loc_8CA8C:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CAF2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74354,7 +74354,7 @@ loc_8CAF2:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CB58:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74367,7 +74367,7 @@ loc_8CB58:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CBBE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74380,7 +74380,7 @@ loc_8CBBE:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CC24:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74393,7 +74393,7 @@ loc_8CC24:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CC8A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74406,7 +74406,7 @@ loc_8CC8A:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CCF0:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74419,7 +74419,7 @@ loc_8CCF0:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CD56:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74432,7 +74432,7 @@ loc_8CD56:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CDBC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74445,7 +74445,7 @@ loc_8CDBC:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CE22:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74458,7 +74458,7 @@ loc_8CE22:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CE88:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74471,7 +74471,7 @@ loc_8CE88:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CEEE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74484,38 +74484,38 @@ loc_8CEEE:
 	dc.b	$00, $00, $00, $14, $00, $15, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00
-	
+
 loc_8CF54:
 	dc.b	$04
 	dc.b	$08, $00, $00, $6A, $18
 	dc.b	$08, $00, $08, $6A, $20
 	dc.b	$10, $00, $10, $6A, $18
 	dc.b	$10, $00, $18, $6A, $20
-	
+
 	even
-	
+
 loc_8CF6A:
 	dc.b	$02
 	dc.b	$08, $04, $00, $6B, $18
 	dc.b	$10, $04, $10, $6B, $18
-	
+
 	even
-	
+
 loc_8CF76:
 	dc.b	$04
 	dc.b	$08, $00, $00, $6D, $18
 	dc.b	$08, $00, $08, $6D, $20
 	dc.b	$10, $00, $10, $6D, $18
 	dc.b	$10, $00, $18, $6D, $20
-	
+
 ; =================================================================
 
 	even
 
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_LeecherMap:
 	dc.w	loc_8CFC2-Battle_LeecherMap
 	dc.w	loc_8D028-Battle_LeecherMap
@@ -74544,7 +74544,7 @@ Battle_LeecherMap:
 	dc.w	loc_8D952-Battle_LeecherMap
 	dc.w	loc_8D968-Battle_LeecherMap
 	dc.w	loc_8D988-Battle_LeecherMap
-	
+
 loc_8CFC2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74557,7 +74557,7 @@ loc_8CFC2:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D028:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74570,7 +74570,7 @@ loc_8D028:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D08E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74583,7 +74583,7 @@ loc_8D08E:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D0F4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74596,7 +74596,7 @@ loc_8D0F4:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D15A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74609,7 +74609,7 @@ loc_8D15A:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D1C0:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74622,7 +74622,7 @@ loc_8D1C0:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D226:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74635,7 +74635,7 @@ loc_8D226:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D28C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74648,7 +74648,7 @@ loc_8D28C:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D2F2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74661,7 +74661,7 @@ loc_8D2F2:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D358:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74674,7 +74674,7 @@ loc_8D358:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D3BE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74700,7 +74700,7 @@ loc_8D424:
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D48A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74713,7 +74713,7 @@ loc_8D48A:
 	dc.b	$00, $74, $00, $75, $10, $72, $18, $72, $00, $76, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $77, $00, $78, $00, $79, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $7A, $00, $7B, $00, $24, $00, $25
-	
+
 loc_8D4F0:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74726,7 +74726,7 @@ loc_8D4F0:
 	dc.b	$00, $16, $00, $84, $00, $85, $00, $86, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $87, $00, $88, $00, $89, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D556:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74739,7 +74739,7 @@ loc_8D556:
 	dc.b	$00, $16, $00, $84, $00, $93, $00, $94, $00, $95, $00, $1B
 	dc.b	$00, $1C, $00, $87, $00, $88, $00, $89, $00, $96, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D5BC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74778,7 +74778,7 @@ loc_8D688:
 	dc.b	$00, $16, $00, $AD, $18, $94, $10, $94, $00, $A5, $00, $1B
 	dc.b	$00, $1C, $00, $9D, $00, $9E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D6EE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74791,7 +74791,7 @@ loc_8D6EE:
 	dc.b	$00, $16, $00, $B1, $00, $B2, $08, $B2, $00, $B3, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $9E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D754:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74804,7 +74804,7 @@ loc_8D754:
 	dc.b	$00, $16, $00, $B1, $00, $B2, $08, $B2, $00, $B3, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $9E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D7BA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74817,7 +74817,7 @@ loc_8D7BA:
 	dc.b	$00, $16, $00, $BD, $00, $BE, $08, $BE, $00, $BF, $00, $1B
 	dc.b	$00, $1C, $00, $C0, $00, $C1, $00, $C2, $00, $C3, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D820:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74830,7 +74830,7 @@ loc_8D820:
 	dc.b	$00, $16, $00, $BD, $00, $C8, $08, $C8, $00, $BF, $00, $1B
 	dc.b	$00, $1C, $00, $C0, $00, $C1, $00, $C2, $00, $C3, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D886:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74843,7 +74843,7 @@ loc_8D886:
 	dc.b	$00, $16, $00, $CE, $00, $CF, $00, $D0, $00, $D1, $00, $1B
 	dc.b	$00, $1C, $00, $C0, $00, $C1, $00, $C2, $00, $C3, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D8EC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -74856,16 +74856,16 @@ loc_8D8EC:
 	dc.b	$00, $16, $00, $D8, $00, $D9, $00, $DA, $00, $DB, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $DC, $00, $DD, $00, $20, $00, $21
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $24, $00, $25
-	
+
 loc_8D952:
 	dc.b	$04
 	dc.b	$38, $05, $00, $DE, $08
 	dc.b	$38, $05, $08, $DE, $18
 	dc.b	$48, $05, $10, $DE, $08
 	dc.b	$48, $05, $18, $DE, $18
-	
+
 	even
-	
+
 loc_8D968:
 	dc.b	$06
 	dc.b	$10, $00, $00, $E2, $10
@@ -74874,9 +74874,9 @@ loc_8D968:
 	dc.b	$18, $06, $08, $E3, $18
 	dc.b	$30, $01, $00, $E9, $10
 	dc.b	$30, $01, $08, $E9, $18
-	
+
 	even
-	
+
 loc_8D988:
 	dc.b	$06
 	dc.b	$38, $04, $00, $EB, $08
@@ -74887,13 +74887,13 @@ loc_8D988:
 	dc.b	$50, $01, $08, $F3, $18
 
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_PulserMap:
 	dc.w	loc_8D9DE-Battle_PulserMap
 	dc.w	loc_8DA38-Battle_PulserMap
@@ -74922,7 +74922,7 @@ Battle_PulserMap:
 	dc.w	loc_8DDE6-Battle_PulserMap
 	dc.w	loc_8DE06-Battle_PulserMap
 	dc.w	loc_8DE16-Battle_PulserMap
-	
+
 loc_8D9DE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -74934,7 +74934,7 @@ loc_8D9DE:
 	dc.b	$00, $0C, $00, $0D, $00, $0E, $08, $0E, $08, $0D, $08, $0C
 	dc.b	$00, $00, $00, $0F, $00, $10, $08, $10, $08, $0F, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8DA38:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -74946,7 +74946,7 @@ loc_8DA38:
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $08, $1D, $08, $1C, $08, $1B
 	dc.b	$00, $00, $00, $1E, $00, $1F, $08, $1F, $08, $1E, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8DA92:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -74958,7 +74958,7 @@ loc_8DA92:
 	dc.b	$00, $2C, $00, $2D, $00, $2E, $08, $2E, $08, $2D, $08, $2C
 	dc.b	$00, $2F, $00, $30, $00, $31, $08, $31, $08, $30, $08, $2F
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8DAEC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -74970,7 +74970,7 @@ loc_8DAEC:
 	dc.b	$00, $3E, $00, $3F, $00, $40, $08, $40, $08, $3F, $08, $3E
 	dc.b	$00, $41, $00, $42, $00, $43, $08, $43, $08, $42, $08, $41
 	dc.b	$00, $00, $00, $44, $00, $45, $08, $45, $08, $44, $00, $00
-	
+
 loc_8DB46:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C8
@@ -74994,7 +74994,7 @@ loc_8DB84:
 	dc.b	$00, $00, $00, $55, $08, $55, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8DBC2:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C8
@@ -75006,7 +75006,7 @@ loc_8DBC2:
 	dc.b	$00, $00, $00, $00, $00, $6B, $00, $6C, $00, $6D, $00, $6E, $00, $6F, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8DC38:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C8
@@ -75018,67 +75018,67 @@ loc_8DC38:
 	dc.b	$00, $00, $08, $6F, $08, $6E, $08, $6D, $00, $70, $00, $71, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8DCAE:
 	dc.b	$04
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $00, $00, $73, $10
 	dc.b	$18, $00, $08, $73, $18
-	
+
 	even
-	
+
 loc_8DCC4:
 	dc.b	$04
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $00, $00, $74, $10
 	dc.b	$18, $00, $08, $74, $18
-	
+
 	even
-	
+
 loc_8DCDA:
 	dc.b	$04
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $00, $00, $75, $10
 	dc.b	$18, $00, $08, $75, $18
-	
+
 	even
-	
+
 loc_8DCF0:
 	dc.b	$04
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $01, $00, $76, $10
 	dc.b	$18, $01, $00, $78, $18
-	
+
 	even
-	
+
 loc_8DD06:
 	dc.b	$04
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $02, $00, $7A, $10
 	dc.b	$18, $02, $00, $7D, $18
-	
+
 	even
-	
+
 loc_8DD1C:
 	dc.b	$03
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $07, $00, $80, $10
-	
+
 loc_8DD2C:
 	dc.b	$04
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $03, $00, $88, $10
 	dc.b	$18, $03, $00, $8C, $18
-	
+
 	even
-	
+
 loc_8DD42:
 	dc.b	$05
 	dc.b	$10, $00, $00, $72, $10
@@ -75086,68 +75086,68 @@ loc_8DD42:
 	dc.b	$18, $00, $00, $73, $10
 	dc.b	$18, $00, $08, $73, $18
 	dc.b	$28, $05, $00, $90, $10
-	
+
 loc_8DD5C:
 	dc.b	$01
 	dc.b	$10, $05, $00, $94, $10
-	
+
 loc_8DD62:
 	dc.b	$01
 	dc.b	$10, $05, $00, $98, $10
-	
+
 loc_8DD68:
 	dc.b	$04
 	dc.b	$10, $00, $00, $94, $10
 	dc.b	$10, $00, $00, $96, $18
 	dc.b	$18, $04, $00, $9C, $10
 	dc.b	$20, $04, $00, $9E, $08
-	
+
 	even
-	
+
 loc_8DD7E:
 	dc.b	$04
 	dc.b	$10, $00, $00, $94, $10
 	dc.b	$10, $00, $00, $96, $18
 	dc.b	$18, $08, $00, $A0, $08
 	dc.b	$20, $09, $00, $A3, $00
-	
+
 	even
-	
+
 loc_8DD94:
 	dc.b	$04
 	dc.b	$10, $00, $00, $94, $10
 	dc.b	$10, $00, $00, $96, $18
 	dc.b	$18, $04, $00, $A9, $10
 	dc.b	$20, $06, $00, $AB, $08
-	
+
 	even
-	
+
 loc_8DDAA:
 	dc.b	$03
 	dc.b	$10, $00, $00, $72, $10
 	dc.b	$10, $00, $08, $72, $18
 	dc.b	$18, $07, $00, $88, $10
-	
+
 	even
-	
+
 loc_8DDBA:
 	dc.b	$04
 	dc.b	$10, $00, $08, $96, $10
 	dc.b	$10, $00, $08, $94, $18
 	dc.b	$18, $04, $08, $A9, $10
 	dc.b	$20, $06, $08, $AB, $18
-	
+
 	even
-	
+
 loc_8DDD0:
 	dc.b	$04
 	dc.b	$10, $00, $08, $96, $10
 	dc.b	$10, $00, $08, $94, $18
 	dc.b	$18, $08, $08, $A0, $10
 	dc.b	$20, $09, $08, $A3, $18
-	
+
 	even
-	
+
 loc_8DDE6:
 	dc.b	$06
 	dc.b	$10, $00, $08, $96, $10
@@ -75156,24 +75156,24 @@ loc_8DDE6:
 	dc.b	$18, $00, $00, $B1, $18
 	dc.b	$20, $00, $00, $B2, $20
 	dc.b	$28, $00, $00, $B3, $28
-	
+
 	even
-	
+
 loc_8DE06:
 	dc.b	$03
 	dc.b	$10, $05, $00, $B4, $30
 	dc.b	$08, $03, $00, $B8, $40
 	dc.b	$08, $03, $00, $BC, $48
-	
+
 loc_8DE16:
 	dc.b	$03
 	dc.b	$10, $05, $08, $B4, $F0, $08, $03, $08, $B8, $E8, $08, $03, $08, $BC, $E0
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------		
+; -----------------------------------------------------------------
 
 Battle_RotWoodMap:
 	dc.w	loc_8DE38-Battle_RotWoodMap
@@ -75185,7 +75185,7 @@ Battle_RotWoodMap:
 	dc.w	loc_8E0DA-Battle_RotWoodMap
 	dc.w	loc_8E17A-Battle_RotWoodMap
 	dc.w	loc_8E1F8-Battle_RotWoodMap
-	
+
 loc_8DE38:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75198,7 +75198,7 @@ loc_8DE38:
 	dc.b	$00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $1C
 	dc.b	$00, $00, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8DE9E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75211,7 +75211,7 @@ loc_8DE9E:
 	dc.b	$00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $1C
 	dc.b	$00, $00, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8DF04:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75224,7 +75224,7 @@ loc_8DF04:
 	dc.b	$00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $1C
 	dc.b	$00, $00, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8DF6A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75237,7 +75237,7 @@ loc_8DF6A:
 	dc.b	$00, $00, $00, $32, $00, $33, $00, $34, $00, $1B, $00, $1C
 	dc.b	$00, $00, $00, $1D, $00, $35, $00, $36, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8DFD0:
 	dc.b	$FF
 	dc.b	$D8, $FF, $C0
@@ -75250,7 +75250,7 @@ loc_8DFD0:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $4F, $00, $50, $00, $51, $00, $52, $00, $53
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $1D, $00, $35, $00, $36, $00, $54, $00, $55
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8E056:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -75264,7 +75264,7 @@ loc_8E056:
 	dc.b	$00, $00, $00, $00, $00, $4F, $00, $73, $00, $74, $00, $75, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $1D, $00, $35, $00, $36, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8E0DA:
 	dc.b	$FF
 	dc.b	$E0, $FF, $A8
@@ -75280,7 +75280,7 @@ loc_8E0DA:
 	dc.b	$00, $00, $00, $00, $00, $94, $00, $95, $00, $96, $00, $97, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $1D, $00, $35, $00, $36, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8E17A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75295,7 +75295,7 @@ loc_8E17A:
 	dc.b	$00, $00, $00, $94, $00, $95, $00, $96, $00, $97, $00, $00
 	dc.b	$00, $00, $00, $1D, $00, $35, $00, $36, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $00, $00
-	
+
 loc_8E1F8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75309,12 +75309,12 @@ loc_8E1F8:
 	dc.b	$00, $00, $00, $BE, $00, $BF, $00, $C0, $00, $20, $00, $00
 	dc.b	$00, $00, $00, $21, $00, $C1, $00, $C2, $00, $24, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $C3, $00, $C4, $00, $00
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------		
+; -----------------------------------------------------------------
 
 Battle_WolfangMap:
 	dc.w	loc_8E27E-Battle_WolfangMap
@@ -75327,7 +75327,7 @@ Battle_WolfangMap:
 	dc.w	loc_8E5F0-Battle_WolfangMap
 	dc.w	loc_8E606-Battle_WolfangMap
 	dc.w	loc_8E612-Battle_WolfangMap
-	
+
 loc_8E27E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75342,7 +75342,7 @@ loc_8E27E:
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $22, $00, $00, $00, $23, $00, $00, $00, $00, $00, $24
 	dc.b	$00, $25, $00, $00, $00, $26, $00, $00, $00, $00, $00, $27
-	
+
 loc_8E2FC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75357,7 +75357,7 @@ loc_8E2FC:
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $21
 	dc.b	$00, $22, $00, $00, $00, $23, $00, $00, $00, $00, $00, $24
 	dc.b	$00, $25, $00, $00, $00, $26, $00, $00, $00, $00, $00, $27
-	
+
 loc_8E37A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75387,7 +75387,7 @@ loc_8E3F8:
 	dc.b	$00, $1C, $00, $5E, $00, $5F, $00, $60, $00, $61, $00, $62
 	dc.b	$00, $22, $00, $00, $00, $63, $00, $00, $00, $64, $00, $65
 	dc.b	$00, $25, $00, $00, $00, $66, $00, $00, $00, $00, $00, $67
-	
+
 loc_8E476:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75402,7 +75402,7 @@ loc_8E476:
 	dc.b	$00, $75, $00, $76, $00, $77, $00, $60, $00, $61, $00, $62
 	dc.b	$00, $22, $00, $00, $00, $63, $00, $00, $00, $64, $00, $65
 	dc.b	$00, $25, $00, $00, $00, $66, $00, $00, $00, $00, $00, $67
-	
+
 loc_8E4F4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75417,7 +75417,7 @@ loc_8E4F4:
 	dc.b	$00, $80, $00, $81, $00, $82, $00, $83, $00, $61, $00, $62
 	dc.b	$00, $22, $00, $00, $00, $63, $00, $00, $00, $64, $00, $65
 	dc.b	$00, $25, $00, $00, $00, $66, $00, $00, $00, $00, $00, $67
-	
+
 loc_8E572:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75432,23 +75432,23 @@ loc_8E572:
 	dc.b	$00, $80, $00, $86, $00, $87, $00, $88, $00, $61, $00, $62
 	dc.b	$00, $22, $00, $00, $00, $63, $00, $00, $00, $64, $00, $65
 	dc.b	$00, $25, $00, $00, $00, $66, $00, $00, $00, $00, $00, $67
-	
+
 loc_8E5F0:
 	dc.b	$04
 	dc.b	$48, $01, $00, $89, $08
 	dc.b	$48, $01, $08, $89, $18
 	dc.b	$48, $01, $00, $8B, $10
 	dc.b	$38, $09, $00, $8D, $08
-	
+
 	even
-	
+
 loc_8E606:
 	dc.b	$02
 	dc.b	$48, $09, $00, $93, $08
 	dc.b	$58, $04, $00, $99, $08
-	
+
 	even
-	
+
 loc_8E612:
 	dc.b	$09
 	dc.b	$50, $00, $00, $9B, $08
@@ -75460,13 +75460,13 @@ loc_8E612:
 	dc.b	$50, $00, $00, $9E, $10
 	dc.b	$60, $00, $00, $9F, $10
 	dc.b	$58, $00, $00, $A0, $10
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_PugHitMap:
 	dc.w	loc_8E660-Battle_PugHitMap
 	dc.w	loc_8E6DE-Battle_PugHitMap
@@ -75484,7 +75484,7 @@ Battle_PugHitMap:
 	dc.w	loc_8EA6C-Battle_PugHitMap
 	dc.w	loc_8EA96-Battle_PugHitMap
 	dc.w	loc_8EABA-Battle_PugHitMap
-	
+
 loc_8E660:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75499,7 +75499,7 @@ loc_8E660:
 	dc.b	$00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $00, $00, $1E, $00, $1F, $08, $1C
-	
+
 loc_8E6DE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75514,7 +75514,7 @@ loc_8E6DE:
 	dc.b	$00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15
 	dc.b	$00, $16, $00, $20, $00, $21, $00, $22, $00, $23, $00, $1B
 	dc.b	$00, $1C, $00, $1D, $00, $24, $00, $25, $08, $1D, $08, $1C
-	
+
 loc_8E75C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75529,7 +75529,7 @@ loc_8E75C:
 	dc.b	$00, $2C, $00, $2D, $00, $2E, $08, $2E, $08, $2D, $08, $2C
 	dc.b	$00, $00, $00, $2F, $00, $30, $08, $30, $08, $2F, $00, $00
 	dc.b	$00, $1C, $00, $1D, $00, $31, $08, $31, $08, $1D, $08, $1C
-	
+
 loc_8E7DA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75544,7 +75544,7 @@ loc_8E7DA:
 	dc.b	$00, $00, $00, $3B, $00, $3C, $08, $3C, $08, $3B, $00, $00
 	dc.b	$00, $00, $00, $3D, $00, $3E, $08, $3E, $08, $3D, $00, $00
 	dc.b	$00, $1C, $00, $1D, $00, $3F, $08, $3F, $08, $1D, $08, $1C
-	
+
 loc_8E858:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -75559,7 +75559,7 @@ loc_8E858:
 	dc.b	$00, $00, $00, $3B, $00, $3C, $08, $3C, $08, $3B, $00, $00
 	dc.b	$00, $00, $00, $3D, $00, $3E, $08, $3E, $08, $3D, $00, $00
 	dc.b	$00, $1C, $00, $1D, $00, $3F, $08, $3F, $08, $1D, $08, $1C
-	
+
 loc_8E8D6:
 	dc.b	$09
 	dc.b	$08, $00, $00, $45, $00
@@ -75571,7 +75571,7 @@ loc_8E8D6:
 	dc.b	$30, $00, $00, $4E, $00
 	dc.b	$30, $00, $08, $4E, $28
 	dc.b	$20, $00, $00, $4F, $18
-	
+
 loc_8E904:
 	dc.b	$09
 	dc.b	$08, $00, $00, $45, $00
@@ -75583,7 +75583,7 @@ loc_8E904:
 	dc.b	$30, $00, $00, $4E, $00
 	dc.b	$30, $00, $08, $4E, $28
 	dc.b	$20, $01, $00, $50, $18
-	
+
 loc_8E932:
 	dc.b	$09
 	dc.b	$08, $00, $00, $45, $00
@@ -75595,7 +75595,7 @@ loc_8E932:
 	dc.b	$30, $00, $00, $4E, $00
 	dc.b	$30, $00, $08, $4E, $28
 	dc.b	$20, $05, $00, $52, $10
-	
+
 loc_8E960:
 	dc.b	$0B
 	dc.b	$08, $00, $00, $45, $00
@@ -75609,7 +75609,7 @@ loc_8E960:
 	dc.b	$20, $05, $00, $56, $10
 	dc.b	$30, $00, $00, $5A, $10
 	dc.b	$30, $00, $08, $53, $18
-	
+
 loc_8E998:
 	dc.b	$0B
 	dc.b	$08, $00, $00, $45, $00
@@ -75623,8 +75623,8 @@ loc_8E998:
 	dc.b	$20, $05, $00, $5B, $10
 	dc.b	$30, $00, $00, $53, $10
 	dc.b	$30, $00, $08, $5A, $18
-	
-loc_8E9D0:	
+
+loc_8E9D0:
 	dc.b	$0A
 	dc.b	$08, $00, $00, $45, $00
 	dc.b	$08, $00, $18, $31, $08
@@ -75636,9 +75636,9 @@ loc_8E9D0:
 	dc.b	$30, $00, $08, $4E, $28
 	dc.b	$28, $02, $00, $5F, $10
 	dc.b	$40, $04, $00, $62, $10
-	
+
 	even
-	
+
 loc_8EA04:
 	dc.b	$0A
 	dc.b	$08, $00, $00, $45, $00
@@ -75651,9 +75651,9 @@ loc_8EA04:
 	dc.b	$30, $00, $08, $4E, $28
 	dc.b	$20, $07, $00, $64, $10
 	dc.b	$40, $04, $00, $6C, $10
-	
+
 	even
-	
+
 loc_8EA38:
 	dc.b	$0A
 	dc.b	$08, $00, $00, $45, $00
@@ -75666,9 +75666,9 @@ loc_8EA38:
 	dc.b	$30, $00, $08, $4E, $28
 	dc.b	$38, $03, $00, $6E, $10
 	dc.b	$40, $01, $00, $72, $18
-	
+
 	even
-	
+
 loc_8EA6C:
 	dc.b	$08
 	dc.b	$08, $00, $00, $45, $00
@@ -75679,9 +75679,9 @@ loc_8EA6C:
 	dc.b	$10, $07, $08, $46, $20
 	dc.b	$30, $00, $00, $4E, $00
 	dc.b	$30, $00, $08, $4E, $28
-	
+
 	even
-	
+
 loc_8EA96:
 	dc.b	$07
 	dc.b	$08, $00, $10, $31, $00
@@ -75691,7 +75691,7 @@ loc_8EA96:
 	dc.b	$10, $07, $00, $74, $00
 	dc.b	$30, $05, $00, $7C, $00
 	dc.b	$10, $06, $00, $80, $20
-	
+
 loc_8EABA:
 	dc.b	$07
 	dc.b	$08, $00, $10, $3F, $00
@@ -75701,13 +75701,13 @@ loc_8EABA:
 	dc.b	$10, $07, $08, $74, $20
 	dc.b	$30, $05, $08, $7C, $20
 	dc.b	$10, $06, $08, $80, $00
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_WirefaceMap:
 	dc.w	loc_8EAFC-Battle_WirefaceMap
 	dc.w	loc_8EB62-Battle_WirefaceMap
@@ -75724,7 +75724,7 @@ Battle_WirefaceMap:
 	dc.w	loc_8EC3E-Battle_WirefaceMap
 	dc.w	loc_8EC5E-Battle_WirefaceMap
 	dc.w	loc_8EC7E-Battle_WirefaceMap
-	
+
 loc_8EAFC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75737,7 +75737,7 @@ loc_8EAFC:
 	dc.b	$00, $00, $00, $18, $00, $19, $00, $1A, $00, $1B, $00, $00
 	dc.b	$00, $1C, $00, $1D, $00, $1E, $00, $1F, $00, $20, $00, $00
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $25, $00, $26
-	
+
 loc_8EB62:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -75756,14 +75756,14 @@ loc_8EBC8:
 	dc.b	$30, $00, $00, $3A, $10
 	dc.b	$38, $04, $00, $3B, $00
 	dc.b	$38, $04, $00, $3D, $18
-	
+
 loc_8EBD8:
 	dc.b	$04
 	dc.b	$28, $00, $00, $3F, $10
 	dc.b	$30, $00, $00, $3D, $10
 	dc.b	$38, $00, $00, $40, $00
 	dc.b	$38, $04, $00, $41, $18
-	
+
 	even
 
 loc_8EBEE:
@@ -75798,14 +75798,14 @@ loc_8EC26:
 	dc.b	$02
 	dc.b	$10, $00, $00, $4C, $10
 	dc.b	$18, $00, $10, $4C, $10
-	
+
 	even
 
 loc_8EC32:
 	dc.b	$02
 	dc.b	$18, $00, $00, $4C, $10
 	dc.b	$20, $00, $10, $4C, $10
-	
+
 	even
 
 loc_8EC3E:
@@ -75816,7 +75816,7 @@ loc_8EC3E:
 	dc.b	$28, $00, $18, $4D, $18
 	dc.b	$20, $00, $00, $4E, $10
 	dc.b	$28, $00, $10, $4E, $10
-	
+
 	even
 
 loc_8EC5E:
@@ -75827,7 +75827,7 @@ loc_8EC5E:
 	dc.b	$30, $00, $18, $4F, $18
 	dc.b	$28, $00, $00, $50, $10
 	dc.b	$30, $00, $10, $50, $10
-	
+
 	even
 
 loc_8EC7E:
@@ -75844,13 +75844,13 @@ loc_8EC7E:
 	dc.b	$38, $01, $10, $53, $10
 
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Terakite Sprite Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_TerakiteMap:
 	dc.w	loc_8ECD0-Battle_TerakiteMap
 	dc.w	loc_8ED9E-Battle_TerakiteMap
@@ -75867,7 +75867,7 @@ Battle_TerakiteMap:
 	dc.w	loc_8F074-Battle_TerakiteMap
 	dc.w	loc_8F07A-Battle_TerakiteMap
 	dc.w	loc_8F086-Battle_TerakiteMap
-	
+
 loc_8ECD0:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -75882,7 +75882,7 @@ loc_8ECD0:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $16, $00, $17, $00, $18, $08, $16, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $19, $00, $1A, $00, $1B, $08, $19, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8ED9E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -75897,7 +75897,7 @@ loc_8ED9E:
 	dc.b	$00, $00, $00, $27, $00, $28, $00, $29, $00, $2A, $00, $2B, $08, $29, $08, $28, $08, $27, $00, $00
 	dc.b	$00, $00, $00, $2C, $00, $2D, $00, $00, $00, $2E, $00, $00, $00, $00, $08, $2D, $08, $2C, $00, $00
 	dc.b	$00, $00, $00, $2F, $00, $00, $00, $00, $00, $30, $00, $31, $00, $00, $00, $00, $08, $2F, $00, $00
-	
+
 loc_8EE6C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -75912,7 +75912,7 @@ loc_8EE6C:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $16, $00, $17, $00, $18, $08, $16, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $19, $00, $1A, $00, $1B, $08, $19, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $1C, $00, $1D, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_8EF3A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -75927,11 +75927,11 @@ loc_8EF3A:
 	dc.b	$00, $00, $00, $27, $00, $28, $00, $29, $00, $2A, $00, $2B, $08, $29, $08, $28, $08, $27, $00, $00
 	dc.b	$00, $00, $00, $2C, $00, $2D, $00, $00, $00, $2E, $00, $00, $00, $00, $08, $2D, $08, $2C, $00, $00
 	dc.b	$00, $00, $00, $2F, $00, $00, $00, $00, $00, $30, $00, $31, $00, $00, $00, $00, $08, $2F, $00, $00
-	
+
 loc_8F008:
 	dc.b	$01
 	dc.b	$28, $06, $00, $38, $20
-	
+
 loc_8F00E:
 	dc.b	$05
 	dc.b	$50, $00, $00, $3E, $18
@@ -75939,13 +75939,13 @@ loc_8F00E:
 	dc.b	$40, $03, $00, $40, $20
 	dc.b	$40, $03, $00, $44, $28
 	dc.b	$28, $06, $00, $48, $20
-	
+
 loc_8F028:
 	dc.b	$03
 	dc.b	$28, $06, $00, $4E, $20
 	dc.b	$50, $0D, $00, $54, $18
 	dc.b	$40, $05, $00, $5C, $20
-	
+
 loc_8F038:
 	dc.b	$05
 	dc.b	$20, $07, $00, $60, $20
@@ -75953,13 +75953,13 @@ loc_8F038:
 	dc.b	$50, $00, $00, $3F, $30
 	dc.b	$40, $03, $00, $40, $20
 	dc.b	$40, $03, $00, $44, $28
-	
+
 loc_8F052:
 	dc.b	$03
 	dc.b	$20, $07, $00, $68, $20
 	dc.b	$40, $05, $00, $5C, $20
 	dc.b	$50, $0D, $00, $54, $18
-	
+
 loc_8F062:
 	dc.b	$01
 	dc.b	$28, $05, $00, $70, $20
@@ -75971,31 +75971,31 @@ loc_8F068:
 loc_8F06E:
 	dc.b	$01
 	dc.b	$40, $05, $00, $78, $20
-	
+
 loc_8F074:
 	dc.b	$01
 	dc.b	$48, $05, $00, $7C, $20
-	
+
 loc_8F07A:
 	dc.b	$02
 	dc.b	$50, $0C, $00, $80, $18
 	dc.b	$58, $09, $00, $84, $20
-	
+
 	even
-	
+
 loc_8F086:
 	dc.b	$02
 	dc.b	$48, $04, $00, $8A, $28
 	dc.b	$50, $0E, $00, $8C, $18
-	
+
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Fire-Eye Sprite Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_FireEyeMap:
 	dc.w	loc_8F0C2-Battle_FireEyeMap
 	dc.w	loc_8F190-Battle_FireEyeMap
@@ -76036,7 +76036,7 @@ loc_8F0C2:
 	dc.b	$00, $00, $00, $38, $00, $39, $00, $3A, $00, $3B, $00, $3C, $00, $3D, $00, $3E, $00, $00, $00, $00
 	dc.b	$00, $3F, $00, $40, $00, $41, $00, $42, $00, $43, $00, $44, $00, $45, $00, $46, $00, $47, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $48, $00, $00, $00, $49, $00, $4A, $00, $4B, $00, $4C, $00, $4D, $00, $00
-	
+
 loc_8F190:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -76051,7 +76051,7 @@ loc_8F190:
 	dc.b	$00, $00, $00, $5B, $00, $5C, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00, $61, $00, $00, $00, $00
 	dc.b	$00, $3F, $00, $40, $00, $62, $00, $63, $00, $64, $00, $65, $00, $66, $00, $46, $00, $47, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $48, $00, $00, $00, $49, $00, $4A, $00, $4B, $00, $4C, $00, $4D, $00, $00
-	
+
 loc_8F25E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -76066,25 +76066,25 @@ loc_8F25E:
 	dc.b	$00, $00, $00, $5B, $00, $74, $00, $75, $00, $76, $00, $5F, $00, $77, $00, $78, $00, $00, $00, $00
 	dc.b	$00, $3F, $00, $40, $00, $79, $00, $7A, $00, $64, $00, $65, $00, $7B, $00, $46, $00, $47, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $48, $00, $00, $00, $49, $00, $4A, $00, $4B, $00, $4C, $00, $4D, $00, $00
-	
+
 loc_8F32C:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $7C, $18
-	
+
 loc_8F332:
 	dc.b	$01
 	dc.b	$10, $0C, $00, $80, $18
-	
+
 loc_8F338:
 	dc.b	$03
 	dc.b	$08, $04, $00, $84, $20
 	dc.b	$10, $0C, $00, $86, $10
 	dc.b	$10, $00, $00, $8A, $30
-	
+
 loc_8F348:
 	dc.b	$01
 	dc.b	$08, $0D, $00, $8B, $18
-	
+
 loc_8F34E:
 	dc.b	$0E
 	dc.b	$E0, $04, $00, $93, $18
@@ -76101,27 +76101,27 @@ loc_8F34E:
 	dc.b	$08, $0D, $00, $9D, $20
 	dc.b	$08, $00, $00, $A5, $48
 	dc.b	$10, $04, $00, $A6, $40
-	
+
 	even
-	
+
 loc_8F396:
 	dc.b	$04
 	dc.b	$E0, $00, $00, $A8, $18
 	dc.b	$E0, $00, $00, $A9, $20
 	dc.b	$E0, $00, $08, $A9, $28
 	dc.b	$E0, $00, $08, $A8, $30
-	
+
 	even
-	
+
 loc_8F3AC:
 	dc.b	$04
 	dc.b	$B8, $01, $00, $AA, $10
 	dc.b	$B8, $01, $08, $AA, $18
 	dc.b	$C8, $00, $00, $AC, $10
 	dc.b	$C8, $00, $08, $AC, $18
-	
+
 	even
-	
+
 loc_8F3C2:
 	dc.b	$08
 	dc.b	$B8, $01, $00, $AA, $10
@@ -76132,9 +76132,9 @@ loc_8F3C2:
 	dc.b	$D8, $01, $08, $AA, $18
 	dc.b	$E8, $00, $00, $AC, $10
 	dc.b	$E8, $00, $08, $AC, $18
-	
+
 	even
-	
+
 loc_8F3EC:
 	dc.b	$12
 	dc.b	$B8, $01, $00, $AA, $10
@@ -76155,9 +76155,9 @@ loc_8F3EC:
 	dc.b	$28, $00, $08, $AA, $18
 	dc.b	$30, $00, $00, $AD, $10
 	dc.b	$30, $00, $08, $AD, $18
-	
+
 	even
-	
+
 loc_8F448:
 	dc.b	$0C
 	dc.b	$B8, $03, $00, $AE, $10
@@ -76172,9 +76172,9 @@ loc_8F448:
 	dc.b	$30, $00, $08, $B2, $18
 	dc.b	$38, $00, $10, $B2, $10
 	dc.b	$38, $00, $18, $B2, $18
-	
+
 	even
-	
+
 loc_8F486:
 	dc.b	$0C
 	dc.b	$28, $00, $00, $B3, $10
@@ -76189,9 +76189,9 @@ loc_8F486:
 	dc.b	$30, $00, $08, $B5, $18
 	dc.b	$38, $00, $00, $B6, $10
 	dc.b	$38, $00, $18, $B5, $18
-	
+
 	even
-	
+
 loc_8F4C4:
 	dc.b	$0C
 	dc.b	$28, $00, $00, $B7, $08
@@ -76206,9 +76206,9 @@ loc_8F4C4:
 	dc.b	$30, $00, $08, $BC, $18
 	dc.b	$38, $00, $10, $BC, $10
 	dc.b	$38, $00, $18, $BC, $18
-	
+
 	even
-	
+
 loc_8F502:
 	dc.b	$08
 	dc.b	$20, $04, $00, $BD, $08
@@ -76219,35 +76219,35 @@ loc_8F502:
 	dc.b	$38, $01, $10, $BF, $00
 	dc.b	$28, $01, $08, $BF, $28
 	dc.b	$38, $01, $18, $BF, $28
-	
+
 	even
-	
+
 loc_8F52C:
 	dc.b	$02
 	dc.b	$28, $00, $00, $C1, $20
 	dc.b	$30, $0A, $00, $C2, $18
-	
+
 	even
-	
+
 loc_8F538:
 	dc.b	$03
 	dc.b	$28, $00, $18, $CA, $18
 	dc.b	$28, $00, $00, $CB, $20
 	dc.b	$30, $0A, $00, $CC, $18
-	
+
 loc_8F548:
 	dc.b	$01
 	dc.b	$30, $02, $00, $D5, $20
-	
+
 loc_8F54E:
 	dc.b	$04
 	dc.b	$30, $03, $00, $D8, $20
 	dc.b	$50, $00, $00, $DC, $20
 	dc.b	$50, $00, $00, $DD, $18
 	dc.b	$50, $00, $08, $DD, $28
-	
+
 	even
-	
+
 loc_8F564:
 	dc.b	$06
 	dc.b	$50, $00, $00, $DE, $18
@@ -76256,9 +76256,9 @@ loc_8F564:
 	dc.b	$58, $00, $18, $DE, $28
 	dc.b	$50, $00, $00, $DF, $20
 	dc.b	$58, $00, $10, $DF, $20
-	
+
 	even
-	
+
 loc_8F584:
 	dc.b	$0C
 	dc.b	$48, $00, $00, $E0, $18
@@ -76273,9 +76273,9 @@ loc_8F584:
 	dc.b	$60, $00, $10, $E2, $20
 	dc.b	$50, $00, $00, $E3, $20
 	dc.b	$58, $00, $00, $E3, $20
-	
+
 	even
-	
+
 loc_8F5C2:
 	dc.b	$0A
 	dc.b	$48, $04, $00, $E4, $10
@@ -76288,24 +76288,24 @@ loc_8F5C2:
 	dc.b	$58, $00, $10, $E7, $28
 	dc.b	$50, $00, $00, $E8, $20
 	dc.b	$58, $00, $10, $E8, $20
-	
+
 	even
-	
+
 loc_8F606:
 	dc.b	$04
 	dc.b	$48, $00, $00, $E9, $10
 	dc.b	$48, $00, $08, $E9, $30
 	dc.b	$60, $00, $10, $E9, $10
 	dc.b	$60, $00, $18, $E9, $30
-	
+
 	even
-	
+
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Catman Sprite Mappings
-; -----------------------------------------------------------------	
-	
+; -----------------------------------------------------------------
+
 Battle_CatmanMap:
 	dc.w	loc_8F628-Battle_CatmanMap
 	dc.w	loc_8F69A-Battle_CatmanMap
@@ -76321,7 +76321,7 @@ Battle_CatmanMap:
 	dc.w	loc_8FABA-Battle_CatmanMap
 	dc.w	loc_8FACA-Battle_CatmanMap
 	dc.w	loc_8FADA-Battle_CatmanMap
-	
+
 loc_8F628:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76335,7 +76335,7 @@ loc_8F628:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $14, $00, $15, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $18, $00, $19, $00, $00
-	
+
 loc_8F69A:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76349,7 +76349,7 @@ loc_8F69A:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $14, $00, $15, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $18, $00, $19, $00, $00
-	
+
 loc_8F70C:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76363,7 +76363,7 @@ loc_8F70C:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $14, $00, $15, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $18, $00, $19, $00, $00
-	
+
 loc_8F77E:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76377,7 +76377,7 @@ loc_8F77E:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $14, $00, $15, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $16, $00, $17, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $18, $00, $19, $00, $00
-	
+
 loc_8F7F0:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76391,7 +76391,7 @@ loc_8F7F0:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $40, $00, $41, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $42, $00, $43, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $44, $00, $45, $00, $00
-	
+
 loc_8F862:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76405,7 +76405,7 @@ loc_8F862:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $50, $00, $51, $00, $52
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $53, $00, $54, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $55, $00, $56, $00, $00
-	
+
 loc_8F8D4:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B0
@@ -76420,7 +76420,7 @@ loc_8F8D4:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $64, $00, $65, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $66, $00, $67, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $68, $00, $69, $00, $00
-	
+
 loc_8F952:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76434,7 +76434,7 @@ loc_8F952:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $79, $00, $7A, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $7B, $00, $7C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $7D, $00, $00, $00, $00
-	
+
 loc_8F9D6:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -76448,7 +76448,7 @@ loc_8F9D6:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $84, $00, $85, $00, $86
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $87, $00, $88, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $89, $00, $8A, $00, $00
-	
+
 loc_8FA48:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -76461,34 +76461,34 @@ loc_8FA48:
 	dc.b	$00, $00, $00, $00, $00, $92, $00, $93, $00, $94, $00, $95
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $96, $00, $97, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $08, $8A, $00, $98, $00, $00
-	
+
 loc_8FAAE:
 	dc.b	$02
 	dc.b	$F9, $03, $00, $78, $00
 	dc.b	$19, $04, $00, $7C, $00
-	
+
 	even
-	
+
 loc_8FABA:
 	dc.b	$03
 	dc.b	$FC, $01, $00, $7E, $FA
 	dc.b	$04, $01, $00, $80, $F2
 	dc.b	$14, $04, $00, $82, $F2
-	
+
 loc_8FACA:
 	dc.b	$03
 	dc.b	$FF, $05, $00, $84, $F3
 	dc.b	$0F, $00, $00, $88, $F3
 	dc.b	$17, $08, $00, $89, $F3
-	
+
 loc_8FADA:
 	dc.b	$03
 	dc.b	$FB, $04, $00, $8C, $F8
 	dc.b	$03, $05, $00, $8E, $00
 	dc.b	$13, $04, $00, $92, $08
-	
+
 ; =================================================================
-	
+
 Battle_MechomanArt:
 	dc.b	$01, $00, $FE, $EE, $EE, $EE, $09, $07, $07, $05, $05, $17, $71, $01, $00, $FF
 	dc.b	$77, $77, $72, $09, $07, $07, $05, $15, $11, $10, $03, $01, $00, $FF, $FF, $C8 ;0x0 (0x0008FAEA-0x000908BD, Entry count: 0x00000DD3)
@@ -78239,9 +78239,9 @@ Battle_DezoOwlArt:
 	dc.b	$96, $89, $86, $A7, $89, $89, $86, $0A, $88, $78, $98, $0A, $78, $68, $98, $00
 	dc.b	$A8, $78, $98, $00, $0A, $A9, $99, $0A, $AA, $A9, $99, $A8, $99, $9A, $AA, $01 ;0xCA0
 	dc.b	$00, $08, $8C, $EF, $FF, $0A, $78, $99, $AA, $A7, $89, $9A, $0A, $A8, $9A, $0A, $A9, $0A, $FF ;0xCC0
-	
+
 	even
-	
+
 Battle_RabbitArt:
 	dc.b	$01, $00, $FF, $FF, $CC, $CC, $77, $66, $76, $54, $6A, $BC, $55, $AC, $01, $00
 	dc.b	$FF, $FF, $F7, $33, $55, $53, $20, $D5, $42, $01, $00, $FF, $FF, $FE, $CC, $0C ;0x0 (0x00096756-0x00097561, Entry count: 0x00000E0B)
@@ -78468,9 +78468,9 @@ Battle_RabbitArt:
 	dc.b	$33, $33, $39, $99, $0C, $AB, $0C, $BC, $0C, $AB, $0C, $BC, $0C, $AB, $CB, $C0
 	dc.b	$CA, $B0, $CB, $C0, $01, $00, $99, $99, $99, $99, $0C, $AB, $0C, $BC, $0C, $AB ;0xDE0
 	dc.b	$CB, $C0, $CA, $B0, $CB, $C0, $CA, $B0, $CB, $C0, $FF ;0xE00
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mechoman Sprite Mappings
 ; -----------------------------------------------------------------
@@ -78517,7 +78517,7 @@ loc_9759C:
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $08, $12, $08, $11, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $17, $00, $18, $08, $16, $08, $15, $00, $00
 	dc.b	$00, $00, $00, $19, $00, $1A, $00, $00, $00, $00, $08, $1A, $08, $19, $00, $00
-	
+
 loc_97622:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -78530,7 +78530,7 @@ loc_97622:
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $08, $12, $08, $11, $00, $00
 	dc.b	$00, $00, $00, $15, $00, $16, $00, $17, $00, $18, $08, $16, $08, $15, $00, $00
 	dc.b	$00, $00, $00, $19, $00, $1A, $00, $00, $00, $00, $08, $1A, $08, $19, $00, $00
-	
+
 loc_976A8:
 	dc.b	$FF
 	dc.b	$D0, $FF, $A8
@@ -78557,7 +78557,7 @@ loc_976A8:
 	dc.b	$00, $00, $08, $3E, $08, $3D, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $3F, $00, $1A, $00, $00
 	dc.b	$00, $00, $08, $1A, $08, $3F, $00, $00, $00, $00, $00, $00
-	
+
 loc_977B6:
 	dc.b	$FF
 	dc.b	$D0, $FF, $A8
@@ -78584,7 +78584,7 @@ loc_977B6:
 	dc.b	$00, $00, $08, $5F, $08, $5E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $3F, $00, $1A, $00, $00
 	dc.b	$00, $00, $08, $1A, $08, $3F, $00, $00, $00, $00, $00, $00
-	
+
 loc_978C4:
 	dc.b	$FF
 	dc.b	$D0, $FF, $98
@@ -78615,7 +78615,7 @@ loc_978C4:
 	dc.b	$00, $00, $08, $5F, $08, $5E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $3F, $00, $1A, $00, $00
 	dc.b	$00, $00, $08, $1A, $08, $3F, $00, $00, $00, $00, $00, $00
-	
+
 loc_97A02:
 	dc.b	$FF
 	dc.b	$D0, $FF, $98
@@ -78646,7 +78646,7 @@ loc_97A02:
 	dc.b	$00, $00, $08, $5F, $08, $5E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $3F, $00, $1A, $00, $00
 	dc.b	$00, $00, $08, $1A, $08, $3F, $00, $00, $00, $00, $00, $00
-	
+
 loc_97B40:
 	dc.b	$FF
 	dc.b	$D0, $FF, $98
@@ -78677,7 +78677,7 @@ loc_97B40:
 	dc.b	$00, $00, $08, $5F, $08, $5E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $3F, $00, $1A, $00, $00
 	dc.b	$00, $00, $08, $1A, $08, $3F, $00, $00, $00, $00, $00, $00
-	
+
 loc_97C7E:
 	dc.b	$FF
 	dc.b	$D0, $FF, $98
@@ -78708,119 +78708,119 @@ loc_97C7E:
 	dc.b	$00, $00, $08, $5F, $08, $5E, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $3F, $00, $1A, $00, $00
 	dc.b	$00, $00, $08, $1A, $08, $3F, $00, $00, $00, $00, $00, $00
-	
+
 loc_97DBC:
 	dc.b	$02
 	dc.b	$40, $0C, $00, $80, $00
 	dc.b	$40, $0C, $08, $80, $20
 
 	even
-	
+
 loc_97DC6:
 	dc.b	$02
 	dc.b	$40, $0C, $00, $84, $00
 	dc.b	$40, $0C, $08, $84, $20
-	
+
 	even
-	
+
 loc_97DD0:
 	dc.b	$02
 	dc.b	$40, $00, $00, $88, $00
 	dc.b	$40, $00, $08, $88, $08
-	
+
 	even
-	
+
 loc_97DDA:
 	dc.b	$02
 	dc.b	$40, $00, $10, $88, $00
 	dc.b	$40, $00, $18, $88, $08
-	
+
 	even
-	
+
 loc_97DE4:
 	dc.b	$04
 	dc.b	$48, $00, $00, $89, $00
 	dc.b	$48, $00, $08, $89, $08
 	dc.b	$50, $00, $10, $89, $00
 	dc.b	$50, $00, $18, $89, $08
-	
+
 	even
-	
+
 loc_97DFA:
 	dc.b	$04
 	dc.b	$60, $00, $00, $89, $00
 	dc.b	$60, $00, $08, $89, $08
 	dc.b	$68, $00, $10, $89, $00
 	dc.b	$68, $00, $18, $89, $08
-	
+
 	even
-	
+
 loc_97E10:
 	dc.b	$04
 	dc.b	$78, $00, $00, $8A, $00
 	dc.b	$78, $00, $08, $8A, $08
 	dc.b	$80, $00, $10, $8A, $00
 	dc.b	$80, $00, $18, $8A, $08
-	
+
 	even
-	
+
 loc_97E2E:
 	dc.b	$02
 	dc.b	$50, $00, $00, $8B, $E0
 	dc.b	$50, $00, $08, $8B, $18
-	
+
 	even
-	
+
 loc_97E3A:
 	dc.b	$04
 	dc.b	$58, $00, $00, $8C, $D8
 	dc.b	$60, $00, $00, $8D, $D8
 	dc.b	$58, $00, $08, $8C, $20
 	dc.b	$60, $00, $08, $8D, $20
-	
+
 	even
-	
+
 loc_97E50:
 	dc.b	$02
 	dc.b	$60, $01, $00, $8E, $D0
 	dc.b	$60, $01, $08, $8E, $28
-	
+
 	even
 
 loc_97E5C:
 	dc.b	$02
 	dc.b	$50, $01, $00, $8C, $C8
 	dc.b	$50, $01, $08, $8C, $30
-	
+
 	even
-	
+
 loc_97E68:
 	dc.b	$04
 	dc.b	$30, $01, $00, $8E, $C0
 	dc.b	$30, $01, $08, $8E, $38
 	dc.b	$50, $00, $00, $8B, $E0
 	dc.b	$50, $00, $08, $8B, $18
-	
+
 	even
-	
+
 loc_97E7E:
 	dc.b	$04
 	dc.b	$08, $01, $00, $8C, $B8
 	dc.b	$08, $01, $08, $8C, $40
 	dc.b	$58, $01, $00, $8C, $D8
 	dc.b	$58, $01, $08, $8C, $20
-	
+
 	even
-	
+
 loc_97E94:
 	dc.b	$04
 	dc.b	$48, $01, $00, $8C, $C0
 	dc.b	$48, $01, $08, $8C, $38
 	dc.b	$50, $00, $00, $8B, $E0
 	dc.b	$50, $00, $08, $8B, $18
-	
+
 	even
-	
+
 ; this is not referenced. In fact the sprite mappings right above are used twice so replace the copy of that one
 ; with these sprite mappings
 loc_97EAA:
@@ -78829,54 +78829,54 @@ loc_97EAA:
 	dc.b	$28, $01, $08, $8E, $48
 	dc.b	$58, $01, $00, $8C, $D8
 	dc.b	$58, $01, $08, $8C, $20
-	
+
 	even
-	
+
 loc_97EC0:
 	dc.b	$04
 	dc.b	$00, $01, $00, $8C, $A0
 	dc.b	$00, $01, $08, $8C, $58
 	dc.b	$60, $01, $00, $8E, $D0
 	dc.b	$60, $01, $08, $8E, $28
-	
+
 	even
-	
+
 loc_97ED6:
 	dc.b	$02
 	dc.b	$30, $01, $00, $8E, $C0
 	dc.b	$30, $01, $08, $8E, $38
-	
+
 	even
-	
+
 loc_97EE2:
 	dc.b	$02
 	dc.b	$08, $01, $00, $8C, $B8
 	dc.b	$08, $01, $08, $8C, $40
-	
+
 	even
-	
+
 loc_97EEE:
 	dc.b	$02
 	dc.b	$B8, $01, $00, $90, $14
 	dc.b	$C8, $01, $00, $92, $14
-	
+
 	even
-	
+
 loc_97EFA:
 	dc.b	$02
 	dc.b	$F0, $01, $00, $94, $14
 	dc.b	$00, $01, $00, $92, $14
-	
+
 	even
-	
+
 loc_97F06:
 	dc.b	$02
 	dc.b	$28, $01, $00, $90, $14
 	dc.b	$38, $01, $00, $92, $14
 ; =================================================================
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mazgamma Sprite Mappings
 ; -----------------------------------------------------------------
@@ -78889,7 +78889,7 @@ Battle_MazgammaMap:
 	dc.w	loc_98120-Battle_MazgammaMap
 	dc.w	loc_9813A-Battle_MazgammaMap
 	dc.w	loc_9715A-Battle_MazgammaMap
-	
+
 loc_97F22:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -78902,7 +78902,7 @@ loc_97F22:
 	dc.b	$00, $15, $00, $16, $00, $17, $08, $17, $08, $16, $08, $15
 	dc.b	$00, $18, $00, $19, $00, $00, $00, $00, $08, $19, $08, $18
 	dc.b	$00, $1A, $00, $1B, $00, $00, $00, $00, $08, $1B, $08, $1A
-	
+
 loc_97F88:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -78915,7 +78915,7 @@ loc_97F88:
 	dc.b	$00, $15, $00, $16, $00, $17, $08, $17, $08, $16, $08, $15
 	dc.b	$00, $18, $00, $19, $00, $00, $00, $00, $08, $19, $08, $18
 	dc.b	$00, $1A, $00, $1B, $00, $00, $00, $00, $08, $1B, $08, $1A
-	
+
 loc_97FEE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -78928,7 +78928,7 @@ loc_97FEE:
 	dc.b	$00, $15, $00, $16, $00, $17, $08, $17, $08, $16, $08, $15
 	dc.b	$00, $18, $00, $19, $00, $00, $00, $00, $08, $19, $08, $18
 	dc.b	$00, $1A, $00, $1B, $00, $00, $00, $00, $08, $1B, $08, $1A
-	
+
 loc_98054:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -78941,7 +78941,7 @@ loc_98054:
 	dc.b	$00, $15, $00, $16, $00, $17, $08, $17, $08, $16, $08, $15
 	dc.b	$00, $18, $00, $19, $00, $00, $00, $00, $08, $19, $08, $18
 	dc.b	$00, $1A, $00, $1B, $00, $00, $00, $00, $08, $1B, $08, $1A
-	
+
 loc_980BA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -78954,7 +78954,7 @@ loc_980BA:
 	dc.b	$00, $15, $00, $16, $00, $17, $08, $17, $08, $16, $08, $15
 	dc.b	$00, $18, $00, $19, $00, $00, $00, $00, $08, $19, $08, $18
 	dc.b	$00, $1A, $00, $1B, $00, $00, $00, $00, $08, $1B, $08, $1A
-	
+
 loc_98120:
 	dc.b	$05
 	dc.b	$08, $00, $00, $45, $10
@@ -78971,7 +78971,7 @@ loc_9813A:
 	dc.b	$18, $01, $00, $50, $10
 	dc.b	$20, $03, $00, $52, $18
 	dc.b	$40, $01, $00, $56, $10
-	
+
 	even
 
 loc_9715A:
@@ -78984,7 +78984,7 @@ loc_9715A:
 	dc.b	$40, $04, $00, $64, $10
 	dc.b	$48, $00, $00, $66, $10
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Metalman Sprite Mappings
 ; -----------------------------------------------------------------
@@ -79027,7 +79027,7 @@ Battle_MetalmanMap:
 	dc.w	loc_98784-Battle_MetalmanMap
 	dc.w	loc_987AE-Battle_MetalmanMap
 	dc.w	loc_98800-Battle_MetalmanMap
-	
+
 loc_981CA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -79042,7 +79042,7 @@ loc_981CA:
 	dc.b	$00, $00, $00, $0F, $00, $10, $08, $10, $08, $0F, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $08, $12, $08, $11, $00, $00
 	dc.b	$00, $00, $00, $13, $00, $00, $00, $00, $08, $13, $00, $00
-	
+
 loc_98248:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -79057,7 +79057,7 @@ loc_98248:
 	dc.b	$00, $00, $00, $0F, $00, $10, $08, $10, $08, $0F, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $08, $12, $08, $11, $00, $00
 	dc.b	$00, $00, $00, $13, $00, $00, $00, $00, $08, $13, $00, $00
-	
+
 loc_982C6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -79072,7 +79072,7 @@ loc_982C6:
 	dc.b	$00, $00, $00, $0F, $00, $10, $08, $10, $08, $0F, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $08, $12, $08, $11, $00, $00
 	dc.b	$00, $00, $00, $13, $00, $00, $00, $00, $08, $13, $00, $00
-	
+
 loc_98344:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -79087,7 +79087,7 @@ loc_98344:
 	dc.b	$00, $00, $00, $0F, $00, $10, $08, $10, $08, $0F, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $08, $12, $08, $11, $00, $00
 	dc.b	$00, $00, $00, $13, $00, $00, $00, $00, $08, $13, $00, $00
-	
+
 loc_983C2:
 	dc.b	$FF
 	dc.b	$F0, $FF, $B0
@@ -79102,7 +79102,7 @@ loc_983C2:
 	dc.b	$00, $0F, $00, $10, $08, $10, $08, $0F
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_98418:
 	dc.b	$FF
 	dc.b	$F0, $FF, $A0
@@ -79119,7 +79119,7 @@ loc_98418:
 	dc.b	$00, $0F, $00, $10, $08, $10, $08, $0F
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_9847E:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B0
@@ -79134,7 +79134,7 @@ loc_9847E:
 	dc.b	$00, $00, $00, $00, $00, $0F, $00, $10, $08, $10, $08, $0F, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $11, $00, $12, $08, $12, $08, $11, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $13, $00, $00, $00, $00, $08, $13, $00, $00, $00, $00
-	
+
 loc_98524:
 	dc.b	$FF
 	dc.b	$F0, $FF, $B0
@@ -79149,7 +79149,7 @@ loc_98524:
 	dc.b	$00, $0F, $00, $10, $08, $10, $08, $0F
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_9857A:
 	dc.b	$FF
 	dc.b	$F0, $FF, $B0
@@ -79164,7 +79164,7 @@ loc_9857A:
 	dc.b	$00, $3A, $00, $10, $08, $10, $08, $3A
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_985D0:
 	dc.b	$FF
 	dc.b	$F0, $FF, $B0
@@ -79179,7 +79179,7 @@ loc_985D0:
 	dc.b	$00, $3A, $00, $10, $08, $10, $08, $3A
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_98626:
 	dc.b	$FF
 	dc.b	$F0, $FF, $B8
@@ -79193,7 +79193,7 @@ loc_98626:
 	dc.b	$00, $3A, $00, $10, $08, $10, $08, $3A
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_98674:
 	dc.b	$FF
 	dc.b	$F0, $FF, $B8
@@ -79207,71 +79207,71 @@ loc_98674:
 	dc.b	$00, $3A, $00, $10, $08, $10, $08, $3A
 	dc.b	$00, $11, $00, $12, $08, $12, $08, $11
 	dc.b	$00, $13, $00, $00, $00, $00, $08, $13
-	
+
 loc_986C2:
 	dc.b	$01
-	dc.b	$00, $00, $00, $40, $FC 
-	
+	dc.b	$00, $00, $00, $40, $FC
+
 loc_986C8:
 	dc.b	$01
 	dc.b	$00, $00, $00, $41, $FC
-	
+
 loc_986CE:
 	dc.b	$01
 	dc.b	$00, $00, $00, $42, $FC
-	
+
 loc_986D4:
 	dc.b	$01
 	dc.b	$00, $00, $00, $43, $FC
-	
+
 loc_986DA:
 	dc.b	$01
 	dc.b	$00, $00, $00, $44, $FC
-	
+
 loc_986E0:
 	dc.b	$01
 	dc.b	$00, $00, $00, $44, $FC
-	
+
 loc_986E6:
 	dc.b	$01
 	dc.b	$00, $00, $00, $45, $FC
-	
+
 loc_986EC:
 	dc.b	$01
 	dc.b	$00, $00, $00, $46, $FC
-	
+
 loc_986F2:
 	dc.b	$01
 	dc.b	$00, $00, $00, $47, $FC
-	
+
 loc_986F8:
 	dc.b	$01
 	dc.b	$00, $00, $00, $48, $FC
-	
+
 loc_986FE:
 	dc.b	$01
 	dc.b	$00, $00, $00, $49, $FC
-	
+
 loc_98704:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4A, $FC
-	
+
 loc_9870A:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4B, $FC
-	
+
 loc_98710:
 	dc.b	$01
 	dc.b	$00, $00, $00, $4C, $FC
-	
+
 loc_98716:
 	dc.b	$01
 	dc.b	$00, $01, $00, $4D, $FC
-	
+
 loc_9871C:
 	dc.b	$01
 	dc.b	$00, $02, $00, $4F, $FC
-	
+
 loc_98722:
 	dc.b	$05
 	dc.b	$00, $00, $00, $52, $FC
@@ -79279,7 +79279,7 @@ loc_98722:
 	dc.b	$08, $01, $00, $53, $FC
 	dc.b	$18, $01, $00, $53, $FC
 	dc.b	$28, $01, $00, $53, $FC
-	
+
 loc_9873C:
 	dc.b	$08
 	dc.b	$00, $00, $00, $55, $FC
@@ -79290,29 +79290,29 @@ loc_9873C:
 	dc.b	$38, $01, $00, $53, $FC
 	dc.b	$48, $01, $00, $53, $FC
 	dc.b	$58, $01, $00, $53, $FC
-	
+
 	even
-	
+
 loc_98766:
 	dc.b	$01
 	dc.b	$00, $01, $00, $56, $FC
-	
+
 loc_9876C:
 	dc.b	$01
 	dc.b	$00, $04, $00, $58, $F8
-	
+
 loc_98772:
 	dc.b	$01
 	dc.b	$00, $04, $00, $5A, $F8
-	
+
 loc_98778:
 	dc.b	$01
 	dc.b	$00, $04, $00, $5C, $F8
-	
+
 loc_9877E:
 	dc.b	$01
 	dc.b	$00, $04, $00, $5E, $F8
-	
+
 loc_98784:
 	dc.b	$08
 	dc.b	$00, $00, $00, $60, $F0
@@ -79323,9 +79323,9 @@ loc_98784:
 	dc.b	$08, $00, $08, $61, $00
 	dc.b	$10, $00, $10, $61, $F8
 	dc.b	$10, $00, $18, $61, $00
-	
+
 	even
-	
+
 loc_987AE:
 	dc.b	$10
 	dc.b	$00, $04, $00, $62, $E0
@@ -79344,9 +79344,9 @@ loc_987AE:
 	dc.b	$18, $00, $08, $68, $00
 	dc.b	$20, $00, $10, $68, $F8
 	dc.b	$20, $00, $18, $68, $00
-	
+
 	even
-	
+
 loc_98800:
 	dc.b	$10
 	dc.b	$00, $00, $00, $69, $D0
@@ -79368,7 +79368,7 @@ loc_98800:
 ; =================================================================
 
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Cooley 61 Sprite Mappings
 ; -----------------------------------------------------------------
@@ -79388,7 +79388,7 @@ Battle_Cooley61Map:
 	dc.w	loc_98C64-Battle_Cooley61Map
 	dc.w	loc_98C92-Battle_Cooley61Map
 	dc.w	loc_98C98-Battle_Cooley61Map
-	
+
 loc_98870:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79403,7 +79403,7 @@ loc_98870:
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22, $08, $21
 	dc.b	$00, $25, $00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $08, $28, $08, $27, $08, $26, $08, $25
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $00, $00, $00, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9893E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79418,7 +79418,7 @@ loc_9893E:
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22, $08, $21
 	dc.b	$00, $25, $00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $08, $28, $08, $27, $08, $26, $08, $25
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $00, $00, $00, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_98A0C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79433,7 +79433,7 @@ loc_98A0C:
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22, $08, $21
 	dc.b	$00, $25, $00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $08, $28, $08, $27, $08, $26, $08, $25
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $00, $00, $00, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_98ADA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79448,11 +79448,11 @@ loc_98ADA:
 	dc.b	$00, $21, $00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22, $08, $21
 	dc.b	$00, $25, $00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $08, $28, $08, $27, $08, $26, $08, $25
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $00, $00, $00, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_98BA8:
 	dc.b	$01
 	dc.b	$38, $00, $00, $30, $08
-	
+
 loc_98BAE:
 	dc.b	$05
 	dc.b	$30, $00, $00, $31, $08
@@ -79472,11 +79472,11 @@ loc_98BC8:
 	dc.b	$38, $00, $00, $36, $00
 	dc.b	$38, $00, $08, $36, $10
 	dc.b	$38, $00, $00, $37, $08
-	
+
 loc_98BF6:
 	dc.b	$01
 	dc.b	$38, $00, $00, $30, $0C
-	
+
 loc_98BFC:
 	dc.b	$05
 	dc.b	$30, $00, $00, $31, $0C
@@ -79528,8 +79528,8 @@ loc_98C92:
 loc_98C98:
 	dc.b	$01
 	dc.b	$08, $01, $00, $3B, $18
-; =================================================================	
-	
+; =================================================================
+
 ; -----------------------------------------------------------------
 ; Eyesore Sprite Mappings
 ; -----------------------------------------------------------------
@@ -79584,7 +79584,7 @@ Battle_EyesoreMap:
 	dc.w	loc_99A2C-Battle_EyesoreMap
 	dc.w	loc_99A50-Battle_EyesoreMap
 	dc.w	loc_99A88-Battle_EyesoreMap
-	
+
 loc_98D02:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79599,7 +79599,7 @@ loc_98D02:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $25, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_98DD0:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79614,7 +79614,7 @@ loc_98DD0:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $25, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_98E9E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79629,7 +79629,7 @@ loc_98E9E:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $25, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_98F6C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79644,7 +79644,7 @@ loc_98F6C:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $34, $08, $34, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_9903A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79660,7 +79660,7 @@ loc_9903A:
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
 
-loc_99108:	
+loc_99108:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
 	dc.b	$09, $09
@@ -79674,7 +79674,7 @@ loc_99108:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $34, $08, $34, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_991D6:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79689,7 +79689,7 @@ loc_991D6:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_992A4:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79704,7 +79704,7 @@ loc_992A4:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_99372:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79719,7 +79719,7 @@ loc_99372:
 	dc.b	$00, $22, $00, $23, $00, $24, $00, $00, $00, $00, $00, $00, $00, $00, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_99440:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79734,7 +79734,7 @@ loc_99440:
 	dc.b	$00, $41, $00, $23, $00, $24, $00, $00, $00, $00, $00, $00, $00, $00, $08, $24, $08, $23, $08, $41
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_9950E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79749,7 +79749,7 @@ loc_9950E:
 	dc.b	$00, $4D, $00, $23, $00, $24, $00, $00, $00, $00, $00, $00, $00, $00, $08, $24, $08, $23, $08, $4D
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_995DC:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79764,7 +79764,7 @@ loc_995DC:
 	dc.b	$00, $4D, $00, $23, $00, $24, $00, $00, $00, $00, $00, $00, $00, $00, $08, $24, $08, $23, $08, $4D
 	dc.b	$00, $26, $00, $27, $00, $28, $00, $00, $00, $00, $00, $00, $00, $00, $08, $28, $00, $27, $08, $26
 	dc.b	$00, $29, $00, $2A, $08, $29, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $00, $2A, $08, $29
-	
+
 loc_996AA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -79785,117 +79785,117 @@ loc_99778:
 	dc.b	$00, $04, $00, $4E, $F8
 	dc.b	$08, $00, $00, $50, $F8
 	dc.b	$20, $01, $00, $51, $B8
-	
+
 loc_99788:
 	dc.b	$04
 	dc.b	$00, $04, $00, $53, $F8
 	dc.b	$08, $00, $00, $55, $F8
 	dc.b	$28, $00, $00, $56, $B8
 	dc.b	$20, $01, $00, $51, $C8
-	
+
 	even
-	
+
 loc_9979E:
 	dc.b	$04
 	dc.b	$00, $04, $00, $57, $F8
 	dc.b	$08, $00, $00, $59, $F8
 	dc.b	$28, $00, $00, $56, $C8
 	dc.b	$20, $01, $00, $51, $D8
-	
+
 	even
-	
+
 loc_997B4:
 	dc.b	$04
 	dc.b	$00, $04, $00, $5A, $F8
 	dc.b	$08, $00, $00, $50, $F8
 	dc.b	$28, $00, $00, $56, $D8
 	dc.b	$20, $01, $00, $51, $E8
-	
+
 	even
-	
+
 loc_997CA:
 	dc.b	$04
 	dc.b	$00, $04, $00, $5C, $F8
 	dc.b	$08, $00, $00, $55, $F8
 	dc.b	$28, $00, $00, $56, $E8
 	dc.b	$20, $01, $00, $51, $F8
-	
+
 	even
-	
+
 loc_997E0:
 	dc.b	$04
 	dc.b	$00, $04, $00, $5E, $F8
 	dc.b	$08, $00, $00, $59, $F8
 	dc.b	$28, $00, $00, $56, $F8
 	dc.b	$20, $01, $00, $51, $08
-	
+
 	even
-	
+
 loc_997F6:
 	dc.b	$04
 	dc.b	$00, $04, $00, $60, $F8
 	dc.b	$08, $00, $00, $50, $F8
 	dc.b	$28, $00, $00, $56, $08
 	dc.b	$20, $01, $00, $51, $18
-	
+
 	even
-	
+
 loc_9980C:
 	dc.b	$04
 	dc.b	$00, $04, $00, $62, $F8
 	dc.b	$08, $00, $00, $55, $F8
 	dc.b	$28, $00, $00, $56, $18
 	dc.b	$20, $01, $00, $51, $28
-	
+
 	even
-	
+
 loc_99822:
 	dc.b	$04
 	dc.b	$00, $04, $00, $64, $F8
 	dc.b	$08, $00, $00, $59, $F8
 	dc.b	$28, $00, $00, $56, $28
 	dc.b	$20, $01, $00, $51, $38
-	
+
 	even
-	
+
 loc_99838:
 	dc.b	$03
 	dc.b	$00, $04, $00, $66, $F8
 	dc.b	$08, $00, $00, $50, $F8
 	dc.b	$28, $00, $00, $56, $38
-	
+
 loc_99848:
 	dc.b	$01
 	dc.b	$08, $00, $00, $68, $FC
-	
+
 loc_9984E:
 	dc.b	$01
 	dc.b	$08, $00, $00, $69, $FC
-	
+
 loc_99854:
 	dc.b	$01
 	dc.b	$08, $00, $00, $6A, $FC
-	
+
 loc_9985A:
 	dc.b	$01
-	dc.b	$08, $00, $00, $6B, $FC 
-	
+	dc.b	$08, $00, $00, $6B, $FC
+
 loc_99860:
 	dc.b	$01
 	dc.b	$08, $00, $00, $6C, $FC
-	
+
 loc_99866:
 	dc.b	$01
 	dc.b	$00, $00, $00, $6D, $FC
-	
+
 loc_9986C:
 	dc.b	$01
 	dc.b	$00, $04, $00, $6E, $F8
-	
+
 loc_99872:
 	dc.b	$01
 	dc.b	$00, $00, $00, $70, $FC
-	
+
 loc_99878:
 	dc.b	$05
 	dc.b	$00, $00, $00, $71, $F8
@@ -79912,7 +79912,7 @@ loc_99892:
 	dc.b	$20, $00, $08, $72, $00
 	dc.b	$28, $01, $00, $7B, $F8
 	dc.b	$28, $01, $08, $7B, $00
-	
+
 	even
 
 loc_998B2:
@@ -79925,7 +79925,7 @@ loc_998B8:
 	dc.b	$20, $00, $08, $7F, $20
 	dc.b	$08, $00, $00, $80, $F8
 	dc.b	$08, $00, $08, $80, $00
-	
+
 	even
 
 loc_998CE:
@@ -79938,7 +79938,7 @@ loc_998CE:
 	dc.b	$18, $00, $08, $83, $18
 	dc.b	$20, $04, $00, $84, $D8
 	dc.b	$20, $04, $08, $84, $18
-	
+
 	even
 
 loc_998F8:
@@ -79957,9 +79957,9 @@ loc_998F8:
 	dc.b	$20, $04, $00, $8A, $F0
 	dc.b	$20, $04, $00, $8A, $00
 	dc.b	$20, $04, $00, $8A, $10
-	
+
 	even
-	
+
 loc_99940:
 	dc.b	$0E
 	dc.b	$00, $00, $00, $8C, $F8
@@ -79976,9 +79976,9 @@ loc_99940:
 	dc.b	$20, $04, $00, $8A, $F0
 	dc.b	$20, $04, $00, $8A, $00
 	dc.b	$20, $04, $00, $8A, $10
-	
+
 	even
-	
+
 loc_99988:
 	dc.b	$06
 	dc.b	$10, $04, $00, $8F, $F0
@@ -79987,7 +79987,7 @@ loc_99988:
 	dc.b	$18, $01, $08, $91, $10
 	dc.b	$18, $04, $00, $93, $F0
 	dc.b	$18, $04, $08, $93, $00
-	
+
 	even
 
 loc_999A8:
@@ -79996,7 +79996,7 @@ loc_999A8:
 	dc.b	$10, $00, $08, $95, $00
 	dc.b	$18, $04, $00, $96, $F0
 	dc.b	$18, $04, $08, $96, $00
-	
+
 	even
 
 loc_999BE:
@@ -80005,13 +80005,13 @@ loc_999BE:
 	dc.b	$10, $00, $08, $98, $00
 	dc.b	$18, $00, $00, $99, $F8
 	dc.b	$18, $00, $08, $99, $00
-	
+
 	even
 
 loc_999D4:
 	dc.b	$01
 	dc.b	$10, $01, $00, $9A, $FC
-	
+
 loc_999DA:
 	dc.b	$01
 	dc.b	$18, $00, $00, $9C, $FC
@@ -80032,7 +80032,7 @@ loc_999EC:
 	dc.b	$18, $00, $10, $9F, $E0
 	dc.b	$18, $00, $18, $9F, $F0
 	dc.b	$30, $00, $00, $9E, $10
-	
+
 	even
 
 loc_99A0C:
@@ -80043,7 +80043,7 @@ loc_99A0C:
 	dc.b	$38, $00, $10, $9F, $08
 	dc.b	$38, $00, $18, $9F, $18
 	dc.b	$30, $00, $00, $A0, $10
-	
+
 	even
 
 loc_99A2C:
@@ -80078,7 +80078,7 @@ loc_99A88:
 	dc.b	$40, $00, $10, $9F, $10
 	dc.b	$40, $00, $18, $9F, $20
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Army Eye Sprite Mappings
 ; -----------------------------------------------------------------
@@ -80119,7 +80119,7 @@ Battle_ArmyEyeMap:
 	dc.w	loc_9A26A-Battle_ArmyEyeMap
 	dc.w	loc_9A29E-Battle_ArmyEyeMap
 	dc.w	loc_9A2D2-Battle_ArmyEyeMap
-	
+
 loc_99AEA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -80133,7 +80133,7 @@ loc_99AEA:
 	dc.b	$00, $20, $00, $21, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $08, $21, $08, $20
 	dc.b	$00, $24, $00, $25, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $08, $25, $08, $24
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99BA4:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -80147,7 +80147,7 @@ loc_99BA4:
 	dc.b	$00, $20, $00, $21, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $08, $21, $08, $20
 	dc.b	$00, $24, $00, $25, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $08, $25, $08, $24
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99C5E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -80161,7 +80161,7 @@ loc_99C5E:
 	dc.b	$00, $20, $00, $21, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $08, $21, $08, $20
 	dc.b	$00, $24, $00, $25, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $08, $25, $08, $24
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99D18:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -80175,7 +80175,7 @@ loc_99D18:
 	dc.b	$00, $20, $00, $21, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $08, $21, $08, $20
 	dc.b	$00, $24, $00, $25, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $08, $25, $08, $24
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99DD2:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -80189,7 +80189,7 @@ loc_99DD2:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99E68:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -80203,7 +80203,7 @@ loc_99E68:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99EFE:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -80217,7 +80217,7 @@ loc_99EFE:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_99F94:
 	dc.b	$FF
 	dc.b	$E0, $FF, $B8
@@ -80231,27 +80231,27 @@ loc_99F94:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $08, $23, $08, $22, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A02A:
 	dc.b	$01
 	dc.b	$00, $00, $00, $31, $FC
-	
+
 loc_9A030:
 	dc.b	$01
 	dc.b	$00, $00, $00, $32, $FC
-	
+
 loc_9A036:
 	dc.b	$01
 	dc.b	$00, $00, $00, $33, $FC
-	
+
 loc_9A03C:
 	dc.b	$01
 	dc.b	$00, $00, $00, $34, $FC
-	
+
 loc_9A042:
 	dc.b	$01
 	dc.b	$00, $02, $00, $35, $FC
-	
+
 loc_9A048:
 	dc.b	$07
 	dc.b	$00, $00, $00, $38, $FC
@@ -80261,7 +80261,7 @@ loc_9A048:
 	dc.b	$20, $00, $00, $3A, $FC
 	dc.b	$28, $00, $00, $3B, $FC
 	dc.b	$30, $00, $00, $3C, $FC
-	
+
 loc_9A06C:
 	dc.b	$07
 	dc.b	$00, $00, $00, $3D, $FC
@@ -80271,59 +80271,59 @@ loc_9A06C:
 	dc.b	$20, $00, $00, $3A, $FC
 	dc.b	$28, $03, $00, $3E, $FC
 	dc.b	$48, $00, $00, $42, $FC
-	
+
 loc_9A090:
 	dc.b	$01
 	dc.b	$00, $00, $00, $43, $0C
-	
+
 loc_9A096:
 	dc.b	$01
 	dc.b	$00, $00, $00, $44, $04
-	
+
 loc_9A09C:
 	dc.b	$01
 	dc.b	$00, $01, $00, $45, $FC
-	
+
 loc_9A0A2:
 	dc.b	$02
 	dc.b	$08, $00, $00, $47, $F4
 	dc.b	$10, $00, $00, $48, $FC
-	
+
 	even
 
 loc_9A0AE:
 	dc.b	$02
 	dc.b	$20, $00, $00, $49, $F4
 	dc.b	$28, $00, $18, $49, $FC
-	
+
 	even
-	
+
 loc_9A0BA:
 	dc.b	$01
 	dc.b	$00, $00, $08, $43, $EC
-	
+
 loc_9A0C0:
 	dc.b	$01
 	dc.b	$00, $00, $08, $44, $F4
-	
+
 loc_9A0C6:
 	dc.b	$01
 	dc.b	$00, $01, $08, $45, $FC
-	
+
 loc_9A0CC:
 	dc.b	$02
 	dc.b	$08, $00, $08, $47, $04
 	dc.b	$10, $00, $08, $48, $FC
-	
+
 	even
-	
+
 loc_9A0D8:
 	dc.b	$02
 	dc.b	$20, $00, $08, $49, $04
 	dc.b	$28, $00, $10, $49, $FC
-	
+
 	even
-	
+
 loc_9A0E4:
 	dc.b	$07
 	dc.b	$00, $04, $00, $4A, $D8
@@ -80333,7 +80333,7 @@ loc_9A0E4:
 	dc.b	$08, $00, $00, $4E, $D0
 	dc.b	$08, $00, $08, $4E, $28
 	dc.b	$28, $01, $00, $4F, $B0
-	
+
 loc_9A108:
 	dc.b	$08
 	dc.b	$00, $04, $00, $51, $D8
@@ -80344,9 +80344,9 @@ loc_9A108:
 	dc.b	$08, $00, $08, $55, $28
 	dc.b	$28, $01, $00, $56, $B0
 	dc.b	$28, $01, $00, $4F, $C0
-	
+
 	even
-	
+
 loc_9A132:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $58, $D8
@@ -80359,9 +80359,9 @@ loc_9A132:
 	dc.b	$08, $00, $08, $5D, $28
 	dc.b	$28, $01, $00, $56, $C0
 	dc.b	$28, $01, $00, $4F, $D0
-	
+
 	even
-	
+
 loc_9A166:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $4A, $D8
@@ -80374,9 +80374,9 @@ loc_9A166:
 	dc.b	$08, $00, $08, $5D, $28
 	dc.b	$28, $01, $00, $56, $D0
 	dc.b	$28, $01, $00, $4F, $E0
-	
+
 	even
-	
+
 loc_9A19A:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $58, $D8
@@ -80389,9 +80389,9 @@ loc_9A19A:
 	dc.b	$08, $04, $08, $60, $28
 	dc.b	$28, $01, $00, $56, $E0
 	dc.b	$28, $01, $00, $4F, $F0
-	
+
 	even
-	
+
 loc_9A1CE:
 	dc.b	$0A
 	dc.b	$00, $04, $08, $51, $D8
@@ -80404,9 +80404,9 @@ loc_9A1CE:
 	dc.b	$08, $00, $08, $5D, $28
 	dc.b	$28, $01, $00, $56, $F0
 	dc.b	$28, $01, $00, $4F, $00
-	
+
 	even
-	
+
 loc_9A202:
 	dc.b	$0A
 	dc.b	$00, $04, $08, $4A, $D8
@@ -80419,9 +80419,9 @@ loc_9A202:
 	dc.b	$08, $04, $08, $60, $28
 	dc.b	$28, $01, $00, $56, $00
 	dc.b	$28, $01, $00, $4F, $10
-	
+
 	even
-	
+
 loc_9A236:
 	dc.b	$0A
 	dc.b	$00, $04, $08, $58, $D8
@@ -80434,9 +80434,9 @@ loc_9A236:
 	dc.b	$08, $00, $08, $5D, $28
 	dc.b	$28, $01, $00, $56, $10
 	dc.b	$28, $01, $00, $4F, $20
-	
+
 	even
-	
+
 loc_9A26A:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $51, $D8
@@ -80449,9 +80449,9 @@ loc_9A26A:
 	dc.b	$08, $04, $08, $60, $28
 	dc.b	$28, $01, $00, $56, $20
 	dc.b	$28, $01, $00, $4F, $30
-	
+
 	even
-	
+
 loc_9A29E:
 	dc.b	$0A
 	dc.b	$00, $04, $08, $4A, $D8
@@ -80464,9 +80464,9 @@ loc_9A29E:
 	dc.b	$08, $00, $08, $5D, $28
 	dc.b	$28, $01, $00, $56, $30
 	dc.b	$28, $01, $00, $4F, $40
-	
+
 	even
-	
+
 loc_9A2D2:
 	dc.b	$09
 	dc.b	$00, $04, $08, $58, $D8
@@ -80478,8 +80478,8 @@ loc_9A2D2:
 	dc.b	$08, $04, $00, $60, $C8
 	dc.b	$08, $04, $08, $60, $28
 	dc.b	$28, $01, $00, $56, $40
-; =================================================================	
-	
+; =================================================================
+
 ; -----------------------------------------------------------------
 ; Van Sprite Mappings
 ; -----------------------------------------------------------------
@@ -80515,7 +80515,7 @@ Battle_VanMap:
 	dc.w	loc_9AE1A-Battle_VanMap
 	dc.w	loc_9AE58-Battle_VanMap
 	dc.w	loc_9AE96-Battle_VanMap
-	
+
 loc_9A33E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80530,7 +80530,7 @@ loc_9A33E:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $24, $08, $24, $08, $23, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $25, $08, $25, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $26, $08, $26, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A40C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80545,7 +80545,7 @@ loc_9A40C:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $24, $08, $24, $08, $23, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $25, $08, $25, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $26, $08, $26, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A4DA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80560,7 +80560,7 @@ loc_9A4DA:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $23, $00, $24, $08, $24, $08, $23, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $25, $08, $25, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $26, $08, $26, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A5A8:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80575,7 +80575,7 @@ loc_9A5A8:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $23, $00, $24, $08, $24, $08, $23, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $25, $08, $25, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $26, $08, $26, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A676:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80590,7 +80590,7 @@ loc_9A676:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $24, $08, $24, $08, $23, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $25, $08, $25, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $26, $08, $26, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A744:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80605,7 +80605,7 @@ loc_9A744:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $24, $08, $24, $08, $23, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $25, $08, $25, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $26, $08, $26, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A812:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80620,7 +80620,7 @@ loc_9A812:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $3E, $00, $3F, $00, $40, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $41, $00, $42, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $43, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A8E0:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80635,7 +80635,7 @@ loc_9A8E0:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $54, $00, $55, $00, $56, $00, $57, $00, $58, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $59, $00, $5A, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9A9AE:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80650,7 +80650,7 @@ loc_9A9AE:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $61, $08, $61, $08, $23, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9AA7C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -80665,7 +80665,7 @@ loc_9AA7C:
 	dc.b	$00, $21, $00, $22, $00, $00, $00, $23, $00, $61, $08, $61, $08, $23, $00, $00, $08, $22, $08, $21
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_9AB4A:
 	dc.b	$03
 	dc.b	$10, $08, $00, $62, $08
@@ -80675,31 +80675,31 @@ loc_9AB4A:
 loc_9AB5A:
 	dc.b	$01
 	dc.b	$18, $06, $00, $6F, $08
-	
+
 loc_9AB60:
 	dc.b	$02
 	dc.b	$18, $00, $00, $75, $10
 	dc.b	$20, $04, $00, $76, $08
-	
+
 	even
-	
+
 loc_9AB6C:
 	dc.b	$03
 	dc.b	$10, $08, $08, $62, $50
 	dc.b	$18, $0D, $08, $65, $50
 	dc.b	$28, $04, $08, $6D, $58
-	
+
 loc_9AB7C:
 	dc.b	$01
 	dc.b	$18, $06, $08, $6F, $58
-	
+
 loc_9AB82:
 	dc.b	$02
 	dc.b	$18, $00, $08, $75, $58
 	dc.b	$20, $04, $08, $76, $58
-	
+
 	even
-	
+
 loc_9AB8E:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $78, $28
@@ -80712,9 +80712,9 @@ loc_9AB8E:
 	dc.b	$08, $00, $00, $4D, $38
 	dc.b	$10, $00, $00, $4D, $38
 	dc.b	$18, $00, $08, $80, $38
-	
+
 	even
-	
+
 loc_9ABC2:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $78, $25
@@ -80727,9 +80727,9 @@ loc_9ABC2:
 	dc.b	$08, $00, $00, $4D, $3B
 	dc.b	$10, $00, $00, $4D, $3B
 	dc.b	$18, $00, $08, $80, $3B
-	
+
 	even
-	
+
 loc_9ABF6:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $78, $23
@@ -80742,9 +80742,9 @@ loc_9ABF6:
 	dc.b	$08, $00, $00, $4D, $3D
 	dc.b	$10, $00, $00, $4D, $3D
 	dc.b	$18, $00, $08, $80, $3D
-	
+
 	even
-	
+
 loc_9AC2A:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $78, $21
@@ -80757,9 +80757,9 @@ loc_9AC2A:
 	dc.b	$08, $00, $00, $4D, $3F
 	dc.b	$10, $00, $00, $4D, $3F
 	dc.b	$18, $00, $08, $80, $3F
-	
+
 	even
-	
+
 loc_9AC5E:
 	dc.b	$0A
 	dc.b	$00, $04, $00, $78, $20
@@ -80772,9 +80772,9 @@ loc_9AC5E:
 	dc.b	$08, $00, $00, $4D, $40
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
-	
+
 	even
-	
+
 loc_9AC92:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80788,7 +80788,7 @@ loc_9AC92:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$18, $04, $00, $81, $30
-	
+
 loc_9ACCA:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80802,7 +80802,7 @@ loc_9ACCA:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$18, $04, $00, $83, $30
-	
+
 loc_9AD02:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80816,7 +80816,7 @@ loc_9AD02:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$10, $04, $00, $85, $30
-	
+
 loc_9AD3A:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80830,7 +80830,7 @@ loc_9AD3A:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$10, $04, $00, $87, $30
-	
+
 loc_9AD72:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80844,7 +80844,7 @@ loc_9AD72:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$08, $04, $00, $89, $30
-	
+
 loc_9ADAA:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80858,7 +80858,7 @@ loc_9ADAA:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$08, $04, $00, $8B, $30
-	
+
 loc_9ADE2:
 	dc.b	$0B
 	dc.b	$00, $04, $00, $78, $20
@@ -80872,7 +80872,7 @@ loc_9ADE2:
 	dc.b	$10, $00, $00, $4D, $40
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$08, $04, $00, $8D, $30
-	
+
 loc_9AE1A:
 	dc.b	$0C
 	dc.b	$00, $04, $00, $78, $20
@@ -80887,9 +80887,9 @@ loc_9AE1A:
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$08, $00, $00, $8F, $30
 	dc.b	$08, $00, $08, $8F, $38
-	
+
 	even
-	
+
 loc_9AE58:
 	dc.b	$0C
 	dc.b	$00, $04, $00, $78, $20
@@ -80904,9 +80904,9 @@ loc_9AE58:
 	dc.b	$18, $00, $08, $80, $40
 	dc.b	$08, $02, $00, $90, $30
 	dc.b	$08, $02, $08, $90, $38
-	
+
 	even
-	
+
 loc_9AE96:
 	dc.b	$10
 	dc.b	$00, $04, $00, $78, $20
@@ -80925,10 +80925,10 @@ loc_9AE96:
 	dc.b	$08, $03, $08, $93, $38
 	dc.b	$28, $03, $08, $97, $38
 	dc.b	$48, $00, $08, $9B, $38
-; =================================================================	
-	
+; =================================================================
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Orangah Sprite Mappings
 ; -----------------------------------------------------------------
@@ -80943,7 +80943,7 @@ Battle_OrangahMap:
 	dc.w	loc_9B226-Battle_OrangahMap
 	dc.w	loc_9B2AC-Battle_OrangahMap
 	dc.w	loc_9B332-Battle_OrangahMap
-	
+
 loc_9AEFC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -80956,7 +80956,7 @@ loc_9AEFC:
 	dc.b	$00, $03, $00, $04, $00, $05, $08, $05, $08, $04, $08, $03
 	dc.b	$00, $06, $00, $07, $00, $08, $00, $09, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $0B, $00, $0C, $00, $0D, $08, $0B, $08, $0A
-	
+
 loc_9AF62:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -80969,7 +80969,7 @@ loc_9AF62:
 	dc.b	$00, $03, $00, $04, $00, $05, $08, $05, $08, $04, $08, $03
 	dc.b	$00, $06, $00, $07, $08, $09, $08, $08, $08, $07, $08, $06
 	dc.b	$00, $0A, $00, $0B, $00, $0C, $00, $0D, $08, $0B, $08, $0A
-	
+
 loc_9AFC8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -80982,7 +80982,7 @@ loc_9AFC8:
 	dc.b	$00, $11, $00, $12, $00, $13, $08, $13, $08, $12, $08, $11
 	dc.b	$00, $14, $00, $15, $00, $16, $00, $17, $08, $15, $08, $14
 	dc.b	$00, $18, $00, $19, $00, $1A, $00, $1B, $08, $19, $08, $18
-	
+
 loc_9B02E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -80995,7 +80995,7 @@ loc_9B02E:
 	dc.b	$00, $06, $00, $20, $00, $21, $08, $21, $08, $20, $08, $06
 	dc.b	$00, $22, $00, $23, $00, $24, $08, $24, $08, $23, $08, $22
 	dc.b	$00, $00, $00, $25, $00, $26, $08, $26, $08, $25, $00, $00
-	
+
 loc_9B094:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -81008,7 +81008,7 @@ loc_9B094:
 	dc.b	$00, $3A, $00, $00, $00, $3B, $00, $3C, $00, $3D, $00, $3E, $00, $3F, $00, $40
 	dc.b	$00, $00, $00, $00, $00, $41, $00, $42, $00, $43, $00, $44, $00, $45, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00, $00
-	
+
 loc_9B11A:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -81021,7 +81021,7 @@ loc_9B11A:
 	dc.b	$00, $00, $00, $00, $00, $3B, $00, $61, $00, $62, $00, $63, $00, $64, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $41, $00, $42, $00, $43, $00, $44, $00, $40, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00, $00
-	
+
 loc_9B1A0:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -81034,7 +81034,7 @@ loc_9B1A0:
 	dc.b	$00, $00, $00, $73, $00, $74, $00, $75, $00, $76, $00, $77, $00, $78, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $79, $00, $7A, $00, $43, $00, $44, $00, $40, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00, $00
-	
+
 loc_9B226:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -81047,7 +81047,7 @@ loc_9B226:
 	dc.b	$00, $00, $00, $73, $00, $74, $00, $75, $00, $76, $00, $77, $00, $78, $00, $00
 	dc.b	$00, $00, $00, $18, $00, $79, $00, $7A, $00, $43, $00, $44, $00, $40, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00, $00
-	
+
 loc_9B2AC:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -81060,7 +81060,7 @@ loc_9B2AC:
 	dc.b	$00, $00, $00, $00, $00, $3B, $00, $61, $00, $90, $00, $77, $00, $78, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $41, $00, $42, $00, $43, $00, $44, $00, $40, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00, $00
-	
+
 loc_9B332:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -81073,8 +81073,8 @@ loc_9B332:
 	dc.b	$00, $00, $00, $00, $00, $3B, $00, $61, $00, $90, $00, $77, $00, $78, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $41, $00, $42, $00, $43, $00, $44, $00, $40, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00, $00
-; =================================================================	
-	
+; =================================================================
+
 ; -----------------------------------------------------------------
 ; Mastodon Sprite Mappings
 ; -----------------------------------------------------------------
@@ -81086,7 +81086,7 @@ Battle_MastodonMap:
 	dc.w	loc_9B6FE-Battle_MastodonMap
 	dc.w	loc_9B7CC-Battle_MastodonMap
 	dc.w	loc_9B89A-Battle_MastodonMap
-	
+
 loc_9B3C6:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81101,7 +81101,7 @@ loc_9B3C6:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $08, $24, $08, $23, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $08, $28, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9B494:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81116,7 +81116,7 @@ loc_9B494:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $2E, $08, $2E, $08, $23, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $2F, $08, $2F, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9B562:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81131,7 +81131,7 @@ loc_9B562:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $36, $00, $37, $08, $37, $08, $36, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $08, $28, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9B630:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81146,7 +81146,7 @@ loc_9B630:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $36, $00, $37, $08, $37, $08, $36, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $08, $28, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9B6FE:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81161,7 +81161,7 @@ loc_9B6FE:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $08, $24, $08, $23, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $08, $28, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9B7CC:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81176,7 +81176,7 @@ loc_9B7CC:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $08, $24, $08, $23, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $08, $28, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-	
+
 loc_9B89A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0
@@ -81191,8 +81191,8 @@ loc_9B89A:
 	dc.b	$00, $00, $00, $21, $00, $22, $00, $23, $00, $24, $08, $24, $08, $23, $08, $22, $08, $21, $00, $00
 	dc.b	$00, $00, $00, $25, $00, $26, $00, $27, $00, $28, $08, $28, $08, $27, $08, $26, $08, $25, $00, $00
 	dc.b	$00, $00, $00, $29, $00, $2A, $00, $2B, $00, $2C, $08, $2C, $08, $2B, $08, $2A, $08, $29, $00, $00
-; =================================================================	
-	
+; =================================================================
+
 ; -----------------------------------------------------------------
 ; Dezo Owl Sprite Mappings
 ; -----------------------------------------------------------------
@@ -81205,7 +81205,7 @@ Battle_DezoOwlMap:
 	dc.w	loc_9BC5A-Battle_DezoOwlMap
 	dc.w	loc_9BD64-Battle_DezoOwlMap
 	dc.w	loc_9BE6E-Battle_DezoOwlMap
-	
+
 loc_9B978:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -81218,7 +81218,7 @@ loc_9B978:
 	dc.b	$00, $00, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $00, $00
 	dc.b	$00, $00, $00, $10, $00, $11, $08, $11, $08, $10, $00, $00
 	dc.b	$00, $00, $00, $12, $00, $13, $08, $13, $08, $12, $00, $00
-	
+
 loc_9B9DE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -81231,7 +81231,7 @@ loc_9B9DE:
 	dc.b	$00, $00, $00, $1C, $00, $0F, $08, $0F, $08, $1C, $00, $00
 	dc.b	$00, $00, $00, $1D, $00, $11, $08, $11, $08, $1D, $00, $00
 	dc.b	$00, $00, $00, $1E, $00, $13, $08, $13, $08, $1E, $00, $00
-	
+
 loc_9BA44:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -81244,7 +81244,7 @@ loc_9BA44:
 	dc.b	$00, $29, $00, $2A, $00, $0F, $08, $0F, $08, $2A, $08, $29
 	dc.b	$00, $2B, $00, $2C, $00, $11, $08, $11, $08, $2C, $08, $2B
 	dc.b	$00, $00, $00, $2D, $00, $13, $08, $13, $08, $2D, $00, $00
-	
+
 loc_9BAAA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $C0
@@ -81275,7 +81275,7 @@ loc_9BB50:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $66, $00, $67, $08, $67, $08, $66, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $68, $00, $69, $08, $69, $08, $68, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $6A, $00, $6B, $08, $6B, $08, $6A, $00, $00, $00, $00, $00, $00
-	
+
 loc_9BC5A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $98
@@ -81293,7 +81293,7 @@ loc_9BC5A:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $66, $00, $67, $08, $67, $08, $66, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $68, $00, $69, $08, $69, $08, $68, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $6A, $00, $6B, $08, $6B, $08, $6A, $00, $00, $00, $00, $00, $00
-	
+
 loc_9BD64:
 	dc.b	$FF
 	dc.b	$D8, $FF, $98
@@ -81311,7 +81311,7 @@ loc_9BD64:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $66, $00, $67, $08, $67, $08, $66, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $68, $00, $69, $08, $69, $08, $68, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $6A, $00, $6B, $08, $6B, $08, $6A, $00, $00, $00, $00, $00, $00
-	
+
 loc_9BE6E:
 	dc.b	$06
 	dc.b	$98, $03, $00, $72, $C8
@@ -81320,18 +81320,18 @@ loc_9BE6E:
 	dc.b	$98, $03, $08, $76, $28
 	dc.b	$B8, $01, $00, $7A, $D0
 	dc.b	$B8, $01, $08, $7A, $28
-	
+
 	even
-	
+
 ; Not referenced
 	dc.b	$04
 	dc.b	$E8, $00, $00, $7C, $F8
 	dc.b	$E8, $00, $08, $7C, $00
 	dc.b	$F0, $00, $10, $7C, $F8
 	dc.b	$F0, $00, $18, $7C, $00
-	
+
 	even
-	
+
 ; Not referenced
 	dc.b	$10
 	dc.b	$E0, $00, $00, $7D, $F0
@@ -81350,10 +81350,10 @@ loc_9BE6E:
 	dc.b	$E8, $00, $08, $80, $00
 	dc.b	$F0, $00, $10, $80, $F8
 	dc.b	$F0, $00, $18, $80, $00
-; =================================================================	
-	
+; =================================================================
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Rabbit Sprite Mappings
 ; -----------------------------------------------------------------
@@ -81378,7 +81378,7 @@ Battle_RabbitMap:
 	dc.w	loc_9C404-Battle_RabbitMap
 	dc.w	loc_9C410-Battle_RabbitMap
 	dc.w	loc_9C416-Battle_RabbitMap
-	
+
 loc_9BF1E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81389,7 +81389,7 @@ loc_9BF1E:
 	dc.b	$00, $00, $00, $00, $00, $0B, $00, $0C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9BF6C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81400,7 +81400,7 @@ loc_9BF6C:
 	dc.b	$00, $00, $00, $00, $00, $0B, $00, $0C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $15, $00, $16, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $17, $00, $18, $00, $14, $00, $00
-	
+
 loc_9BFBA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81411,7 +81411,7 @@ loc_9BFBA:
 	dc.b	$00, $00, $00, $00, $00, $0B, $00, $0C, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $19, $00, $1A, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $1B, $00, $1C, $00, $14, $00, $00
-	
+
 loc_9C008:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81422,7 +81422,7 @@ loc_9C008:
 	dc.b	$00, $00, $00, $00, $00, $1D, $00, $1E, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $1F, $00, $20, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $21, $00, $1C, $00, $14, $00, $00
-	
+
 loc_9C056:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81433,7 +81433,7 @@ loc_9C056:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $24, $00, $25, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $26, $00, $27, $00, $14, $00, $00
-	
+
 loc_9C0A4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81444,7 +81444,7 @@ loc_9C0A4:
 	dc.b	$00, $00, $00, $00, $00, $1D, $00, $1E, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $28, $00, $29, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $2A, $00, $2B, $00, $14, $00, $00
-	
+
 loc_9C0F2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81455,7 +81455,7 @@ loc_9C0F2:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $2C, $00, $2D, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $2E, $00, $2F, $00, $14, $00, $00
-	
+
 loc_9C140:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81466,7 +81466,7 @@ loc_9C140:
 	dc.b	$00, $00, $00, $00, $00, $1D, $00, $1E, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $30, $00, $31, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $32, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C18E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81477,7 +81477,7 @@ loc_9C18E:
 	dc.b	$00, $00, $00, $00, $00, $22, $00, $23, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $33, $00, $34, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $35, $00, $14, $00, $00
-	
+
 loc_9C1DC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81488,7 +81488,7 @@ loc_9C1DC:
 	dc.b	$00, $00, $00, $00, $00, $3E, $00, $3F, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $0D, $00, $0E, $00, $0F, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C22A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81499,7 +81499,7 @@ loc_9C22A:
 	dc.b	$00, $00, $00, $46, $00, $47, $00, $48, $00, $49, $00, $00
 	dc.b	$00, $00, $00, $4A, $00, $4B, $00, $4C, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C278:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81510,7 +81510,7 @@ loc_9C278:
 	dc.b	$00, $00, $00, $46, $00, $4D, $00, $4E, $00, $49, $00, $00
 	dc.b	$00, $00, $00, $4A, $00, $4B, $00, $4C, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C2C6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81521,7 +81521,7 @@ loc_9C2C6:
 	dc.b	$00, $51, $00, $52, $00, $53, $00, $54, $00, $55, $08, $51
 	dc.b	$00, $56, $00, $57, $00, $58, $00, $59, $00, $5A, $08, $56
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C314:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81532,7 +81532,7 @@ loc_9C314:
 	dc.b	$00, $00, $00, $5F, $00, $60, $00, $61, $00, $62, $00, $00
 	dc.b	$00, $00, $00, $63, $00, $64, $00, $65, $00, $66, $00, $00
 	dc.b	$00, $00, $00, $67, $00, $12, $00, $13, $00, $68, $00, $00
-	
+
 loc_9C362:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81543,7 +81543,7 @@ loc_9C362:
 	dc.b	$00, $00, $00, $46, $00, $69, $00, $6A, $00, $49, $00, $00
 	dc.b	$00, $00, $00, $4A, $00, $58, $00, $59, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C3B0:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0
@@ -81554,27 +81554,27 @@ loc_9C3B0:
 	dc.b	$00, $00, $00, $46, $00, $6D, $00, $61, $00, $49, $00, $00
 	dc.b	$00, $00, $00, $4A, $00, $64, $00, $65, $00, $10, $00, $00
 	dc.b	$00, $00, $00, $11, $00, $12, $00, $13, $00, $14, $00, $00
-	
+
 loc_9C3FE:
 	dc.b	$01
 	dc.b	$20, $05, $00, $6E, $08
-	
+
 loc_9C404:
 	dc.b	$02
 	dc.b	$20, $0A, $00, $72, $10
 	dc.b	$38, $04, $00, $7B, $10
-	
+
 	even
-	
+
 loc_9C410:
 	dc.b	$01
 	dc.b	$20, $07, $00, $7D, $10
-	
+
 loc_9C416:
 	dc.b	$01
 	dc.b	$20, $07, $00, $85, $10
-; =================================================================	
-	
+; =================================================================
+
 Battle_WresterArt:
 	dc.b	$01, $00, $FF, $FF, $FF, $FE, $01, $01, $00, $FF, $F8, $00, $00, $01, $12, $35
 	dc.b	$01, $12, $22, $23, $12, $22, $22, $23, $12, $22, $22, $34, $21, $12, $23, $44 ;0x0 (0x0009C41C-0x0009D18A, Entry count: 0x00000D6E)
@@ -83120,7 +83120,7 @@ Battle_FirefallArt:
 	dc.b	$50, $02, $01, $00, $60, $02, $18, $06, $21, $56, $33, $02, $12, $05, $44, $30
 	dc.b	$34, $60, $24, $40, $60, $50, $05, $66, $02, $60, $24, $10, $24, $02, $46, $03 ;0x1AC0
 	dc.b	$40, $FF ;0x1AE0
-	
+
 ; -----------------------------------------------------------------
 ; Wrestler Sprite Mappings
 ; -----------------------------------------------------------------
@@ -83143,7 +83143,7 @@ Battle_WresterMap:
 	dc.w	loc_A2B08-Battle_WresterMap
 	dc.w	loc_A2B18-Battle_WresterMap
 	dc.w	loc_A2B38-Battle_WresterMap
-	
+
 loc_A23FA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83158,7 +83158,7 @@ loc_A23FA:
 	dc.b	$00, $0A, $00, $0B, $00, $0C, $08, $0C, $08, $0B, $08, $0A
 	dc.b	$00, $0D, $00, $0E, $00, $0F, $08, $0F, $08, $0E, $08, $0D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A2478:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83173,7 +83173,7 @@ loc_A2478:
 	dc.b	$00, $1B, $00, $1C, $00, $0C, $08, $0C, $08, $1C, $08, $1B
 	dc.b	$00, $1D, $00, $1E, $00, $0F, $08, $0F, $08, $1E, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A24F6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83188,7 +83188,7 @@ loc_A24F6:
 	dc.b	$00, $25, $00, $26, $00, $27, $08, $27, $08, $26, $08, $25
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A2574:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83203,7 +83203,7 @@ loc_A2574:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A25F2:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83218,7 +83218,7 @@ loc_A25F2:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A2670:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83233,7 +83233,7 @@ loc_A2670:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A26EE:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83248,7 +83248,7 @@ loc_A26EE:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A276C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83263,7 +83263,7 @@ loc_A276C:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A27EA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83278,7 +83278,7 @@ loc_A27EA:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A2868:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83293,7 +83293,7 @@ loc_A2868:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A28E6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83309,7 +83309,7 @@ loc_A28E6:
 	dc.b	$00, $1D, $00, $6A, $00, $6B, $08, $6B, $08, $6A, $08, $1D
 	dc.b	$00, $10, $00, $6C, $00, $6D, $08, $6D, $08, $6C, $08, $10
 	dc.b	$00, $00, $00, $6E, $00, $6F, $08, $6F, $08, $6E, $00, $00
-	
+
 loc_A2970:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83325,7 +83325,7 @@ loc_A2970:
 	dc.b	$00, $1D, $00, $70, $00, $71, $08, $71, $08, $70, $08, $1D
 	dc.b	$00, $10, $00, $72, $00, $73, $08, $73, $08, $72, $08, $10
 	dc.b	$00, $00, $00, $74, $00, $75, $08, $75, $08, $74, $00, $00
-	
+
 loc_A29FA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83341,7 +83341,7 @@ loc_A29FA:
 	dc.b	$00, $1D, $00, $76, $00, $77, $08, $77, $08, $76, $08, $1D
 	dc.b	$00, $10, $00, $78, $00, $79, $08, $79, $08, $78, $08, $10
 	dc.b	$00, $00, $00, $7A, $00, $7B, $08, $7B, $08, $7A, $00, $00
-	
+
 loc_A2A84:
 	dc.b	$FF
 	dc.b	$E8, $FF, $B0
@@ -83356,17 +83356,17 @@ loc_A2A84:
 	dc.b	$00, $31, $00, $32, $00, $0C, $08, $0C, $08, $32, $08, $31
 	dc.b	$00, $1D, $00, $28, $00, $0F, $08, $0F, $08, $28, $08, $1D
 	dc.b	$00, $10, $00, $11, $00, $00, $00, $00, $08, $11, $08, $10
-	
+
 loc_A2B02:
 	dc.b	$01
 	dc.b	$28, $01, $00, $84, $10
-	
+
 loc_A2B08:
 	dc.b	$03
 	dc.b	$28, $00, $10, $85, $10
 	dc.b	$30, $04, $00, $86, $10
 	dc.b	$38, $00, $00, $88, $10
-	
+
 loc_A2B18:
 	dc.b	$06
 	dc.b	$28, $00, $00, $89, $10
@@ -83375,7 +83375,7 @@ loc_A2B18:
 	dc.b	$30, $00, $08, $8A, $20
 	dc.b	$40, $00, $00, $8D, $10
 	dc.b	$48, $00, $00, $8E, $10
-	
+
 	even
 
 loc_A2B38:
@@ -83385,7 +83385,7 @@ loc_A2B38:
 	dc.b	$30, $00, $00, $87, $18
 
 ; =================================================================
-	
+
 ; -----------------------------------------------------------------
 ; Lung Sprite Mappings
 ; -----------------------------------------------------------------
@@ -83404,7 +83404,7 @@ Battle_LungMap:
 	dc.w	loc_A2E36-Battle_LungMap
 	dc.w	loc_A2E50-Battle_LungMap
 	dc.w	loc_A2E6A-Battle_LungMap
-	
+
 loc_A2B64:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -83418,7 +83418,7 @@ loc_A2B64:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2BD6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -83432,7 +83432,7 @@ loc_A2BD6:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2C48:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8
@@ -83446,7 +83446,7 @@ loc_A2C48:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2CBA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D8
@@ -83458,7 +83458,7 @@ loc_A2CBA:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2D14:
 	dc.b	$FF
 	dc.b	$F0, $FF, $E8
@@ -83468,7 +83468,7 @@ loc_A2D14:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2D42:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D0
@@ -83481,7 +83481,7 @@ loc_A2D42:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2D88:
 	dc.b	$FF
 	dc.b	$F8, $FF, $C8
@@ -83495,7 +83495,7 @@ loc_A2D88:
 	dc.b	$00, $4A, $00, $4B
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
-	
+
 loc_A2DB2:
 	dc.b	$FF
 	dc.b	$F8, $FF, $D0
@@ -83508,7 +83508,7 @@ loc_A2DB2:
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
-	
+
 loc_A2DD8:
 	dc.b	$FF
 	dc.b	$F8, $FF, $D8
@@ -83520,7 +83520,7 @@ loc_A2DD8:
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
-	
+
 loc_A2DFA:
 	dc.b	$FF
 	dc.b	$F8, $FF, $E0
@@ -83568,7 +83568,7 @@ loc_A2E6A:
 	dc.b	$28, $04, $00, $8A, $00
 ; =================================================================
 
-	
+
 ; -----------------------------------------------------------------
 ; Darkside Sprite Mappings
 ; -----------------------------------------------------------------
@@ -83596,7 +83596,7 @@ Battle_DarksideMap:
 	dc.w	loc_A356E-Battle_DarksideMap
 	dc.w	loc_A3584-Battle_DarksideMap
 	dc.w	loc_A35CC-Battle_DarksideMap
-	
+
 loc_A2EB2:
 	dc.b	$FF
 	dc.b	$F8, $FF, $C0
@@ -83609,7 +83609,7 @@ loc_A2EB2:
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
 	dc.b	$00, $00, $00, $00
-	
+
 loc_A2ED8:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C0
@@ -83622,7 +83622,7 @@ loc_A2ED8:
 	dc.b	$00, $0B, $00, $0C, $08, $0C, $08, $0B
 	dc.b	$00, $0D, $00, $00, $00, $00, $08, $0D
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2F1E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83635,7 +83635,7 @@ loc_A2F1E:
 	dc.b	$00, $00, $00, $19, $00, $1A, $08, $1A, $08, $19, $00, $00
 	dc.b	$00, $00, $00, $1B, $00, $1C, $08, $1C, $08, $1B, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2F84:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83648,7 +83648,7 @@ loc_A2F84:
 	dc.b	$00, $00, $00, $28, $00, $29, $08, $29, $08, $28, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A2FEA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83661,7 +83661,7 @@ loc_A2FEA:
 	dc.b	$00, $00, $00, $2C, $00, $2D, $08, $29, $08, $28, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2E, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $2F, $00, $00, $00, $00, $00, $00
-	
+
 loc_A3050:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83674,7 +83674,7 @@ loc_A3050:
 	dc.b	$00, $00, $00, $30, $00, $31, $08, $29, $08, $28, $00, $00
 	dc.b	$00, $00, $00, $32, $00, $33, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $34, $00, $00, $00, $00, $00, $00
-	
+
 loc_A30B6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83687,7 +83687,7 @@ loc_A30B6:
 	dc.b	$00, $00, $00, $3F, $00, $29, $08, $29, $08, $28, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A311C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B8
@@ -83702,7 +83702,7 @@ loc_A311C:
 	dc.b	$00, $3F, $00, $29, $00, $58, $00, $59, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A31D6:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C0
@@ -83715,7 +83715,7 @@ loc_A31D6:
 	dc.b	$00, $00, $00, $00, $00, $3F, $00, $29, $08, $29, $08, $3F, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A325C:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C0
@@ -83728,7 +83728,7 @@ loc_A325C:
 	dc.b	$00, $3F, $00, $7C, $08, $29, $08, $3F
 	dc.b	$00, $2A, $00, $2B, $08, $2B, $08, $2A
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A32A2:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C0
@@ -83741,7 +83741,7 @@ loc_A32A2:
 	dc.b	$00, $3F, $00, $81, $00, $82, $08, $3F
 	dc.b	$00, $2A, $00, $2B, $00, $83, $00, $84
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $85
-	
+
 loc_A32E8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83754,7 +83754,7 @@ loc_A32E8:
 	dc.b	$00, $00, $00, $8C, $00, $29, $08, $29, $08, $8C, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A334E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83767,7 +83767,7 @@ loc_A334E:
 	dc.b	$00, $00, $00, $3F, $00, $29, $08, $29, $08, $3F, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A33B4:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83780,7 +83780,7 @@ loc_A33B4:
 	dc.b	$00, $00, $00, $3F, $00, $29, $08, $29, $08, $3F, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A341A:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83793,7 +83793,7 @@ loc_A341A:
 	dc.b	$00, $00, $00, $3F, $00, $29, $08, $29, $08, $3F, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A3480:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C0
@@ -83806,7 +83806,7 @@ loc_A3480:
 	dc.b	$00, $3F, $00, $29, $08, $29, $08, $3F
 	dc.b	$00, $2A, $00, $2B, $08, $2B, $08, $2A
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A34C6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83819,44 +83819,44 @@ loc_A34C6:
 	dc.b	$00, $00, $00, $8C, $00, $29, $08, $29, $08, $8C, $00, $00
 	dc.b	$00, $00, $00, $2A, $00, $2B, $08, $2B, $08, $2A, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-	
+
 loc_A352C:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $9F, $F8
 	dc.b	$F8, $00, $08, $9F, $00
 	dc.b	$00, $00, $10, $9F, $F8
 	dc.b	$00, $00, $18, $9F, $00
-	
+
 	even
-	
+
 loc_A3542:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $A0, $F8
 	dc.b	$F8, $00, $08, $A0, $00
 	dc.b	$00, $00, $10, $A0, $F8
 	dc.b	$00, $00, $18, $A0, $00
-	
+
 	even
-	
+
 loc_A3558:
 	dc.b	$04
 	dc.b	$F8, $00, $00, $A1, $F8
 	dc.b	$F8, $00, $08, $A1, $00
 	dc.b	$00, $00, $10, $A1, $F8
 	dc.b	$00, $00, $18, $A1, $00
-	
+
 	even
 
-loc_A356E:	
+loc_A356E:
 	dc.b	$04
 	dc.b	$F0, $04, $00, $A2, $F8
 	dc.b	$08, $04, $18, $A2, $F8
 	dc.b	$F8, $0C, $00, $A4, $F0
 	dc.b	$00, $0C, $18, $A4, $F0
-	
+
 	even
-	
-loc_A3584:	
+
+loc_A3584:
 	dc.b	$0E
 	dc.b	$E8, $04, $00, $A8, $F8
 	dc.b	$10, $04, $18, $A8, $F8
@@ -83872,9 +83872,9 @@ loc_A3584:
 	dc.b	$F8, $00, $00, $B2, $00
 	dc.b	$00, $00, $00, $B2, $F8
 	dc.b	$00, $00, $00, $B2, $00
-	
+
 	even
-	
+
 loc_A35CC:
 	dc.b	$08
 	dc.b	$E8, $04, $00, $B3, $F8
@@ -83906,7 +83906,7 @@ Battle_MystcapeMap:
 	dc.w	loc_A3A0C-Battle_MystcapeMap
 	dc.w	loc_A3A72-Battle_MystcapeMap
 	dc.w	loc_A3AB0-Battle_MystcapeMap
-	
+
 loc_A3610:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0
@@ -83919,7 +83919,7 @@ loc_A3610:
 	dc.b	$00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15
 	dc.b	$00, $16, $00, $17, $00, $18, $00, $19, $00, $1A, $00, $00
 	dc.b	$00, $1B, $00, $1C, $00, $1D, $00, $00, $00, $00, $00, $00
-	
+
 loc_A3676:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $20, $00, $00, $00
@@ -83929,7 +83929,7 @@ loc_A3676:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A36DC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $3A, $00, $3B, $00
@@ -83939,7 +83939,7 @@ loc_A36DC:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A3742:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $3F, $00, $40, $00
@@ -83949,7 +83949,7 @@ loc_A3742:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A37A8:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $44, $00, $45, $00
@@ -83959,7 +83959,7 @@ loc_A37A8:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A380E:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $49, $00, $4A, $00
@@ -83969,7 +83969,7 @@ loc_A380E:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A3874:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $49, $00, $00, $00
@@ -83979,7 +83979,7 @@ loc_A3874:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A38DA:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $1E, $00, $1F, $00, $49, $00, $00, $00
@@ -83989,7 +83989,7 @@ loc_A38DA:
 	dc.b	$30, $00, $00, $00, $31, $00, $32, $00, $33, $00, $34, $00, $35, $00, $00, $00
 	dc.b	$36, $00, $37, $00, $19, $00, $1A, $00, $00, $00, $00, $00, $38, $00, $39, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A3940:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -83999,7 +83999,7 @@ loc_A3940:
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00
 	dc.b	$17, $00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C, $00, $1D, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A39A6:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -84009,7 +84009,7 @@ loc_A39A6:
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00
 	dc.b	$17, $00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C, $00, $1D, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A3A0C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C0, $05, $07, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -84019,14 +84019,14 @@ loc_A3A0C:
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $13, $00, $14, $00, $15, $00, $16, $00
 	dc.b	$17, $00, $18, $00, $19, $00, $1A, $00, $00, $00, $1B, $00, $1C, $00, $1D, $00 ;0x40
 	dc.b	$00, $00, $00, $00, $00 ;0x60
-	
+
 loc_A3A72:
 	dc.b	$0C
 	dc.b	$20, $00, $00, $67, $10, $20, $00, $00, $68, $18, $38, $00, $18, $68, $10, $38
 	dc.b	$00, $18, $67, $18, $28, $00, $00, $69, $08, $28, $00, $00, $6A, $20, $30, $00 ;0x0 (0x000A3A73-0x000A3AB0, Entry count: 0x0000003D) [Unknown data]
 	dc.b	$18, $6A, $08, $30, $00, $18, $69, $20, $28, $00, $00, $6B, $10, $28, $00, $00
 	dc.b	$6B, $18, $30, $00, $00, $6B, $10, $30, $00, $00, $6B, $18, $00 ;0x20
-	
+
 loc_A3AB0:
 	dc.b	$0C
 	dc.b	$38, $05, $00, $6C, $00, $38, $05, $08, $6C, $20, $58, $05, $10, $6C, $00, $58
@@ -84037,7 +84037,7 @@ loc_A3AB0:
 
 ; -----------------------------------------------------------------
 ; ArchDrgn Sprite Mappings
-; -----------------------------------------------------------------	
+; -----------------------------------------------------------------
 Battle_ArchDrgnMap:
 	dc.w	loc_A3B12-Battle_ArchDrgnMap
 	dc.w	loc_A3BE0-Battle_ArchDrgnMap
@@ -84057,7 +84057,7 @@ Battle_ArchDrgnMap:
 	dc.w	loc_A44E8-Battle_ArchDrgnMap
 	dc.w	loc_A44FE-Battle_ArchDrgnMap
 	dc.w	loc_A4514-Battle_ArchDrgnMap
-	
+
 loc_A3B12:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $01, $00, $02, $00, $03, $00, $04, $00
@@ -84073,7 +84073,7 @@ loc_A3B12:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A3BE0:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $01, $00, $02, $00, $03, $00, $04, $00
@@ -84089,7 +84089,7 @@ loc_A3BE0:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A3CAE:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $01, $00, $02, $00, $03, $00, $04, $00
@@ -84105,7 +84105,7 @@ loc_A3CAE:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A3D7C:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00
@@ -84121,7 +84121,7 @@ loc_A3D7C:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A3E4A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00
@@ -84137,7 +84137,7 @@ loc_A3E4A:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A3F18:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00
@@ -84153,7 +84153,7 @@ loc_A3F18:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A3FE6:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00
@@ -84169,7 +84169,7 @@ loc_A3FE6:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A40B4:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00
@@ -84185,7 +84185,7 @@ loc_A40B4:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A4182:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00
@@ -84201,7 +84201,7 @@ loc_A4182:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A4250:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $01, $00, $02, $00, $03, $00, $04, $00
@@ -84217,7 +84217,7 @@ loc_A4250:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A431E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $01, $00, $00, $00, $80, $00, $81, $00
@@ -84233,7 +84233,7 @@ loc_A431E:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A43EC:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $01, $00, $9D, $00, $9E, $00, $9F, $00
@@ -84249,7 +84249,7 @@ loc_A43EC:
 	dc.b	$44, $00, $00, $00, $45, $00, $46, $00, $47, $00, $48, $00, $49, $00, $4A, $00
 	dc.b	$4B, $00, $4C, $00, $4D, $00, $4E, $00, $00, $00, $00, $00, $4F, $00, $50, $00 ;0xA0
 	dc.b	$51, $00, $52, $00, $00, $00, $53, $00, $54, $00, $55, $00, $00 ;0xC0
-	
+
 loc_A44BA:
 	dc.b	$04
 	dc.b	$00, $00, $00, $B8, $F8, $00, $00, $08, $B8, $00, $08, $00, $10, $B8, $F8, $08
@@ -84980,9 +84980,9 @@ Battle_WizardArt:
 	dc.b	$3F, $FF, $FB, $F7, $0E, $30, $03, $03, $01, $00, $FF, $7F, $F7, $FF, $30, $03
 	dc.b	$01, $00, $F4, $BD, $FD, $EF, $0E, $30, $30, $30, $0E, $33, $30, $01, $00, $FF ;0xF00
 	dc.b	$FF, $FD, $2B, $03, $03, $0E, $30, $33, $FF ;0xF20
-	
-	even 
-	
+
+	even
+
 ; -----------------------------------------------------------------
 ; Wizard Sprite Mappings
 ; -----------------------------------------------------------------
@@ -85011,7 +85011,7 @@ Battle_WizardMap:
 	dc.w	loc_A75DE-Battle_WizardMap
 	dc.w	loc_A75FE-Battle_WizardMap
 	dc.w	loc_A760A-Battle_WizardMap
-	
+
 loc_A682E:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85030,7 +85030,7 @@ loc_A682E:
 	dc.b	$22, $08, $22, $08, $21, $08, $20, $08, $1F, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $08, $26, $08, $25, $08
 	dc.b	$24, $08, $23, $00, $00 ;0xE0
-	
+
 loc_A6924:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85049,7 +85049,7 @@ loc_A6924:
 	dc.b	$22, $08, $22, $08, $21, $08, $20, $08, $1F, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $08, $26, $08, $25, $08
 	dc.b	$24, $08, $23, $00, $00 ;0xE0
-	
+
 loc_A6A1A:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85068,7 +85068,7 @@ loc_A6A1A:
 	dc.b	$22, $08, $22, $08, $21, $08, $20, $08, $1F, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $08, $26, $08, $25, $08
 	dc.b	$24, $08, $23, $00, $00 ;0xE0
-	
+
 loc_A6B10:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85087,7 +85087,7 @@ loc_A6B10:
 	dc.b	$22, $08, $22, $00, $40, $00, $41, $00, $00, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $00, $42, $00, $43, $00
 	dc.b	$44, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A6C06:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85106,7 +85106,7 @@ loc_A6C06:
 	dc.b	$22, $08, $22, $00, $40, $00, $52, $00, $53, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $00, $42, $00, $54, $00
 	dc.b	$55, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A6CFC:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85125,7 +85125,7 @@ loc_A6CFC:
 	dc.b	$22, $08, $22, $00, $40, $00, $52, $00, $53, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $00, $42, $00, $54, $00
 	dc.b	$55, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A6DF2:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85144,7 +85144,7 @@ loc_A6DF2:
 	dc.b	$22, $08, $22, $00, $40, $00, $52, $00, $53, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $00, $42, $00, $54, $00
 	dc.b	$55, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A6EE8:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85163,7 +85163,7 @@ loc_A6EE8:
 	dc.b	$22, $08, $22, $08, $21, $08, $20, $08, $1F, $00, $65, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $08, $26, $08, $25, $08
 	dc.b	$24, $08, $23, $00, $00 ;0xE0
-	
+
 loc_A6FDE:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85182,7 +85182,7 @@ loc_A6FDE:
 	dc.b	$22, $08, $22, $00, $40, $00, $41, $00, $00, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$00, $08, $44, $08, $43, $08, $42, $00, $27, $08, $27, $00, $42, $00, $43, $00
 	dc.b	$44, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A70D4:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85201,7 +85201,7 @@ loc_A70D4:
 	dc.b	$22, $08, $22, $00, $40, $00, $52, $00, $53, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$00, $08, $55, $08, $54, $08, $42, $00, $27, $08, $27, $00, $42, $00, $54, $00
 	dc.b	$55, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A71CA:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85220,7 +85220,7 @@ loc_A71CA:
 	dc.b	$22, $08, $22, $00, $40, $00, $52, $00, $53, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$00, $08, $55, $08, $54, $08, $42, $00, $27, $08, $27, $00, $42, $00, $54, $00
 	dc.b	$55, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A72C0:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85239,7 +85239,7 @@ loc_A72C0:
 	dc.b	$22, $08, $22, $00, $40, $00, $52, $00, $53, $00, $00, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$00, $08, $55, $08, $54, $08, $42, $00, $27, $08, $27, $00, $42, $00, $54, $00
 	dc.b	$55, $00, $00, $00, $00 ;0xE0
-	
+
 loc_A73B6:
 	dc.b	$FF
 	dc.b	$D0, $FF, $B0, $0B, $09, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -85258,11 +85258,11 @@ loc_A73B6:
 	dc.b	$22, $08, $22, $08, $21, $08, $20, $08, $1F, $00, $65, $00, $00, $00, $00, $00 ;0xC0
 	dc.b	$23, $00, $24, $00, $25, $00, $26, $00, $27, $08, $27, $08, $26, $08, $25, $08
 	dc.b	$24, $08, $23, $00, $00 ;0xE0
-	
+
 loc_A74AC:
 	dc.b	$02
 	dc.b	$08, $04, $00, $66, $00, $08, $04, $18, $66, $30, $00 ;0x0 (0x000A74AD-0x000A74B8, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_A74B8:
 	dc.b	$04
 	dc.b	$00, $04, $00, $68, $08, $08, $08, $00, $6A, $00, $10, $04, $18, $68, $28, $08
@@ -85638,7 +85638,7 @@ Battle_NeifirstArt:
 	dc.b	$42, $20, $44, $20, $54, $22, $54, $44, $20, $54, $54, $20, $75, $55, $40, $35
 	dc.b	$65, $50, $01, $00, $11, $33, $7F, $FF, $34, $56, $70, $44, $56, $70, $55, $67 ;0x13A0
 	dc.b	$67, $70, $70, $FF ;0x13C0
-	
+
 ; -----------------------------------------------------------------
 ; Neifirst Sprite Mappings
 ; -----------------------------------------------------------------
@@ -85678,14 +85678,14 @@ Battle_NeifirstMap:
 	dc.w	loc_A96E6-Battle_NeifirstMap
 	dc.w	loc_A96F6-Battle_NeifirstMap
 	dc.w	loc_A9706-Battle_NeifirstMap
-	
+
 loc_A8A34:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C8, $03, $06, $00, $00, $00, $01, $08, $01, $00, $00, $00, $00, $00
 	dc.b	$02, $00, $03, $00, $00, $00, $00, $00, $04, $00, $05, $00, $06, $00, $07, $00 ;0x0 (0x000A8A35-0x000A8A72, Entry count: 0x0000003D) [Unknown data]
 	dc.b	$08, $00, $09, $00, $0A, $00, $00, $00, $0B, $00, $0C, $00, $00, $00, $00, $00
 	dc.b	$0D, $00, $0E, $00, $00, $00, $0F, $00, $10, $00, $11, $00, $12 ;0x20
-	
+
 loc_A8A72:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85701,14 +85701,14 @@ loc_A8A72:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $00, $00, $0D, $00
 	dc.b	$0E, $00, $00, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A8B40:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C8, $03, $06, $00, $00, $00, $01, $08, $01, $00, $00, $00, $00, $00
 	dc.b	$02, $00, $03, $00, $00, $00, $00, $00, $04, $00, $05, $00, $06, $00, $30, $00 ;0x0 (0x000A8B41-0x000A8B7E, Entry count: 0x0000003D) [Unknown data]
 	dc.b	$08, $00, $09, $00, $0A, $00, $31, $00, $0B, $00, $0C, $00, $00, $00, $00, $00
 	dc.b	$0D, $00, $0E, $00, $00, $00, $0F, $00, $10, $00, $11, $00, $12 ;0x20
-	
+
 loc_A8B7E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85724,7 +85724,7 @@ loc_A8B7E:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $00, $00, $0D, $00
 	dc.b	$0E, $00, $00, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A8C4C:
 	dc.b	$FF
 	dc.b	$E8, $FF, $C8, $05, $06, $00, $00, $00, $00, $00, $01, $08, $01, $00, $00, $00
@@ -85733,7 +85733,7 @@ loc_A8C4C:
 	dc.b	$09, $00, $0A, $00, $00, $00, $33, $00, $34, $00, $0B, $00, $0C, $00, $00, $00 ;0x20
 	dc.b	$00, $00, $35, $00, $00, $00, $0D, $00, $0E, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $00 ;0x40
-	
+
 loc_A8CA6:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85749,7 +85749,7 @@ loc_A8CA6:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $35, $00, $00, $00, $0D, $00
 	dc.b	$0E, $00, $00, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$0F, $00, $10, $00, $11, $00, $12, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A8D74:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C8, $07, $06, $00, $00, $00, $00, $00, $00, $00, $36, $08, $36, $00
@@ -85760,7 +85760,7 @@ loc_A8D74:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $46, $00, $47, $00 ;0x40
 	dc.b	$48, $00, $00, $00, $00, $00, $00, $00, $00, $00, $0F, $00, $49, $00, $00, $00
 	dc.b	$4A, $00, $00, $00, $00 ;0x60
-	
+
 loc_A8DEA:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85776,7 +85776,7 @@ loc_A8DEA:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $00, $00, $46, $00
 	dc.b	$47, $00, $48, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$0F, $00, $49, $00, $00, $00, $4A, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A8EB8:
 	dc.b	$FF
 	dc.b	$E0, $FF, $C8, $07, $06, $00, $00, $00, $00, $00, $00, $00, $4C, $00, $4D, $00
@@ -85803,7 +85803,7 @@ loc_A8F2E:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $5B, $00, $5C, $00
 	dc.b	$5D, $00, $5E, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$5F, $00, $60, $00, $61, $00, $4A, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A8FFC:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0, $05, $05, $00, $66, $00, $67, $00, $68, $00, $69, $00, $00, $00
@@ -85811,7 +85811,7 @@ loc_A8FFC:
 	dc.b	$00, $00, $6D, $00, $6E, $00, $00, $00, $00, $00, $00, $00, $00, $00, $6F, $00
 	dc.b	$70, $00, $00, $00, $00, $00, $00, $00, $00, $00, $71, $00, $72, $00, $00, $00 ;0x20
 	dc.b	$00, $00, $00, $00, $73, $00, $74, $00, $75, $00, $76, $00, $00 ;0x40
-	
+
 loc_A904A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85827,14 +85827,14 @@ loc_A904A:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $00, $00, $71, $00
 	dc.b	$72, $00, $00, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$73, $00, $74, $00, $75, $00, $76, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A9118:
 	dc.b	$FF
 	dc.b	$F0, $FF, $D0, $03, $05, $00, $00, $00, $00, $00, $79, $00, $7A, $00, $00, $00
 	dc.b	$7B, $00, $7C, $00, $7D, $00, $00, $00, $7E, $00, $7F, $00, $00, $00, $00, $00 ;0x0 (0x000A9119-0x000A914E, Entry count: 0x00000035) [Unknown data]
 	dc.b	$80, $00, $81, $00, $82, $00, $00, $00, $83, $00, $84, $00, $85, $00, $86, $00
 	dc.b	$87, $00, $00, $00, $88 ;0x20
-	
+
 loc_A914E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85850,14 +85850,14 @@ loc_A914E:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $00, $00, $83, $00
 	dc.b	$84, $00, $85, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$86, $00, $87, $00, $00, $00, $88, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A921C:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C8, $03, $06, $00, $00, $00, $36, $08, $36, $00, $00, $00, $00, $00
 	dc.b	$37, $00, $38, $00, $00, $00, $89, $00, $8A, $00, $3B, $00, $8B, $00, $00, $00 ;0x0 (0x000A921D-0x000A925A, Entry count: 0x0000003D) [Unknown data]
 	dc.b	$8C, $00, $40, $00, $00, $00, $00, $00, $44, $00, $45, $00, $00, $00, $00, $00
 	dc.b	$46, $00, $47, $00, $48, $00, $0F, $00, $49, $00, $00, $00, $4A ;0x20
-	
+
 loc_A925A:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85873,14 +85873,14 @@ loc_A925A:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $00, $00, $46, $00
 	dc.b	$47, $00, $48, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$0F, $00, $49, $00, $00, $00, $4A, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A9328:
 	dc.b	$FF
 	dc.b	$F0, $FF, $C8, $03, $06, $00, $00, $00, $36, $00, $8D, $00, $00, $00, $00, $00
 	dc.b	$8E, $00, $8F, $00, $00, $00, $90, $00, $91, $00, $92, $00, $00, $00, $00, $00 ;0x0 (0x000A9329-0x000A9366, Entry count: 0x0000003D) [Unknown data]
 	dc.b	$55, $00, $56, $00, $00, $00, $58, $00, $59, $00, $5A, $00, $00, $00, $5B, $00
 	dc.b	$5C, $00, $5D, $00, $5E, $00, $5F, $00, $60, $00, $61, $00, $4A ;0x20
-	
+
 loc_A9366:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85896,7 +85896,7 @@ loc_A9366:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $5B, $00, $5C, $00
 	dc.b	$5D, $00, $5E, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$5F, $00, $60, $00, $61, $00, $4A, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A9434:
 	dc.b	$FF
 	dc.b	$E8, $FF, $D0, $05, $05, $00, $00, $00, $94, $00, $95, $00, $00, $00, $00, $00
@@ -85904,7 +85904,7 @@ loc_A9434:
 	dc.b	$99, $00, $9A, $00, $9B, $00, $00, $00, $00, $00, $9C, $00, $9D, $00, $9E, $00
 	dc.b	$9F, $00, $00, $00, $00, $00, $00, $00, $A0, $00, $A1, $00, $A2, $00, $A3, $00 ;0x20
 	dc.b	$00, $00, $00, $00, $A4, $00, $A5, $10, $39, $00, $A6, $00, $00 ;0x40
-	
+
 loc_A9482:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85928,7 +85928,7 @@ loc_A9550:
 	dc.b	$99, $00, $9A, $00, $9B, $00, $00, $00, $00, $00, $9C, $00, $9D, $00, $9E, $00
 	dc.b	$9F, $00, $00, $00, $00, $00, $00, $00, $A0, $00, $A1, $00, $A2, $00, $A3, $00 ;0x20
 	dc.b	$00, $00, $00, $00, $A4, $00, $A5, $10, $39, $00, $A6, $00, $00 ;0x40
-	
+
 loc_A959E:
 	dc.b	$FF
 	dc.b	$D8, $FF, $B0, $09, $09, $00, $00, $00, $00, $00, $00, $00, $13, $00, $14, $08
@@ -85944,56 +85944,56 @@ loc_A959E:
 	dc.b	$00, $00, $00, $08, $2D, $00, $2E, $00, $00, $00, $00, $00, $A0, $00, $A1, $00
 	dc.b	$A2, $00, $A3, $00, $00, $00, $00, $08, $2E, $00, $2F, $00, $00, $00, $00, $00 ;0xA0
 	dc.b	$A4, $00, $A5, $10, $39, $00, $A6, $00, $00, $00, $00, $08, $2F ;0xC0
-	
+
 loc_A966C:
 	dc.b	$02
 	dc.b	$30, $00, $00, $A9, $28, $38, $00, $00, $AA, $28, $00 ;0x0 (0x000A966D-0x000A9678, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_A9678:
 	dc.b	$03
 	dc.b	$28, $04, $00, $AB, $18, $30, $04, $00, $AD, $20, $38, $00, $00, $AA, $28 ;0x0 (0x000A9679-0x000A9688, Entry count: 0x0000000F) [Unknown data]
-	
+
 loc_A9688:
 	dc.b	$03
 	dc.b	$20, $0C, $00, $AF, $00, $28, $00, $00, $B3, $00, $28, $04, $00, $B4, $18 ;0x0 (0x000A9689-0x000A9698, Entry count: 0x0000000F) [Unknown data]
-	
+
 loc_A9698:
 	dc.b	$03
 	dc.b	$20, $08, $00, $B6, $00, $28, $02, $00, $B9, $00, $40, $05, $00, $BC, $00 ;0x0 (0x000A9699-0x000A96A8, Entry count: 0x0000000F) [Unknown data]
-	
+
 loc_A96A8:
 	dc.b	$04
 	dc.b	$38, $02, $00, $C0, $00, $40, $02, $00, $C3, $08, $48, $00, $00, $C6, $10, $50
 	dc.b	$09, $00, $C7, $10, $00 ;0x0 (0x000A96A9-0x000A96BE, Entry count: 0x00000015) [Unknown data]
-	
+
 loc_A96BE:
 	dc.b	$01
 	dc.b	$10, $00, $00, $CD, $28 ;0x0 (0x000A96BF-0x000A96C4, Entry count: 0x00000005) [Unknown data]
-	
+
 loc_A96C4:
 	dc.b	$01
 	dc.b	$10, $00, $00, $CE, $28 ;0x0 (0x000A96C5-0x000A96CA, Entry count: 0x00000005) [Unknown data]
-	
+
 loc_A96CA:
 	dc.b	$01
 	dc.b	$08, $00, $00, $CF, $28 ;0x0 (0x000A96CB-0x000A96D0, Entry count: 0x00000005) [Unknown data]
-	
+
 loc_A96D0:
 	dc.b	$01
 	dc.b	$00, $09, $00, $D0, $20 ;0x0 (0x000A96D1-0x000A96D6, Entry count: 0x00000005) [Unknown data]
-	
+
 loc_A96D6:
 	dc.b	$03
 	dc.b	$00, $08, $00, $D6, $20, $08, $0C, $00, $D9, $18, $10, $04, $00, $DD, $28 ;0x0 (0x000A96D7-0x000A96E6, Entry count: 0x0000000F) [Unknown data]
-	
+
 loc_A96E6:
 	dc.b	$03
 	dc.b	$F8, $0C, $00, $DF, $18, $00, $05, $00, $E3, $18, $00, $0A, $00, $E7, $28 ;0x0 (0x000A96E7-0x000A96F6, Entry count: 0x0000000F) [Unknown data]
-	
+
 loc_A96F6:
 	dc.b	$03
 	dc.b	$08, $0C, $00, $DF, $10, $10, $05, $00, $E3, $10, $10, $0A, $00, $E7, $20 ;0x0 (0x000A96F7-0x000A9706, Entry count: 0x0000000F) [Unknown data]
-	
+
 loc_A9706:
 	dc.b	$01
 	dc.b	$28, $0E, $00, $F0, $08 ;0x0 (0x000A9707-0x000A970C, Entry count: 0x00000005) [Unknown data]
@@ -86485,7 +86485,7 @@ Battle_DarkFrceArt:
 	dc.b	$CC, $CC, $C0, $CC, $0D, $0D, $FF ;0x1E00
 
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Dark Force Sprite Mappings
 ; -----------------------------------------------------------------
@@ -86519,7 +86519,7 @@ Battle_DarkFrceMap:
 	dc.w	loc_ACAFA-Battle_DarkFrceMap
 	dc.w	loc_ACB60-Battle_DarkFrceMap
 	dc.w	loc_ACBC6-Battle_DarkFrceMap
-	
+
 loc_AB55E:
 	dc.b	$FF
 	dc.b	$60, $FF, $88, $27, $0E, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00
@@ -86589,7 +86589,7 @@ loc_AB55E:
 	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ;0x60
 	dc.w	$0000, $00B5, $00B6, $08B6, $08B5, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000
 	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000 ;0x80
-	
+
 loc_ABA14:
 	dc.b	$FF
 	dc.b	$60, $FF, $88, $27, $0E, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00
@@ -86668,7 +86668,7 @@ loc_ABA14:
 	dc.b	$B5, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00 ;0x480
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00 ;0x4A0
-	
+
 loc_ABECA:
 	dc.b	$FF
 	dc.b	$60, $FF, $88, $27, $0E, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00
@@ -86747,7 +86747,7 @@ loc_ABECA:
 	dc.b	$B5, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00 ;0x480
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	dc.b	$00, $00, $00, $00, $00 ;0x4A0
-	
+
 loc_AC380:
 	dc.b	$FF
 	dc.b	$60, $FF, $88, $27, $0E, $00, $01, $00, $02, $00, $03, $00, $04, $00, $05, $00
@@ -86821,11 +86821,11 @@ loc_AC380:
 	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000 ;0x20
 	dc.w	$0000, $00B5, $00B6, $08B6, $08B5, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000
 	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000 ;0x40
-	
+
 loc_AC836:
 	dc.b	$02
 	dc.b	$00, $01, $00, $BE, $F8, $00, $01, $08, $BE, $00, $00 ;0x0 (0x000AC837-0x000AC842, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AC842:
 	dc.b	$02
 	dc.b	$00, $01, $00, $C0, $F8, $00, $01, $08, $C0, $00, $00 ;0x0 (0x000AC843-0x000AC84E, Entry count: 0x0000000B) [Unknown data]
@@ -86833,21 +86833,21 @@ loc_AC842:
 loc_AC84E:
 	dc.b	$02
 	dc.b	$00, $01, $00, $C2, $F8, $00, $01, $08, $C2, $00, $00 ;0x0 (0x000AC84F-0x000AC85A, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AC85A:
 	dc.b	$02
 	dc.b	$D8, $00, $00, $C4, $F0, $D8, $00, $08, $C4, $08, $00 ;0x0 (0x000AC85B-0x000AC866, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AC866:
 	dc.b	$02
 	dc.b	$D8, $01, $00, $C5, $F0, $D8, $01, $08, $C5, $08, $00 ;0x0 (0x000AC867-0x000AC872, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AC872:
 	dc.b	$08
 	dc.b	$D0, $00, $00, $C7, $F8, $D0, $00, $08, $C7, $00, $D8, $00, $00, $C8, $F0, $D8
 	dc.b	$00, $08, $C8, $08, $E0, $04, $00, $C9, $F0, $E0, $04, $08, $C9, $00, $E8, $00 ;0x0 (0x000AC873-0x000AC89C, Entry count: 0x00000029) [Unknown data]
 	dc.b	$00, $CB, $F0, $E8, $00, $08, $CB, $08, $00 ;0x20
-	
+
 loc_AC89C:
 	dc.b	$04
 	dc.b	$D0, $00, $00, $CC, $F8, $D0, $00, $08, $CC, $00, $D8, $06, $00, $CD, $F0, $D8
@@ -86866,16 +86866,16 @@ loc_AC8D6:
 	dc.b	$00, $DD, $F0, $E0, $00, $00, $DE, $F8, $E0, $00, $08, $DE, $00, $E0, $00, $08
 	dc.b	$DD, $08, $E8, $00, $00, $DF, $F0, $E8, $00, $00, $D7, $F8, $E8, $00, $08, $D7 ;0x20
 	dc.b	$00, $E8, $00, $08, $DF, $08, $00 ;0x40
-	
+
 loc_AC91E:
 	dc.b	$04
 	dc.b	$E8, $04, $00, $E0, $F0, $E8, $04, $08, $E0, $00, $F0, $00, $00, $E2, $F8, $F0
 	dc.b	$00, $08, $E2, $00, $00 ;0x0 (0x000AC91F-0x000AC934, Entry count: 0x00000015) [Unknown data]
-	
+
 loc_AC934:
 	dc.b	$02
 	dc.b	$E8, $05, $00, $E3, $F0, $E8, $05, $08, $E3, $00, $00 ;0x0 (0x000AC935-0x000AC940, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AC940:
 	dc.b	$06
 	dc.b	$E8, $04, $00, $E7, $F0, $E8, $04, $08, $E7, $00, $F0, $00, $00, $E9, $F8, $F0
@@ -86949,7 +86949,7 @@ loc_ACAFA:
 	dc.b	$F0, $F8, $00, $09, $15, $08, $00, $00, $11, $15, $F0, $00, $00, $19, $15, $08
 	dc.b	$F8, $00, $01, $16, $F8, $F8, $00, $09, $16, $00, $00, $00, $11, $16, $F8, $00 ;0x40
 	dc.b	$00, $19, $16, $00, $00 ;0x60
-	
+
 loc_ACB60:
 	dc.b	$14
 	dc.b	$C8, $0A, $01, $17, $C8, $E0, $04, $01, $20, $D8, $E8, $00, $01, $22, $E8, $F0
@@ -86975,7 +86975,7 @@ loc_ACBC6:
 	dc.b	$30, $00, $19, $32, $28, $28, $08, $19, $33, $28, $20, $00, $19, $36, $28, $18
 	dc.b	$04, $19, $37, $18, $00 ;0xA0
 ; =================================================================
-	
+
 Battle_MombrainArt:
 	dc.b	$01, $00, $77, $77, $77, $77, $30, $30, $30, $30, $32, $03, $03, $03, $01, $00
 	dc.b	$DD, $BB, $BB, $BB, $02, $20, $02, $02, $20, $20, $30, $30, $01, $00, $EE, $EE ;0x0 (0x000ACC7C-0x000ADDCB, Entry count: 0x0000114F)
@@ -87254,13 +87254,13 @@ Battle_MombrainArt:
 	dc.b	$77, $77, $77, $77, $01, $00, $FF, $00, $0F, $FF, $55, $55, $55, $55, $66, $66
 	dc.b	$66, $66, $77, $77, $77, $77, $01, $00, $FF, $00, $FF, $FF, $66, $66, $66, $66 ;0x1120
 	dc.b	$77, $77, $77, $77, $01, $00, $FF, $0F, $FF, $FF, $77, $77, $77, $77, $FF ;0x1140
-	
+
 	even
-	
+
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 Battle_MombrainMap:
 	dc.w	loc_ADE12-Battle_MombrainMap
 	dc.w	loc_AE278-Battle_MombrainMap
@@ -87297,7 +87297,7 @@ Battle_MombrainMap:
 	dc.w	loc_AE79E-Battle_MombrainMap
 	dc.w	loc_AE7F4-Battle_MombrainMap
 	dc.w	loc_AE84A-Battle_MombrainMap
-	
+
 loc_ADE12:
 	dc.b	$FF
 	dc.b	$60, $FF, $88, $27, $0D, $00, $00, $00, $00, $00, $00, $00, $01, $00, $00, $00
@@ -87358,7 +87358,7 @@ loc_ADE12:
 	dc.w	$087B, $0000, $007A, $087A, $0086, $0886, $0087, $0088, $0089, $0086, $0886, $0087, $0086, $0886, $0087, $0087
 	dc.w	$0086, $0886, $0088, $0089, $008A, $008B, $008C, $008D, $088D, $088C, $088B, $088A, $0889, $0888, $0086, $0886 ;0xA0
 	dc.w	$0087, $0087, $0086, $0886, $0087, $0086, $0886, $0889, $0888, $0087, $0086, $0886 ;0xC0
-	
+
 loc_AE278:
 	dc.b	$02
 	dc.b	$98, $00, $20, $A2, $F8, $98, $00, $28, $A2, $00, $00 ;0x0 (0x000AE279-0x000AE284, Entry count: 0x0000000B) [Unknown data]
@@ -87374,20 +87374,20 @@ loc_AE290:
 loc_AE29C:
 	dc.b	$02
 	dc.b	$98, $00, $20, $A5, $F8, $98, $00, $28, $A5, $00, $00 ;0x0 (0x000AE29D-0x000AE2A8, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AE2A8:
 	dc.b	$02
 	dc.b	$98, $00, $20, $A6, $F8, $98, $00, $28, $A6, $00, $00 ;0x0 (0x000AE2A9-0x000AE2B4, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AE2B4:
 	dc.b	$02
 	dc.b	$98, $00, $20, $A7, $F8, $98, $00, $28, $A7, $00, $00 ;0x0 (0x000AE2B5-0x000AE2C0, Entry count: 0x0000000B) [Unknown data]
-	
+
 loc_AE2C0:
 	dc.b	$04
 	dc.b	$90, $00, $20, $A8, $F8, $90, $00, $28, $A8, $00, $98, $00, $20, $A9, $F8, $98
 	dc.b	$00, $28, $A9, $00, $00 ;0x0 (0x000AE2C1-0x000AE2D6, Entry count: 0x00000015) [Unknown data]
-	
+
 loc_AE2D6:
 	dc.b	$04
 	dc.b	$90, $00, $20, $AA, $F8, $90, $00, $28, $AA, $00, $98, $04, $20, $AB, $F0, $98
@@ -87548,7 +87548,7 @@ loc_AE748:
 	dc.b	$ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20 ;0x20
 	dc.b	$ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20, $ED, $20
 	dc.b	$ED, $20, $ED, $20, $ED ;0x40
-	
+
 loc_AE79E:
 	dc.b	$FF
 	dc.b	$60, $FF, $E8, $27, $00, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20
@@ -87557,7 +87557,7 @@ loc_AE79E:
 	dc.b	$EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20 ;0x20
 	dc.b	$EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20, $EE, $20
 	dc.b	$EE, $20, $EE, $20, $EE ;0x40
-	
+
 loc_AE7F4:
 	dc.b	$FF
 	dc.b	$60, $FF, $E8, $27, $00, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20
@@ -87566,7 +87566,7 @@ loc_AE7F4:
 	dc.b	$EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20 ;0x20
 	dc.b	$EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20, $EF, $20
 	dc.b	$EF, $20, $EF, $20, $EF ;0x40
-	
+
 loc_AE84A:
 	dc.b	$FF
 	dc.b	$60, $FF, $E8, $27, $00, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20
@@ -87575,7 +87575,7 @@ loc_AE84A:
 	dc.b	$F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20 ;0x20
 	dc.b	$F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20, $F0, $20
 	dc.b	$F0, $20, $F0, $20, $F0 ;0x40
-	
+
 ; =================================================================
 
 loc_AE8A0:
@@ -87614,7 +87614,7 @@ loc_AE8A0:
 	dc.w	$6091, $609D, $6000, $6091, $609D, $6000, $609F, $6000, $6099, $6000, $6000, $608F, $609F, $6099, $6000, $6000
 	dc.w	$6000, $6094, $609C, $6000, $608F, $6000, $6000, $608F, $60A0, $6000, $6000, $6090, $6099, $6000, $6000, $608F ;0x200
 	dc.w	$609F, $6099, $6000, $6000, $6000, $6094, $609C, $6000, $608F, $6000, $6000, $608F, $60A0, $6000, $6000, $6090 ;0x220
-	
+
 loc_AED00:
 	dc.b	$01, $FF, $FF, $FF, $7F, $FF, $FB, $01, $FF, $FF, $EF, $FF, $FF, $BF, $01, $FF
 	dc.b	$FF, $FF, $FD, $FF, $BF, $01, $FF, $FF, $FF, $FF, $FF, $01, $FF, $FF, $FF, $7F ;0x0 (0x000AED00-0x000AF3C2, Entry count: 0x000006C2)
@@ -89277,7 +89277,7 @@ loc_AF82A:
 	dc.b	$33, $3F, $F6, $00, $03, $33, $03, $33, $43, $34, $04, $40, $A0, $00, $00, $0A
 	dc.b	$EA, $AA, $AA, $AE, $01, $99, $33, $33, $37, $77, $44, $09, $44, $09, $44, $09 ;0x180
 	dc.b	$44, $09, $40, $09, $00, $A0, $D0, $FF ;0x1A0
-	
+
 loc_B55CC:
 	dc.w	$4001, $4001, $4001, $4001, $4001, $4001, $4001, $4001, $4001, $4001, $4001, $4001, $4001, $4002, $4003, $4004
 	dc.w	$4005, $4006, $4007, $4008, $4009, $4009, $4009, $4009, $4009, $400A, $400B, $400C, $400D, $400E, $4001, $4001 ;0x0 (0x000B55CC-0x000B561C, Entry count: 0x00000050)
@@ -89535,9 +89535,9 @@ loc_B6C2C:
 	dc.b	$01, $10, $11, $10, $10, $11, $01, $01, $10, $01, $01, $11, $11, $03, $00, $8A
 	dc.b	$D9, $9A, $20, $11, $70, $04, $24, $06, $10, $05, $02, $00, $51, $01, $01, $01 ;0x1E0
 	dc.b	$01, $01, $FF ;0x200
-	
+
 	even
-	
+
 loc_B6E30:
 	dc.b	$01, $00, $FF, $FF, $FF, $FF, $01, $00, $FF, $EF, $FF, $BF, $0D, $E0, $01, $00
 	dc.b	$FF, $FE, $EC, $C8, $0C, $CB, $0C, $BA, $CB, $A9, $0C, $BA, $95, $00, $00, $CB ;0x0 (0x000B6E30-0x000B7571, Entry count: 0x00000741)
@@ -89656,9 +89656,9 @@ loc_B6E30:
 	dc.b	$86, $66, $01, $00, $FF, $FB, $DD, $EE, $02, $30, $06, $30, $02, $01, $00, $EE
 	dc.b	$DD, $BF, $FF, $06, $60, $06, $30, $02, $01, $00, $FF, $FF, $FF, $77, $02, $30 ;0x720
 	dc.b	$FF ;0x740
-	
+
 	even
-	
+
 loc_B7572:
 	dc.w	$6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480
 	dc.w	$6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6480, $6481, $6480, $6480, $6480, $6480, $6480, $6480 ;0x0 (0x000B7572-0x000B7E32, Entry count: 0x000008C0)
@@ -89734,37 +89734,37 @@ loc_B7572:
 ; -----------------------------------------------------------------
 ; Mappings
 ; -----------------------------------------------------------------
-	
+
 loc_B7E32:
 	dc.w	loc_B7E3C-loc_B7E32
 	dc.w	loc_B7E52-loc_B7E32
 	dc.w	loc_B7E5E-loc_B7E32
 	dc.w	loc_B7E6A-loc_B7E32
 	dc.w	loc_B7EAC-loc_B7E32
-	
+
 loc_B7E3C:
 	dc.b	$04
 	dc.b	$E8, $00, $00, $32, $2C
 	dc.b	$E8, $00, $08, $32, $34
 	dc.b	$F0, $00, $10, $32, $2C
 	dc.b	$F0, $00, $18, $32, $34
-	
+
 	even
-	
+
 loc_B7E52:
 	dc.b	$02
 	dc.b	$E8, $04, $00, $33, $2C
 	dc.b	$F0, $04, $18, $33, $2C
-	
+
 	even
-	
+
 loc_B7E5E:
 	dc.b	$02
 	dc.b	$E8, $04, $00, $35, $2C
 	dc.b	$F0, $04, $18, $35, $2C
-	
+
 	even
-	
+
 loc_B7E6A:
 	dc.b	$0D
 	dc.b	$D0, $00, $00, $37, $0C
@@ -89780,7 +89780,7 @@ loc_B7E6A:
 	dc.b	$E8, $00, $00, $42, $2C
 	dc.b	$F0, $00, $00, $43, $34
 	dc.b	$F8, $00, $00, $44, $3C
-	
+
 loc_B7EAC:
 	dc.b	$2F
 	dc.b	$80, $09, $00, $45, $BC
@@ -89830,9 +89830,9 @@ loc_B7EAC:
 	dc.b	$E8, $00, $18, $5E, $34
 	dc.b	$E0, $00, $18, $5D, $3C
 	dc.b	$F8, $00, $18, $5C, $3C
-	
+
 ; =================================================================
-	
+
 ; =================================================================
 ; Unknown Data
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00
@@ -89855,7 +89855,7 @@ loc_B7EAC:
 ; -----------------------------------------------------------------
 ; Sound Driver
 ; -----------------------------------------------------------------
-	
+
 SoundDriverBase:
 
 ; function to make a little-endian 16-bit pointer for the z80
@@ -89868,7 +89868,7 @@ z80ptr	function addr, ((addr-SoundDriverBase)<<8)&$FF00|(addr-SoundDriverBase)>>
 	dc.w	z80ptr(ModEnvelopePtrs)
 	dc.w	z80ptr(MusicPtrs)
 	dc.w	z80ptr(SFXPtrs)
-	
+
 SoundPriorities:
 	dc.b	$81, $81, $81, $81, $81, $81, $81, $81, $81, $81, $81
 	dc.b	$81, $81, $81, $81, $81, $81, $81, $81, $81, $81, $81
@@ -89878,43 +89878,43 @@ SoundPriorities:
 	dc.b	$50, $50, $50, $50, $50, $50, $50, $50, $50, $50, $60
 	dc.b	$60, $50, $50, $50, $50, $50, $50, $50, $50, $50, $50
 	dc.b	$50, $50, $60, $50, $50, $50, $70, $80, $80, $70, $00
-	
+
 MusicTempo:
 	dc.b	$06, $20, $07, $00, $00, $0A, $00, $00, $00, $00, $0A, $0A, $10, $18, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00 ;0x0 (0x000B8066-0x000B807D, Entry count: 0x00000017)
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00 ;0x0 (0x000B807D-0x000B8086, Entry count: 0x00000009) [Unknown data]
-	
+
 ModEnvelopePtrs:
 	dc.w	z80ptr(ModEnvelope01)
 	dc.w	z80ptr(ModEnvelope02)
 	dc.w	z80ptr(ModEnvelope03)
 	dc.w	z80ptr(ModEnvelope04)
-	
+
 ModEnvelope01:
 	dc.b	$F8, $FA, $FC, $FE, $00, $00, $01, $00, $00, $00, $01, $01, $01, $00, $00, $00
 	dc.b	$01, $01, $00, $00, $00, $00, $FF, $FF, $FE, $FD, $FD, $FC, $FE, $FF, $01, $01
 	dc.b	$02, $02, $01, $01, $00, $FF, $FF, $FE, $FE, $FF, $FF, $84, $01, $85, $1D
-	
+
 ModEnvelope02:
 	dc.b	$F0, $F4, $F2, $00, $02, $04, $06, $04, $02, $00, $FF, $FE, $FD, $FC, $84, $02, $85, $03
-	
+
 ModEnvelope03:
 	dc.b	$E0, $E2, $E4, $E6, $E8, $EA, $EC, $EE, $F0, $F2, $F4, $F6, $F8, $FA, $FC, $FE
 	dc.b	$00, $01, $02, $03, $04, $03, $02, $01, $00, $FF, $FE, $FD, $84, $02, $85, $0D ;0x0 (0x000B80CF-0x000B8100, Entry count: 0x00000031) [Unknown data]
-	
+
 ModEnvelope04:
 	dc.b	$F8, $FC, $FE, $00, $01, $02, $04, $02, $01, $00, $FF, $FE, $FF, $84, $02, $85, $03 ;0x20
-	
-	
+
+
 loc_B8100:
 	dc.b	$06, $20, $07, $00, $00, $0A, $00, $00, $00, $00, $0A, $0A, $10, $18, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00 ;0x0 (0x000B8100-0x000B8120, Entry count: 0x00000020) [Unknown data]
-	
+
 loc_B8120:
 	dc.b	$02, $02, $02, $02, $02, $02, $02, $02, $03, $02, $02, $02, $02, $02, $03, $03
 	dc.b	$02, $02, $02, $01, $03, $02, $03 ;0x0 (0x000B8120-0x000B8137, Entry count: 0x00000017)
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00 ;0x0 (0x000B8137-0x000B8140, Entry count: 0x00000009) [Unknown data]
-	
+
 ; ==========================================================================
 MusicPtrs:
 
@@ -89952,7 +89952,7 @@ PtrMusic_NeverDream:		dc.w	z80ptr(Music_NeverDream)
 	dc.w	z80ptr(Music_Null)
 ; ==========================================================================
 
-; ==========================================================================	
+; ==========================================================================
 SFXPtrs:
 
 PtrSFX_Selection:			dc.w	z80ptr(SFX_Selection)
@@ -90016,464 +90016,464 @@ PtrSFX_Unpause:				dc.w	z80ptr(SFX_Unpause)
 
 SpcSFXPtrs:
 	dc.w	z80ptr(SFX_JetScooter)
-	
-	
+
+
 Music_Phantasy:
 	dc.b	$04
 
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BB001)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BABA0)
 	dc.b	$F4, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BAD85)
 	dc.b	$00, $00, $00, $1C
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BAE9E)
 	dc.b	$F4, $00, $00, $1C
-	
+
 Music_Restoration:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BB39B)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BB12E)
 	dc.b	$F4, $01, $00, $0C
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BB200)
 	dc.b	$F4, $00, $00, $18
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BB29A)
 	dc.b	$F4, $00, $00, $1C
-	
+
 Music_SilentZone:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BB636)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BB481)
 	dc.b	$FB, $00, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BB515)
 	dc.b	$FB, $00, $00, $0C
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BB5AC)
 	dc.b	$FB, $00, $00, $1A
-	
+
 Music_Pleasure:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BBA26)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BB6A4)
 	dc.b	$FB, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BB794)
 	dc.b	$FB, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BB8D9)
 	dc.b	$FB, $00, $00, $14
-	
+
 Music_ExcitingTown:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BBCF6)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BBB64)
 	dc.b	$F4, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BBBE4)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BBC51)
 	dc.b	$F4, $00, $00, $1C
-	
+
 Music_SecretWays:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BBEE5)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BBD88)
 	dc.b	$F4, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BBE07)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BBE63)
 	dc.b	$F4, $00, $00, $14
-	
+
 Music_Advanced:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BC16E)
 	dc.b	$F9, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BBF6A)
 	dc.b	$F9, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BC037)
 	dc.b	$F9, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BC0AB)
 	dc.b	$F9, $00, $00, $20
-	
+
 Music_Mystery:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BC3D0)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BC1FB)
 	dc.b	$F8, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BC278)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BC2D5)
 	dc.b	$F8, $00, $00, $19
-	
+
 Music_Violation:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $03
 	dc.w	z80ptr(loc_BC5A3)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $00, $03
 	dc.w	z80ptr(loc_BC465)
 	dc.b	$F8, $01, $00, $14
-	
+
 	dc.b	$80, $01, $03
 	dc.w	z80ptr(loc_BC4E0)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $03
 	dc.w	z80ptr(loc_BC526)
 	dc.b	$F8, $00, $00, $24
-	
+
 Music_Under:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BC7AD)
 	dc.b	$F4, $02, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BC5E8)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BC699)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BC719)
 	dc.b	$F4, $00, $00, $18
-	
+
 Music_StepUp:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BC959)
 	dc.b	$F7, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BC82A)
 	dc.b	$F7, $01, $00, $0C
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BC89C)
 	dc.b	$F7, $00, $00, $1C
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BC8E0)
 	dc.b	$F7, $00, $00, $14
-	
+
 Music_BrackyNews:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BCA82)
 	dc.b	$FB, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BC9C4)
 	dc.b	$FB, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BCA16)
 	dc.b	$FB, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BCA34)
 	dc.b	$FB, $00, $00, $24
-	
+
 Music_MyHome:
 	dc.b	$06
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BCC46)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BCAC4)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BCB2E)
 	dc.b	$F8, $00, $00, $1C
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BCB79)
 	dc.b	$F8, $00, $00, $1C
-	
+
 	dc.b	$80, $04, $02
 	dc.w	z80ptr(loc_BCBF8)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $05, $02
 	dc.w	z80ptr(loc_BCAC2)
 	dc.b	$F8, $00, $00, $1C
-	
+
 Music_Pressure:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BCDEA)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BCC8C)
 	dc.b	$F8, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BCD39)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BCD86)
 	dc.b	$F8, $00, $00, $24
-	
+
 Music_Dream:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $03
 	dc.w	z80ptr(loc_BCEA0)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $03
 	dc.w	z80ptr(loc_BCE2E)
 	dc.b	$F8, $01, $00, $14
-	
+
 	dc.b	$80, $01, $03
 	dc.w	z80ptr(loc_BCE5D)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $03
 	dc.w	z80ptr(loc_BCE80)
 	dc.b	$F8, $00, $00, $24
-	
+
 Music_Power:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $03
 	dc.w	z80ptr(loc_BCF87)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $00, $03
 	dc.w	z80ptr(loc_BCF00)
 	dc.b	$F8, $01, $00, $14
-	
+
 	dc.b	$80, $01, $03
 	dc.w	z80ptr(loc_BCF3F)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $03
 	dc.w	z80ptr(loc_BCF4D)
 	dc.b	$F8, $00, $00, $24
-	
+
 Music_Exclaim:
 	dc.b	$04
-	
+
 	dc.b	$C0, $80, $02
 	dc.w	z80ptr(loc_BD0B4)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BCFA5)
 	dc.b	$F8, $02, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BD00B)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BD041)
 	dc.b	$F8, $00, $00, $18
-	
+
 Music_RiseOrFall:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BD3AE)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BD111)
 	dc.b	$F8, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BD1C9)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BD2D2)
 	dc.b	$F8, $00, $00, $14
-	
+
 Music_ThePlaceOfDeath:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BD6E6)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BD442)
 	dc.b	$F4, $01, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BD4FF)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BD5DE)
 	dc.b	$F4, $00, $00, $14
-	
+
 Music_Movement:
 	dc.b	$06
-	
+
 	dc.b	$C0, $80, $01
 	dc.w	z80ptr(loc_BD7AD)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $00, $01
 	dc.w	z80ptr(loc_BD796)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $01, $01
 	dc.w	z80ptr(loc_BD7A3)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $02, $01
 	dc.w	z80ptr(loc_BD794)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $04, $01
 	dc.w	z80ptr(loc_BD7A1)
 	dc.b	$00, $00, $00, $14
-	
+
 	dc.b	$80, $05, $01
 	dc.w	z80ptr(loc_BD792)
 	dc.b	$00, $00, $00, $14
-	
+
 Music_Over:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $03
 	dc.w	z80ptr(loc_BD896)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $00, $03
 	dc.w	z80ptr(loc_BD7AE)
 	dc.b	$F8, $00, $00, $10
-	
+
 	dc.b	$80, $01, $03
 	dc.w	z80ptr(loc_BD81C)
 	dc.b	$F8, $00, $00, $14
-	
+
 	dc.b	$80, $02, $03
 	dc.w	z80ptr(loc_BD84C)
 	dc.b	$F8, $00, $00, $14
-	
+
 Music_MovementVer2:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $02
 	dc.w	z80ptr(loc_BDA85)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $00, $02
 	dc.w	z80ptr(loc_BD89E)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $01, $02
 	dc.w	z80ptr(loc_BD92F)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $02, $02
 	dc.w	z80ptr(loc_BD9A7)
 	dc.b	$F4, $00, $00, $14
-	
+
 Music_NeverDream:
 	dc.b	$04
-	
+
 	dc.b	$80, $80, $03
 	dc.w	z80ptr(loc_BDBF4)
 	dc.b	$00, $00, $00, $04
-	
+
 	dc.b	$80, $00, $03
 	dc.w	z80ptr(loc_BDAA6)
 	dc.b	$F4, $00, $00, $0C
-	
+
 	dc.b	$80, $01, $03
 	dc.w	z80ptr(loc_BDB33)
 	dc.b	$F4, $00, $00, $14
-	
+
 	dc.b	$80, $02, $03
 	dc.w	z80ptr(loc_BDB89)
 	dc.b	$00, $00, $00, $18
-	
+
 Music_Null:
 	dc.b	$00
-	
+
 FMInsPtrs:
 	dc.w	z80ptr(loc_B863A)
 	dc.w	z80ptr(loc_B8654)
@@ -90580,151 +90580,151 @@ FMInsPtrs:
 	dc.w	z80ptr(loc_B8FC2)
 	dc.w	z80ptr(loc_B8FDC)
 	dc.w	z80ptr(loc_B8FF2)
-	
+
 loc_B863A:
 	dc.b	$13, $C0, $30, $30, $30, $00, $08, $16, $06, $02, $10, $1F, $1F, $1F, $01, $01
 	dc.b	$00, $00, $0B, $00, $05, $09, $1F, $8F, $3F, $8F
-	
+
 loc_B8654:
 	dc.b	$3C, $C0, $1E, $02, $05, $02, $67, $43, $32, $72, $1F, $1F, $1F, $1F, $00, $00
 	dc.b	$00, $00, $16, $15, $12, $14, $11, $13, $15, $17
-	
+
 loc_B866E:
 	dc.b	$24, $C0, $38, $00, $1A, $00, $06, $04, $0F, $04, $97, $1B, $9F, $1F, $09, $0D
 	dc.b	$00, $0D, $00, $06, $00, $00, $2F, $AF, $0F, $AF
-	
+
 loc_B8688:
 	dc.b	$F5, $C0, $01, $00, $00, $00, $11, $01, $20, $61, $15, $1B, $1F, $14, $12, $06
 	dc.b	$00, $00, $04, $0A, $30, $02, $14, $16, $16, $46
-	
+
 loc_B86A2:
 	dc.b	$17, $C0, $00, $00, $00, $00, $44, $42, $53, $10, $1A, $9E, $9F, $5F, $1F, $1F
 	dc.b	$1F, $1B, $13, $12, $93, $10, $6F, $4F, $8F, $4F
-	
+
 loc_B86BC:
 	dc.b	$04, $C0, $60, $00, $60, $00, $0C, $0F, $0C, $08, $1F, $1F, $1F, $1F, $00, $00
 	dc.b	$00, $00, $00, $06, $00, $0E, $0F, $EF, $0F, $BF
-	
+
 loc_B86D6:
 	dc.b	$05, $C0, $0E, $00, $00, $00, $37, $61, $72, $01, $1F, $1F, $1F, $1E, $00, $02
 	dc.b	$15, $00, $02, $80, $65, $07, $0F, $0F, $BF, $0F
-	
+
 loc_B86F0:
 	dc.b	$21, $F6, $07, $00, $12, $00, $B2, $1A, $3B, $43, $69, $85, $42, $0C, $89, $A2
 	dc.b	$00, $0F, $04, $0B, $71, $10, $4F, $77, $24, $98
-	
+
 loc_B870A:
 	dc.b	$14, $C0, $10, $00, $10, $00, $52, $B1, $41, $60, $04, $0C, $16, $4E, $05, $08
 	dc.b	$08, $00, $0A, $04, $05, $03, $7C, $79, $0A, $59
-	
+
 loc_B8724:
 	dc.b	$97, $C0, $10, $03, $03, $10, $02, $21, $61, $36, $10, $0B, $09, $10, $02, $01
 	dc.b	$80, $80, $03, $21, $13, $82, $1C, $4C, $8C, $5D
-	
+
 loc_B873E:
 	dc.b	$4C, $C0, $30, $00, $30, $00, $02, $22, $61, $36, $1F, $18, $1F, $16, $00, $02
 	dc.b	$00, $01, $03, $21, $13, $82, $1F, $4F, $8F, $5F
-	
+
 loc_B8758:
 	dc.b	$3D, $C0, $12, $00, $0C, $00, $2A, $64, $73, $40, $13, $0A, $0A, $0A, $1A, $0B
 	dc.b	$0C, $0B, $23, $23, $07, $0E, $08, $68, $09, $56
-	
+
 loc_B8772:
 	dc.b	$3A, $C0, $00, $00, $00, $00, $71, $51, $62, $54, $10, $10, $10, $0F, $00, $00
 	dc.b	$04, $29, $80, $00, $C1, $80, $24, $29, $1F, $78
-	
+
 loc_B878C:
 	dc.b	$3C, $C0, $13, $03, $15, $03, $13, $53, $62, $51, $14, $11, $1A, $B5, $04, $04
 	dc.b	$04, $22, $52, $59, $34, $39, $1F, $8F, $1F, $8F
-	
+
 loc_B87A6:
 	dc.b	$3D, $C0, $12, $00, $0C, $00, $2A, $64, $73, $40, $13, $0A, $0A, $0A, $1A, $0B
 	dc.b	$0C, $0B, $23, $23, $07, $0E, $08, $68, $09, $56
-	
+
 loc_B87C0:
 	dc.b	$3D, $C0, $12, $00, $0C, $00, $2A, $64, $73, $40, $13, $0A, $0A, $0A, $1A, $0B
 	dc.b	$0C, $0B, $23, $23, $07, $0E, $08, $68, $09, $56
-	
+
 loc_B87DA:
 	dc.b	$02, $C0, $04, $0D, $08, $03, $71, $82, $70, $51, $1F, $1F, $1F, $1F, $58, $44
 	dc.b	$0D, $09, $17, $0B, $65, $07, $07, $17, $08, $09
-	
+
 loc_B87F4:
 	dc.b	$05, $C0, $05, $07, $06, $04, $45, $53, $51, $62, $03, $0B, $0E, $09, $06, $09
 	dc.b	$08, $02, $05, $05, $01, $09, $0F, $0F, $0A, $0F
-	
+
 loc_B880E:
 	dc.b	$1B, $C0, $05, $05, $1A, $00, $6C, $4F, $0A, $8E, $1F, $1C, $18, $1F, $19, $10
 	dc.b	$1A, $00, $0E, $30, $40, $00, $3F, $FF, $AF, $1F
-	
+
 loc_B8828:
 	dc.b	$00, $C0, $01, $01, $00, $00, $91, $35, $30, $00, $0F, $9F, $C9, $1F, $48, $3A
 	dc.b	$08, $08, $65, $20, $80, $02, $F4, $6D, $3E, $4B
-	
+
 loc_B8842:
 	dc.b	$02, $C0, $24, $08, $07, $03, $03, $02, $02, $02, $1F, $1F, $1F, $1F, $14, $14
 	dc.b	$0D, $19, $19, $0A, $15, $08, $1A, $1F, $1F, $0F
-	
+
 loc_B885C:
 	dc.b	$3B, $C0, $10, $20, $10, $00, $15, $30, $32, $41, $1F, $1C, $18, $0F, $09, $20
 	dc.b	$0A, $0F, $04, $00, $00, $11, $08, $F4, $A4, $17
-	
+
 loc_B8876:
 	dc.b	$1D, $C0, $0D, $00, $00, $00, $54, $44, $64, $11, $15, $1F, $57, $5C, $06, $05
 	dc.b	$0C, $01, $86, $05, $0C, $01, $6F, $1F, $5F, $8F
-	
+
 loc_B8890:
 	dc.b	$05, $C0, $18, $00, $00, $00, $24, $71, $50, $40, $1F, $1F, $1C, $13, $04, $0B
 	dc.b	$1C, $0B, $04, $82, $0E, $1E, $9F, $6F, $2F, $5F
-	
+
 loc_B88AA:
 	dc.b	$05, $C0, $18, $00, $00, $00, $23, $27, $50, $41, $15, $1F, $1C, $0B, $04, $0B
 	dc.b	$1C, $0B, $04, $82, $0E, $1E, $9F, $6F, $2F, $5F
-	
+
 loc_B88C4:
 	dc.b	$1D, $C0, $09, $00, $00, $00, $63, $30, $33, $60, $10, $1F, $1F, $1F, $08, $0E
 	dc.b	$12, $10, $04, $08, $0A, $0E, $1F, $1F, $1F, $1F
-	
+
 loc_B88DE:
 	dc.b	$03, $C0, $10, $20, $0C, $00, $23, $63, $73, $70, $1F, $1F, $1F, $1F, $0F, $01
 	dc.b	$00, $03, $08, $09, $08, $0C, $5F, $3F, $3F, $4F
-	
+
 loc_B88F8:
 	dc.b	$39, $C0, $18, $10, $08, $00, $1B, $30, $31, $40, $D3, $D3, $D4, $0E, $09, $00
 	dc.b	$00, $17, $2C, $40, $62, $26, $04, $15, $64, $07
-	
+
 loc_B8912:
 	dc.b	$05, $C0, $30, $00, $00, $00, $63, $30, $AC, $42, $08, $0C, $0D, $0E, $0A, $00
 	dc.b	$05, $00, $09, $04, $04, $07, $4F, $6F, $7F, $6F
-	
+
 loc_B892C:
 	dc.b	$1D, $C0, $10, $00, $00, $00, $66, $32, $30, $60, $10, $1F, $1F, $1F, $08, $0E
 	dc.b	$12, $10, $04, $08, $0A, $0C, $1F, $1F, $1F, $1F
-	
+
 loc_B8946:
 	dc.b	$3D, $C0, $12, $00, $0C, $00, $24, $48, $55, $40, $15, $0A, $0C, $12, $1A, $1B
 	dc.b	$1C, $0B, $04, $1A, $17, $1E, $0F, $1F, $3F, $5F
-	
+
 loc_B8960:
 	dc.b	$3D, $C0, $10, $02, $1C, $05, $75, $40, $57, $43, $15, $0A, $0C, $11, $1A, $1B
 	dc.b	$2C, $0B, $06, $2A, $27, $1E, $0E, $28, $38, $5E
-	
+
 loc_B897A:
 	dc.b	$3C, $C0, $02, $00, $1F, $05, $71, $90, $50, $72, $10, $1F, $10, $1F, $0D, $04
 	dc.b	$44, $49, $88, $58, $08, $24, $44, $38, $46, $E9
-	
+
 loc_B8994:
 	dc.b	$34, $C0, $04, $00, $02, $05, $70, $90, $51, $A0, $10, $1A, $10, $19, $04, $06
 	dc.b	$F4, $1F, $31, $28, $08, $2C, $74, $5B, $26, $1A
-	
+
 loc_B89AE:
 	dc.b	$24, $C0, $1D, $07, $20, $07, $3F, $54, $67, $74, $1F, $58, $1F, $1F, $13, $08
 	dc.b	$0E, $08, $04, $05, $05, $05, $55, $17, $62, $17
-	
+
 loc_B89C8:
 	dc.b	$3C, $C0, $20, $04, $00, $00, $65, $43, $36, $78, $1F, $0E, $1F, $0E, $10, $00
 	dc.b	$00, $00, $16, $15, $12, $12, $14, $13, $15, $12
-	
+
 loc_B89E2:
 	dc.b	$34, $C0, $03, $00, $00, $03, $70, $7F, $31, $5F, $19, $0F, $72, $0B, $14, $01
 	dc.b	$01, $58, $43, $01, $00, $04, $20, $26, $F4, $C4
@@ -90732,313 +90732,313 @@ loc_B89E2:
 loc_B89FC:
 	dc.b	$3B, $C0, $0F, $13, $0F, $00, $05, $0B, $00, $02, $1F, $0F, $13, $17, $02, $02
 	dc.b	$06, $02, $0F, $0A, $0C, $09, $24, $26, $26, $89
-	
+
 loc_B8A16:
 	dc.b	$34, $C0, $14, $13, $0A, $00, $60, $51, $20, $10, $1F, $95, $9C, $54, $01, $02
 	dc.b	$0E, $04, $00, $01, $00, $01, $34, $07, $D8, $17
-	
+
 loc_B8A30:
 	dc.b	$03, $C0, $10, $18, $10, $00, $17, $1F, $70, $71, $1F, $18, $18, $1F, $01, $05
 	dc.b	$03, $00, $00, $03, $00, $00, $0F, $1F, $0F, $1F
-	
+
 loc_B8A4A:
 	dc.b	$03, $C0, $28, $16, $15, $00, $20, $20, $75, $72, $1F, $08, $1F, $1F, $0F, $02
 	dc.b	$0A, $06, $00, $01, $00, $0C, $0F, $1F, $0F, $1F
-	
+
 loc_B8A64:
 	dc.b	$22, $C0, $28, $2E, $16, $00, $18, $3F, $38, $06, $15, $0E, $8C, $8B, $02, $00
 	dc.b	$00, $0E, $01, $00, $00, $06, $4F, $6F, $FF, $0F
-	
+
 loc_B8A7E:
 	dc.b	$3B, $C0, $12, $00, $10, $00, $71, $00, $02, $31, $1F, $0E, $1F, $1F, $05, $01
 	dc.b	$01, $01, $00, $02, $01, $03, $0F, $1F, $0F, $4F
-	
+
 loc_B8A98:
 	dc.b	$1C, $C0, $20, $00, $18, $00, $65, $72, $79, $10, $15, $9B, $9B, $5F, $04, $02
 	dc.b	$0A, $04, $06, $01, $06, $04, $6F, $5F, $8F, $8F
-	
+
 loc_B8AB2:
 	dc.b	$1A, $C0, $10, $00, $00, $00, $16, $32, $38, $19, $55, $9E, $9C, $1F, $03, $09
 	dc.b	$04, $08, $04, $03, $02, $06, $5F, $2F, $3F, $3F
-	
+
 loc_B8ACC:
 	dc.b	$19, $C0, $20, $20, $10, $00, $31, $3B, $77, $17, $1F, $13, $1F, $1F, $0E, $05
 	dc.b	$00, $00, $16, $04, $01, $00, $8F, $2F, $8F, $EF
-	
+
 loc_B8AE6:
 	dc.b	$1C, $C0, $00, $00, $00, $00, $66, $7F, $72, $16, $07, $0F, $45, $0F, $04, $01
 	dc.b	$04, $00, $00, $04, $0F, $04, $2F, $2F, $2F, $2F
-	
+
 loc_B8B00:
 	dc.b	$38, $C0, $1D, $17, $0D, $00, $03, $01, $00, $00, $1F, $0E, $1A, $1F, $04, $00
 	dc.b	$04, $06, $02, $02, $02, $02, $28, $27, $27, $33
-	
+
 loc_B8B1A:
 	dc.b	$18, $C0, $10, $18, $0F, $06, $01, $00, $00, $00, $1B, $1F, $1F, $1F, $04, $04
 	dc.b	$04, $06, $08, $08, $08, $0C, $24, $26, $26, $24
-	
+
 loc_B8B34:
 	dc.b	$1C, $C0, $16, $09, $08, $00, $70, $75, $70, $1E, $04, $0E, $5A, $15, $08, $02
 	dc.b	$01, $08, $00, $01, $00, $04, $2F, $7F, $FF, $2F
-	
+
 loc_B8B4E:
 	dc.b	$34, $C0, $07, $0C, $03, $0D, $35, $76, $20, $56, $14, $0C, $0D, $11, $08, $04
 	dc.b	$07, $03, $00, $09, $00, $02, $4B, $1F, $1F, $7F
-	
+
 loc_B8B68:
 	dc.b	$1D, $C0, $0C, $00, $00, $00, $32, $63, $32, $34, $0A, $18, $18, $0E, $00, $0A
 	dc.b	$0A, $0A, $08, $01, $02, $04, $1F, $6F, $4F, $6F
-	
+
 loc_B8B82:
 	dc.b	$39, $C0, $12, $24, $0F, $00, $32, $00, $01, $30, $10, $10, $10, $18, $06, $02
 	dc.b	$06, $02, $08, $05, $01, $01, $B9, $67, $44, $46
-	
+
 loc_B8B9C:
 	dc.b	$34, $C0, $03, $00, $00, $03, $70, $7F, $31, $5F, $19, $0F, $52, $0B, $25, $01
 	dc.b	$01, $58, $43, $01, $00, $04, $2F, $2F, $FF, $CF
-	
+
 loc_B8BB6:
 	dc.b	$3A, $C0, $2A, $16, $44, $00, $01, $03, $01, $51, $0F, $9F, $0F, $13, $1F, $0E
 	dc.b	$1F, $1F, $00, $00, $00, $00, $08, $F8, $08, $08
-	
+
 loc_B8BD0:
 	dc.b	$24, $C0, $15, $00, $23, $00, $04, $02, $04, $04, $1F, $1F, $1F, $1F, $00, $00
 	dc.b	$00, $0D, $00, $00, $00, $00, $0F, $0F, $0F, $0F
-	
+
 loc_B8BEA:
 	dc.b	$1F, $C0, $00, $00, $00, $00, $73, $72, $11, $71, $1F, $1F, $1F, $1F, $0D, $1F
 	dc.b	$1F, $1F, $01, $01, $01, $01, $FB, $0A, $0A, $0A
-	
+
 loc_B8C04:
 	dc.b	$04, $C0, $20, $00, $20, $00, $03, $00, $41, $40, $1C, $17, $1C, $17, $1B, $0D
 	dc.b	$17, $05, $F0, $01, $80, $85, $F3, $0A, $5A, $5A
-	
+
 loc_B8C1E:
 	dc.b	$04, $C0, $08, $08, $10, $00, $02, $01, $41, $01, $1F, $1F, $24, $49, $1F, $45
 	dc.b	$03, $00, $0C, $0B, $01, $0F, $19, $48, $8B, $E8
-	
+
 loc_B8C38:
 	dc.b	$33, $C0, $10, $20, $20, $00, $22, $06, $02, $04, $88, $3C, $5F, $1F, $01, $08
 	dc.b	$1F, $0F, $03, $08, $04, $00, $65, $68, $05, $08
-	
+
 loc_B8C52:
 	dc.b	$21, $C0, $20, $30, $28, $00, $01, $01, $71, $31, $1F, $14, $14, $10, $02, $03
 	dc.b	$04, $04, $04, $02, $02, $03, $2F, $2F, $2F, $2F
-	
+
 loc_B8C6C:
 	dc.b	$1F, $C0, $20, $08, $28, $00, $33, $31, $73, $31, $9F, $1C, $9F, $9F, $0B, $1C
 	dc.b	$10, $10, $05, $00, $00, $00, $9F, $0F, $0F, $0F
-	
+
 loc_B8C86:
 	dc.b	$07, $C0, $00, $0A, $00, $00, $02, $39, $31, $60, $05, $C5, $88, $8C, $03, $00
 	dc.b	$05, $00, $0F, $0F, $2F, $0F
-	
+
 loc_B8C9C:
 	dc.b	$27, $C0, $10, $15, $10, $10, $02, $00, $71, $31, $12, $12, $12, $12, $00, $00
 	dc.b	$00, $00, $00, $00, $00, $00, $0F, $0F, $0F, $0F
-	
+
 loc_B8CB6:
 	dc.b	$3C, $C0, $38, $00, $1D, $00, $30, $01, $0F, $04, $8D, $52, $9F, $1F, $09, $00
 	dc.b	$00, $0D, $00, $00, $00, $00, $2F, $0F, $0F, $FF
-	
+
 loc_B8CD0:
 	dc.b	$39, $C0, $1C, $22, $1F, $00, $01, $51, $00, $00, $1F, $5F, $5F, $5F, $10, $11
 	dc.b	$09, $09, $07, $00, $00, $00, $CF, $FF, $FF, $FF
-	
+
 loc_B8CEA:
 	dc.b	$28, $C0, $17, $32, $14, $00, $39, $53, $02, $12, $DF, $DF, $81, $9F, $0C, $07
 	dc.b	$0A, $0A, $07, $07, $07, $09, $2F, $1F, $1F, $FF
-	
+
 loc_B8D04:
 	dc.b	$3C, $C0, $28, $08, $39, $00, $32, $71, $3F, $71, $4F, $55, $96, $9B, $03, $01
 	dc.b	$0C, $04, $01, $01, $08, $01, $1F, $1F, $4F, $5F
-	
+
 loc_B8D1E:
 	dc.b	$38, $C0, $20, $20, $20, $00, $01, $03, $53, $00, $1B, $1F, $1F, $1F, $14, $14
 	dc.b	$14, $14, $00, $00, $00, $07, $FF, $FF, $FF, $8F
-	
+
 loc_B8D38:
 	dc.b	$16, $C0, $50, $00, $08, $00, $51, $C1, $41, $42, $5F, $5A, $58, $0F, $07, $05
 	dc.b	$07, $04, $06, $02, $03, $09, $EF, $4F, $6F, $3F
-	
+
 loc_B8D52:
 	dc.b	$3C, $C0, $10, $00, $10, $00, $44, $42, $61, $01, $10, $5F, $18, $1F, $0F, $0A
 	dc.b	$14, $10, $05, $0D, $11, $0F, $8F, $CF, $4F, $6F
-	
+
 loc_B8D6C:
 	dc.b	$32, $C0, $26, $24, $20, $00, $12, $17, $13, $11, $1B, $15, $1A, $16, $02, $0A
 	dc.b	$04, $0E, $06, $04, $05, $07, $1F, $2F, $FF, $7F
-	
+
 loc_B8D86:
 	dc.b	$3D, $C0, $1F, $12, $27, $04, $01, $02, $02, $02, $14, $1F, $59, $1E, $08, $0E
 	dc.b	$08, $0B, $00, $09, $09, $09, $1F, $4F, $4F, $4F
-	
+
 loc_B8DA0:
 	dc.b	$3D, $C0, $1F, $08, $08, $07, $02, $01, $02, $02, $1F, $08, $8A, $0A, $08, $08
 	dc.b	$08, $08, $00, $01, $00, $00, $0F, $1F, $1F, $1F
-	
+
 loc_B8DBA:
 	dc.b	$3C, $C0, $1E, $00, $1F, $00, $01, $02, $01, $02, $CF, $0F, $CF, $0F, $00, $07
 	dc.b	$00, $08, $00, $03, $00, $00, $0F, $3F, $0F, $3F
-	
+
 loc_B8DD4:
 	dc.b	$3A, $C0, $18, $1F, $17, $00, $50, $60, $30, $00, $9F, $89, $5B, $4B, $09, $09
 	dc.b	$1F, $03, $00, $00, $00, $00, $1F, $FF, $0F, $0F
-	
+
 loc_B8DEE:
 	dc.b	$03, $C0, $12, $16, $1C, $00, $18, $71, $01, $01, $9B, $DF, $5F, $4E, $0C, $12
 	dc.b	$0B, $08, $00, $01, $0B, $0D, $CF, $2F, $2F, $FF
-	
+
 loc_B8E08:
 	dc.b	$3E, $C0, $40, $00, $00, $08, $70, $42, $81, $61, $1F, $1F, $16, $18, $13, $08
 	dc.b	$09, $0A, $07, $0A, $03, $05, $8F, $8F, $4F, $4F
-	
+
 loc_B8E22:
 	dc.b	$04, $C0, $00, $00, $1C, $00, $22, $26, $62, $04, $1F, $1F, $1F, $1F, $09, $0D
 	dc.b	$0D, $0D, $05, $09, $11, $11, $AF, $5F, $9F, $BF
-	
+
 loc_B8E3C:
 	dc.b	$0C, $C0, $18, $10, $21, $00, $58, $02, $20, $01, $1F, $1F, $05, $1F, $0A, $0B
 	dc.b	$04, $02, $01, $04, $00, $00, $5F, $6F, $5F, $9F
-	
+
 loc_B8E56:
 	dc.b	$0C, $C0, $18, $08, $21, $00, $58, $02, $20, $01, $1F, $1F, $05, $1F, $0A, $0B
 	dc.b	$04, $06, $01, $04, $00, $00, $5F, $6F, $5F, $6F
-	
+
 loc_B8E70:
 	dc.b	$3C, $C0, $1C, $05, $22, $00, $21, $51, $31, $21, $59, $4A, $59, $4A, $03, $05
 	dc.b	$03, $05, $00, $00, $00, $00, $2F, $2F, $2F, $2F
-	
+
 loc_B8E8A:
 	dc.b	$3C, $C0, $1C, $05, $28, $00, $21, $51, $31, $21, $59, $4A, $59, $4A, $03, $05
 	dc.b	$03, $05, $00, $00, $00, $00, $2F, $2F, $2F, $2F
-	
+
 loc_B8EA4:
 	dc.b	$20, $C0, $30, $37, $20, $00, $36, $35, $30, $31, $DF, $DF, $9F, $9F, $07, $06
 	dc.b	$09, $06, $07, $06, $06, $08, $2F, $1F, $1F, $FF
-	
+
 loc_B8EBE:
 	dc.b	$38, $C0, $20, $11, $21, $00, $31, $51, $31, $71, $17, $18, $1A, $1F, $17, $16
 	dc.b	$0B, $07, $00, $00, $00, $00, $1F, $1F, $0F, $3F
-	
+
 loc_B8ED8:
 	dc.b	$3C, $C0, $20, $00, $20, $00, $28, $51, $54, $32, $13, $1E, $1F, $0C, $0F, $02
 	dc.b	$1F, $00, $00, $00, $00, $00, $2F, $0F, $0F, $0F
-	
+
 loc_B8EF2:
 	dc.b	$3C, $C0, $20, $00, $30, $00, $34, $52, $52, $32, $1F, $1F, $1F, $1F, $10, $10
 	dc.b	$17, $0C, $01, $03, $07, $0A, $1F, $2F, $6F, $6F
-	
+
 loc_B8F0C:
 	dc.b	$50, $C0, $20, $20, $20, $00, $1A, $34, $30, $30, $1E, $19, $1C, $1D, $1E, $1F
 	dc.b	$04, $08, $03, $03, $03, $05, $4F, $5F, $6F, $7F
-	
+
 loc_B8F26:
 	dc.b	$6D, $C0, $20, $00, $00, $00, $72, $79, $A2, $81, $10, $1A, $59, $17, $02, $10
 	dc.b	$01, $0A, $03, $18, $02, $05, $1F, $7F, $8F, $2F
-	
+
 loc_B8F40:
 	dc.b	$55, $C0, $10, $00, $00, $00, $81, $22, $51, $52, $19, $1F, $1F, $1F, $00, $10
 	dc.b	$07, $07, $00, $06, $0B, $0B, $8F, $BF, $8F, $AF
-	
+
 loc_B8F5A:
 	dc.b	$22, $C0, $10, $10, $20, $00, $03, $02, $01, $01, $1F, $1F, $1F, $1F, $17, $16
 	dc.b	$0B, $0F, $10, $10, $10, $05, $2F, $3F, $3F, $4F
-	
+
 loc_B8F74:
 	dc.b	$3C, $C0, $28, $00, $14, $00, $33, $30, $51, $00, $0F, $0B, $0F, $0B, $04, $1F
 	dc.b	$04, $1F, $00, $02, $00, $03, $1F, $0F, $1F, $0F
-	
+
 loc_B8F8E:
 	dc.b	$36, $C0, $18, $00, $00, $00, $14, $01, $01, $02, $8F, $1F, $1F, $14, $1F, $1F
 	dc.b	$0B, $3D, $09, $08, $07, $00, $0F, $0F, $0F, $7F
-	
+
 loc_B8FA8:
 	dc.b	$2C, $C0, $17, $00, $19, $05, $70, $74, $32, $34, $19, $14, $19, $14, $01, $08
 	dc.b	$02, $05, $01, $01, $02, $01, $1F, $8F, $1F, $3F
-	
+
 loc_B8FC2:
 	dc.b	$24, $C0, $17, $00, $17, $00, $70, $74, $31, $33, $19, $14, $19, $14, $01, $08
 	dc.b	$01, $08, $01, $01, $01, $01, $1F, $3F, $1F, $3F
-	
+
 loc_B8FDC:
 	dc.b	$07, $C0, $00, $00, $00, $00, $02, $41, $31, $60, $05, $03, $08, $09, $03, $05
 	dc.b	$05, $00, $2F, $2F, $2F, $0F
-	
+
 loc_B8FF2:
 	dc.b	$AA, $C0, $08, $10, $10, $00, $52, $31, $31, $51, $1F, $1F, $1F, $1F, $10, $00
 	dc.b	$10, $05, $08, $00, $00, $01, $5F, $0F, $5F, $5F
-	
+
 SFX_Selection:
 	dc.b	$01, $80, $05, $01, $16, $10, $00, $00, $00, $08, $EF, $00, $E3, $01, $01, $A5
 	dc.b	$08, $80, $02, $F2
-	
+
 SFX_LevelUp:
 	dc.b	$02, $80, $04, $01, $33, $10, $00, $01, $01, $00, $80, $05, $01, $33, $10, $00, $00
 	dc.b	$01, $00, $EF, $01, $E3, $01, $01, $A9, $04
 	dc.b	$B1, $B5, $B8, $BA, $BD, $F2
-	
-	
+
+
 SFX_ItemReceived:
 	dc.b	$02, $80, $04, $01, $53, $10, $03, $01, $02, $00, $80, $05, $01, $53, $10, $03, $01
 	dc.b	$02, $00, $EF, $02, $B0, $03, $B3, $20, $F2
-	
+
 SFX_Explosion:
 	dc.b	$02, $A0, $02, $01, $6D, $10, $00, $00, $03, $00, $A0, $05, $01, $72, $10, $00, $00
 	dc.b	$03, $08, $FE, $03, $02, $01, $00, $EF, $03
 	dc.b	$8D, $00, $D0, $03, $A5, $00, $10, $06, $BB, $00, $D0, $08, $EC, $08, $F7, $00, $05
 	dc.b	$F6, $FF, $F2
-	
+
 SFX_MapChanged:
 	dc.b	$01, $80, $02, $01, $92, $10, $00, $00, $04, $00, $EF, $04, $FE, $01, $01, $01, $00
 	dc.b	$A4, $10, $10, $10, $20, $F2
-	
+
 SFX_FellInHole:
 	dc.b	$02, $A0, $04, $02, $B2, $10, $2A, $00, $05, $00, $A0, $05, $02, $B2, $10, $0B, $00
 	dc.b	$05, $00, $EF, $05, $BC, $04, $F6, $2A, $80
 	dc.b	$00, $F1, $10, $F2
-	
+
 SFX_Revived:
 	dc.b	$02, $A0, $04, $01, $D0, $10, $00, $00, $06, $08, $A0, $05, $01, $D0, $10, $00, $00
 	dc.b	$06, $08, $EF, $06, $E3, $01, $01, $98, $00
 	dc.b	$07, $03, $F7, $00, $02, $F8, $FF, $9D, $00, $09, $20, $F2
-	
+
 SFX_PoisonCured:
 	dc.b	$02, $A0, $04, $01, $F6, $10, $00, $01, $07, $00, $A0, $05, $01, $F6, $10, $00, $00
 	dc.b	$07, $00, $EF, $07, $E3, $01, $01, $9D, $F0
 	dc.b	$49, $05, $99, $E0, $56, $0E, $80, $00, $00, $05, $F2
-	
+
 SFX_Alarm:
 	dc.b	$01, $80, $02, $01, $12, $11, $F0, $00, $08, $00, $EF, $08, $E3, $01, $01, $FE, $00
 	dc.b	$00, $01, $00, $81, $2E, $F2
-	
+
 SFX_Hidapipe:
 	dc.b	$02, $80, $04, $02, $32, $11, $01, $01, $09, $08, $80, $05, $02, $3C, $11, $01, $00
 	dc.b	$09, $08, $E0, $00, $80, $01, $F8, $08, $00
 	dc.b	$E0, $01, $F2, $F8, $02, $00, $F2, $EF, $09, $E3, $01, $01, $B5, $12, $B1, $06, $30
 	dc.b	$B8, $06, $B6, $0C, $B5, $06, $B3, $06, $B5
 	dc.b	$0C, $B1, $06, $B1, $B3, $0C, $B5, $06, $B3, $24, $80, $0C, $F9
-	
+
 SFX_Teleport:
 	dc.b	$02, $A0, $04, $02, $73, $11, $FD, $01, $0A, $00, $A0, $05, $02, $73, $11, $F9, $00
 	dc.b	$0A, $00, $EF, $0A, $E3, $01, $01, $9C, $00
 	dc.b	$F0, $03, $FB, $01, $F7, $00, $09, $F6, $FF, $F2
-	
+
 SFX_DoorOpen:
 	dc.b	$02, $A0, $05, $01, $97, $11, $FD, $00, $0B, $00, $A0, $05, $01, $97, $11, $FE, $00
 	dc.b	$0B, $00, $EF, $0B, $A5, $00, $00, $07, $A5
 	dc.b	$F6, $27, $0B, $80, $00, $00, $20, $F2
-	
+
 SFX_DamOpened:
 	dc.b	$03, $A0, $02, $01, $C2, $11, $05, $00, $0C, $00, $A0, $04, $01, $C2, $11, $00, $00
 	dc.b	$0C, $00, $A0, $05, $01, $C2, $11, $F9, $00
 	dc.b	$0C, $00, $EF, $0C, $E3, $01, $01, $FE, $00, $01, $00, $00, $99, $00, $00, $08, $A0
 	dc.b	$05, $ED, $7A, $80, $00, $00, $01, $F2
-	
+
 SFX_JetScooter:
 	dc.b	$01, $A0, $02, $01, $E3, $11, $00, $00, $0D, $10, $FE, $00, $03, $00, $01, $EF, $0D
 	dc.b	$81, $E6, $50, $06, $F6, $F8, $FF
-	
+
 SFX_SpaceshipDeparted:
 	dc.b	$02 ;0x0 (0x000B91F1-0x000B91F2, Entry count: 0x00000001)
 	dc.b	$80
@@ -91056,7 +91056,7 @@ SFX_SpaceshipDeparted:
 	dc.b	$FC
 	dc.b	$00, $80, $10 ;0x0 (0x000B9225-0x000B9228, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_SpaceshipLanded:
 	dc.b	$02 ;0x0 (0x000B9229-0x000B922A, Entry count: 0x00000001)
 	dc.b	$80
@@ -91074,7 +91074,7 @@ SFX_SpaceshipLanded:
 	dc.b	$01, $B1, $06, $E9, $20 ;0x0 (0x000B925C-0x000B9261, Entry count: 0x00000005) [Unknown data]
 	dc.b	$FC
 	dc.b	$00, $89, $02, $80, $02, $F7, $00, $05, $F8, $FF, $F2 ;0x0 (0x000B9262-0x000B926D, Entry count: 0x0000000B) [Unknown data]
-	
+
 SFX_DangerousFloor:
 	dc.b	$01 ;0x0 (0x000B926D-0x000B926E, Entry count: 0x00000001)
 	dc.b	$80
@@ -91082,7 +91082,7 @@ SFX_DangerousFloor:
 	dc.b	$01, $77, $12, $02, $00, $10, $00, $EF, $10, $A0, $04 ;0x0 (0x000B9270-0x000B927B, Entry count: 0x0000000B) [Unknown data]
 	dc.b	$AE
 	dc.b	$F2
-	
+
 SFX_Musik:
 	dc.b	$02 ;0x0 (0x000B927C-0x000B927E, Entry count: 0x00000002) [Unknown data]
 	dc.b	$80
@@ -91104,7 +91104,7 @@ SFX_Musik:
 	dc.b	$A0
 	dc.b	$A0, $99, $A0, $A0, $9E, $A5, $A7, $A9, $1B ;0x0 (0x000B92A8-0x000B92B1, Entry count: 0x00000009) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Boomerang:
 	dc.b	$02 ;0x0 (0x000B92B2-0x000B92B3, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91118,7 +91118,7 @@ SFX_Boomerang:
 	dc.b	$B1
 	dc.b	$00, $1F, $0B ;0x0 (0x000B92D0-0x000B92D3, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Sword:
 	dc.b	$02 ;0x0 (0x000B92D4-0x000B92D5, Entry count: 0x00000001)
 	dc.b	$80
@@ -91130,7 +91130,7 @@ SFX_Sword:
 	dc.b	$B3
 	dc.b	$08 ;0x0 (0x000B92F1-0x000B92F2, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Claw:
 	dc.b	$02 ;0x0 (0x000B92F3-0x000B92F4, Entry count: 0x00000001)
 	dc.b	$80
@@ -91140,7 +91140,7 @@ SFX_Claw:
 	dc.b	$05
 	dc.b	$01, $06, $13, $09, $00, $14, $00, $EF, $14, $A5, $03, $FC, $01, $A5, $06, $E1, $05 ;0x0 (0x000B92FF-0x000B9310, Entry count: 0x00000011) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Slasher:
 	dc.b	$01 ;0x0 (0x000B9311-0x000B9312, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91148,7 +91148,7 @@ SFX_Slasher:
 	dc.b	$02, $24, $13, $00, $01, $15, $00, $A0, $05, $02, $24, $13, $00, $01, $15, $00 ;0x0 (0x000B9314-0x000B9324, Entry count: 0x00000010) [Unknown data]
 	dc.b	$EF, $15, $E3, $02, $02, $B0, $03, $00, $01, $E3, $03, $02, $B6, $03, $D4, $0A ;0x0 (0x000B9324-0x000B9334, Entry count: 0x00000010)
 	dc.b	$F2
-	
+
 SFX_Shotgun:
 	dc.b	$02 ;0x0 (0x000B9335-0x000B9336, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91159,7 +91159,7 @@ SFX_Shotgun:
 	dc.b	$01, $48, $13, $03, $01, $16, $00, $EF, $16, $95, $00, $E0, $06 ;0x0 (0x000B9341-0x000B934E, Entry count: 0x0000000D) [Unknown data]
 	dc.b	$A0
 	dc.b	$00, $38, $10, $F2 ;0x0 (0x000B934F-0x000B9353, Entry count: 0x00000004) [Unknown data]
-	
+
 SFX_StrongGun:
 	dc.b	$02 ;0x0 (0x000B9353-0x000B9354, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91173,18 +91173,18 @@ SFX_StrongGun:
 	dc.b	$FF, $EC, $10, $F7, $00, $03, $F4 ;0x0 (0x000B9374-0x000B937B, Entry count: 0x00000007) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_B8:
 	dc.b	$02, $80, $04, $01, $90, $13, $00, $00, $18, $01, $80, $05, $01, $90, $13, $06, $00
 	dc.b	$18, $01, $EF, $18, $E3, $01, $01, $A0, $06, $A0, $06, $FC, $01, $A6 ;0x0 (0x000B937C-0x000B93D5, Entry count: 0x00000059) [Unknown data]
 	dc.b	$03, $E8, $1A, $F2
-	
+
 SFX_B9:
 	dc.b	$02, $A0, $02, $01, $B3, $13, $FD, $00, $19, $02, $A0, $05, $01, $CB, $13, $00, $00
 	dc.b	$19, $00, $EF, $19, $E3, $01, $01, $FE, $00, $00, $02 ;0x20
 	dc.b	$01, $A8, $00, $6E, $03, $F7, $00, $05, $F8, $FF, $AA, $04, $D3, $0B, $F2, $EF, $19
 	dc.b	$E3, $01, $01, $A0, $00, $10, $10, $F2 ;0x40
-	
+
 SFX_DamageRedScreen:
 	dc.b	$03 ;0x0 (0x000B93D5-0x000B93D6, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91203,7 +91203,7 @@ SFX_DamageRedScreen:
 	dc.b	$02, $01, $A0, $00, $F0, $01, $FB, $FF, $F7, $00, $18, $F3 ;0x0 (0x000B9407-0x000B9413, Entry count: 0x0000000C) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_Foi:
 	dc.b	$02 ;0x0 (0x000B9414-0x000B9416, Entry count: 0x00000002) [Unknown data]
 	dc.b	$80
@@ -91219,7 +91219,7 @@ SFX_Foi:
 	dc.b	$80
 	dc.b	$00, $00, $0C ;0x0 (0x000B943E-0x000B9441, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Zan:
 	dc.b	$02 ;0x0 (0x000B9442-0x000B9443, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91233,7 +91233,7 @@ SFX_Zan:
 	dc.b	$00, $FB, $03, $FB, $01, $F7, $00, $08, $F6 ;0x0 (0x000B9463-0x000B946C, Entry count: 0x00000009) [Unknown data]
 	dc.b	$FF
 	dc.b	$B6, $00, $68, $0B, $F2 ;0x0 (0x000B946D-0x000B9472, Entry count: 0x00000005) [Unknown data]
-	
+
 SFX_Vol:
 	dc.b	$02 ;0x0 (0x000B9472-0x000B9473, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91247,14 +91247,14 @@ SFX_Vol:
 	dc.b	$EF
 	dc.b	$1D, $86, $00, $A0, $02, $A8, $00, $A0, $02, $B6, $06, $E0, $10 ;0x0 (0x000B9495-0x000B94A2, Entry count: 0x0000000D) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Tsu:
 	dc.b	$01 ;0x0 (0x000B94A3-0x000B94A4, Entry count: 0x00000001)
 	dc.b	$A0
 	dc.b	$05
 	dc.b	$01, $AD, $14, $03, $00, $1E, $00, $EF, $1E, $85, $0C, $66, $01, $A8, $0A, $1F, $14 ;0x0 (0x000B94A6-0x000B94B7, Entry count: 0x00000011) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Shinb:
 	dc.b	$01 ;0x0 (0x000B94B8-0x000B94B9, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91264,7 +91264,7 @@ SFX_Shinb:
 	dc.b	$05, $FB, $FD, $F7, $00, $03, $F4 ;0x0 (0x000B94C9-0x000B94D0, Entry count: 0x00000007) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_Eijia:
 	dc.b	$03 ;0x0 (0x000B94D1-0x000B94D3, Entry count: 0x00000002) [Unknown data]
 	dc.b	$A0
@@ -91282,7 +91282,7 @@ SFX_Eijia:
 	dc.b	$FF
 	dc.b	$AB, $FD, $B9, $0D ;0x0 (0x000B9507-0x000B950B, Entry count: 0x00000004) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Gaj:
 	dc.b	$03 ;0x0 (0x000B950C-0x000B950D, Entry count: 0x00000001)
 	dc.b	$80
@@ -91299,7 +91299,7 @@ SFX_Gaj:
 	dc.b	$F2
 	dc.b	$EF, $21, $83, $0C, $84, $15 ;0x0 (0x000B953C-0x000B9542, Entry count: 0x00000006)
 	dc.b	$F2
-	
+
 SFX_Deban:
 	dc.b	$02 ;0x0 (0x000B9543-0x000B9544, Entry count: 0x00000001)
 	dc.b	$80
@@ -91313,7 +91313,7 @@ SFX_Deban:
 	dc.b	$F2, $EF, $22, $80, $01, $A9, $03, $A5, $FB, $01, $F7, $00, $05, $F7 ;0x0 (0x000B9562-0x000B9570, Entry count: 0x0000000E) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_Healed:
 	dc.b	$01 ;0x0 (0x000B9571-0x000B9573, Entry count: 0x00000002) [Unknown data]
 	dc.b	$A0
@@ -91323,12 +91323,12 @@ SFX_Healed:
 	dc.b	$0B, $F7, $00, $05, $F6 ;0x0 (0x000B9583-0x000B9588, Entry count: 0x00000005) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_C4:
 	dc.b	$02, $80, $02, $01, $9D, $15, $00, $00, $24, $00, $80, $05, $01, $A4, $15, $06
 	dc.b	$00, $24, $00, $EF, $24, $FE, $03, $00, $00, $00, $EF, $24, $A3, $08, $AE ;0x0 (0x000B9589-0x000B95B0, Entry count: 0x00000027) [Unknown data]
 	dc.b	$02, $F7, $00, $0C, $FA, $FF, $F2 ;0x20
-	
+
 SFX_NeifirstAttack:
 	dc.b	$01 ;0x0 (0x000B95B0-0x000B95B1, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91336,7 +91336,7 @@ SFX_NeifirstAttack:
 	dc.b	$01, $BA, $15, $0E, $00, $00, $00, $EF, $25, $88, $A7, $53, $03, $EE, $01, $A7
 	dc.b	$3D, $57, $03, $90, $CE, $97, $01, $EE, $00, $80, $00, $00, $08 ;0x0 (0x000B95B3-0x000B95D0, Entry count: 0x0000001D) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_Whip:
 	dc.b	$02 ;0x0 (0x000B95D1-0x000B95D2, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91348,7 +91348,7 @@ SFX_Whip:
 	dc.b	$90
 	dc.b	$FE, $00, $08 ;0x0 (0x000B95EB-0x000B95EE, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_WhistleAttack:
 	dc.b	$02 ;0x0 (0x000B95EF-0x000B95F0, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91364,7 +91364,7 @@ SFX_WhistleAttack:
 	dc.b	$80
 	dc.b	$00, $00, $08 ;0x0 (0x000B9615-0x000B9618, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_PoleziAttack:
 	dc.b	$02 ;0x0 (0x000B9619-0x000B961A, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91377,7 +91377,7 @@ SFX_PoleziAttack:
 	dc.b	$FF
 	dc.b	$80, $00, $00, $08 ;0x0 (0x000B963B-0x000B963F, Entry count: 0x00000004) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_PulserAttack:
 	dc.b	$02 ;0x0 (0x000B9640-0x000B9641, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91389,7 +91389,7 @@ SFX_PulserAttack:
 	dc.b	$01, $9D, $E3, $A1, $03, $A3, $30, $EC, $02, $F7, $00, $06, $F0 ;0x0 (0x000B964C-0x000B966A, Entry count: 0x0000001E) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_TerakiteAttack:
 	dc.b	$02 ;0x0 (0x000B966B-0x000B966D, Entry count: 0x00000002) [Unknown data]
 	dc.b	$A0
@@ -91403,7 +91403,7 @@ SFX_TerakiteAttack:
 	dc.b	$32, $AB, $03, $9D, $02, $F0, $20 ;0x0 (0x000B968B-0x000B9692, Entry count: 0x00000007) [Unknown data]
 	dc.b	$80
 	dc.b	$00, $00, $02, $F2 ;0x0 (0x000B9693-0x000B9697, Entry count: 0x00000004) [Unknown data]
-	
+
 SFX_FireAntAttack:
 	dc.b	$02 ;0x0 (0x000B9697-0x000B9698, Entry count: 0x00000001)
 	dc.b	$A8
@@ -91417,7 +91417,7 @@ SFX_FireAntAttack:
 	dc.b	$FF
 	dc.b	$20, $80, $F0, $10 ;0x0 (0x000B96B7-0x000B96BB, Entry count: 0x00000004) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_BeeAttack:
 	dc.b	$02 ;0x0 (0x000B96BC-0x000B96BD, Entry count: 0x00000001) [Unknown data]
 	dc.b	$A8
@@ -91431,7 +91431,7 @@ SFX_BeeAttack:
 	dc.b	$FF
 	dc.b	$36, $80, $F0, $20 ;0x0 (0x000B96DA-0x000B96DE, Entry count: 0x00000004) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_AmoebaAttack:
 	dc.b	$02 ;0x0 (0x000B96DF-0x000B96E0, Entry count: 0x00000001) [Unknown data]
 	dc.b	$A8
@@ -91444,7 +91444,7 @@ SFX_AmoebaAttack:
 	dc.b	$FF
 	dc.b	$E3, $01, $01, $20, $60, $12, $0B ;0x0 (0x000B9704-0x000B970B, Entry count: 0x00000007) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_BlasterAttack:
 	dc.b	$02, $A0 ;0x0 (0x000B970C-0x000B970E, Entry count: 0x00000002) [Unknown data]
 	dc.b	$04
@@ -91457,7 +91457,7 @@ SFX_BlasterAttack:
 	dc.b	$FF
 	dc.b	$99, $00, $20, $10 ;0x0 (0x000B972C-0x000B9730, Entry count: 0x00000004) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_VanAttack:
 	dc.b	$02 ;0x0 (0x000B9731-0x000B9732, Entry count: 0x00000001)
 	dc.b	$80
@@ -91479,7 +91479,7 @@ SFX_VanAttack:
 	dc.b	$EE
 	dc.b	$00, $80, $10 ;0x0 (0x000B9762-0x000B9765, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_SpinnerAttack:
 	dc.b	$02 ;0x0 (0x000B9766-0x000B9767, Entry count: 0x00000001)
 	dc.b	$A8
@@ -91489,7 +91489,7 @@ SFX_SpinnerAttack:
 	dc.b	$05
 	dc.b	$01, $79, $17, $0A, $00, $31, $00, $EF, $31, $E3, $01, $01, $20, $00, $04, $50 ;0x0 (0x000B9772-0x000B9782, Entry count: 0x00000010) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_MosquitoAttack:
 	dc.b	$02 ;0x0 (0x000B9783-0x000B9784, Entry count: 0x00000001) [Unknown data]
 	dc.b	$A0
@@ -91504,7 +91504,7 @@ SFX_MosquitoAttack:
 	dc.b	$80
 	dc.b	$00, $00, $05 ;0x0 (0x000B97C5-0x000B97C8, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_LocustAttack:
 	dc.b	$01 ;0x0 (0x000B97C9-0x000B97CA, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91512,7 +91512,7 @@ SFX_LocustAttack:
 	dc.b	$01, $D3, $17, $00, $00, $33, $00, $FE, $03, $03, $00, $00, $EF, $33, $E3, $01
 	dc.b	$01, $98, $00, $20, $03, $A8, $00, $E8, $10 ;0x0 (0x000B97CC-0x000B97E5, Entry count: 0x00000019) [Unknown data]
 	dc.b	$F2
-	
+
 SFX_ArmyEyeAttack:
 	dc.b	$02 ;0x0 (0x000B97E6-0x000B97E7, Entry count: 0x00000001)
 	dc.b	$A0
@@ -91526,7 +91526,7 @@ SFX_ArmyEyeAttack:
 	dc.b	$08, $F7, $00, $0A, $F6 ;0x0 (0x000B9808-0x000B980D, Entry count: 0x00000005) [Unknown data]
 	dc.b	$FF
 	dc.b	$F2
-	
+
 SFX_EnemyKilled:
 	dc.b	$02 ;0x0 (0x000B980E-0x000B9810, Entry count: 0x00000002) [Unknown data]
 	dc.b	$A0
@@ -91541,7 +91541,7 @@ SFX_EnemyKilled:
 	dc.b	$00, $10, $20 ;0x0 (0x000B9835-0x000B9838, Entry count: 0x00000003) [Unknown data]
 	dc.b	$B1
 	dc.b	$00, $F0, $02, $F2 ;0x0 (0x000B9839-0x000B983D, Entry count: 0x00000004) [Unknown data]
-	
+
 SFX_Pause:
 	dc.b	$02 ;0x0 (0x000B983D-0x000B983E, Entry count: 0x00000001)
 	dc.b	$80
@@ -91552,7 +91552,7 @@ SFX_Pause:
 	dc.b	$01, $69, $18, $00, $00, $00, $00, $F8, $23 ;0x0 (0x000B9849-0x000B9852, Entry count: 0x00000009) [Unknown data]
 	dc.b	$00
 	dc.b	$E8, $01, $F2
-	
+
 SFX_Unpause:
 	dc.b	$02 ;0x0 (0x000B9853-0x000B9857, Entry count: 0x00000004)
 	dc.b	$80
@@ -91570,10 +91570,10 @@ SFX_Unpause:
 	dc.b	$80
 	dc.b	$08 ;0x0 (0x000B9883-0x000B9884, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 SFX_Null:
 	dc.b	$00
-	
+
 SoundDriverInput:
 	btst	#6, $FFFFF8		; test if NTSC or PAL
 	beq.w	loc_B98B4		; branch if NTSC
@@ -91601,7 +91601,7 @@ UpdateTracks:
 	move.b	#0, music_or_sfx	; 00 - Music Mode
 	move.w	#5, d6			; 6 Music Tracks
 	lea	music_tracks, a3		; D030 - Music Tracks
-	
+
 -
 	movem.l	d6, -(sp)
 	btst	#7, (a3)		; is the 'in use' flag set?
@@ -91611,7 +91611,7 @@ UpdateTracks:
 	adda.w	#$30, a3
 	movem.l	(sp)+, d6
 	dbf	d6, -
-	
+
 	move.b	#$80, music_or_sfx	; 80 - SFX Mode
 	move.w	#3, d6			; 3 SFX	tracks
 	lea	sfx_tracks, a3		; D150 - SFX Tracks
@@ -91625,9 +91625,9 @@ UpdateTracks:
 	adda.w	#$30, a3
 	movem.l	(sp)+, d6
 	dbf	d6, -
-	
+
 	rts
-	
+
 UpdateTrack:
 	move.b	1(a3), d7		; get Channel Bits
 	bmi.w	UpdateDrumTrack	; 80 - DAC Drum	track (no PSG tracks here)
@@ -91667,7 +91667,7 @@ loc_B9980:
 	move.b	#$C0, d1
 	bsr.w	WriteFMII		; all others - Both Speakers
 	bra.w	loc_B99BC
-	
+
 loc_B99A8:
 	move.b	#$80, d1
 	bsr.w	WriteFMII
@@ -91689,7 +91689,7 @@ loc_B99BC:
 	move.w	#0, ($A11100).l
 loc_B99E2:
 	rts
-	
+
 
 UpdateFMTrack:
 	btst	#3, (a3)	; is this Raw Frequency Mode?
@@ -91737,7 +91737,7 @@ loc_B9A5E:
 	bsr.w	TickMultiplier
 	bsr.w	FinishTrkUpdate
 	rts
-	
+
 
 UpdateFM_Slide:
 	subq.w	#1, $A(a3)
@@ -91773,12 +91773,12 @@ loc_B9AB4:
 	move.b	(a4)+, $10(a3)	; get Pitch Slide Speed
 	move.b	(a4)+, d5		; get Note Length
 	bpl.w	loc_B9AC8
-	bra.w	FinishTrkUpdate	
+	bra.w	FinishTrkUpdate
 loc_B9AC8:
 	bsr.w	TickMultiplier
 	bsr.w	FinishTrkUpdate
 	rts
-	
+
 DoPitchSlide:
 	move.w	#0, d0
 	move.w	$C(a3), d1	; get Frequency
@@ -91793,7 +91793,7 @@ DoPitchSlide:
 +
 	move.w	d1, $C(a3)
 	rts
-	
+
 loc_B9AFC:
 	neg.b	d0
 	sub.w	d0, d1		; Frequency = Frequency - Slide Speed
@@ -91809,27 +91809,27 @@ loc_B9AFC:
 UpdateFM_RawFrq:
 	btst	#5, (a3)	; Pitch	Slide Mode?
 	bne.w	UpdateFM_RawSld
-	subq.w	#1, $A(a3)	
+	subq.w	#1, $A(a3)
 	bne.w	loc_B9B3A	; do TrackTimeout
-	bsr.w	ProcFMTrack_Raw	
-	bsr.w	SendFMFreq_A	
-	bsr.w	DoNoteOn_A	
-	bsr.w	StartPanAnim	
-	rts	
+	bsr.w	ProcFMTrack_Raw
+	bsr.w	SendFMFreq_A
+	bsr.w	DoNoteOn_A
+	bsr.w	StartPanAnim
+	rts
 loc_B9B3A:
-	bsr.w	ExecPanAnim	
-	bsr.w	DoNoteStop	
-	bsr.w	ExecModEnv	
-	rts	
+	bsr.w	ExecPanAnim
+	bsr.w	DoNoteStop
+	bsr.w	ExecModEnv
+	rts
 ProcFMTrack_Raw:
-	bsr.w	DoNoteOff_A	
-	bsr.w	GetTrkPointer	
-	move.b	(a4)+, d5	
+	bsr.w	DoNoteOff_A
+	bsr.w	GetTrkPointer
+	move.b	(a4)+, d5
 loc_B9B52:
-	cmpi.b	#$E0, d5	
+	cmpi.b	#$E0, d5
 	bcs.w	loc_B9B60	; no coordination flag
-	bsr.w	cfHandler	
-	bra.s	loc_B9B52	
+	bsr.w	cfHandler
+	bra.s	loc_B9B52
 loc_B9B60:
 	_btst	#5, 0(a3)	; Pitch	Slide Mode?
 	bne.w	loc_B9BC0	; if so	- branch to ProcFMTrack_RS, Raw Freq + Slide)
@@ -91837,7 +91837,7 @@ loc_B9B6A:
 	bsr.w	ReadRawFreq
 	move.b	(a4)+, d5	; get Note Length
 	bra.w	loc_B9AC8
-	
+
 
 UpdateFM_RawSld:
 	subq.w	#1, $A(a3)
@@ -91847,7 +91847,7 @@ UpdateFM_RawSld:
 	bsr.w	DoNoteOn_A
 	bsr.w	StartPanAnim
 	rts
-	
+
 loc_B9B8E:
 	bsr.w	ExecPanAnim
 	bsr.w	DoNoteStop
@@ -91878,7 +91878,7 @@ TickMultiplier:
 	mulu.w	d0, d5
 	move.w	d5, $E(a3)		; write	final Note Length
 	rts
-	
+
 FinishTrkUpdate:
 	move.w	$E(a3), $A(a3)	; set Ticks until next Note
 	move.l	a4, d5
@@ -91914,7 +91914,7 @@ StartPanAnim:
 	andi.l	#$FF, d5
 	lsl.w	#2, d5
 	jmp	StartPAJmpTbl(pc,d5.w)
-	
+
 ; ===============================
 StartPAJmpTbl:
 	bra.w	loc_B9D84	; Pan Animation	Type 00; return
@@ -91947,7 +91947,7 @@ loc_B9CAA:
 loc_B9CB2:
 	subq.b	#1, $1A(a3)
 	rts
-	
+
 ; ================================
 PanAnimData:
 	dc.b	$80, $C0, $40, $C0
@@ -91970,7 +91970,7 @@ ExecPanAnim:
 	andi.l	#$FF, d5
 	lsl.w	#2, d5
 	jmp	ExecPAJmpTbl(pc,d5.w)
-	
+
 ; ========================
 ExecPAJmpTbl:
 	bra.w	loc_B9D84	; Pan Animation	Type 00
@@ -92048,7 +92048,7 @@ SendFMFreq_A:
 	movea.l	a5, a3
 loc_B9DD0:
 	rts
-	
+
 DoModEnv:
 	move.w	$C(a3), d4	; get Frequency
 	move.b	6(a3), d7	; get Modulation Envelope
@@ -92061,7 +92061,7 @@ DoModEnv:
 	bsr.w	SndDrv_ReadPtr
 	moveq	#0, d0
 	move.b	$11(a3), d0		; get ModEnv Index
-	
+
 loc_B9DF8:
 	move.b	(a0,d0.w), d1	; get Data Byte
 	addq.w	#1, d0
@@ -92085,7 +92085,7 @@ ModEnv_Positive:
 	bra.w	SendFMFreq
 
 ModEnv_Stop:
-	move.b	#$80, $16(a3)	
+	move.b	#$80, $16(a3)
 	rts
 
 ModEnv_Jump2Idx:
@@ -92133,7 +92133,7 @@ SendFM3Freqs:
 
 loc_B9EB4:
 	rts
-	
+
 ; ===============================
 SpcFM3Regs:
 	dc.b	$AD, $AE, $AC, $A6
@@ -92159,11 +92159,11 @@ cfHandler:
 	jsr	cfJumpTable(pc,d5.w)
 	move.b	(a4)+, d5
 	rts
-	
+
 ; ==================================
 cfJumpTable:
 	bra.w	cfE0_PlayBGM
-	bra.w	cfE1_TrkEnd2	
+	bra.w	cfE1_TrkEnd2
 	bra.w	cfE2_PlaySnd
 	bra.w	cfE3_PanAnim
 	bra.w	cfEF_SetTempo
@@ -92171,30 +92171,30 @@ cfJumpTable:
 	bra.w	cfE6_HoldOn
 	bra.w	cfE7_ChordStop
 	bra.w	cfE8_MusPause
-	bra.w	cfE9_SetComm	
-	bra.w	cfEA_SetFMS	
-	bra.w	cfEB_SetAMS	
+	bra.w	cfE9_SetComm
+	bra.w	cfEA_SetFMS
+	bra.w	cfEB_SetAMS
 	bra.w	cfEC_ChangeVol
-	bra.w	cfED_unused	
+	bra.w	cfED_unused
 	bra.w	cfEE_HoldOnOff
 	bra.w	cfEF_SetFMIns
-	bra.w	cfF0_SetVol	
-	bra.w	cfF1_null	
+	bra.w	cfF0_SetVol
+	bra.w	cfF1_null
 	bra.w	cfF2_TrkEnd
-	bra.w	cfF3_NoiseMode	
-	bra.w	cfF4_ModType	
-	bra.w	cfF5_SetPSGIns	
+	bra.w	cfF3_NoiseMode
+	bra.w	cfF4_ModType
+	bra.w	cfF5_SetPSGIns
 	bra.w	cfF6_GoTo
 	bra.w	cfF7_Loop
 	bra.w	cfF8_GoSub
 	bra.w	cfF9_Return
-	bra.w	cfFA_TickMult	
+	bra.w	cfFA_TickMult
 	bra.w	cfFB_ChgTransp
 	bra.w	cfFC_PitchSlide
-	bra.w	cfFD_RawFrqMode	
+	bra.w	cfFD_RawFrqMode
 	bra.w	cfFE_FM3SpcMode
 	bra.w	cfFF_Pan
-; ==================================	
+; ==================================
 
 cfE0_PlayBGM:
 	move.b	(a4)+, d0
@@ -92285,7 +92285,7 @@ cfE7_ChordStop:
 	_bset	#1, 0(a3)
 loc_BA05E:
 	rts
-	
+
 ; ------------------------------------------
 cf_SetLFOSpd:				; unreferenced
 	move.b	(a4)+, d1
@@ -92310,16 +92310,16 @@ loc_BA080:
 loc_BA0A0:
 	adda.l	#$30, a3
 	dbf	d6, loc_BA080
-	lea	special_sfx_tracks, a3	
-	_btst	#7, 0(a3)	
-	beq.w	loc_BA0CC	
-	_bset	#2, 0(a3)	
-	move.w	#$FF, d3	
-	sub.b	8(a3), d3	
-	bsr.w	RefreshVolume	
+	lea	special_sfx_tracks, a3
+	_btst	#7, 0(a3)
+	beq.w	loc_BA0CC
+	_bset	#2, 0(a3)
+	move.w	#$FF, d3
+	sub.b	8(a3), d3
+	bsr.w	RefreshVolume
 loc_BA0CC:
-	movea.l	a6, a3	
-	bra.w	cfF2_TrkEnd	
+	movea.l	a6, a3
+	bra.w	cfF2_TrkEnd
 loc_BA0D2:
 	movea.l	a3, a6
 	lea	music_tracks+$30, a3
@@ -92340,20 +92340,20 @@ loc_BA0FA:
 	rts
 cfE9_SetComm:
 	move.b	(a4)+, communication_byte	; set Communication Byte
-	rts	
+	rts
 cfEA_SetFMS:
-	move.b	$17(a3), d1	
-	andi.b	#$F0, d1	
+	move.b	$17(a3), d1
+	andi.b	#$F0, d1
 	and.b	(a4)+, d1	; broken, should be or.b
-	move.b	d1, $17(a3)	
-	move.b	#$B4, d0	
-	bra.w	WriteFMIorII	
+	move.b	d1, $17(a3)
+	move.b	#$B4, d0
+	bra.w	WriteFMIorII
 cfEB_SetAMS:
-	move.b	$17(a3), d1	
-	andi.b	#$C3, d1	
+	move.b	$17(a3), d1
+	andi.b	#$C3, d1
 	and.b	(a4)+, d1	; broken, should be or.b
-	move.b	d1, $17(a3)	
-	move.b	#$B4, d0	
+	move.b	d1, $17(a3)
+	move.b	#$B4, d0
 	bra.w	WriteFMIorII
 
 ; -------------------------------
@@ -92364,7 +92364,7 @@ cf_unused:
 
 cfED_unused:
 	move.b	#0, $00FFD01A	; set unused variable to 00
-	rts	
+	rts
 cfEE_HoldOnOff:
 	move.b	(a4)+, d0
 	bne.w	loc_BA16A
@@ -92397,18 +92397,18 @@ cfEF_SetFMIns:
 
 	movea.l	a5, a3
 	rts
-	
+
 
 JmpTo_SetFMIns:
 	bra.w	SetFMIns
-	
+
 
 cfF0_SetVol:
-	move.b	(a4)+, d3	
-	move.b	d3, 8(a3)	
-	bra.w	RefreshVolume	
+	move.b	(a4)+, d3
+	move.b	d3, 8(a3)
+	bra.w	RefreshVolume
 cfF1_null:
-	rts	
+	rts
 cfE1_TrkEnd2:
 	move.b	#$80, track_timer&$FFFFFF
 cfF2_TrkEnd:
@@ -92425,16 +92425,16 @@ loc_BA1FA:
 	move.l	(sp)+, d0
 	rts
 cfF3_NoiseMode:
-	move.b	(a4)+, d0	
+	move.b	(a4)+, d0
 	andi.b	#$E0, d0	; broken, should be ori.b
 	move.b	d0, psg_input
-	rts	
+	rts
 cfF4_ModType:
-	move.b	(a4)+, 6(a3)	
-	rts	
+	move.b	(a4)+, 6(a3)
+	rts
 cfF5_SetPSGIns:
-	move.b	(a4)+, 7(a3)	
-	rts	
+	move.b	(a4)+, 7(a3)
+	rts
 cfF6_GoTo:
 	moveq	#0, d1
 	move.b	(a4)+, d0
@@ -92471,8 +92471,8 @@ cfF9_Return:
 	move.b	d0, 9(a3)
 	rts
 cfFA_TickMult:
-	move.b	(a4)+, 2(a3)	
-	rts	
+	move.b	(a4)+, 2(a3)
+	rts
 cfFB_ChgTransp:
 	move.b	(a4)+, d0
 	add.b	d0, 5(a3)
@@ -92486,13 +92486,13 @@ cfFC_PitchSlide:
 	_bclr	#5, 0(a3)
 	rts
 cfFD_RawFrqMode:
-	tst.b	(a4)+	
-	beq.w	+	
-	_bset	#3, 0(a3)	
-	rts	
+	tst.b	(a4)+
+	beq.w	+
+	_bset	#3, 0(a3)
+	rts
 +
-	_bclr	#3, 0(a3)	
-	rts	
+	_bclr	#3, 0(a3)
+	rts
 cfEC_ChangeVol:
 	move.b	(a4)+, d3
 	add.b	d3, 8(a3)
@@ -92509,21 +92509,21 @@ cfFE_FM3SpcMode:
 	lsl.w	#1, d0
 	move.w	(a1,d0.w), (a0)+
 	dbf	d5, -
-	
+
 	rts
-	
+
 ; ================================
 FM3_Freqs:
 	dc.w	0, $132, $18E, $1E4
 ; ================================
 
 cfFF_Pan:
-	move.b	$17(a3), d1	
-	andi.b	#$3F, d1	
-	or.b	(a4)+, d1	
-	move.b	d1, $17(a3)	
-	move.b	#$B4, d0	
-	bra.w	WriteFM1Main	
+	move.b	$17(a3), d1
+	andi.b	#$3F, d1
+	or.b	(a4)+, d1
+	move.b	d1, $17(a3)
+	move.b	#$B4, d0
+	bra.w	WriteFM1Main
 GetFrequency_A:
 	subi.b	#$80, d5
 	bne.w	loc_BA30C
@@ -92541,10 +92541,10 @@ loc_BA30C:
 	move.b	(a4)+, d5
 	bsr.w	GetFMFreq
 	dbf	d6, -
-	
+
 	movea.l	a5, a3
 	rts
-	
+
 GetFMFreq:
 	add.b	5(a3), d5
 	andi.w	#$3F, d5
@@ -92552,7 +92552,7 @@ GetFMFreq:
 	lsl.w	#1, d5
 	move.w	(a0,d5.w), $C(a3)
 	rts
-	
+
 ReadRawFreq:
 	lsl.w	#8, d5
 	add.b	(a4)+, d5
@@ -92622,7 +92622,7 @@ PlaySnd_Command:
 	lsl.w	#2, d0
 	jsr	CmdJumpTable(pc,d0.w)
 	bra.w	loc_BA5C2
-	
+
 ; ======================
 CmdJumpTable:
 	bra.w	FadeOutMusic
@@ -92668,14 +92668,14 @@ loc_BA44E:
 	dbf	d5, loc_BA44E
 
 	bra.w	loc_BA5C2
-	
+
 ; ========================
 loc_BA49C:
 	dc.l	music_tracks+$90
-	dc.l	music_tracks+$90	
+	dc.l	music_tracks+$90
 	dc.l	music_tracks+$C0
 	dc.l	music_tracks+$F0
-	dc.l	sfx_tracks	
+	dc.l	sfx_tracks
 ; ========================
 
 PlaySpcSFX:
@@ -92703,7 +92703,7 @@ PlayMusic_JmpIn:
 	lea	(MusicTempo).l, a0
 	btst	#6, $00FFFFF8
 	beq.w	+				; branch if NTSC version
-	lea	(loc_B8100).l, a0	
+	lea	(loc_B8100).l, a0
 +
 	move.b	(a0,d0.w), init_tempo_value
 	move.b	(a0,d0.w), tempo_timeout
@@ -92721,7 +92721,7 @@ loc_BA544:
 loc_BA54A:
 	move.b	(a0)+, (a1)+
 	dbf	d6, loc_BA54A
-	
+
 	move.w	#1, $A(a2)
 	move.b	#$30, 9(a2)
 	adda.l	#$30, a2
@@ -92732,21 +92732,21 @@ loc_BA54A:
 	move.b	#6, $00FFD151
 	btst	#6, $00FFFFF8
 	beq.w	loc_BA5C2		; branch if NTSC version
-	move.b	$00FFD01D, d0	
-	move.b	d0, $00FFD032	
-	move.b	d0, $00FFD062	
-	move.b	d0, $00FFD092	
-	move.b	d0, $00FFD0C2	
-	move.b	d0, $00FFD0F2	
-	move.b	d0, $00FFD122	
-	move.b	d0, $00FFD152	
-	bra.w	loc_BA5C2	
+	move.b	$00FFD01D, d0
+	move.b	d0, $00FFD032
+	move.b	d0, $00FFD062
+	move.b	d0, $00FFD092
+	move.b	d0, $00FFD0C2
+	move.b	d0, $00FFD0F2
+	move.b	d0, $00FFD122
+	move.b	d0, $00FFD152
+	bra.w	loc_BA5C2
 StopAllSound:
 	bsr.w	SilenceAll
 loc_BA5C2:
 	move.b	#$80, play_sound_id
 	rts
-	
+
 SndDrv_ReadPtr:
 	lsl.w	#1, d0
 	move.w	(a0,d0.w), d1
@@ -92755,7 +92755,7 @@ SndDrv_ReadPtr:
 	movea.w	d1, a0
 	adda.l	#SoundDriverBase, a0
 	rts
-	
+
 SilenceAll:
 	move.b	#$2B, d0
 	move.b	#$80, d1
@@ -92812,9 +92812,9 @@ StopSFX:
 loc_BA68C:
 	_tst.w	0(a3)
 	bpl.w	loc_BA6A2
-	_move.b	#0, 0(a3)	
-	bsr.w	DoNoteOff_A	
-	bsr.w	RestoreBGMChn	
+	_move.b	#0, 0(a3)
+	bsr.w	DoNoteOff_A
+	bsr.w	RestoreBGMChn
 loc_BA6A2:
 	adda.w	#$30, a3
 	dbf	d7, loc_BA68C
@@ -92922,7 +92922,7 @@ SilencePSG:
 	move.b	(a0)+, $00C00011
 	move.b	(a0)+, $00C00011
 	rts
-	
+
 ; ===============================
 PSGMuteVals:
 	dc.b	$9F, $BF, $DF, $FF
@@ -92987,7 +92987,7 @@ RefreshVolume:
 	andi.w	#7, d5
 	lsl.w	#2, d5
 	jmp	loc_BA8BC(pc,d5.w)
-	
+
 ; ==========================
 loc_BA8BC:
 	bra.w	loc_BA906	; Algo 00 (Output Op. 4)
@@ -93021,7 +93021,7 @@ loc_BA906:
 	add.b	$1F(a3), d1
 	bsr.w	WriteFMIorII
 	rts
-	
+
 DoNoteOn_A:
 	_btst	#1, 0(a3)
 	bne.w	loc_BA952
@@ -93056,7 +93056,7 @@ loc_BA96E:
 	bsr.w	FMNoteOff
 	adda.w	#$30, a3
 	dbf	d6, loc_BA96E
-	
+
 	movea.l	a5, a3
 	rts
 
@@ -93158,7 +93158,7 @@ loc_BAA9A:
 	bra.s	StopZ80
 loc_BAAC4:
 	rts
-	
+
 FMFreqs:
 	dc.w	0
 	dc.w	$0A69
@@ -93250,7 +93250,7 @@ FMFreqs:
 	dc.b	$0C, $0C, $0C, $0C, $0C, $0C ;0xA0
 	dc.b	$0C, $F9, $03, $03, $06, $03, $03, $06, $03, $03, $06, $03, $03, $06, $03, $03
 	dc.b	$06, $03, $03, $06, $03, $03, $06, $03, $03, $F9 ;0xC0
-	
+
 loc_BABA0:
 	dc.b	$EF, $41, $BF, $06 ;0x0 (0x000BABA0-0x000BABA4, Entry count: 0x00000004)
 	dc.b	$BE
@@ -93567,7 +93567,7 @@ loc_BABA0:
 	dc.b	$F6
 	dc.b	$96 ;0x0 (0x000BAD83-0x000BAD84, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FE
-	
+
 loc_BAD85:
 	dc.b	$EF, $40, $96, $30 ;0x0 (0x000BAD85-0x000BAD89, Entry count: 0x00000004)
 	dc.b	$E6
@@ -93703,7 +93703,7 @@ loc_BAD85:
 	dc.b	$06, $0C, $0C, $06, $96, $E6 ;0x0 (0x000BAE86-0x000BAE9C, Entry count: 0x00000016) [Unknown data]
 	dc.b	$30
 	dc.b	$F9
-	
+
 loc_BAE9E:
 	dc.b	$E5, $03, $EF, $42, $E3, $01, $01, $B2, $AE, $B5, $30 ;0x0 (0x000BAE9E-0x000BAEA9, Entry count: 0x0000000B)
 	dc.b	$E6
@@ -93842,7 +93842,7 @@ loc_BAE9E:
 	dc.b	$E6
 	dc.b	$30
 	dc.b	$F9
-	
+
 loc_BB001:
 	dc.b	$C0, $30, $F7, $00, $14, $FA ;0x0 (0x000BB001-0x000BB007, Entry count: 0x00000006)
 	dc.b	$FF
@@ -93887,7 +93887,7 @@ loc_BB001:
 	dc.b	$88, $06, $C0, $84, $88, $C0, $88, $84, $C0, $F7, $00, $03, $F3 ;0x0 (0x000BB11F-0x000BB12C, Entry count: 0x0000000D)
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BB12E:
 	dc.b	$EF, $48, $E6, $30, $E6, $30, $E6, $2A, $C2, $06 ;0x0 (0x000BB12D-0x000BB138, Entry count: 0x0000000B) [Unknown data]
 	dc.b	$E6
@@ -94014,7 +94014,7 @@ loc_BB12E:
 	dc.b	$F6
 	dc.b	$2F ;0x0 (0x000BB1FE-0x000BB1FF, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BB200:
 	dc.b	$EF, $40, $F8, $5F ;0x0 (0x000BB200-0x000BB204, Entry count: 0x00000004)
 	dc.b	$00
@@ -94052,7 +94052,7 @@ loc_BB200:
 	dc.b	$FF
 	dc.b	$F9, $9E, $9E, $9E, $9E, $9E, $9E, $9E, $9E, $9D, $9D, $9D, $9D, $9D, $9D, $9D
 	dc.b	$9D, $A2, $A2, $A2, $A2, $A2, $A2, $A2, $F9
-	
+
 loc_BB29A:
 	dc.b	$E5, $03, $EF, $40, $E3, $01, $01 ;0x0 (0x000BB281-0x000BB2A3, Entry count: 0x00000022) [Unknown data]
 	dc.b	$F8, $83 ;0x20
@@ -94205,7 +94205,7 @@ loc_BB29A:
 	dc.b	$B8
 	dc.b	$BF, $BC, $12 ;0x0 (0x000BB397-0x000BB39A, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BB39B:
 	dc.b	$F8, $9F ;0x0 (0x000BB39B-0x000BB39D, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -94240,7 +94240,7 @@ loc_BB39B:
 	dc.b	$88, $06, $C0, $84, $C0, $88, $C0, $84, $C0, $88, $C0, $84, $88, $C0, $88, $84
 	dc.b	$C0, $88, $06, $C0, $84, $88, $C0, $88, $84, $C0, $F9, $88, $06, $C0, $84, $88 ;0x0 (0x000BB453-0x000BB485, Entry count: 0x00000032)
 	dc.b	$C0, $88, $84, $C0, $88, $06, $C0, $84, $88, $C0, $88, $84, $C0, $F9
-	
+
 loc_BB481:
 	dc.b	$EF, $46, $F8, $78 ;0x20
 	dc.b	$00
@@ -94342,7 +94342,7 @@ loc_BB481:
 	dc.b	$E7 ;0x0 (0x000BB512-0x000BB513, Entry count: 0x00000001) [Unknown data]
 	dc.b	$30
 	dc.b	$F9
-	
+
 loc_BB515:
 	dc.b	$EF, $49, $E3, $01, $01, $F8, $39 ;0x0 (0x000BB515-0x000BB51C, Entry count: 0x00000007)
 	dc.b	$00
@@ -94390,7 +94390,7 @@ loc_BB515:
 	dc.b	$AA
 	dc.b	$9E, $A5, $9E, $AE, $F9, $A5, $A5, $A5, $A5, $A5, $A0, $A5, $A0, $A4, $A4, $A4
 	dc.b	$A4, $A4, $A0, $A4, $F9
-	
+
 loc_BB5AC:
 	dc.b	$E5, $03, $EF, $4B, $AE, $B1, $B5, $24, $06, $06, $E7 ;0x0 (0x000BB597-0x000BB5BC, Entry count: 0x00000025) [Unknown data]
 	dc.b	$1E, $B5, $AC, $B0, $12 ;0x20
@@ -94455,7 +94455,7 @@ loc_BB5AC:
 	dc.b	$F6
 	dc.b	$77 ;0x0 (0x000BB634-0x000BB635, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BB636:
 	dc.b	$88, $06, $C0, $84, $C0, $88, $C0, $84, $88, $C0, $C0, $84, $C0, $88, $C0, $84
 	dc.b	$C0, $F7, $00, $07, $EB ;0x0 (0x000BB636-0x000BB64B, Entry count: 0x00000015)
@@ -94470,7 +94470,7 @@ loc_BB636:
 	dc.b	$88, $88, $84, $C0, $C0, $88, $84, $C0, $88, $88, $84, $C0, $C0, $88, $84, $C0, $F9 ;0x0 (0x000BB68B-0x000BB69C, Entry count: 0x00000011)
 	dc.b	$06 ;0x0 (0x000BB69C-0x000BB69D, Entry count: 0x00000001) [Unknown data]
 	dc.b	$06, $06, $06, $06, $06, $06, $F9
-	
+
 loc_BB6A4:
 	dc.b	$EF, $4C, $E3, $01, $01, $EC, $F1, $E7, $30, $E7, $30, $E6, $30, $E6, $BC, $03 ;0x0 (0x000BB69D-0x000BB6B4, Entry count: 0x00000017)
 	dc.b	$B8
@@ -94612,7 +94612,7 @@ loc_BB6A4:
 	dc.b	$F6
 	dc.b	$11 ;0x0 (0x000BB792-0x000BB793, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BB794:
 	dc.b	$EF, $40, $F8, $FE ;0x0 (0x000BB794-0x000BB798, Entry count: 0x00000004)
 	dc.b	$00
@@ -94715,7 +94715,7 @@ loc_BB794:
 	dc.b	$E6 ;0x0 (0x000BB8CF-0x000BB8D0, Entry count: 0x00000001)
 	dc.b	$9E
 	dc.b	$9E, $9E, $9E, $9E, $9E, $9E, $9B, $F9
-	
+
 loc_BB8D9:
 	dc.b	$E5, $03, $EF, $4E, $E3, $01, $01, $F8, $FE ;0x0 (0x000BB8D1-0x000BB8E2, Entry count: 0x00000011) [Unknown data]
 	dc.b	$00
@@ -94832,7 +94832,7 @@ loc_BB8D9:
 	dc.b	$18 ;0x0 (0x000BBA1D-0x000BBA1E, Entry count: 0x00000001) [Unknown data]
 	dc.b	$A5
 	dc.b	$AE, $AA, $06, $06, $E7, $30, $F9
-	
+
 loc_BBA26:
 	dc.b	$F8, $B2 ;0x0 (0x000BBA1F-0x000BBA28, Entry count: 0x00000009) [Unknown data]
 	dc.b	$00
@@ -94882,7 +94882,7 @@ loc_BBA26:
 	dc.b	$03, $03, $06, $03, $03, $03, $03, $03, $03 ;0x0 (0x000BBB55-0x000BBB5E, Entry count: 0x00000009) [Unknown data]
 	dc.b	$84, $06, $C0, $03 ;0x0 (0x000BBB5E-0x000BBB62, Entry count: 0x00000004)
 	dc.b	$03, $F9 ;0x0 (0x000BBB62-0x000BBB64, Entry count: 0x00000002) [Unknown data]
-	
+
 loc_BBB64:
 	dc.b	$EF, $53, $BA, $12 ;0x0 (0x000BBB64-0x000BBB68, Entry count: 0x00000004)
 	dc.b	$C1
@@ -95022,7 +95022,7 @@ loc_BBBE4:
 	dc.b	$0C
 	dc.b	$06
 	dc.b	$F9
-	
+
 loc_BBC51:
 	dc.b	$E5, $03, $EF, $54, $BE, $BA, $C1, $06, $06, $06, $0C, $06, $80, $0C ;0x0 (0x000BBC51-0x000BBC5F, Entry count: 0x0000000E)
 	dc.b	$F7
@@ -95071,7 +95071,7 @@ loc_BBC51:
 	dc.b	$F6
 	dc.b	$5C ;0x0 (0x000BBCF4-0x000BBCF5, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BBCF6:
 	dc.b	$F8, $81 ;0x0 (0x000BBCF6-0x000BBCF8, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -95093,7 +95093,7 @@ loc_BBCF6:
 	dc.b	$84, $C0, $88, $06, $88, $84, $88, $C0, $88, $84, $C0, $F7, $00, $07, $F3 ;0x0 (0x000BBD67-0x000BBD86, Entry count: 0x0000001F)
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BBD88:
 	dc.b	$EF, $55, $C1, $06 ;0x0 (0x000BBD87-0x000BBD8C, Entry count: 0x00000005) [Unknown data]
 	dc.b	$BD
@@ -95181,7 +95181,7 @@ loc_BBD88:
 	dc.b	$F6
 	dc.b	$82 ;0x0 (0x000BBE05-0x000BBE06, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BBE07:
 	dc.b	$EF, $40, $F8, $33 ;0x0 (0x000BBE07-0x000BBE0B, Entry count: 0x00000004)
 	dc.b	$00
@@ -95239,7 +95239,7 @@ loc_BBE07:
 	dc.b	$09, $03, $E6, $18, $9B, $0C ;0x0 (0x000BBE5B-0x000BBE61, Entry count: 0x00000006) [Unknown data]
 	dc.b	$0C
 	dc.b	$F9
-	
+
 loc_BBE63:
 	dc.b	$E5, $03, $EF, $56, $E3, $01, $01, $F8, $3C ;0x0 (0x000BBE63-0x000BBE6C, Entry count: 0x00000009)
 	dc.b	$00
@@ -95308,7 +95308,7 @@ loc_BBE63:
 	dc.b	$80
 	dc.b	$18 ;0x0 (0x000BBEE3-0x000BBEE4, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BBEE5:
 	dc.b	$88, $06, $88, $C0, $88, $84, $88, $C0, $88, $88, $88, $C0, $88, $84, $88, $84
 	dc.b	$88, $F7, $00, $03, $EB ;0x0 (0x000BBEE5-0x000BBEFA, Entry count: 0x00000015)
@@ -95330,7 +95330,7 @@ loc_BBEE5:
 	dc.b	$80, $81, $82, $81, $82, $F9 ;0x0 (0x000BBF4C-0x000BBF61, Entry count: 0x00000015)
 	dc.b	$00, $06 ;0x0 (0x000BBF61-0x000BBF63, Entry count: 0x00000002) [Unknown data]
 	dc.b	$06, $06, $06, $06, $06, $06, $F9
-	
+
 loc_BBF6A:
 	dc.b	$EF, $57, $E3, $00, $00, $F8, $BA ;0x0 (0x000BBF63-0x000BBF71, Entry count: 0x0000000E)
 	dc.b	$00
@@ -95430,7 +95430,7 @@ loc_BBF6A:
 	dc.b	$B7
 	dc.b	$24 ;0x0 (0x000BC035-0x000BC036, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BC037:
 	dc.b	$EF, $40, $92, $06 ;0x0 (0x000BC037-0x000BC03B, Entry count: 0x00000004)
 	dc.b	$F8
@@ -95468,7 +95468,7 @@ loc_BC037:
 	dc.b	$06, $E6, $06, $06, $06, $06, $06, $06, $06, $06 ;0x0 (0x000BC096-0x000BC0A0, Entry count: 0x0000000A) [Unknown data]
 	dc.b	$97, $97, $97, $97, $96, $96, $96, $96, $F6, $8D ;0x0 (0x000BC0A0-0x000BC0AA, Entry count: 0x0000000A)
 	dc.b	$FF
-	
+
 loc_BC0AB:
 	dc.b	$E5, $03, $EF, $52, $E3, $01, $06, $B1, $B6, $BA, $2A ;0x0 (0x000BC0AB-0x000BC0B6, Entry count: 0x0000000B)
 	dc.b	$B7
@@ -95548,7 +95548,7 @@ loc_BC0AB:
 	dc.b	$FD
 	dc.b	$EC, $04, $F6, $3E ;0x0 (0x000BC169-0x000BC16D, Entry count: 0x00000004)
 	dc.b	$FF
-	
+
 loc_BC16E:
 	dc.b	$88, $06, $C0, $84, $C0, $88, $C0, $84, $88, $88, $C0, $84, $C0, $88, $C0, $84
 	dc.b	$C0, $88, $C0, $84, $C0, $88, $C0, $84, $C0, $88, $04, $88, $88, $84, $06, $88 ;0x0 (0x000BC16E-0x000BC1A0, Entry count: 0x00000032)
@@ -95565,7 +95565,7 @@ loc_BC16E:
 	dc.b	$06, $03, $03 ;0x0 (0x000BC1E3-0x000BC1F6, Entry count: 0x00000013) [Unknown data]
 	dc.b	$82, $06, $F6, $74 ;0x0 (0x000BC1F6-0x000BC1FA, Entry count: 0x00000004)
 	dc.b	$FF
-	
+
 loc_BC1FB:
 	dc.b	$EF, $59, $C1, $24 ;0x0 (0x000BC1FB-0x000BC1FF, Entry count: 0x00000004)
 	dc.b	$BA
@@ -95634,7 +95634,7 @@ loc_BC1FB:
 	dc.b	$C1
 	dc.b	$E6, $30, $E7, $30, $F6, $84 ;0x0 (0x000BC271-0x000BC277, Entry count: 0x00000006) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BC278:
 	dc.b	$EF, $5B, $A0, $06 ;0x0 (0x000BC278-0x000BC27C, Entry count: 0x00000004)
 	dc.b	$A2
@@ -95683,7 +95683,7 @@ loc_BC278:
 	dc.b	$A0
 	dc.b	$0C ;0x0 (0x000BC2D3-0x000BC2D4, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BC2D5:
 	dc.b	$E5, $03, $EF, $50, $E3, $01, $02, $B3, $B8, $BC, $06 ;0x0 (0x000BC2D5-0x000BC2E0, Entry count: 0x0000000B)
 	dc.b	$B5
@@ -95788,7 +95788,7 @@ loc_BC2D5:
 	dc.b	$F6
 	dc.b	$06 ;0x0 (0x000BC3CE-0x000BC3CF, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BC3D0:
 	dc.b	$F8, $69 ;0x0 (0x000BC3D0-0x000BC3D2, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -95809,7 +95809,7 @@ loc_BC3D0:
 	dc.b	$F9 ;0x0 (0x000BC449-0x000BC44A, Entry count: 0x00000001) [Unknown data]
 	dc.b	$88, $06, $88, $84, $C0, $C0, $88, $84, $88, $C0, $88, $84, $88, $C0, $C0
 	dc.b	$84, $C0, $88, $06, $88, $84, $C0, $C0, $88, $84, $88, $F9
-	
+
 loc_BC465:
 	dc.b	$EF, $5E, $E3, $01, $01 ;0x0 (0x000BC44A-0x000BC46C, Entry count: 0x00000022)
 	dc.b	$F8, $66 ;0x20
@@ -95887,7 +95887,7 @@ loc_BC465:
 	dc.b	$E6 ;0x0 (0x000BC4DD-0x000BC4DE, Entry count: 0x00000001) [Unknown data]
 	dc.b	$30
 	dc.b	$F9
-	
+
 loc_BC4E0:
 	dc.b	$EF, $5F, $E6 ;0x0 (0x000BC4E0-0x000BC4E3, Entry count: 0x00000003)
 	dc.b	$A2
@@ -95917,7 +95917,7 @@ loc_BC4E0:
 	dc.b	$F6
 	dc.b	$BB ;0x0 (0x000BC524-0x000BC525, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BC526:
 	dc.b	$E5, $03, $EF, $5C, $E3, $01, $01, $F8, $66 ;0x0 (0x000BC526-0x000BC52F, Entry count: 0x00000009)
 	dc.b	$00
@@ -95963,7 +95963,7 @@ loc_BC526:
 	dc.b	$80
 	dc.b	$0C ;0x0 (0x000BC5A1-0x000BC5A2, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BC5A3:
 	dc.b	$F8, $31 ;0x0 (0x000BC5A3-0x000BC5A5, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -95976,7 +95976,7 @@ loc_BC5A3:
 	dc.b	$FF
 	dc.b	$F9, $00, $06 ;0x0 (0x000BC5DE-0x000BC5E1, Entry count: 0x00000003) [Unknown data]
 	dc.b	$06, $06, $06, $06, $06, $06, $F9
-	
+
 loc_BC5E8:
 	dc.b	$EF, $60, $E7 ;0x0 (0x000BC5E1-0x000BC5EB, Entry count: 0x0000000A)
 	dc.b	$30
@@ -96110,7 +96110,7 @@ loc_BC5E8:
 	dc.b	$B5
 	dc.b	$06 ;0x0 (0x000BC697-0x000BC698, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BC699:
 	dc.b	$EF, $40, $A2, $06 ;0x0 (0x000BC699-0x000BC69D, Entry count: 0x00000004)
 	dc.b	$06
@@ -96150,7 +96150,7 @@ loc_BC699:
 	dc.b	$F6
 	dc.b	$81 ;0x0 (0x000BC717-0x000BC718, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BC719:
 	dc.b	$E5, $03, $EF, $62, $E3, $01, $05, $BA, $B5, $BD, $06 ;0x0 (0x000BC719-0x000BC724, Entry count: 0x0000000B)
 	dc.b	$06
@@ -96193,7 +96193,7 @@ loc_BC719:
 	dc.b	$F6
 	dc.b	$6D ;0x0 (0x000BC7AB-0x000BC7AC, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BC7AD:
 	dc.b	$88, $03, $C0, $C0, $06, $84, $C0, $03, $C0, $F7, $00, $0A, $F3 ;0x0 (0x000BC7AD-0x000BC7BA, Entry count: 0x0000000D)
 	dc.b	$FF
@@ -96220,7 +96220,7 @@ loc_BC7AD:
 	dc.b	$FF
 	dc.b	$88, $06, $C0, $84, $C0, $88, $C0, $84, $C0, $88, $03, $88, $84, $06, $88, $03, $88
 	dc.b	$84, $06, $80, $02, $80, $80, $81, $03, $82, $80, $04, $81, $82, $F9
-	
+
 loc_BC82A:
 	dc.b	$EF ;0x0 (0x000BC80B-0x000BC831, Entry count: 0x00000026)
 	dc.b	$48, $E3, $01, $01, $F8, $36 ;0x20
@@ -96303,7 +96303,7 @@ loc_BC82A:
 	dc.b	$C1
 	dc.b	$BD, $0C ;0x0 (0x000BC899-0x000BC89B, Entry count: 0x00000002) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BC89C:
 	dc.b	$EF, $40, $F8, $1C ;0x0 (0x000BC89C-0x000BC8A0, Entry count: 0x00000004)
 	dc.b	$00
@@ -96320,7 +96320,7 @@ loc_BC89C:
 	dc.b	$06 ;0x0 (0x000BC8CF-0x000BC8D0, Entry count: 0x00000001) [Unknown data]
 	dc.b	$9E
 	dc.b	$9F, $9E, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $A0, $A0, $A0, $A0, $F9
-	
+
 loc_BC8E0:
 	dc.b	$E5, $03, $EF, $4A, $E3, $01, $01, $B5, $B8, $BD, $0C, $0C, $0C, $0C, $0C, $0C, $0C ;0x0 (0x000BC8D1-0x000BC950, Entry count: 0x0000007F) [Unknown data]
 	dc.b	$0C, $BD, $B5, $BA, $0C, $0C, $0C, $0C, $0C, $0C, $03, $03, $06, $06, $06, $BA, $BD
@@ -96336,7 +96336,7 @@ loc_BC8E0:
 	dc.b	$F6
 	dc.b	$88 ;0x0 (0x000BC957-0x000BC958, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BC959:
 	dc.b	$F8, $50 ;0x0 (0x000BC959-0x000BC95B, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -96359,7 +96359,7 @@ loc_BC959:
 	dc.b	$C0, $F7, $00, $03, $E9 ;0x0 (0x000BC9AB-0x000BC9C2, Entry count: 0x00000017)
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BC9C4:
 	dc.b	$EF, $64, $E3, $01, $01, $A2, $06 ;0x0 (0x000BC9C3-0x000BC9CB, Entry count: 0x00000008) [Unknown data]
 	dc.b	$AC
@@ -96377,14 +96377,14 @@ loc_BC9C4:
 	dc.b	$F6
 	dc.b	$AF ;0x0 (0x000BCA14-0x000BCA15, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCA16:
 	dc.b	$EF, $40, $A2, $18 ;0x0 (0x000BCA16-0x000BCA1A, Entry count: 0x00000004)
 	dc.b	$9E
 	dc.b	$A2, $9E, $A2, $9E, $A2, $9E, $9D, $9D, $0C, $0C, $E6, $18, $0C, $0C, $E6, $0C, $0C
 	dc.b	$18, $E6, $0C, $0C, $18, $F6, $E3 ;0x0 (0x000BCA1B-0x000BCA33, Entry count: 0x00000018) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCA34:
 	dc.b	$E5, $03, $EF, $63, $E3, $01, $01, $BA, $BD, $C1, $18 ;0x0 (0x000BCA34-0x000BCA3F, Entry count: 0x0000000B)
 	dc.b	$BA
@@ -96415,7 +96415,7 @@ loc_BCA34:
 	dc.b	$F6
 	dc.b	$B3 ;0x0 (0x000BCA80-0x000BCA81, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCA82:
 	dc.b	$88, $0C, $C0, $84, $C0, $F7, $00, $03, $F7 ;0x0 (0x000BCA82-0x000BCA8B, Entry count: 0x00000009)
 	dc.b	$FF
@@ -96426,10 +96426,10 @@ loc_BCA82:
 	dc.b	$06, $06, $06, $06, $06, $06, $F9 ;0x0 (0x000BCAAB-0x000BCAB2, Entry count: 0x00000007)
 	dc.b	$0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C ;0x0 (0x000BCAB2-0x000BCABB, Entry count: 0x00000009) [Unknown data]
 	dc.b	$0C, $0C, $0C, $0C, $0C, $0C, $F9
-	
+
 loc_BCAC2:
 	dc.b	$80, $03
-	
+
 loc_BCAC4:
 	dc.b	$EF, $64, $E3, $01, $01, $F8, $36 ;0x0 (0x000BCABB-0x000BCACB, Entry count: 0x00000010)
 	dc.b	$00
@@ -96496,7 +96496,7 @@ loc_BCAC4:
 	dc.b	$0C ;0x0 (0x000BCB2B-0x000BCB2C, Entry count: 0x00000001) [Unknown data]
 	dc.b	$BD
 	dc.b	$F9
-	
+
 loc_BCB2E:
 	dc.b	$EF, $40, $A2, $12, $06, $18, $E6, $12, $06, $18, $9D, $12, $06, $18, $E6, $12, $06
 	dc.b	$18, $A2, $12, $06, $18, $E6, $12, $06, $18, $9E, $12 ;0x0 (0x000BCB2D-0x000BCB4A, Entry count: 0x0000001D) [Unknown data]
@@ -96539,7 +96539,7 @@ loc_BCB2E:
 	dc.b	$80
 	dc.b	$F6, $B6 ;0x0 (0x000BCB76-0x000BCB78, Entry count: 0x00000002) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCB79:
 	dc.b	$E5, $00, $EF, $45, $E3, $01, $01, $F8, $54 ;0x0 (0x000BCB79-0x000BCB82, Entry count: 0x00000009)
 	dc.b	$00
@@ -96567,7 +96567,7 @@ loc_BCB79:
 	dc.b	$AE
 	dc.b	$AB, $B3, $AE, $AB, $12 ;0x0 (0x000BCBF2-0x000BCBF7, Entry count: 0x00000005) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BCBF8:
 	dc.b	$EF, $4B, $E6, $30, $E6, $30, $E6, $30, $E6, $06, $A9, $06 ;0x0 (0x000BCBF8-0x000BCC04, Entry count: 0x0000000C)
 	dc.b	$AE
@@ -96597,7 +96597,7 @@ loc_BCBF8:
 	dc.b	$F6
 	dc.b	$B3 ;0x0 (0x000BCC44-0x000BCC45, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCC46:
 	dc.b	$F8, $35 ;0x0 (0x000BCC46-0x000BCC48, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -96611,7 +96611,7 @@ loc_BCC46:
 	dc.b	$88, $06, $C0, $84, $88, $88, $C0, $84, $C0, $F7, $00, $07, $F3 ;0x0 (0x000BCC7D-0x000BCC8A, Entry count: 0x0000000D)
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BCC8C:
 	dc.b	$EF, $5E, $E3, $01, $01, $C1, $06 ;0x0 (0x000BCC8B-0x000BCC93, Entry count: 0x00000008) [Unknown data]
 	dc.b	$BC
@@ -96718,7 +96718,7 @@ loc_BCC8C:
 	dc.b	$80
 	dc.b	$0C ;0x0 (0x000BCD37-0x000BCD38, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BCD39:
 	dc.b	$EF, $40, $A2, $06 ;0x0 (0x000BCD39-0x000BCD3D, Entry count: 0x00000004)
 	dc.b	$F8
@@ -96748,7 +96748,7 @@ loc_BCD39:
 	dc.b	$A5, $F8, $26 ;0x0 (0x000BCD81-0x000BCD84, Entry count: 0x00000003) [Unknown data]
 	dc.b	$FD
 	dc.b	$F9 ;0x0 (0x000BCD85-0x000BCD86, Entry count: 0x00000001) [Unknown data]
-	
+
 loc_BCD86:
 	dc.b	$E5, $03, $EF, $60, $E3, $01, $01, $B0, $B5, $BA, $12 ;0x0 (0x000BCD86-0x000BCD91, Entry count: 0x0000000B)
 	dc.b	$1E
@@ -96795,7 +96795,7 @@ loc_BCD86:
 	dc.b	$BA, $B7, $B3, $B7, $BA, $03, $03, $06, $03, $03, $06, $BA, $C1, $BE, $03, $03
 	dc.b	$06, $03, $03, $06, $F6, $9D ;0x0 (0x000BCDD3-0x000BCDE9, Entry count: 0x00000016) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCDEA:
 	dc.b	$F8, $37 ;0x0 (0x000BCDEA-0x000BCDEC, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -96812,7 +96812,7 @@ loc_BCDEA:
 	dc.b	$88, $06, $C0, $84, $C0, $F7, $00, $0E, $F7 ;0x0 (0x000BCE23-0x000BCE2C, Entry count: 0x00000009)
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BCE2E:
 	dc.b	$EF, $41, $BF, $18 ;0x0 (0x000BCE2D-0x000BCE32, Entry count: 0x00000005) [Unknown data]
 	dc.b	$BB
@@ -96844,7 +96844,7 @@ loc_BCE2E:
 	dc.b	$F6
 	dc.b	$D2 ;0x0 (0x000BCE5B-0x000BCE5C, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCE5D:
 	dc.b	$EF, $40, $E6 ;0x0 (0x000BCE5D-0x000BCE60, Entry count: 0x00000003)
 	dc.b	$A0
@@ -96867,7 +96867,7 @@ loc_BCE5D:
 	dc.b	$FC
 	dc.b	$F6, $DE ;0x0 (0x000BCE7D-0x000BCE7F, Entry count: 0x00000002) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCE80:
 	dc.b	$E5, $03, $EF, $42, $E3, $01, $01, $BB, $BF, $B8, $60 ;0x0 (0x000BCE80-0x000BCE8B, Entry count: 0x0000000B)
 	dc.b	$60
@@ -96877,7 +96877,7 @@ loc_BCE80:
 	dc.b	$B8
 	dc.b	$B1, $B4, $B8, $B5, $BB, $B6, $BA, $B3, $B5, $BA, $BD, $F6, $E1 ;0x0 (0x000BCE92-0x000BCE9F, Entry count: 0x0000000D) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCEA0:
 	dc.b	$88, $0C, $C0, $84, $C0, $88, $C0, $84, $C0, $88, $88, $84, $C0, $88, $C0, $84
 	dc.b	$C0, $F7, $00, $03, $EB ;0x0 (0x000BCEA0-0x000BCEB5, Entry count: 0x00000015)
@@ -96892,7 +96892,7 @@ loc_BCEA0:
 	dc.b	$03 ;0x0 (0x000BCEE8-0x000BCEE9, Entry count: 0x00000001) [Unknown data]
 	dc.b	$03, $06, $03, $03, $06, $03, $03, $06, $03, $03, $06, $03, $03, $06, $03, $03
 	dc.b	$06, $03, $03, $06, $03, $03, $F9
-	
+
 loc_BCF00:
 	dc.b	$EF, $67, $F8, $2B ;0x0 (0x000BCEE9-0x000BCF04, Entry count: 0x0000001B)
 	dc.b	$00
@@ -96933,7 +96933,7 @@ loc_BCF00:
 	dc.b	$B8
 	dc.b	$BA, $30 ;0x0 (0x000BCF3C-0x000BCF3E, Entry count: 0x00000002) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BCF3F:
 	dc.b	$EF, $40, $96, $0C ;0x0 (0x000BCF3F-0x000BCF43, Entry count: 0x00000004)
 	dc.b	$F7
@@ -96944,7 +96944,7 @@ loc_BCF3F:
 	dc.b	$F6
 	dc.b	$F3 ;0x0 (0x000BCF4B-0x000BCF4C, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCF4D:
 	dc.b	$E5, $03, $EF, $67, $E3, $01, $01, $BA, $B3, $B7, $30 ;0x0 (0x000BCF4D-0x000BCF58, Entry count: 0x0000000B)
 	dc.b	$BC
@@ -96955,13 +96955,13 @@ loc_BCF4D:
 	dc.b	$F6
 	dc.b	$C7 ;0x0 (0x000BCF85-0x000BCF86, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCF87:
 	dc.b	$88, $0C, $C0, $84, $C0, $88, $88, $84, $C0, $F7, $00, $07, $F3 ;0x0 (0x000BCF87-0x000BCF94, Entry count: 0x0000000D)
 	dc.b	$FF
 	dc.b	$88, $C0, $84, $C0, $88, $06, $80, $88, $82, $80, $81, $82, $88, $F6, $E3 ;0x0 (0x000BCF95-0x000BCFA4, Entry count: 0x0000000F) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BCFA5:
 	dc.b	$EF, $67, $F8, $46 ;0x0 (0x000BCFA5-0x000BCFA9, Entry count: 0x00000004)
 	dc.b	$00
@@ -96993,7 +96993,7 @@ loc_BCFA5:
 	dc.b	$E6 ;0x0 (0x000BCFF9-0x000BCFFA, Entry count: 0x00000001) [Unknown data]
 	dc.b	$06
 	dc.b	$AA, $AE, $B0, $B1, $B0, $0C, $B1, $06, $B3, $B1, $0C, $B3, $06, $B5, $0C, $F9 ;0x0 (0x000BCFFB-0x000BD00B, Entry count: 0x00000010) [Unknown data]
-	
+
 loc_BD00B:
 	dc.b	$EF, $40, $A2, $0C ;0x0 (0x000BD00B-0x000BD00F, Entry count: 0x00000004)
 	dc.b	$F8
@@ -97048,7 +97048,7 @@ loc_BD041:
 	dc.b	$00, $04, $F5 ;0x0 (0x000BD0AF-0x000BD0B2, Entry count: 0x00000003) [Unknown data]
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BD0B4:
 	dc.b	$88, $06, $88, $C0, $0C, $84, $88, $F7, $00, $0F, $F5 ;0x0 (0x000BD0B3-0x000BD0BF, Entry count: 0x0000000C) [Unknown data]
 	dc.b	$FF
@@ -97057,7 +97057,7 @@ loc_BD0B4:
 	dc.b	$88, $06, $88, $80, $03, $80, $81, $06, $84, $88, $80, $03, $80, $81, $06, $84
 	dc.b	$0C, $88, $0C, $88, $84, $88, $88, $C0, $84, $C0, $88, $88, $84, $C0, $88, $06 ;0x20
 	dc.b	$80, $03, $81, $82, $06, $88, $80, $06, $81, $03, $81, $84, $06, $88, $F6, $A4, $FF ;0x40
-	
+
 loc_BD111:
 	dc.b	$EF, $61, $EF, $68, $BA, $18 ;0x0 (0x000BD111-0x000BD117, Entry count: 0x00000006)
 	dc.b	$BC
@@ -97190,7 +97190,7 @@ loc_BD111:
 	dc.b	$F6
 	dc.b	$49 ;0x0 (0x000BD1C7-0x000BD1C8, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BD1C9:
 	dc.b	$EF, $40, $9E, $06, $06, $06, $03, $03, $06, $06, $06, $03, $03, $E6, $06, $06
 	dc.b	$06, $03, $03, $06, $06, $03, $03, $03, $03, $F7, $00, $04, $E5 ;0x0 (0x000BD1C9-0x000BD1E6, Entry count: 0x0000001D)
@@ -97222,7 +97222,7 @@ loc_BD1C9:
 	dc.b	$03, $03, $03, $03, $03, $A2, $06, $03, $03, $06, $03, $03, $06, $03, $03, $03 ;0x20
 	dc.b	$03, $03, $03, $E6, $06, $03, $03, $06, $03, $03, $06, $03, $03, $03, $03, $03
 	dc.b	$03, $A0, $06, $03, $03, $06, $03, $03, $06, $03, $03, $06, $03, $03, $F9
-	
+
 loc_BD2D2:
 	dc.b	$E5 ;0x40
 	dc.b	$03, $EF, $68, $E3, $00, $00, $F8, $9C ;0x60
@@ -97313,7 +97313,7 @@ loc_BD2D2:
 	dc.b	$B3
 	dc.b	$BC, $B8, $30 ;0x0 (0x000BD3AA-0x000BD3AD, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F9
-	
+
 loc_BD3AE:
 	dc.b	$F8, $64 ;0x0 (0x000BD3AE-0x000BD3B0, Entry count: 0x00000002) [Unknown data]
 	dc.b	$00
@@ -97337,7 +97337,7 @@ loc_BD3AE:
 	dc.b	$88, $06, $88, $03, $88, $84, $06, $88, $03, $88, $F7, $00, $0C, $F2 ;0x0 (0x000BD432-0x000BD440, Entry count: 0x0000000E) [Unknown data]
 	dc.b	$FF
 	dc.b	$F9
-	
+
 loc_BD442:
 	dc.b	$EF, $52, $E7 ;0x0 (0x000BD441-0x000BD445, Entry count: 0x00000004) [Unknown data]
 	dc.b	$30
@@ -97475,7 +97475,7 @@ loc_BD442:
 	dc.b	$E7
 	dc.b	$30
 	dc.b	$F9
-	
+
 loc_BD4FF:
 	dc.b	$EF, $40, $E6 ;0x0 (0x000BD4FF-0x000BD502, Entry count: 0x00000003)
 	dc.b	$18
@@ -97536,7 +97536,7 @@ loc_BD4FF:
 	dc.b	$26 ;0x0 (0x000BD5CD-0x000BD5CE, Entry count: 0x00000001) [Unknown data]
 	dc.b	$F9
 	dc.b	$A5, $06, $03, $03, $06, $03, $03, $A4, $06, $03, $03, $06, $03, $03, $F9
-	
+
 loc_BD5DE:
 	dc.b	$E5, $03, $EF, $42, $E3, $01, $01, $E6 ;0x0 (0x000BD5CF-0x000BD5E6, Entry count: 0x00000017)
 	dc.b	$30
@@ -97634,7 +97634,7 @@ loc_BD5DE:
 	dc.b	$BC
 	dc.b	$B5, $B9, $06, $06, $E6, $30, $F6, $F9 ;0x0 (0x000BD6DD-0x000BD6E5, Entry count: 0x00000008) [Unknown data]
 	dc.b	$FE
-	
+
 loc_BD6E6:
 	dc.b	$C0, $06, $03, $03 ;0x0 (0x000BD6E6-0x000BD6EA, Entry count: 0x00000004) [Unknown data]
 	dc.b	$F7, $00, $04, $F8 ;0x0 (0x000BD6EA-0x000BD6EE, Entry count: 0x00000004)
@@ -97657,25 +97657,25 @@ loc_BD6E6:
 	dc.b	$06, $80, $02, $80, $80, $81, $03, $81, $82, $06, $88, $03, $81, $81, $06, $80 ;0x0 (0x000BD766-0x000BD790, Entry count: 0x0000002A) [Unknown data]
 	dc.b	$03, $81, $82, $06, $84, $03, $03, $06, $F6, $56 ;0x20
 	dc.b	$FF
-	
+
 	even
-	
+
 loc_BD792:
 	dc.b	$80, $01
-	
+
 loc_BD794:
 	dc.b	$80, $01
-	
+
 loc_BD796:
 	dc.b	$EF, $43, $A5, $06 ;0x0 (0x000BD792-0x000BD79A, Entry count: 0x00000008)
 	dc.b	$AC
 	dc.b	$B1, $B8, $1E ;0x0 (0x000BD79B-0x000BD79E, Entry count: 0x00000003) [Unknown data]
 	dc.b	$E2
 	dc.b	$96, $F2
-	
+
 loc_BD7A1:
 	dc.b	$80, $01
-	
+
 loc_BD7A3:
 	dc.b	$EF, $43, $E6 ;0x0 (0x000BD79F-0x000BD7A6, Entry count: 0x00000007) [Unknown data]
 	dc.b	$B1
@@ -97683,10 +97683,10 @@ loc_BD7A3:
 	dc.b	$B5
 	dc.b	$B8, $BD, $1E ;0x0 (0x000BD7A9-0x000BD7AC, Entry count: 0x00000003) [Unknown data]
 	dc.b	$F2
-	
+
 loc_BD7AD:
 	dc.b	$F2 ;0x0 (0x000BD7AD-0x000BD7AE, Entry count: 0x00000001) [Unknown data]
-	
+
 loc_BD7AE:
 	dc.b	$EF, $48, $C1, $03 ;0x0 (0x000BD7AE-0x000BD7B2, Entry count: 0x00000004)
 	dc.b	$0C
@@ -97781,7 +97781,7 @@ loc_BD7AE:
 	dc.b	$F6
 	dc.b	$93 ;0x0 (0x000BD81A-0x000BD81B, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BD81C:
 	dc.b	$EF, $40, $96, $06 ;0x0 (0x000BD81C-0x000BD820, Entry count: 0x00000004)
 	dc.b	$A2
@@ -97815,7 +97815,7 @@ loc_BD81C:
 	dc.b	$F6
 	dc.b	$D1 ;0x0 (0x000BD84A-0x000BD84B, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BD84C:
 	dc.b	$E5, $03, $E3, $01, $01, $EF, $44, $AE, $B1, $B5, $18 ;0x0 (0x000BD84C-0x000BD857, Entry count: 0x0000000B)
 	dc.b	$B3
@@ -97837,11 +97837,11 @@ loc_BD84C:
 	dc.b	$B1
 	dc.b	$AE, $AA, $F6, $B7 ;0x0 (0x000BD891-0x000BD895, Entry count: 0x00000004) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BD896:
 	dc.b	$88, $0C, $C0, $84, $C0, $F6, $F9 ;0x0 (0x000BD896-0x000BD89D, Entry count: 0x00000007)
 	dc.b	$FF
-	
+
 loc_BD89E:
 	dc.b	$EF, $4D, $BF, $06 ;0x0 (0x000BD89E-0x000BD8A2, Entry count: 0x00000004)
 	dc.b	$C1
@@ -97903,7 +97903,7 @@ loc_BD89E:
 	dc.b	$C1
 	dc.b	$BF, $C1, $F6, $70 ;0x0 (0x000BD92A-0x000BD92E, Entry count: 0x00000004) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BD92F:
 	dc.b	$EF, $40, $A2, $0C, $06, $0C, $06, $06, $06, $E6, $06, $06, $06, $0C, $06, $06
 	dc.b	$06, $E6, $0C, $06, $0C, $06, $0C, $9E, $9E, $06 ;0x0 (0x000BD92F-0x000BD949, Entry count: 0x0000001A)
@@ -97921,7 +97921,7 @@ loc_BD92F:
 	dc.b	$A0
 	dc.b	$E6, $06, $06, $0C, $0C, $0C, $F6, $89 ;0x0 (0x000BD99E-0x000BD9A6, Entry count: 0x00000008) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BD9A7:
 	dc.b	$E5, $03, $E3, $01, $01, $EF, $44, $B5, $BA, $BF, $0C ;0x0 (0x000BD9A7-0x000BD9B2, Entry count: 0x0000000B)
 	dc.b	$B5
@@ -98012,7 +98012,7 @@ loc_BD9A7:
 	dc.b	$80
 	dc.b	$F6, $23 ;0x0 (0x000BDA82-0x000BDA84, Entry count: 0x00000002) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BDA85:
 	dc.b	$88, $06, $88, $84, $88, $C0, $88, $84, $88, $F7, $00, $07, $F3 ;0x0 (0x000BDA85-0x000BDA92, Entry count: 0x0000000D)
 	dc.b	$FF
@@ -98127,7 +98127,7 @@ loc_BDAA6:
 	dc.b	$F6
 	dc.b	$74 ;0x0 (0x000BDB31-0x000BDB32, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BDB33:
 	dc.b	$EF, $40, $A2, $2A ;0x0 (0x000BDB33-0x000BDB37, Entry count: 0x00000004)
 	dc.b	$9D
@@ -98179,7 +98179,7 @@ loc_BDB33:
 	dc.b	$F6
 	dc.b	$AB ;0x0 (0x000BDB87-0x000BDB88, Entry count: 0x00000001) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BDB89:
 	dc.b	$E5, $03, $E3, $01, $05, $EF, $44, $B2, $AE, $B5, $30 ;0x0 (0x000BDB89-0x000BDB94, Entry count: 0x0000000B)
 	dc.b	$E6
@@ -98246,7 +98246,7 @@ loc_BDB89:
 	dc.b	$BA
 	dc.b	$B5, $B0, $B5, $B9, $B0, $F6, $96 ;0x0 (0x000BDBEC-0x000BDBF3, Entry count: 0x00000007) [Unknown data]
 	dc.b	$FF
-	
+
 loc_BDBF4:
 	dc.b	$88, $0C, $C0, $A0, $88, $88, $0C, $C0, $A0, $C0, $F7, $00, $07, $F2 ;0x0 (0x000BDBF4-0x000BDC02, Entry count: 0x0000000E)
 	dc.b	$FF
@@ -98255,10 +98255,10 @@ loc_BDBF4:
 	dc.b	$FF
 	dc.b	$88, $0C, $C0, $06, $88, $88, $0C, $82, $F6, $CC ;0x0 (0x000BDC1E-0x000BDC28, Entry count: 0x0000000A) [Unknown data]
 	dc.b	$FF
-	
+
 	even
-	
-	
+
+
 ; loc_BDC2A:
 PCMDrums:
 	org 0		; we need to start from an address less than $10000 for Z80 otherwise the assembler throws an Address Overflow error; so we conveniently start from 0
@@ -98267,7 +98267,7 @@ PCMDrums:
 	restore		; restore 68000 CPU settings
 	padding off	; padding is not restored, so we need to set the flag again
 	org (PCMDrums+PCMDrumsEnd-PCMDrumsStart)		; PC must be set to the correct value, so it's the whole code up until the PCMDrums label + the whole z80 code
-	
+
 
 	padROM	$FF			; padding for real hardware
 
