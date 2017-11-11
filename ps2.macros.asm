@@ -10,13 +10,13 @@ nametxt macro text
 		endm
 	endif
 	endm
-	
+
 border macro len, data
 	rept len
 		dc.b	data
 	endm
 	endm
-	
+
 cursorbox macro text
 	dc.b	$B4, $B5, text
 	endm
