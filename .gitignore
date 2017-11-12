@@ -4,3 +4,6 @@ ps2.p
 ps2.lst
 ps2built.bin
 ps2built.prev.bin
+
+# Linux builder creates this.
+p2bin

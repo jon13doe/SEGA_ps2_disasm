@@ -9,7 +9,7 @@
 
 
 
-; 128 = 80h = z80, 32988 = 80DCh = z80unDoC 
+; 128 = 80h = z80, 32988 = 80DCh = z80unDoC
 notZ80 function cpu,(cpu<>128)&&(cpu<>32988)
 
 ; define the cnop pseudo-instruction
@@ -30,7 +30,7 @@ align macro alignment
 even macro
 	if notZ80(MOMCPU)
 		if (*)&1
-			dc.b 0 ;ds.b 1 
+			dc.b 0 ;ds.b 1
 		endif
 	else
 		if ($)&1
@@ -198,7 +198,7 @@ _tst	macro
 	endm
 
     endif
-    
+
 ; Pad to next multiple of 256kb
 padROM macro valueFill
 
@@ -209,9 +209,9 @@ PadTargetValue	:=	PadValueConstant*(QuotientPadValue+1)
 	else
 PadTargetValue	:=	PadValueConstant
 	endif
-	
+
 	while (*)-PadTargetValue <> 0
 		dc.b	valueFill
 	endm
-	
+
 	endm

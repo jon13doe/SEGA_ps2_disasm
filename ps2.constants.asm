@@ -1,6 +1,6 @@
 ; ---------------------------------------------------------------------------
 ; Constants
-; ---------------------------------------------------------------------------	
+; ---------------------------------------------------------------------------
 
 ; Character statistics
 ; 'mod' means a stat modified by equipment
@@ -178,7 +178,7 @@ routine = $22	; word
 ; Properties and constants applicable to map objects
 x_moving_flag = $14	; word
 y_moving_flag = $18	; word
-y_screen_pos = $1E	; word ; y position relative to the screen 
+y_screen_pos = $1E	; word ; y position relative to the screen
 x_screen_pos = $20 ; word ; x position relative to the screen
 frame_index = $24	; word
 frame_duration = $26	; word
@@ -749,10 +749,10 @@ WinID_RolfPortrait2 =  id(PtrWin_RolfPortrait2)	; $72
 WinID_TeleportPlaceNames =  id(PtrWin_TeleportPlaceNames)	; $73
 WinID_UstvestiaSoundtracks =  id(PtrWin_UstvestiaSoundtracks)	; $74
 
-; Number of bytes for the dynamic windows + $B2 in order to occupy the RAM section until address $FFFF8C00. You can replace $B2 with 4 and it will be fine. 
+; Number of bytes for the dynamic windows + $B2 in order to occupy the RAM section until address $FFFF8C00. You can replace $B2 with 4 and it will be fine.
 ; Why 4? Well, Bytes are allocated using a long-word sized instruction and by doing this, you can cut off from 1 to 3 bytes, because it's dyn_windows_size by 4 when
 ; we fill the RAM section with these bytes. We don't want to leave out the remainder so we add 3, but we also want it even, so we make it 4.
-dyn_windows_size =  (DynamicWindowsEnd-DynamicWindowsStart)+$B2	
+dyn_windows_size =  (DynamicWindowsEnd-DynamicWindowsStart)+$B2
 
 
 ; Enemies
@@ -1119,7 +1119,7 @@ z80_ram_end =  $A02000	; end of non-reserved Z80 RAM
 z80_bus_request =  $A11100
 z80_reset =  $A11200
 
-security_addr =  $A14000 
+security_addr =  $A14000
 
 ; I/O area
 hw_version =  $A10001
@@ -1150,7 +1150,7 @@ party_member_id =  ramaddr($FFFFC608)		; ID's for the current party members; so 
 
 current_money =  ramaddr($FFFFC620)			; amount of money that you own at the moment
 
-chosen_letter_position =  ramaddr($FFFFC63A)	; position of the cursor when you choose letters for characters' names 
+chosen_letter_position =  ramaddr($FFFFC63A)	; position of the cursor when you choose letters for characters' names
 
 map_index =  ramaddr($FFFFC640)			; index of the map you are in
 map_y_pos =  ramaddr($FFFFC642)
@@ -1163,9 +1163,9 @@ planet_index =  ramaddr($FFFFC658)			; 0 = Motavia; 1 = Dezolis
 character_names =  ramaddr($FFFFC660)
 
 event_flags =  ramaddr($FFFFC710)
-treasure_chest_flags =  ramaddr($FFFFC780)	; space where open/close flags for treasure chests are 
+treasure_chest_flags =  ramaddr($FFFFC780)	; space where open/close flags for treasure chests are
 
-battle_character_stats =  ramaddr($FFFFC900)	; save all characters data so that you can retrieve it after the end of a battle 
+battle_character_stats =  ramaddr($FFFFC900)	; save all characters data so that you can retrieve it after the end of a battle
 
 enemy_data_buffer =  ramaddr($FFFFCB00)
 
@@ -1181,7 +1181,7 @@ char_battle_command_index =  ramaddr($FFFFCC10)	; word ; 16 bytes per character;
 
 battle_turn_index = ramaddr($FFFFCC90)	; word
 battle_turn_order = ramaddr($FFFFCCA0)	; 4 bytes per fighter; bytes 1-2 = ID of fighter; bytes 3-4 = agility
-												
+
 script_id =  ramaddr($FFFFCD00)
 window_active_flag =  ramaddr($FFFFCD10)
 text_buffer_pointer =	ramaddr($FFFFCD12)
@@ -1238,7 +1238,7 @@ decom_buffer =  ramaddr($FFFFF400)
 
 game_mode_index =  ramaddr($FFFFF600)
 
-joypad_held =  ramaddr($FFFFF602)		
+joypad_held =  ramaddr($FFFFF602)
 joypad_pressed =  ramaddr($FFFFF603)
 
 vdp_reg1_values =  ramaddr($FFFFF610)
@@ -1253,7 +1253,7 @@ sprite_link_field_count =  ramaddr($FFFFF62C)		; counter for link field Sprite a
 
 rng_seed =  ramaddr($FFFFF636)
 
-paused_flag =  ramaddr($FFFFF63A)		; flag: 0 = not paused; 1 = paused 
+paused_flag =  ramaddr($FFFFF63A)		; flag: 0 = not paused; 1 = paused
 
 screen_changed_flag =  ramaddr($FFFFF734)
 
@@ -1261,7 +1261,7 @@ demo_flag =  ramaddr($FFFFF750)			; flag: determines if there are events and CPU
 demo_index =  ramaddr($FFFFF752)			; determines what demo should be run
 demo_input_index =  ramaddr($FFFFF754)		; determines what joypad command should be run
 
-building_index =  ramaddr($FFFFF760)		
+building_index =  ramaddr($FFFFF760)
 portrait_index =  ramaddr($FFFFF762)
 
 sprite_table =  ramaddr($FFFFF800)
