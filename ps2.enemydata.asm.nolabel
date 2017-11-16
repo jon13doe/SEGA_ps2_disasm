@@ -1,0 +1,2773 @@
+EnemyData:
+
+Enemy_FireAnt:
+	dc.w	$068C, $046A, $0248, $0026, $0004, $0002, $0000, $06A6, $0484, $0240, $08AA, $0688, $0466, $0244, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	3	
+	dc.w	5	
+	dc.w	3	
+	dc.w	4	
+	dc.b	%00100000	
+	dc.b	23	
+	dc.w	9	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$01, $01	
+ 
+Enemy_ArmorAnt:
+	dc.w	$08E8, $06A6, $0484, $0262, $0240, $0020, $0000, $006E, $004E, $002A, $0A8A, $0868, $0646, $0424, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	26	
+	dc.w	34	
+	dc.w	12	
+	dc.w	16	
+	dc.b	%00100000	
+	dc.b	48	
+	dc.w	23	
+	dc.b	$03	
+	dc.b	76	
+	dc.b	$04	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$02, $02	
+ 
+Enemy_PinchAnt:
+	dc.w	$0CCA, $0AA8, $0886, $0664, $0442, $0220, $0000, $086E, $030C, $0308, $068C, $046A, $0248, $0226, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	83	
+	dc.w	99	
+	dc.w	30	
+	dc.w	27	
+	dc.b	%00100000	
+	dc.b	65	
+	dc.w	45	
+	dc.b	$E2	
+	dc.b	102	
+	dc.b	$08	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $64, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$03, $03	
+ 
+Enemy_Mosquito:
+	dc.w	$0000, $0020, $0064, $0086, $00A8, $00EC, $0204, $0428, $066C, $0802, $0C06, $0000, $0888, $0EEE, $0000	
+	dc.l	Battle_MosquitoArt	
+	dc.w	3	
+	dc.w	5	
+	dc.w	2	
+	dc.w	4	
+	dc.b	%00100000	
+	dc.b	23	
+	dc.w	9	
+	dc.b	$06	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $64, $0C	
+	dc.b	SFXID_MosquitoAttack	
+	dc.b	SFXID_MosquitoAttack	
+	dc.l	Battle_MosquitoMap	
+	dc.b	$04, $04	
+ 
+Enemy_Waspy:
+	dc.w	$0000, $0024, $0066, $028A, $04AC, $08EE, $0040, $0262, $06C6, $0620, $0862, $0000, $0488, $0CEE, $0000	
+	dc.l	Battle_MosquitoArt	
+	dc.w	15	
+	dc.w	27	
+	dc.w	13	
+	dc.w	13	
+	dc.b	%00100000	
+	dc.b	36	
+	dc.w	18	
+	dc.b	$06	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_MosquitoAttack	
+	dc.b	SFXID_MosquitoAttack	
+	dc.l	Battle_MosquitoMap	
+	dc.b	$05, $05	
+ 
+Enemy_Stinger:
+	dc.w	$0000, $0220, $0664, $0886, $0AA8, $0EEC, $0604, $0A26, $0A6C, $0408, $060C, $0000, $0864, $0ECA, $0000	
+	dc.l	Battle_MosquitoArt	
+	dc.w	78	
+	dc.w	99	
+	dc.w	31	
+	dc.w	26	
+	dc.b	%00100000	
+	dc.b	58	
+	dc.w	47	
+	dc.b	$06	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_MosquitoAttack	
+	dc.b	SFXID_MosquitoAttack	
+	dc.l	Battle_MosquitoMap	
+	dc.b	$06, $06	
+ 
+Enemy_Spinner:
+	dc.w	$0EEE, $0EAC, $0C8A, $0A68, $0846, $0624, $0402, $06EE, $00EE, $02CE, $009E, $0220, $0440, $0660, $0000	
+	dc.l	Battle_SpinnerArt	
+	dc.w	7	
+	dc.w	16	
+	dc.w	9	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	16	
+	dc.w	14	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$7C, $00, $7C, $00	
+	dc.b	SFXID_SpinnerAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_SpinnerMap	
+	dc.b	$07, $07	
+ 
+Enemy_Vortex:
+	dc.w	$0EEE, $0AEA, $08C8, $06A6, $0484, $0262, $0040, $004E, $000E, $000C, $000A, $0220, $0440, $0660, $0000	
+	dc.l	Battle_SpinnerArt	
+	dc.w	40	
+	dc.w	77	
+	dc.w	29	
+	dc.w	23	
+	dc.b	%00100000	
+	dc.b	18	
+	dc.w	37	
+	dc.b	$11	
+	dc.b	51	
+	dc.b	$08	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$7C, $00, $7C, $00	
+	dc.b	SFXID_SpinnerAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_SpinnerMap	
+	dc.b	$08, $08	
+ 
+Enemy_Whirly:
+	dc.w	$0EEE, $0CCE, $0AAE, $088E, $066E, $024E, $000C, $0AEA, $06C6, $0484, $0060, $0220, $0440, $0660, $0000	
+	dc.l	Battle_SpinnerArt	
+	dc.w	156	
+	dc.w	184	
+	dc.w	48	
+	dc.w	39	
+	dc.b	%00100000	
+	dc.b	28	
+	dc.w	76	
+	dc.b	$09	
+	dc.b	102	
+	dc.b	$00	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$7C, $00, $7C, $00	
+	dc.b	SFXID_SpinnerAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_SpinnerMap	
+	dc.b	$09, $09	
+ 
+Enemy_Bee:
+	dc.w	$0000, $0240, $0682, $0AC6, $0ECC, $0EEE, $000C, $0006, $0204, $0406, $082A, $0222, $0666, $0AAA, $0A8C	
+	dc.l	Battle_BeeArt	
+	dc.w	5	
+	dc.w	9	
+	dc.w	4	
+	dc.w	7	
+	dc.b	%00100000	
+	dc.b	25	
+	dc.w	10	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$74, $00, $74, $00	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_BeeMap	
+	dc.b	$0A, $0A	
+ 
+Enemy_Buzzer:
+	dc.w	$0000, $0226, $066A, $08AC, $0CCE, $0EEE, $0864, $0620, $0402, $0644, $0A68, $0222, $0666, $0AAA, $0C8A	
+	dc.l	Battle_BeeArt	
+	dc.w	26	
+	dc.w	34	
+	dc.w	17	
+	dc.w	15	
+	dc.b	%00100000	
+	dc.b	39	
+	dc.w	27	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$74, $00, $74, $00	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_BeeMap	
+	dc.b	$0B, $0B	
+ 
+Enemy_Insecta:
+	dc.w	$0000, $0244, $0688, $08CC, $0CEE, $0EEE, $044A, $0206, $0242, $0464, $0686, $0222, $0666, $0AAA, $0AEA	
+	dc.l	Battle_BeeArt	
+	dc.w	111	
+	dc.w	139	
+	dc.w	41	
+	dc.w	31	
+	dc.b	%00100000	
+	dc.b	66	
+	dc.w	60	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$74, $00, $74, $00	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_BeeMap	
+	dc.b	$0C, $0C	
+ 
+Enemy_Poisoner:
+	dc.w	$0CCE, $08CA, $06A8, $0486, $0264, $0042, $006E, $0CCC, $0AAA, $0888, $0666, $0444, $0AAE, $066A, $0226	
+	dc.l	Battle_PoisonerArt	
+	dc.w	5	
+	dc.w	19	
+	dc.w	4	
+	dc.w	2	
+	dc.b	%00100000	
+	dc.b	25	
+	dc.w	12	
+	dc.b	$03	
+	dc.b	102	
+	dc.b	$0C	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_PoisonerMap	
+	dc.b	$0D, $0D	
+ 
+Enemy_Spitkill:
+	dc.w	$0EEE, $0CA8, $0A86, $0864, $0642, $0420, $006E, $0ACC, $08AA, $0688, $0466, $0244, $0AAE, $066A, $0226	
+	dc.l	Battle_PoisonerArt	
+	dc.w	31	
+	dc.w	51	
+	dc.w	18	
+	dc.w	13	
+	dc.b	%00100000	
+	dc.b	42	
+	dc.w	30	
+	dc.b	$05	
+	dc.b	51	
+	dc.b	$18	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_PoisonerMap	
+	dc.b	$0E, $0E	
+ 
+Enemy_Spitfang:
+	dc.w	$0EAE, $0C8C, $0A6A, $0848, $0626, $0404, $0080, $0AA8, $0886, $0664, $0442, $0220, $0AAE, $066A, $0226	
+	dc.l	Battle_PoisonerArt	
+	dc.w	182	
+	dc.w	194	
+	dc.w	49	
+	dc.w	28	
+	dc.b	%00100000	
+	dc.b	74	
+	dc.w	66	
+	dc.b	$04	
+	dc.b	51	
+	dc.b	$0C	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_PoisonerMap	
+	dc.b	$0F, $0F	
+ 
+Enemy_HitTail:
+	dc.w	$0224, $0226, $0448, $066A, $0AAD, $0EEE, $0666, $0688, $0000, $0204, $0406, $060A, $0620, $0A60, $0000	
+	dc.l	Battle_HitTailArt	
+	dc.w	49	
+	dc.w	88	
+	dc.w	32	
+	dc.w	24	
+	dc.b	%00100000	
+	dc.b	35	
+	dc.w	22	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$58, $15, $58, $15	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_HitTailMap	
+	dc.b	$10, $10	
+ 
+Enemy_Center:
+	dc.w	$0024, $0246, $0468, $068A, $08AC, $0AEE, $0446, $0E20, $0EA0, $0420, $0864, $0CA8, $000E, $008E, $0000	
+	dc.l	Battle_HitTailArt	
+	dc.w	127	
+	dc.w	139	
+	dc.w	48	
+	dc.w	31	
+	dc.b	%00100000	
+	dc.b	46	
+	dc.w	42	
+	dc.b	$EB	
+	dc.b	127	
+	dc.b	$0C	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$58, $15, $59, $15	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_HitTailMap	
+	dc.b	$11, $11	
+ 
+Enemy_Scaly:
+	dc.w	$0222, $0444, $0666, $0AAA, $0CCC, $0EEE, $0664, $004E, $00CE, $0044, $0088, $00CC, $0006, $060E, $0000	
+	dc.l	Battle_HitTailArt	
+	dc.w	357	
+	dc.w	337	
+	dc.w	75	
+	dc.w	48	
+	dc.b	%00100000	
+	dc.b	76	
+	dc.w	91	
+	dc.b	$E7	
+	dc.b	51	
+	dc.b	$04	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$58, $15, $59, $15	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_HitTailMap	
+	dc.b	$12, $12	
+ 
+Enemy_Froggy:
+	dc.w	$0CE0, $0AC0, $08A0, $0680, $0460, $0240, $0020, $0022, $0044, $0066, $00CC, $020E, $020A, $0206, $0000	
+	dc.l	Battle_FroggyArt	
+	dc.w	7	
+	dc.w	10	
+	dc.w	5	
+	dc.w	7	
+	dc.b	%00100000	
+	dc.b	48	
+	dc.w	12	
+	dc.b	$F5	
+	dc.b	76	
+	dc.b	$0C	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_MosquitoAttack	
+	dc.l	Battle_FroggyMap	
+	dc.b	$13, $13	
+ 
+Enemy_Toader:
+	dc.w	$0E0A, $0C08, $0A06, $0804, $0602, $0400, $0200, $0240, $0460, $08A0, $0AC0, $020E, $020A, $0206, $0000	
+	dc.l	Battle_FroggyArt	
+	dc.w	30	
+	dc.w	36	
+	dc.w	17	
+	dc.w	13	
+	dc.b	%00100000	
+	dc.b	72	
+	dc.w	24	
+	dc.b	$12	
+	dc.b	51	
+	dc.b	$08	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_FroggyMap	
+	dc.b	$14, $14	
+ 
+Enemy_Squat:
+	dc.w	$0EAE, $0C8C, $0A6A, $0848, $0626, $0404, $0202, $0400, $0600, $0A00, $0C00, $020E, $020A, $0206, $0000	
+	dc.l	Battle_FroggyArt	
+	dc.w	266	
+	dc.w	180	
+	dc.w	46	
+	dc.w	32	
+	dc.b	%00100000	
+	dc.b	77	
+	dc.w	76	
+	dc.b	$04	
+	dc.b	76	
+	dc.b	$0C	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_MosquitoAttack	
+	dc.l	Battle_FroggyMap	
+	dc.b	$15, $15	
+ 
+Enemy_Carrier:
+	dc.w	$0002, $0204, $0406, $0608, $082A, $0A4C, $0C6E, $00EE, $00AE, $006A, $0026, $000E, $0008, $0004, $0000	
+	dc.l	Battle_CarrierArt	
+	dc.w	9	
+	dc.w	16	
+	dc.w	6	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	31	
+	dc.w	17	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_FireAntAttack	
+	dc.l	Battle_CarrierMap	
+	dc.b	$16, $16	
+ 
+Enemy_Mushroom:
+	dc.w	$0002, $0204, $0406, $0608, $082A, $0A4C, $0C6E, $00EE, $00AE, $006A, $0026, $000E, $0008, $0004, $0000	
+	dc.l	Battle_CarrierArt	
+	dc.w	101	
+	dc.w	124	
+	dc.w	36	
+	dc.w	29	
+	dc.b	%00100000	
+	dc.b	43	
+	dc.w	54	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_CarrierMap	
+	dc.b	$17, $17	
+ 
+Enemy_HeadRot:
+	dc.w	$0002, $0204, $0406, $0608, $082A, $0A4C, $0C6E, $00EE, $00AE, $006A, $0026, $000E, $0008, $0004, $0000	
+	dc.l	Battle_CarrierArt	
+	dc.w	311	
+	dc.w	254	
+	dc.w	57	
+	dc.w	42	
+	dc.b	%00100000	
+	dc.b	45	
+	dc.w	95	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_BlasterAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_CarrierMap	
+	dc.b	$18, $18	
+ 
+Enemy_Whistle:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $008E, $00CE, $04AC, $028A, $0A40, $000E	
+	dc.l	Battle_WhistleArt	
+	dc.w	470	
+	dc.w	84	
+	dc.w	37	
+	dc.w	5	
+	dc.b	%01000000	
+	dc.b	68	
+	dc.w	82	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$66, $02, $6C, $08	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_WhistleMap	
+	dc.b	$19, $19	
+ 
+Enemy_Informer:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0008, $0CCA, $0EEC, $0EEE, $0EA0, $0EC8, $0CA8, $0A84, $0A40, $0E60	
+	dc.l	Battle_WhistleArt	
+	dc.w	689	
+	dc.w	142	
+	dc.w	53	
+	dc.w	8	
+	dc.b	%01000000	
+	dc.b	68	
+	dc.w	125	
+	dc.b	$11	
+	dc.b	51	
+	dc.b	$08	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$66, $02, $6C, $08	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_WhistleMap	
+	dc.b	$1A, $1A	
+ 
+Enemy_Tracer:
+	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $008E, $00CE, $04AC, $028A, $0A40, $000E	
+	dc.l	Battle_WhistleArt	
+	dc.w	2	
+	dc.w	2	
+	dc.w	9	
+	dc.w	8	
+	dc.b	%01000000	
+	dc.b	10	
+	dc.w	40	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	255	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$66, $02, $6C, $08	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_WhistleMap	
+	dc.b	$1B, $1B	
+ 
+Enemy_Locust:
+	dc.w	$0000, $0004, $0026, $0048, $006A, $008C, $08CE, $0EEE, $0222, $0468, $06AC, $0226, $044A, $0600, $0E62	
+	dc.l	Battle_LocustArt	
+	dc.w	7	
+	dc.w	15	
+	dc.w	8	
+	dc.w	5	
+	dc.b	%00100000	
+	dc.b	23	
+	dc.w	10	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$4C, $0C, $4C, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_LocustAttack	
+	dc.l	Battle_LocustMap	
+	dc.b	$1C, $1C	
+ 
+Enemy_Locusta:
+	dc.w	$0000, $0020, $0260, $04A0, $06C4, $08E8, $0AEC, $0EEE, $0220, $0660, $0CC0, $0444, $0888, $0004, $000A	
+	dc.l	Battle_LocustArt	
+	dc.w	37	
+	dc.w	69	
+	dc.w	28	
+	dc.w	18	
+	dc.b	%00100000	
+	dc.b	40	
+	dc.w	26	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$4C, $0C, $4C, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_LocustAttack	
+	dc.l	Battle_LocustMap	
+	dc.b	$1D, $1D	
+ 
+Enemy_Fanbite:
+	dc.w	$0000, $0402, $0622, $0844, $0A64, $0C84, $0ECA, $0EEE, $0002, $0026, $026A, $0664, $0CCA, $0204, $084C	
+	dc.l	Battle_LocustArt	
+	dc.w	301	
+	dc.w	256	
+	dc.w	54	
+	dc.w	20	
+	dc.b	%00100000	
+	dc.b	60	
+	dc.w	80	
+	dc.b	$13	
+	dc.b	51	
+	dc.b	$14	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$4C, $0C, $4C, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_LocustAttack	
+	dc.l	Battle_LocustMap	
+	dc.b	$1E, $1E	
+ 
+Enemy_Amoeba:
+	dc.w	$0200, $0400, $0622, $0844, $0A66, $0C88, $0000, $0000, $000E, $000A, $0006, $0000, $0000, $0000, $0000	
+	dc.l	Battle_AmoebaArt	
+	dc.w	12	
+	dc.w	22	
+	dc.w	11	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	10	
+	dc.w	13	
+	dc.b	$03	
+	dc.b	51	
+	dc.b	$08	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_AmoebaAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_AmoebaMap	
+	dc.b	$1F, $1F	
+ 
+Enemy_Jelly:
+	dc.w	$0200, $0402, $0604, $0806, $0A08, $0C0A, $0000, $0000, $08B0, $000A, $0480, $0040, $0000, $0000, $0000	
+	dc.l	Battle_AmoebaArt	
+	dc.w	37	
+	dc.w	67	
+	dc.w	26	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	20	
+	dc.w	42	
+	dc.b	$05	
+	dc.b	25	
+	dc.b	$10	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_AmoebaAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_AmoebaMap	
+	dc.b	$20, $20	
+ 
+Enemy_Slugmess:
+	dc.w	$0CE0, $0AC0, $08A0, $0680, $0460, $0240, $0020, $0022, $0044, $0066, $00CC, $020E, $020A, $0206, $0000	
+	dc.l	Battle_AmoebaArt	
+	dc.w	231	
+	dc.w	218	
+	dc.w	55	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	20	
+	dc.w	96	
+	dc.b	$0C	
+	dc.b	127	
+	dc.b	$00	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_AmoebaAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_AmoebaMap	
+	dc.b	$21, $21	
+ 
+Enemy_Polezi:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $008E, $00CE, $01AC, $028A, $0A40, $000E	
+	dc.l	Battle_PoleziArt	
+	dc.w	568	
+	dc.w	160	
+	dc.w	50	
+	dc.w	10	
+	dc.b	%01000000	
+	dc.b	33	
+	dc.w	85	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_PoleziMap	
+	dc.b	$22, $22	
+ 
+Enemy_Poleziax:
+	dc.w	$0000, $0420, $0820, $0C20, $0E40, $0E60, $0EA0, $0EC8, $0EEE, $008E, $00CE, $0AAC, $028A, $0A40, $000E	
+	dc.l	Battle_PoleziArt	
+	dc.w	855	
+	dc.w	240	
+	dc.w	87	
+	dc.w	10	
+	dc.b	%01000000	
+	dc.b	50	
+	dc.w	118	
+	dc.b	$03	
+	dc.b	102	
+	dc.b	$08	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_PoleziMap	
+	dc.b	$23, $23	
+ 
+Enemy_Poleziss:
+	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0EA0, $0EC8, $0AAA, $0666, $0A40, $0E60	
+	dc.l	Battle_PoleziArt	
+	dc.w	2	
+	dc.w	2	
+	dc.w	12	
+	dc.w	5	
+	dc.b	%01000000	
+	dc.b	10	
+	dc.w	20	
+	dc.b	$00	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	255	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_PoleziMap	
+	dc.b	$24, $24	
+ 
+Enemy_Leecher:
+	dc.w	$0000, $0EEE, $06AA, $0488, $0266, $0044, $0022, $0020, $0A8E, $086C, $064A, $0428, $0440, $0880, $0CC0	
+	dc.l	Battle_LeecherArt	
+	dc.w	47	
+	dc.w	49	
+	dc.w	20	
+	dc.w	6	
+	dc.b	%00100000	
+	dc.b	44	
+	dc.w	26	
+	dc.b	$EC	
+	dc.b	102	
+	dc.b	$04	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_LeecherMap	
+	dc.b	$25, $25	
+ 
+Enemy_Fang:
+	dc.w	$0000, $0EEE, $0A8C, $086A, $0648, $0426, $0204, $0002, $066E, $044C, $022A, $0008, $000E, $008E, $00EE	
+	dc.l	Battle_LeecherArt	
+	dc.w	137	
+	dc.w	144	
+	dc.w	37	
+	dc.w	8	
+	dc.b	%00100000	
+	dc.b	63	
+	dc.w	46	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_LeecherMap	
+	dc.b	$26, $26	
+ 
+Enemy_Python:
+	dc.w	$0000, $0EEE, $0CCC, $0AAA, $0888, $0666, $0444, $0222, $0E8E, $0C6C, $0A4A, $0828, $06E6, $04C4, $0484	
+	dc.l	Battle_LeecherArt	
+	dc.w	327	
+	dc.w	274	
+	dc.w	65	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	88	
+	dc.w	122	
+	dc.b	$EB	
+	dc.b	102	
+	dc.b	$0C	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_LeecherMap	
+	dc.b	$27, $27	
+ 
+Enemy_S:
+	dc.w	$0EC0, $0CA0, $0A80, $0860, $0640, $0420, $0024, $0046, $008A, $00CE, $08EE, $000A, $002C, $0EEE, $04A0	
+	dc.l	Battle_AntArt	
+	dc.w	15	
+	dc.w	27	
+	dc.w	13	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	11	
+	dc.w	12	
+	dc.b	$00	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$28, $28	
+ 
+Enemy_K:
+	dc.w	$0AEC, $08CA, $06A8, $0486, $0264, $0042, $0004, $0026, $0048, $006A, $008C, $0424, $0646, $0EEE, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	62	
+	dc.w	112	
+	dc.w	33	
+	dc.w	18	
+	dc.b	%00100000	
+	dc.b	21	
+	dc.w	38	
+	dc.b	$00	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$29, $29	
+ 
+Enemy_H:
+	dc.w	$08CE, $06AE, $048E, $026E, $004E, $000E, $0226, $0448, $066A, $088C, $0AAE, $042E, $0000, $0000, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	152	
+	dc.w	274	
+	dc.w	55	
+	dc.w	36	
+	dc.b	%00100000	
+	dc.b	34	
+	dc.w	83	
+	dc.b	$00	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$2A, $2A	
+ 
+Enemy_Pulser:
+	dc.w	$0000, $0044, $0266, $0488, $06AA, $08CC, $0AEE, $0028, $024A, $046C, $08AE, $0062, $00A8, $02EA, $0000	
+	dc.l	Battle_PulserArt	
+	dc.w	12	
+	dc.w	18	
+	dc.w	8	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	24	
+	dc.w	17	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $0C, $60, $0C	
+	dc.b	SFXID_PulserAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_PulserMap	
+	dc.b	$2B, $2B	
+ 
+Enemy_Blaster:
+	dc.w	$0000, $0406, $0626, $0846, $0A66, $0C86, $0EC8, $0202, $0224, $0268, $04AE, $0062, $00A8, $02EA, $0000	
+	dc.l	Battle_PulserArt	
+	dc.w	62	
+	dc.w	60	
+	dc.w	15	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	34	
+	dc.w	52	
+	dc.b	$EB	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $0C, $60, $0C	
+	dc.b	SFXID_PulserAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_PulserMap	
+	dc.b	$2C, $2C	
+ 
+Enemy_Blastoid:
+	dc.w	$0000, $0640, $0662, $0684, $04A6, $04C8, $04EC, $0400, $0620, $0842, $0E86, $0062, $00A8, $02EA, $0000	
+	dc.l	Battle_PulserArt	
+	dc.w	371	
+	dc.w	260	
+	dc.w	26	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	60	
+	dc.w	163	
+	dc.b	$0C	
+	dc.b	153	
+	dc.b	$00	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $0C, $60, $0C	
+	dc.b	SFXID_PulserAttack	
+	dc.b	SFXID_BlasterAttack	
+	dc.l	Battle_PulserMap	
+	dc.b	$2D, $2D	
+ 
+Enemy_RotWood:
+	dc.w	$0EE8, $0EA0, $0C80, $0A60, $0840, $0620, $0400, $0000, $046C, $0024, $0004, $06EE, $00AA, $0066, $0022	
+	dc.l	Battle_RotWoodArt	
+	dc.w	141	
+	dc.w	167	
+	dc.w	45	
+	dc.w	6	
+	dc.b	%00100000	
+	dc.b	71	
+	dc.w	50	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_RotWoodMap	
+	dc.b	$2E, $2E	
+ 
+Enemy_Blockhed:
+	dc.w	$06CE, $0EAC, $028A, $0048, $0026, $0004, $0002, $0000, $0CC0, $0660, $0220, $0AAA, $0888, $0666, $0222	
+	dc.l	Battle_RotWoodArt	
+	dc.w	261	
+	dc.w	293	
+	dc.w	59	
+	dc.w	8	
+	dc.b	%00100000	
+	dc.b	90	
+	dc.w	80	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_RotWoodMap	
+	dc.b	$2F, $2F	
+ 
+Enemy_Firia:
+	dc.w	$06CE, $06AC, $0288, $0066, $0044, $0024, $0002, $0000, $06E6, $0280, $0040, $0C88, $0844, $0422, $0220	
+	dc.l	Battle_RotWoodArt	
+	dc.w	306	
+	dc.w	358	
+	dc.w	68	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	98	
+	dc.w	109	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_RotWoodMap	
+	dc.b	$30, $30	
+ 
+Enemy_Wolfang:
+	dc.w	$0EEE, $0ECA, $0CA8, $0A86, $0864, $0642, $0420, $0000, $000C, $004E, $006E, $008E, $00EE, $0004, $000C	
+	dc.l	Battle_WolfangArt	
+	dc.w	261	
+	dc.w	218	
+	dc.w	54	
+	dc.w	15	
+	dc.b	%00100000	
+	dc.b	79	
+	dc.w	72	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_WolfangMap	
+	dc.b	$31, $31	
+ 
+Enemy_Burnwolf:
+	dc.w	$0EEE, $08CA, $06A8, $0486, $0264, $0042, $0020, $0000, $0C08, $0C68, $0C88, $0CA8, $0CC8, $0004, $000C	
+	dc.l	Battle_WolfangArt	
+	dc.w	412	
+	dc.w	382	
+	dc.w	79	
+	dc.w	16	
+	dc.b	%00100000	
+	dc.b	101	
+	dc.w	112	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_WolfangMap	
+	dc.b	$32, $32	
+ 
+Enemy_Flarewlf:
+	dc.w	$0EEE, $0CAC, $0A8C, $086C, $064C, $042A, $0208, $0000, $0660, $0680, $06A0, $06C0, $0AE4, $0004, $000C	
+	dc.l	Battle_WolfangArt	
+	dc.w	471	
+	dc.w	455	
+	dc.w	85	
+	dc.w	17	
+	dc.b	%00100000	
+	dc.b	109	
+	dc.w	145	
+	dc.b	$04	
+	dc.b	51	
+	dc.b	$18	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_WolfangMap	
+	dc.b	$33, $33	
+ 
+Enemy_PugHit:
+	dc.w	$0000, $0400, $0620, $0842, $0A64, $0C86, $0EA8, $0ECA, $0EEE, $006E, $0000, $0246, $0468, $08AC, $0000	
+	dc.l	Battle_PugHitArt	
+	dc.w	42	
+	dc.w	38	
+	dc.w	22	
+	dc.w	17	
+	dc.b	%00100000	
+	dc.b	47	
+	dc.w	21	
+	dc.b	$0E	
+	dc.b	25	
+	dc.b	$0C	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_PugHitMap	
+	dc.b	$34, $34	
+ 
+Enemy_PugBrat:
+	dc.w	$0000, $0004, $0006, $0028, $004A, $026C, $048E, $08CE, $0EEE, $0C44, $0200, $0652, $0000, $0CA8, $0000	
+	dc.l	Battle_PugHitArt	
+	dc.w	206	
+	dc.w	115	
+	dc.w	59	
+	dc.w	47	
+	dc.b	%00100000	
+	dc.b	93	
+	dc.w	88	
+	dc.b	$0F	
+	dc.b	51	
+	dc.b	$04	
+	dc.b	229	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_PugHitMap	
+	dc.b	$35, $35	
+ 
+Enemy_PugKill:
+	dc.w	$0000, $0002, $0024, $0246, $0268, $0288, $02AC, $0AEE, $0EEE, $02A0, $0222, $0606, $0000, $0E6E, $0000	
+	dc.l	Battle_PugHitArt	
+	dc.w	302	
+	dc.w	282	
+	dc.w	69	
+	dc.w	17	
+	dc.b	%00100000	
+	dc.b	101	
+	dc.w	98	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	229	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_PugHitMap	
+	dc.b	$36, $36	
+ 
+Enemy_S2:
+	dc.w	$040E, $040C, $040A, $0408, $0406, $0404, $06AE, $048C, $026A, $0048, $08CC, $06AA, $0488, $0266, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	22	
+	dc.w	38	
+	dc.w	16	
+	dc.w	14	
+	dc.b	%00100000	
+	dc.b	27	
+	dc.w	35	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$70, $00, $70, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$37, $37	
+ 
+Enemy_S3:
+	dc.w	$040E, $040C, $040A, $0408, $0406, $0404, $008E, $006C, $004A, $0028, $0AA8, $0886, $0664, $0442, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	65	
+	dc.w	107	
+	dc.w	32	
+	dc.w	37	
+	dc.b	%00100000	
+	dc.b	49	
+	dc.w	58	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	229	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$70, $00, $70, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$38, $38	
+ 
+Enemy_S4:
+	dc.w	$040E, $040C, $040A, $0408, $0406, $0404, $048C, $086A, $0648, $0426, $00EA, $00C8, $00A6, $0086, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	115	
+	dc.w	205	
+	dc.w	40	
+	dc.w	50	
+	dc.b	%00100000	
+	dc.b	64	
+	dc.w	119	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	229	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$74, $00, $74, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$39, $39	
+ 
+Enemy_Wireface:
+	dc.w	$0EEE, $0EEC, $0CCA, $0AA8, $0886, $0664, $0442, $0000, $000A, $0800, $0E00, $0E80, $04EE, $008E, $024E	
+	dc.l	Battle_WirefaceArt	
+	dc.w	718	
+	dc.w	213	
+	dc.w	55	
+	dc.w	10	
+	dc.b	%01000000	
+	dc.b	67	
+	dc.w	137	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_WirefaceMap	
+	dc.b	$3A, $3A	
+ 
+Enemy_Wirehead:
+	dc.w	$0EEE, $0ECE, $0CAC, $0A8A, $0868, $0646, $0424, $0000, $0060, $0800, $0E00, $0E80, $04EE, $00C8, $0294	
+	dc.l	Battle_WirefaceArt	
+	dc.w	1014	
+	dc.w	213	
+	dc.w	67	
+	dc.w	15	
+	dc.b	%01000000	
+	dc.b	78	
+	dc.w	159	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_WirefaceMap	
+	dc.b	$3B, $3B	
+ 
+Enemy_PodHead:
+	dc.w	$0EEE, $0CEE, $0ACC, $08AA, $0688, $0466, $0244, $0000, $0808, $0800, $0E00, $0E80, $0ECE, $0EAE, $0C4C	
+	dc.l	Battle_WirefaceArt	
+	dc.w	1149	
+	dc.w	319	
+	dc.w	80	
+	dc.w	15	
+	dc.b	%01000000	
+	dc.b	85	
+	dc.w	176	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_WirefaceMap	
+	dc.b	$3C, $3C	
+ 
+Enemy_Terakite:
+	dc.w	$0CCA, $0AA8, $0886, $0664, $0442, $0220, $0EEE, $08EE, $0266, $000A, $0008, $004E, $048E, $08CE, $046E	
+	dc.l	Battle_TerakiteArt	
+	dc.w	266	
+	dc.w	258	
+	dc.w	58	
+	dc.w	77	
+	dc.b	%00100000	
+	dc.b	62	
+	dc.w	67	
+	dc.b	$03	
+	dc.b	51	
+	dc.b	$0C	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $54, $14	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_TerakiteMap	
+	dc.b	$3D, $3D	
+ 
+Enemy_Reptile:
+	dc.w	$0CEE, $0ACC, $08AA, $0688, $0466, $0244, $0EEE, $008E, $002A, $086C, $064A, $0A8E, $0666, $0AAA, $0888	
+	dc.l	Battle_TerakiteArt	
+	dc.w	387	
+	dc.w	440	
+	dc.w	79	
+	dc.w	80	
+	dc.b	%00100000	
+	dc.b	70	
+	dc.w	92	
+	dc.b	$EB	
+	dc.b	127	
+	dc.b	$0C	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $54, $14	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_TerakiteMap	
+	dc.b	$3E, $3E	
+ 
+Enemy_KiteDrgn:
+	dc.w	$0CCE, $0AAC, $088A, $0668, $0446, $0224, $0EEE, $06C0, $0040, $040E, $000A, $062E, $0CA0, $0EE8, $0A80	
+	dc.l	Battle_TerakiteArt	
+	dc.w	351	
+	dc.w	475	
+	dc.w	84	
+	dc.w	85	
+	dc.b	%00100000	
+	dc.b	74	
+	dc.w	113	
+	dc.b	$09	
+	dc.b	76	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $54, $14	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_TerakiteMap	
+	dc.b	$3F, $3F	
+ 
+Enemy_FireEye:
+	dc.w	$0204, $024E, $028E, $02CE, $02EE, $0EEE, $0020, $0040, $0262, $0484, $0686, $0CE8, $0A00, $0C20, $0E42	
+	dc.l	Battle_FireEyeArt	
+	dc.w	49	
+	dc.w	88	
+	dc.w	29	
+	dc.w	32	
+	dc.b	%00100000	
+	dc.b	20	
+	dc.w	52	
+	dc.b	$F5	
+	dc.b	102	
+	dc.b	$08	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $50, $14	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_FireEyeMap	
+	dc.b	$40, $40	
+ 
+Enemy_Glowstik:
+	dc.w	$0402, $0822, $0A42, $0C84, $0EC8, $0EEE, $0002, $0224, $0246, $0468, $068A, $0ACE, $0060, $02A0, $04E0	
+	dc.l	Battle_FireEyeArt	
+	dc.w	330	
+	dc.w	315	
+	dc.w	67	
+	dc.w	45	
+	dc.b	%00100000	
+	dc.b	40	
+	dc.w	120	
+	dc.b	$EB	
+	dc.b	102	
+	dc.b	$08	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $50, $14	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_FireEyeMap	
+	dc.b	$41, $41	
+ 
+Enemy_Forest:
+	dc.w	$0020, $0240, $0280, $02C4, $02E8, $0EEE, $0202, $0424, $0846, $0A66, $0CA8, $0EC8, $008E, $00CE, $04EE	
+	dc.l	Battle_FireEyeArt	
+	dc.w	501	
+	dc.w	481	
+	dc.w	83	
+	dc.w	58	
+	dc.b	%00100000	
+	dc.b	45	
+	dc.w	175	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $50, $14	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_FireEyeMap	
+	dc.b	$42, $42	
+ 
+Enemy_Catman:
+	dc.w	$0000, $0CAA, $0A88, $0866, $0644, $0CEE, $0ACC, $08AA, $0688, $0466, $0000, $0AAE, $0422, $0000, $0000	
+	dc.l	Battle_CatmanArt	
+	dc.w	276	
+	dc.w	236	
+	dc.w	61	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	50	
+	dc.w	67	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_CatmanMap	
+	dc.b	$43, $43	
+ 
+Enemy_Catfang:
+	dc.w	$0000, $0AAE, $088E, $066C, $044A, $0CEE, $0ACC, $08AA, $0688, $0466, $0000, $0AAE, $0226, $0000, $0000	
+	dc.l	Battle_CatmanArt	
+	dc.w	481	
+	dc.w	430	
+	dc.w	79	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	55	
+	dc.w	132	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_CatmanMap	
+	dc.b	$44, $44	
+ 
+Enemy_Cateye:
+	dc.w	$0000, $00AE, $008E, $006C, $004A, $0CEE, $0ACC, $08AA, $0688, $0466, $0000, $0AAE, $0026, $0000, $0000	
+	dc.l	Battle_CatmanArt	
+	dc.w	521	
+	dc.w	481	
+	dc.w	86	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	65	
+	dc.w	182	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_CatmanMap	
+	dc.b	$45, $45	
+ 
+Enemy_Mechoman:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $08EE, $00CE, $008E, $04AC, $0068, $002A	
+	dc.l	Battle_MechomanArt	
+	dc.w	627	
+	dc.w	138	
+	dc.w	46	
+	dc.w	68	
+	dc.b	%01000000	
+	dc.b	35	
+	dc.w	65	
+	dc.b	$F5	
+	dc.b	255	
+	dc.b	$0C	
+	dc.b	229	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$40, $00, $40, $00	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_MechomanMap	
+	dc.b	$46, $46	
+ 
+Enemy_Sonomech:
+	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $08EE, $00CE, $008E, $0AAA, $0888, $002A	
+	dc.l	Battle_MechomanArt	
+	dc.w	889	
+	dc.w	199	
+	dc.w	71	
+	dc.w	84	
+	dc.b	%01000000	
+	dc.b	43	
+	dc.w	85	
+	dc.b	$EB	
+	dc.b	255	
+	dc.b	$0C	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$40, $00, $40, $00	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_MechomanMap	
+	dc.b	$47, $47	
+ 
+Enemy_Attmech:
+	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0ECA, $0EA0, $0E60, $0AAA, $0666, $0800	
+	dc.l	Battle_MechomanArt	
+	dc.w	1110	
+	dc.w	263	
+	dc.w	86	
+	dc.w	95	
+	dc.b	%01000000	
+	dc.b	58	
+	dc.w	105	
+	dc.b	$F1	
+	dc.b	255	
+	dc.b	$0C	
+	dc.b	229	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$40, $00, $40, $00	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_MechomanMap	
+	dc.b	$48, $48	
+ 
+Enemy_Mazgamma:
+	dc.w	$0EEE, $0CCA, $0AA8, $0886, $0664, $0442, $0000, $0000, $000C, $0800, $0E00, $0E80, $00EE, $008E, $024E	
+	dc.l	Battle_MazgammaArt	
+	dc.w	687	
+	dc.w	205	
+	dc.w	68	
+	dc.w	5	
+	dc.b	%01000000	
+	dc.b	90	
+	dc.w	152	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_MazgammaMap	
+	dc.b	$49, $49	
+ 
+Enemy_Firgamma:
+	dc.w	$0EEE, $0CCE, $0AAC, $088A, $0668, $0446, $0224, $0000, $0060, $000A, $000E, $066E, $0EE6, $00C8, $0294	
+	dc.l	Battle_MazgammaArt	
+	dc.w	960	
+	dc.w	312	
+	dc.w	88	
+	dc.w	17	
+	dc.b	%01000000	
+	dc.b	108	
+	dc.w	184	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_MazgammaMap	
+	dc.b	$4A, $4A	
+ 
+Enemy_Kilgamma:
+	dc.w	$0EEE, $0CEE, $0ACC, $08AA, $0688, $0466, $0244, $0000, $0808, $0080, $00E2, $00EA, $0EAE, $0C8C, $0C4C	
+	dc.l	Battle_MazgammaArt	
+	dc.w	1279	
+	dc.w	340	
+	dc.w	102	
+	dc.w	20	
+	dc.b	%01000000	
+	dc.b	125	
+	dc.w	215	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_MazgammaMap	
+	dc.b	$4B, $4B	
+ 
+Enemy_Metalman:
+	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0ACA, $0CEC, $0EEE, $0EC8, $0EA0, $0AA8, $0664, $00CE, $000E	
+	dc.l	Battle_MetalmanArt	
+	dc.w	707	
+	dc.w	197	
+	dc.w	64	
+	dc.w	3	
+	dc.b	%01000000	
+	dc.b	68	
+	dc.w	148	
+	dc.b	$F1	
+	dc.b	102	
+	dc.b	$08	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$58, $00, $50, $00	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_MetalmanMap	
+	dc.b	$4C, $4C	
+ 
+Enemy_TwigMan:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $0EC8, $0EA0, $028A, $0066, $00CE, $000E	
+	dc.l	Battle_MetalmanArt	
+	dc.w	1057	
+	dc.w	278	
+	dc.w	84	
+	dc.w	14	
+	dc.b	%01000000	
+	dc.b	88	
+	dc.w	158	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$58, $00, $50, $00	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_MetalmanMap	
+	dc.b	$4D, $4D	
+ 
+Enemy_Twigtall:
+	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0AE6, $06E2, $0AAA, $0888, $0EA0, $000E	
+	dc.l	Battle_MetalmanArt	
+	dc.w	1279	
+	dc.w	329	
+	dc.w	108	
+	dc.w	16	
+	dc.b	%01000000	
+	dc.b	93	
+	dc.w	208	
+	dc.b	$E7	
+	dc.b	153	
+	dc.b	$08	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$58, $00, $50, $00	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_WhistleAttack	
+	dc.l	Battle_MetalmanMap	
+	dc.b	$4E, $4E	
+ 
+Enemy_Cooley61:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $008E, $00CE, $0486, $0264, $00CE, $000E	
+	dc.l	Battle_Cooley61Art	
+	dc.w	1118	
+	dc.w	176	
+	dc.w	91	
+	dc.w	51	
+	dc.b	%01000000	
+	dc.b	63	
+	dc.w	161	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$47, $08, $47, $08	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_Cooley61Map	
+	dc.b	$4F, $4F	
+ 
+Enemy_Monster:
+	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $0E60, $00CE, $0AAA, $0666, $0EA0, $000E	
+	dc.l	Battle_Cooley61Art	
+	dc.w	1476	
+	dc.w	124	
+	dc.w	106	
+	dc.w	54	
+	dc.b	%01000000	
+	dc.b	73	
+	dc.w	194	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$47, $08, $47, $08	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_Cooley61Map	
+	dc.b	$50, $50	
+ 
+Enemy_Lrgminer:
+	dc.w	$0000, $0020, $0040, $0262, $0484, $06A6, $08C8, $0AEA, $0EEE, $008E, $00CE, $0AAA, $0666, $00CE, $000E	
+	dc.l	Battle_Cooley61Art	
+	dc.w	1986	
+	dc.w	189	
+	dc.w	121	
+	dc.w	56	
+	dc.b	%01000000	
+	dc.b	88	
+	dc.w	226	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$47, $08, $47, $08	
+	dc.b	SFXID_BeeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_Cooley61Map	
+	dc.b	$51, $51	
+ 
+Enemy_Eyesore:
+	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $00CE, $0CCC, $0888, $0666, $0444, $000E	
+	dc.l	Battle_EyesoreArt	
+	dc.w	845	
+	dc.w	462	
+	dc.w	61	
+	dc.w	80	
+	dc.b	%01000000	
+	dc.b	48	
+	dc.w	136	
+	dc.b	$EB	
+	dc.b	178	
+	dc.b	$08	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6A, $00, $6C, $00	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_EyesoreMap	
+	dc.b	$52, $52	
+ 
+Enemy_Hvysolid:
+	dc.w	$0000, $0202, $0242, $0464, $0686, $08A8, $0ACA, $0CAC, $0EEE, $00CE, $0CCC, $0888, $0666, $0444, $000E	
+	dc.l	Battle_EyesoreArt	
+	dc.w	2087	
+	dc.w	702	
+	dc.w	84	
+	dc.w	92	
+	dc.b	%01000000	
+	dc.b	58	
+	dc.w	190	
+	dc.b	$E1	
+	dc.b	204	
+	dc.b	$0C	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6A, $00, $60, $00	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_EyesoreMap	
+	dc.b	$53, $53	
+ 
+Enemy_GunBust:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $00CE, $04AA, $0288, $0044, $0022, $000E	
+	dc.l	Battle_EyesoreArt	
+	dc.w	3358	
+	dc.w	914	
+	dc.w	104	
+	dc.w	98	
+	dc.b	%01000000	
+	dc.b	68	
+	dc.w	215	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6A, $00, $6C, $00	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_EyesoreMap	
+	dc.b	$54, $54	
+ 
+Enemy_ArmyEye:
+	dc.w	$0000, $0000, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $0CCC, $0888, $0666, $0444, $0060, $000E	
+	dc.l	Battle_ArmyEyeArt	
+	dc.w	2	
+	dc.w	0	
+	dc.w	35	
+	dc.w	104	
+	dc.b	%01000000	
+	dc.b	38	
+	dc.w	3000	
+	dc.b	$07	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $00, $68, $14	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.b	SFXID_BeeAttack	
+	dc.l	Battle_ArmyEyeMap	
+	dc.b	$55, $55	
+ 
+Enemy_Trcrbase:
+	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0ACA, $0CEC, $0EEE, $0CCC, $0AAA, $0888, $0666, $00CE, $008E	
+	dc.l	Battle_ArmyEyeArt	
+	dc.w	1773	
+	dc.w	864	
+	dc.w	127	
+	dc.w	104	
+	dc.b	%01000000	
+	dc.b	40	
+	dc.w	201	
+	dc.b	$DD	
+	dc.b	178	
+	dc.b	$08	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $00, $68, $00	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_ArmyEyeMap	
+	dc.b	$56, $56	
+ 
+Enemy_Specter:
+	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $06CC, $08EE, $0CEE, $0CCC, $0888, $0666, $0444, $00CE, $008E	
+	dc.l	Battle_ArmyEyeArt	
+	dc.w	2395	
+	dc.w	124	
+	dc.w	157	
+	dc.w	122	
+	dc.b	%01000000	
+	dc.b	51	
+	dc.w	268	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $00, $60, $14	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_ArmyEyeMap	
+	dc.b	$57, $57	
+ 
+Enemy_Van:
+	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0ACA, $0CEC, $0EEE, $00CE, $008E, $004E, $002E, $0008, $000E	
+	dc.l	Battle_VanArt	
+	dc.w	1259	
+	dc.w	596	
+	dc.w	93	
+	dc.w	83	
+	dc.b	%01000000	
+	dc.b	55	
+	dc.w	197	
+	dc.b	$F1	
+	dc.b	102	
+	dc.b	$04	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $1C, $64, $1C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_VanMap	
+	dc.b	$58, $58	
+ 
+Enemy_Vanleadr:
+	dc.w	$0000, $0024, $0246, $0468, $068A, $08AC, $0ACE, $0CEE, $0EEE, $06E2, $00C0, $0080, $0060, $0040, $000E	
+	dc.l	Battle_VanArt	
+	dc.w	1624	
+	dc.w	747	
+	dc.w	108	
+	dc.w	95	
+	dc.b	%01000000	
+	dc.b	63	
+	dc.w	239	
+	dc.b	$E7	
+	dc.b	127	
+	dc.b	$08	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $1C, $64, $1C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_VanMap	
+	dc.b	$59, $59	
+ 
+Enemy_Aerotank:
+	dc.w	$0000, $0220, $0442, $0664, $0886, $0AA8, $0CCA, $0EEC, $0EEE, $0EC8, $0EA0, $0E60, $0C20, $0800, $000E	
+	dc.l	Battle_VanArt	
+	dc.w	2709	
+	dc.w	1080	
+	dc.w	168	
+	dc.w	144	
+	dc.b	%01000000	
+	dc.b	76	
+	dc.w	306	
+	dc.b	$E2	
+	dc.b	102	
+	dc.b	$0C	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$64, $1C, $64, $1C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_ArmyEyeAttack	
+	dc.l	Battle_VanMap	
+	dc.b	$5A, $5A	
+ 
+Enemy_Orangah:
+	dc.w	$0000, $0EEE, $0E6A, $0C48, $0A26, $0804, $0400, $00AA, $0088, $0066, $0044, $0022, $0002, $0A8E, $000E	
+	dc.l	Battle_OrangahArt	
+	dc.w	1778	
+	dc.w	193	
+	dc.w	94	
+	dc.w	6	
+	dc.b	%00100000	
+	dc.b	98	
+	dc.w	128	
+	dc.b	$09	
+	dc.b	76	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_OrangahMap	
+	dc.b	$5B, $5B	
+ 
+Enemy_Orangoo:
+	dc.w	$0000, $0000, $0EA6, $0C84, $0A62, $0840, $0400, $008E, $006C, $004A, $0028, $0006, $0004, $0E8C, $000E	
+	dc.l	Battle_OrangahArt	
+	dc.w	2178	
+	dc.w	239	
+	dc.w	98	
+	dc.w	6	
+	dc.b	%00100000	
+	dc.b	103	
+	dc.w	155	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_OrangahMap	
+	dc.b	$5C, $5C	
+ 
+Enemy_Ohx:
+	dc.w	$0000, $0000, $0E8E, $0A6E, $064E, $022E, $0026, $0ACA, $08E8, $0686, $046A, $0242, $0020, $0ECC, $000E	
+	dc.l	Battle_OrangahArt	
+	dc.w	2684	
+	dc.w	252	
+	dc.w	104	
+	dc.w	6	
+	dc.b	%00100000	
+	dc.b	83	
+	dc.w	191	
+	dc.b	$0E	
+	dc.b	25	
+	dc.b	$0C	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_OrangahMap	
+	dc.b	$5D, $5D	
+ 
+Enemy_Mastodon:
+	dc.w	$0EEE, $0000, $000E, $0AAC, $088A, $0668, $0446, $0224, $0008, $026E, $0ACA, $08A8, $0686, $066C, $044A	
+	dc.l	Battle_MastodonArt	
+	dc.w	1887	
+	dc.w	840	
+	dc.w	137	
+	dc.w	63	
+	dc.b	%00100000	
+	dc.b	43	
+	dc.w	187	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_MastodonMap	
+	dc.b	$5E, $5E	
+ 
+Enemy_Eletusk:
+	dc.w	$0EEE, $0000, $0008, $0AA6, $0884, $0662, $0440, $0220, $0206, $026E, $0ACC, $08CC, $06AA, $084A, $0628	
+	dc.l	Battle_MastodonArt	
+	dc.w	2488	
+	dc.w	907	
+	dc.w	167	
+	dc.w	69	
+	dc.b	%00100000	
+	dc.b	65	
+	dc.w	187	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_MastodonMap	
+	dc.b	$5F, $5F	
+ 
+Enemy_Elephant:
+	dc.w	$0EEE, $0000, $00EE, $08CC, $06AA, $0488, $0266, $0044, $020C, $0AAE, $0ECE, $0CAC, $0A8A, $048E, $026A	
+	dc.l	Battle_MastodonArt	
+	dc.w	3391	
+	dc.w	918	
+	dc.w	193	
+	dc.w	70	
+	dc.b	%00100000	
+	dc.b	65	
+	dc.w	187	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_MastodonMap	
+	dc.b	$60, $60	
+ 
+Enemy_DezoOwl:
+	dc.w	$0EEE, $0AA8, $0662, $0ACA, $08A8, $0486, $0264, $0042, $0020, $0000, $008C, $006A, $0048, $000A, $0024	
+	dc.l	Battle_DezoOwlArt	
+	dc.w	1832	
+	dc.w	116	
+	dc.w	105	
+	dc.w	36	
+	dc.b	%00100000	
+	dc.b	40	
+	dc.w	112	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$7C, $00, $7C, $00	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_LocustAttack	
+	dc.l	Battle_DezoOwlMap	
+	dc.b	$61, $61	
+ 
+Enemy_Skytiara:
+	dc.w	$0EEE, $0ACA, $08A2, $08CA, $08AA, $068A, $046A, $0248, $0024, $0000, $048E, $026E, $004E, $000C, $0028	
+	dc.l	Battle_DezoOwlArt	
+	dc.w	2283	
+	dc.w	287	
+	dc.w	129	
+	dc.w	62	
+	dc.b	%00100000	
+	dc.b	68	
+	dc.w	122	
+	dc.b	$05	
+	dc.b	25	
+	dc.b	$10	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$7C, $00, $7C, $00	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_LocustAttack	
+	dc.l	Battle_DezoOwlMap	
+	dc.b	$62, $62	
+ 
+Enemy_Owltalon:
+	dc.w	$0EEE, $0ACC, $0688, $0EAC, $0C8A, $0A86, $0864, $0642, $0420, $0000, $008E, $006E, $004E, $000E, $000A	
+	dc.l	Battle_DezoOwlArt	
+	dc.w	2701	
+	dc.w	397	
+	dc.w	141	
+	dc.w	79	
+	dc.b	%00100000	
+	dc.b	93	
+	dc.w	145	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$7C, $00, $7C, $00	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_LocustAttack	
+	dc.l	Battle_DezoOwlMap	
+	dc.b	$63, $63	
+ 
+Enemy_Rabbit:
+	dc.w	$0EEC, $0CCA, $0AA8, $0886, $0664, $0442, $0220, $008E, $004C, $0A8C, $086A, $0648, $0426, $0000, $0000	
+	dc.l	Battle_RabbitArt	
+	dc.w	1724	
+	dc.w	270	
+	dc.w	70	
+	dc.w	6	
+	dc.b	%00100000	
+	dc.b	75	
+	dc.w	153	
+	dc.b	$04	
+	dc.b	51	
+	dc.b	$0C	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_BlasterAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_RabbitMap	
+	dc.b	$64, $64	
+ 
+Enemy_Rabitta:
+	dc.w	$0EEE, $0CCE, $0AAE, $088C, $066A, $0448, $0226, $0648, $0426, $08A8, $0686, $0464, $0242, $0000, $0000	
+	dc.l	Battle_RabbitArt	
+	dc.w	2238	
+	dc.w	364	
+	dc.w	108	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	80	
+	dc.w	167	
+	dc.b	$11	
+	dc.b	51	
+	dc.b	$04	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_BlasterAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_RabbitMap	
+	dc.b	$65, $65	
+ 
+Enemy_Rabitgut:
+	dc.w	$0CEE, $0AEE, $08CC, $06AA, $0488, $0266, $0044, $04AE, $020A, $088C, $066A, $0448, $0226, $0842, $0620	
+	dc.l	Battle_RabbitArt	
+	dc.w	2820	
+	dc.w	380	
+	dc.w	116	
+	dc.w	16	
+	dc.b	%00100000	
+	dc.b	85	
+	dc.w	203	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	7	
+	dc.b	$64, $0C, $64, $0C	
+	dc.b	SFXID_BlasterAttack	
+	dc.b	SFXID_AmoebaAttack	
+	dc.l	Battle_RabbitMap	
+	dc.b	$66, $66	
+ 
+Enemy_Wrestler:
+	dc.w	$08CC, $06AA, $0488, $0266, $0044, $0022, $0EEE, $0888, $0000, $0848, $0626, $0404, $0202, $0642, $0420	
+	dc.l	Battle_WresterArt	
+	dc.w	2955	
+	dc.w	124	
+	dc.w	90	
+	dc.w	8	
+	dc.b	%01100000	
+	dc.b	58	
+	dc.w	184	
+	dc.b	$03	
+	dc.b	102	
+	dc.b	$0C	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_WresterMap	
+	dc.b	$67, $67	
+ 
+Enemy_Sakoff:
+	dc.w	$06C8, $04A6, $0284, $0062, $0040, $0020, $0EEE, $0888, $0CA0, $0A66, $0844, $0622, $0400, $0664, $0442	
+	dc.l	Battle_WresterArt	
+	dc.w	4072	
+	dc.w	166	
+	dc.w	107	
+	dc.w	15	
+	dc.b	%01100000	
+	dc.b	88	
+	dc.w	198	
+	dc.b	$04	
+	dc.b	51	
+	dc.b	$0C	
+	dc.b	204	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_WresterMap	
+	dc.b	$68, $68	
+ 
+Enemy_Mesoman:
+	dc.w	$0AA8, $0886, $0664, $0442, $0220, $0220, $0EEE, $0888, $0000, $026E, $000A, $0006, $0002, $0060, $0040	
+	dc.l	Battle_WresterArt	
+	dc.w	4737	
+	dc.w	189	
+	dc.w	120	
+	dc.w	20	
+	dc.b	%01100000	
+	dc.b	103	
+	dc.w	215	
+	dc.b	$05	
+	dc.b	102	
+	dc.b	$14	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $0C, $54, $0C	
+	dc.b	SFXID_Whip	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_WresterMap	
+	dc.b	$69, $69	
+ 
+Enemy_Lung:
+	dc.w	$0000, $0002, $0024, $0046, $008C, $06CE, $0CEE, $0EEE, $0222, $0666, $0E02, $0EE0, $080E, $000A, $0000	
+	dc.l	Battle_LungArt	
+	dc.w	6195	
+	dc.w	168	
+	dc.w	209	
+	dc.w	47	
+	dc.b	%01100000	
+	dc.b	90	
+	dc.w	292	
+	dc.b	$F5	
+	dc.b	76	
+	dc.b	$04	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $0C, $60, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_LungMap	
+	dc.b	$6A, $6A	
+ 
+Enemy_Glosword:
+	dc.w	$0000, $0200, $0420, $0640, $0C80, $0EC6, $0EEC, $0EEE, $0202, $0A0A, $008E, $00EC, $08EE, $00E0, $0000	
+	dc.l	Battle_LungArt	
+	dc.w	5852	
+	dc.w	206	
+	dc.w	229	
+	dc.w	23	
+	dc.b	%01100000	
+	dc.b	113	
+	dc.w	330	
+	dc.b	$11	
+	dc.b	51	
+	dc.b	$08	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $0C, $60, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_LungMap	
+	dc.b	$6B, $6B	
+ 
+Enemy_Desrona:
+	dc.w	$0000, $0000, $0222, $0444, $0666, $0888, $0AAA, $0EEE, $0026, $006A, $000A, $024E, $0C60, $0A00, $0000	
+	dc.l	Battle_LungArt	
+	dc.w	6897	
+	dc.w	231	
+	dc.w	192	
+	dc.w	23	
+	dc.b	%01100000	
+	dc.b	128	
+	dc.w	290	
+	dc.b	$13	
+	dc.b	25	
+	dc.b	$14	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$60, $0C, $60, $0C	
+	dc.b	SFXID_LocustAttack	
+	dc.b	SFXID_SpinnerAttack	
+	dc.l	Battle_LungMap	
+	dc.b	$6C, $6C	
+ 
+Enemy_Darkside:
+	dc.w	$0EEE, $0A40, $0820, $0600, $0400, $00EE, $000E, $0004, $00EA, $0AC0, $0680, $0020, $0068, $0626, $0000	
+	dc.l	Battle_DarksideArt	
+	dc.w	3978	
+	dc.w	162	
+	dc.w	154	
+	dc.w	13	
+	dc.b	%01100000	
+	dc.b	95	
+	dc.w	283	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $08, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_DarksideMap	
+	dc.b	$6D, $6D	
+ 
+Enemy_MrDeath:
+	dc.w	$0EEE, $0A8A, $0646, $0424, $0202, $00EE, $00E0, $0040, $022A, $0008, $0004, $0020, $0068, $0626, $0000	
+	dc.l	Battle_DarksideArt	
+	dc.w	4942	
+	dc.w	197	
+	dc.w	174	
+	dc.w	15	
+	dc.b	%01100000	
+	dc.b	108	
+	dc.w	324	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $08, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_DarksideMap	
+	dc.b	$6E, $6E	
+ 
+Enemy_Shadow:
+	dc.w	$0EEE, $0ECC, $0A66, $0844, $0622, $00EE, $000E, $0004, $08A0, $0860, $0420, $0020, $0068, $0626, $0000	
+	dc.l	Battle_DarksideArt	
+	dc.w	5765	
+	dc.w	227	
+	dc.w	190	
+	dc.w	17	
+	dc.b	%01100000	
+	dc.b	125	
+	dc.w	365	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $08, $6C, $00	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_NeifirstAttack	
+	dc.l	Battle_DarksideMap	
+	dc.b	$6F, $6F	
+ 
+Enemy_Mystcape:
+	dc.w	$0000, $0224, $0668, $088A, $0DDE, $0844, $0C88, $0ECC, $0EEE, $0042, $0286, $06EA, $00EE, $000E, $0002	
+	dc.l	Battle_MystcapeArt	
+	dc.w	3390	
+	dc.w	116	
+	dc.w	92	
+	dc.w	16	
+	dc.b	%01100000	
+	dc.b	63	
+	dc.w	163	
+	dc.b	$0F	
+	dc.b	102	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_MystcapeMap	
+	dc.b	$70, $70	
+ 
+Enemy_Illusnst:
+	dc.w	$0000, $0020, $0064, $0086, $00C8, $0444, $0888, $0CCC, $0CEE, $0004, $0206, $040A, $000E, $0E44, $0000	
+	dc.l	Battle_MystcapeArt	
+	dc.w	4424	
+	dc.w	155	
+	dc.w	107	
+	dc.w	18	
+	dc.b	%01100000	
+	dc.b	80	
+	dc.w	204	
+	dc.b	$05	
+	dc.b	51	
+	dc.b	$14	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_MystcapeMap	
+	dc.b	$71, $71	
+ 
+Enemy_Imagiomg:
+	dc.w	$0000, $0206, $084A, $0A8C, $0ECE, $0244, $0688, $0ACC, $0EEE, $0006, $022A, $046E, $0EE0, $00E0, $0002	
+	dc.l	Battle_MystcapeArt	
+	dc.w	5694	
+	dc.w	223	
+	dc.w	177	
+	dc.w	18	
+	dc.b	%01100000	
+	dc.b	123	
+	dc.w	238	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$5C, $0C, $5C, $0C	
+	dc.b	SFXID_VanAttack	
+	dc.b	SFXID_VanAttack	
+	dc.l	Battle_MystcapeMap	
+	dc.b	$72, $72	
+ 
+Enemy_ArchDrgn:
+	dc.w	$0000, $0224, $0446, $0668, $088A, $0AAC, $0EEE, $0ACA, $0686, $00CE, $008E, $004E, $002E, $0008, $008E	
+	dc.l	Battle_ArchDrgnArt	
+	dc.w	9584	
+	dc.w	159	
+	dc.w	254	
+	dc.w	67	
+	dc.b	%01100000	
+	dc.b	100	
+	dc.w	276	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	127	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$68, $04, $68, $04	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_ArchDrgnMap	
+	dc.b	$73, $73	
+ 
+Enemy_Frdragon:
+	dc.w	$0000, $0020, $0242, $0464, $0686, $08A8, $0EEE, $0AAA, $0666, $00CE, $008E, $004E, $002E, $0008, $008E	
+	dc.l	Battle_ArchDrgnArt	
+	dc.w	8355	
+	dc.w	214	
+	dc.w	223	
+	dc.w	63	
+	dc.b	%01100000	
+	dc.b	118	
+	dc.w	262	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$68, $04, $68, $04	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_ArchDrgnMap	
+	dc.b	$74, $74	
+ 
+Enemy_Mxdragon:
+	dc.w	$0000, $0022, $0044, $0066, $0288, $04AA, $0EEE, $0ACA, $0686, $00CE, $008E, $004E, $002E, $0008, $008E	
+	dc.l	Battle_ArchDrgnArt	
+	dc.w	6747	
+	dc.w	197	
+	dc.w	213	
+	dc.w	59	
+	dc.b	%01100000	
+	dc.b	108	
+	dc.w	259	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	153	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$68, $04, $68, $04	
+	dc.b	SFXID_TerakiteAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_ArchDrgnMap	
+	dc.b	$75, $75	
+ 
+Enemy_Firefall:
+	dc.w	$0EEE, $08EE, $00CE, $00AE, $008E, $006E, $002E, $000A, $0006, $0002, $04A0, $0480, $0260, $0040, $0000	
+	dc.l	Battle_FirefallArt	
+	dc.w	8446	
+	dc.w	181	
+	dc.w	195	
+	dc.w	102	
+	dc.b	%01100000	
+	dc.b	98	
+	dc.w	256	
+	dc.b	$EB	
+	dc.b	204	
+	dc.b	$08	
+	dc.b	25	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$78, $0C, $78, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_FirefallMap	
+	dc.b	$76, $76	
+ 
+Enemy_Vorcano:
+	dc.w	$0EEE, $0AE4, $08C0, $06C0, $04C0, $02A0, $0080, $0060, $0040, $0020, $006E, $000E, $000C, $0008, $0000	
+	dc.l	Battle_FirefallArt	
+	dc.w	10097	
+	dc.w	218	
+	dc.w	215	
+	dc.w	118	
+	dc.b	%01100000	
+	dc.b	120	
+	dc.w	296	
+	dc.b	$E1	
+	dc.b	204	
+	dc.b	$08	
+	dc.b	51	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$78, $0C, $78, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_FirefallMap	
+	dc.b	$77, $77	
+ 
+Enemy_Kinglava:
+	dc.w	$0EEE, $0EA8, $0E6A, $0E48, $0E26, $0E04, $0C00, $0A00, $0600, $0400, $000E, $000A, $0006, $0002, $0000	
+	dc.l	Battle_FirefallArt	
+	dc.w	13944	
+	dc.w	245	
+	dc.w	248	
+	dc.w	129	
+	dc.b	%01100000	
+	dc.b	135	
+	dc.w	333	
+	dc.b	$DD	
+	dc.b	204	
+	dc.b	$04	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$78, $0C, $78, $0C	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_FirefallMap	
+	dc.b	$78, $78	
+ 
+Enemy_Wizard:
+	dc.w	$0EEE, $022E, $0C42, $0888, $0666, $0444, $0222, $000C, $000A, $0008, $0006, $0004, $0002, $0CA0, $0000	
+	dc.l	Battle_WizardArt	
+	dc.w	9805	
+	dc.w	151	
+	dc.w	218	
+	dc.w	8	
+	dc.b	%01100000	
+	dc.b	78	
+	dc.w	352	
+	dc.b	$F1	
+	dc.b	204	
+	dc.b	$04	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$78, $10, $78, $10	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_WizardMap	
+	dc.b	$79, $79	
+ 
+Enemy_Capeone:
+	dc.w	$0EEE, $0CA0, $06A0, $08AA, $0688, $0466, $0244, $0A80, $0860, $0640, $0420, $0200, $0000, $0CE8, $0000	
+	dc.l	Battle_WizardArt	
+	dc.w	11399	
+	dc.w	202	
+	dc.w	256	
+	dc.w	16	
+	dc.b	%01100000	
+	dc.b	90	
+	dc.w	358	
+	dc.b	$E7	
+	dc.b	153	
+	dc.b	$04	
+	dc.b	102	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$78, $10, $78, $10	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_WizardMap	
+	dc.b	$7A, $7A	
+ 
+Enemy_Fiend:
+	dc.w	$0EEE, $06C0, $022E, $088A, $0668, $0446, $0224, $04A0, $0280, $0060, $0040, $0020, $0000, $066E, $0000	
+	dc.l	Battle_WizardArt	
+	dc.w	12248	
+	dc.w	236	
+	dc.w	274	
+	dc.w	16	
+	dc.b	%01100000	
+	dc.b	90	
+	dc.w	364	
+	dc.b	$D7	
+	dc.b	102	
+	dc.b	$04	
+	dc.b	76	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$78, $10, $78, $10	
+	dc.b	SFXID_PoleziAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_WizardMap	
+	dc.b	$7B, $7B	
+ 
+Enemy_Neifirst:
+	dc.w	$0AE0, $0EC0, $0CA0, $0A80, $0860, $0640, $0420, $0E44, $0E22, $0A00, $0800, $0EEE, $0600, $0400, $0000	
+	dc.l	Battle_NeifirstArt	
+	dc.w	1111	
+	dc.w	1111	
+	dc.w	178	
+	dc.w	10	
+	dc.b	%00100000	
+	dc.b	92	
+	dc.w	1100	
+	dc.b	$E1	
+	dc.b	102	
+	dc.b	$08	
+	dc.b	0	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$54, $14, $54, $14	
+	dc.b	SFXID_NeifirstAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_NeifirstMap	
+	dc.b	$7C, $7C	
+ 
+Enemy_DarkFrce:
+	dc.w	$0000, $0220, $0440, $0660, $0880, $0AA0, $0CC0, $0EE0, $0EE8, $0EEE, $088E, $0620, $0C80, $0008, $0000	
+	dc.l	Battle_DarkFrceArt	
+	dc.w	2222	
+	dc.w	0	
+	dc.w	320	
+	dc.w	30	
+	dc.b	%01100000	
+	dc.b	148	
+	dc.w	2560	
+	dc.b	$08	
+	dc.b	255	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_WhistleAttack	
+	dc.b	SFXID_PoleziAttack	
+	dc.l	Battle_DarkFrceMap	
+	dc.b	$7D, $7D	
+ 
+Enemy_Mombrain:
+	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000	
+	dc.l	Battle_MombrainArt	
+	dc.w	0	
+	dc.w	0	
+	dc.w	228	
+	dc.w	128	
+	dc.b	%01000000	
+	dc.b	198	
+	dc.w	2450	
+	dc.b	$AF	
+	dc.b	178	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$84, $00, $84, $00	
+	dc.b	SFXID_PulserAttack	
+	dc.b	SFXID_TerakiteAttack	
+	dc.l	Battle_MombrainMap	
+	dc.b	$7E, $7E	
