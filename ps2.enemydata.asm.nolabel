@@ -1,6 +1,5 @@
 
 
-
 ;
 
 
@@ -26,35 +25,28 @@
 EnemyData:
 
 
+ 
 Enemy_FireAnt:
-	dc.b	$06, $8C, $04, $6A, $02, $48, $00, $26
-	dc.w	4
-	dc.w	2
-	dc.w	0
-	dc.b	$06, $A6, $04, $84, $02, $40, $08, $AA
-	dc.b	$06, $88, $04, $66, $02, $44
-	dc.w	0
-	dc.l	Battle_AntArt
-	dc.w	3
-	dc.w	5
-	dc.w	3
-	dc.w	4
-	dc.b	$20
-	dc.b	$17
-	dc.w	9
-	dc.b	0
-	dc.b	0
-	dc.b	0
-	dc.b	$B2
-	dc.b	$0F, $03
-	dc.b	$6C, $00, $6C, $00
-	dc.b	SFXID_FireAntAttack
-	dc.b	SFXID_Whip
-	dc.l	Battle_AntMap
-	dc.b	$01
-	dc.b	$01
-
-
+	dc.w	$068C, $046A, $0248, $0026, $0004, $0002, $0000, $06A6, $0484, $0240, $08AA, $0688, $0466, $0244, $0000	
+	dc.l	Battle_AntArt	
+	dc.w	3	
+	dc.w	5	
+	dc.w	3	
+	dc.w	4	
+	dc.b	%00100000	
+	dc.b	23	
+	dc.w	9	
+	dc.b	$00	
+	dc.b	0	
+	dc.b	$00	
+	dc.b	178	
+	dc.b	%00001111	
+	dc.b	3	
+	dc.b	$6C, $00, $6C, $00	
+	dc.b	SFXID_FireAntAttack	
+	dc.b	SFXID_Whip	
+	dc.l	Battle_AntMap	
+	dc.b	$01, $01	
  
 Enemy_ArmorAnt:
 	dc.w	$08E8, $06A6, $0484, $0262, $0240, $0020, $0000, $006E, $004E, $002A, $0A8A, $0868, $0646, $0424, $0000	
