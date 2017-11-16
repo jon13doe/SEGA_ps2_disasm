@@ -1,31 +1,5 @@
-
-
-;
-
-
-
-
-
-
-; byte 43 = type of enemy - bitfield - bit 5 = biomonster
-
-
-
-
-
-
-
-; byte 52 = animation duration
-
-
-
-
-
-
 EnemyData:
 
-
- 
 Enemy_FireAnt:
 	dc.w	$068C, $046A, $0248, $0026, $0004, $0002, $0000, $06A6, $0484, $0240, $08AA, $0688, $0466, $0244, $0000	
 	dc.l	Battle_AntArt	
