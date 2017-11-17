@@ -39295,7 +39295,7 @@ loc_2345E:
 ; ---------------------------------------------------------------------------------
 
 
-; Inclusion of EnemyBattleFormationData sucroutine 
+; Inclusion of EnemyBattleFormationData subroutine 
     include "ps2.enemyforms.asm"
 
 loc_23C3A:
