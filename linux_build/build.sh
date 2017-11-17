@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="0.0.5b"
+version="0.0.6b"
 
 this="${0##*/}"
 
@@ -117,7 +117,7 @@ create_bsdiff() {
 
 # Xdelta is one of the most common binary diff programs.
 create_xdelta() {
-    check_dep "${xdelta:="xdelta3"}" die && "$xdelta" -e -S djw -9 -s "$1" "$2" "$3"  || warn "Xdelta failed."
+    check_dep "${xdelta:="xdelta3"}" die && "$xdelta" -f -e -S djw -9 -s "$1" "$2" "$3"  || warn "Xdelta failed."
     msg "Xdelta created to '$3'..."
 }
 
@@ -149,6 +149,7 @@ do
         ;;
         --orig-bin)
             [ -e "$2" ] && orig_bin="$2" || errexit "No such file '${2}'."
+            shift
         ;;
         # Undocumented. Will use later.
         --no-header-fix)
@@ -179,6 +180,8 @@ if [ ! "$2" ]
 then
     errexit "No output file(s) specified."
 fi
+
+[ -e "$1" ] || errexit "No such file: $1"
 
 workdir="$(mktemp -td AS_tmp_XXXXXX)"
 

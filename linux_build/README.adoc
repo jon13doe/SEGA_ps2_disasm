@@ -39,7 +39,7 @@ It should work from anywhere in the filesystem.
  * For now Linux users will miss the
 `https://raw.githubusercontent.com/sonicretro/s2disasm/ab771f939679b27398d3bd45c3c390508b0d0a33/build_source/fixheader.cpp[fixheader]`,
 Unless the executable is provided by `--fixheader` cli switch.
-Emulators shouldn't care about wrong header.
+Some emulators may not care about wrong header.
 But it's needed for creating binaries that can run on actual hardware.
  * Won't magically re-compress parts that need
 http://segaretro.org/Kosinski_compression[Kosinski compression].
