@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="0.0.6b"
+version="0.1"
 
 this="${0##*/}"
 
@@ -16,7 +16,7 @@ Major dependencies are
     - asl, the macro assembler
     - gawk 4.1.1 or newer for inline patching
     - gcc only for compiling the p2bin
-    - BSDiff, Xdelta, bdiff for support of patch file creation
+    - BSDiff, Xdelta, bdiff, ips.py for support of patch file creation
 
 Note that this script may reside anywhere in the filesystem.
 Also running this script outside of the directory where the assembly is allowed.
@@ -61,7 +61,7 @@ errexit() {
 }
 
 check_dep() {
-    if [ -x "$(which "$1")" ]
+    if [ -x "$(which "$1" 2> /dev/null)" ]
     then
         return 0
     elif [ "$2" = "die" ]
@@ -70,6 +70,22 @@ check_dep() {
     else
         return 127
     fi
+}
+
+ask_install() {
+    bn="${1##*/}"
+    msg "Didn't found '${bn}'.\nProceed with downloading ${bn} from https://github.com/fbeaudet/ips.py and installing into '${includedir}'? [Y/n]"
+    read answer && case "$answer" in
+        [Yy]|[Yy][Ee][Ss])
+            wget -O "${includedir}/${bn}" "$2" || { warn "Downloading of "$bn" failed."; return 1; }
+        ;;
+        [Nn][Oo]?)
+            return 1
+        ;;
+        *)
+            [ "$answer" == "" ] && wget -o "${includedir}/${bn}" "$2" || { warn "Downloading of "$bn" failed."; return 1; }
+        ;;
+    esac || return 1
 }
 
 # Path patching using awk.
@@ -111,26 +127,31 @@ fix_bin_header() {
 
 # Perhaps the most efficient binary diff algo there is.
 create_bsdiff() {
-    check_dep "${bsdiff:="bsdiff"}" die && "$bsdiff" "$1" "$2" "$3" || warn "BSDiff failed."
-    msg "BSDiff created to '$3'..."
-}
+    check_dep "${bsdiff:="bsdiff"}" die && "$bsdiff" "$1" "$2" "$3" && msg "BSDiff created to '$3'..." || warn "BSDiff failed."
+    }
 
 # Xdelta is one of the most common binary diff programs.
 create_xdelta() {
-    check_dep "${xdelta:="xdelta3"}" die && "$xdelta" -f -e -S djw -9 -s "$1" "$2" "$3"  || warn "Xdelta failed."
-    msg "Xdelta created to '$3'..."
+    check_dep "${xdelta:="xdelta3"}" die && "$xdelta" -f -e -S djw -9 -s "$1" "$2" "$3"  && msg "Xdelta created to '$3'..." || warn "Xdelta failed."
 }
 
 # BDelta. https://github.com/jjwhitney/BDelta
 create_bdelta() {
-    check_dep "${bdelta:="bdelta"}" die && "$bdelta" "$1" "$2" "$3" || warn "bdelta failed."
-    msg "bdiff created to '$3'..."
+    check_dep "${bdelta:="bdelta"}" die && "$bdelta" "$1" "$2" "$3" && msg "bdiff created to '$3'..." || warn "bdelta failed."
 }
 
 # IPS is a common format too. romhacking.net users might want to use this.
 create_ips() {
-    warn "ips patches not implemented yet."
-    errexit "If you know a ips patch creation cli utility for Linux, please post an issue at:\nhttps://github.com/Zuccace/mdps-asm-builder/issues"
+    if check_dep python3
+    then
+        if ! ips_py="$(find "${includedir}" -type f -name 'ips.py' 2> /dev/null)"
+        then
+            ask_install ips.py https://raw.githubusercontent.com/fbeaudet/ips.py/1fcf07a03111bac8ede9493f414765d8e4e32cfe/ips.py && \
+            ips_py="${includedir}/ips.py" && python3 "$ips_py" create "$1" "$2" "$3" &&  msg "ips created to '$3'..." || warn "ips failed."
+        else
+            python3 "$ips_py" create "$1" "$2" "$3" &&  msg "ips created to '$3'..." || warn "ips failed"
+        fi
+    fi
 }
 
 ### Go trough CLI switches.
@@ -147,7 +168,27 @@ do
             fixheader="$2"
             shift
         ;;
-        --orig-bin)
+        --bsdiff)
+            [ "$2" ] && check_dep "$2" die
+            bsdiff="$2"
+            shift
+        ;;
+        --xdelta)
+            [ "$2" ] && check_dep "$2" die
+            xdelta="$2"
+            shift
+        ;;
+        --bdiff)
+            [ "$2" ] && check_dep "$2" die
+            bdiff="$2"
+            shift
+        ;;
+        --ips-py|--ipspy)
+            [ "$2" ] && check_dep "$2" die
+            ips_py="$2"
+            shift
+        ;;
+        --orig-bin|--original)
             [ -e "$2" ] && orig_bin="$2" || errexit "No such file '${2}'."
             shift
         ;;
