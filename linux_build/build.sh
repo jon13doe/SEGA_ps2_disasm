@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="0.1"
+version="0.1.1"
 
 this="${0##*/}"
 
@@ -74,12 +74,13 @@ check_dep() {
 
 ask_install() {
     bn="${1##*/}"
-    msg "Didn't found '${bn}'.\nProceed with downloading ${bn} from https://github.com/fbeaudet/ips.py and installing into '${includedir}'? [Y/n]"
+    msg "Didn't found '${bn}'.\nProceed with downloading ${bn} and installing it into '${includedir}'? [Y/n]"
     read answer && case "$answer" in
         [Yy]|[Yy][Ee][Ss])
             wget -O "${includedir}/${bn}" "$2" || { warn "Downloading of "$bn" failed."; return 1; }
         ;;
         [Nn][Oo]?)
+            msg "Skipped ips patch creation by user request."
             return 1
         ;;
         *)
@@ -103,7 +104,7 @@ build_bin() {
     then
         "$p2bin" "$temp_p" "$temp_bin" "$temp_h" > /dev/null \
             && msg "Succesfully created the binary." \
-            || errexit "p2bin failed to create the binary."
+            || errexit "p2bin failed to create the binary. Temporary files left into '${workdir}'"
         fix_bin_header "$temp_bin"
     else
         # We already have the binary. Return succesfully.
@@ -151,6 +152,8 @@ create_ips() {
         else
             python3 "$ips_py" create "$1" "$2" "$3" &&  msg "ips created to '$3'..." || warn "ips failed"
         fi
+    else
+        warn "python3 missing. Skipping ips patch creation."
     fi
 }
 
@@ -240,14 +243,17 @@ temp_bin="${workdir}/out.bin"
 : ${orig_bin:="${1%.*}original.bin"}
 
 # Copy files to our temporary directory.
+# Should just straight redirect (g)awk output there... TODO
 cp "$1" "$workdir"
 
-asmfile="${workdir}/${1##*/}"
+baseasm="${1##*/}"
+base="${baseasm%.*}"
+asmfile="${workdir}/${baseasm}"
 
 # Patch and compile the assembly.
 path_patch "$asmfile" && msg "Path patch applied..." || errexit "Patching failed. '$tempdir' -directory is left undeleted."
 "${asl:="asl"}" -xx -c -A -l -shareout "$temp_h" -o "$temp_p" "$asmfile" > "$temp_log" 2>&1 \
-    && msg Source compiled... \
+    && msg "Source compiled..." \
     || errexit "Source compiling failed. Temporary files are left intact inside '${workdir}' -directory."
 
 # Find source and compile the p2bin program if needed.
@@ -275,27 +281,35 @@ shift
 # Now we have only the output files left on the command line.
 # Let's roll!
 
+# Create sums:
+msg "Checksums for the binary: "
+for hash in md5 sha{1,244,256,384,512}
+do
+    if check_dep "${hash}sum"
+    then
+        msg "${hash} - $("${hash}sum" -b "$temp_bin" | cut -f 1 -d ' ' | tee "${workdir}/${hash}")"
+    fi
+done
+
 while [ "$1" ]
 do
-
     ext="${1##*.}" # Filename extension
-
     # At least busybox ash doesn't support <<< redirection. That's why the echo.
     case "$(echo "$ext" | tr '[:upper:]' '[:lower:]')" in # lovercase
         bin)
             out_bin="$1"
         ;;
-        bsdiff)
-            create_bsdiff "$orig_bin" "$temp_bin" "$1"
+        bsdiff|xdelta|bdiff|ips)
+            "create_${ext}" "$orig_bin" "$temp_bin" "$1"
         ;;
-        xdelta)
-            create_xdelta "$orig_bin" "$temp_bin" "$1"
-        ;;
-        bdiff)
-            create_bdiff "$orig_bin" "$temp_bin" "$1"
-        ;;
-        ips)
-            create_ips "$orig_bin" "$temp_bin" "$1"
+        md5|sha1|sha244|sha256|sha384|sha512)
+            if [ -f "${workdir}/${ext}" ]
+            then
+                echo "$(cat "${workdir}/${ext}") *${base}.bin" > "$1"
+                msg "${ext} checksum created to '$1'..."
+            else
+                warn "${ext} failed. Maybe you're missing ${ext} command line utility?" 
+            fi
         ;;
         *)
             warn "File type on '${ext}' is unknown. Skipping..."
