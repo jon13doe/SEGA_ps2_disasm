@@ -31473,7 +31473,7 @@ DynamicWindowsEnd:
 
 	charset
 
-    include "ps2.experiencetables.asm"
+    include "data\character\level.asm"
 
 ; ==============================================================
 ; All enemy names
@@ -31772,12 +31772,12 @@ loc_17DA2:
 	even
 
 
-TylerPortraitTileInd:	binclude "art\tyler_port_tile_ind.bin"
+TylerPortraitTileInd:	binclude "data\art\tyler_port_tile_ind.bin"
 
 	even
 
 
-TylerSpcshp_MonitorTileInd:	binclude "art\tylr_spc_monitor_tile_ind.bin"
+TylerSpcshp_MonitorTileInd:	binclude "data\art\tylr_spc_monitor_tile_ind.bin"
 
 	even
 
@@ -31881,7 +31881,7 @@ Map_PalmExplosion_4:
 
 	even
 
-LutzPortraitTileInd:	binclude "art\lutz_port_tile_ind.bin"
+LutzPortraitTileInd:	binclude "data\art\lutz_port_tile_ind.bin"
 
 	even
 
@@ -31953,7 +31953,7 @@ SoundtrackCharArray:
 
 ; ===============================
 ; Inclusion of all(?) the text dialogs in the game.
-    include "ps2.dialogs.asm"
+    include "data\script.asm"
 ;================================
 
 	even
@@ -31970,7 +31970,7 @@ SoundtrackCharArray:
 
 
 ; Inclusion of EnemyBattleFormationData subroutine 
-    include "ps2.enemyforms.asm"
+    include "data\enemy\formation.asm"
 
 loc_23C3A:
 	dc.b	$00, $00, $03, $02, $01, $02, $02, $00, $00, $00, $00, $00, $07, $06 ;0x0 (0x00023C3A-0x00023C48, Entry count: 0x0000000E) [Unknown data]
@@ -32215,7 +32215,7 @@ EnemyFormationTable:
 	even
 
 ; inclusion of EnemyData subroutine
-    include "ps2.enemydata.asm"
+    include "data\enemy\stat.asm"
 
 
 ; ==========================================================================
@@ -40697,73 +40697,73 @@ loc_2B1F0:
 
 	even
 
-LibrPortraitArt: binclude "art\librarian_portrait.bin"
+LibrPortraitArt: binclude "data\art\librarian_portrait.bin"
 
 	even
 
-MotSaveEmplPortArt: binclude "art\mot_save_empl_port.bin"
+MotSaveEmplPortArt: binclude "data\art\mot_save_empl_port.bin"
 
 	even
 
-MotDoctorPortraitArt: binclude "art\mot_doctor_port.bin"
+MotDoctorPortraitArt: binclude "data\art\mot_doctor_port.bin"
 
-CLGrandmaPortraitArt: binclude "art\cl_grandma_port.bin"
+CLGrandmaPortraitArt: binclude "data\art\cl_grandma_port.bin"
 
-MotItemSelPortArt: binclude "art\mot_item_sel_port.bin"
-
-	even
-
-MotWpnSelPortArt: binclude "art\mot_wpn_sel_port.bin"
-
-MotArmSelPortArt: binclude "art\mot_arm_sel_port.bin"
-
-UstvestiaPortraitArt: binclude "art\ustvestia_portrait.bin"
+MotItemSelPortArt: binclude "data\art\mot_item_sel_port.bin"
 
 	even
 
-DezolianPortraitArt: binclude "art\dezolian_portrait.bin"
+MotWpnSelPortArt: binclude "data\art\mot_wpn_sel_port.bin"
 
-CentTowOutPortArt: binclude "art\cen_tow_out_port.bin"
+MotArmSelPortArt: binclude "data\art\mot_arm_sel_port.bin"
 
-GovernorPortraitArt: binclude "art\governor_portrait.bin"
-
-ItemKeeperPortArt: binclude "art\item_keeper_port.bin"
+UstvestiaPortraitArt: binclude "data\art\ustvestia_portrait.bin"
 
 	even
 
-SpaceshipPortArt: binclude "art\cen_tow_roof_port.bin"
+DezolianPortraitArt: binclude "data\art\dezolian_portrait.bin"
 
-TylerSpaceshipArt:	binclude "art\tyler_spaceship_art.bin"
+CentTowOutPortArt: binclude "data\art\cen_tow_out_port.bin"
 
-RolfPortraitArt: binclude "art\rolf_portrait.bin"
+GovernorPortraitArt: binclude "data\art\governor_portrait.bin"
 
-NeiPortraitArt: binclude "art\nei_portrait.bin"
-
-RudoPortraitArt: binclude "art\rudo_portrait.bin"
-
-AmyPortraitArt: binclude "art\amy_portrait.bin"
-
-HughPortraitArt: binclude "art\hugh_portrait.bin"
-
-AnnaPortraitArt: binclude "art\anna_portrait.bin"
+ItemKeeperPortArt: binclude "data\art\item_keeper_port.bin"
 
 	even
 
-KainPortraitArt: binclude "art\kain_portrait.bin"
+SpaceshipPortArt: binclude "data\art\cen_tow_roof_port.bin"
+
+TylerSpaceshipArt:	binclude "data\art\tyler_spaceship_art.bin"
+
+RolfPortraitArt: binclude "data\art\rolf_portrait.bin"
+
+NeiPortraitArt: binclude "data\art\nei_portrait.bin"
+
+RudoPortraitArt: binclude "data\art\rudo_portrait.bin"
+
+AmyPortraitArt: binclude "data\art\amy_portrait.bin"
+
+HughPortraitArt: binclude "data\art\hugh_portrait.bin"
+
+AnnaPortraitArt: binclude "data\art\anna_portrait.bin"
 
 	even
 
-ShirPortraitArt: binclude "art\shir_portrait.bin"
+KainPortraitArt: binclude "data\art\kain_portrait.bin"
 
 	even
 
-LibrGraphPortArt: binclude "art\graph_portrait.bin"
+ShirPortraitArt: binclude "data\art\shir_portrait.bin"
 
 	even
 
-RadarPortraitArt: binclude "art\radar_portrait.bin"
+LibrGraphPortArt: binclude "data\art\graph_portrait.bin"
 
-MotTeleEmplPortArt: binclude "art\mot_tele_empl.bin"
+	even
+
+RadarPortraitArt: binclude "data\art\radar_portrait.bin"
+
+MotTeleEmplPortArt: binclude "data\art\mot_tele_empl.bin"
 
 LutzPortraitArt:
 	dc.b	$01, $DD, $FF, $FF, $FF, $FF, $02, $11, $77, $73, $11, $00, $DD, $00, $08, $8C
@@ -54054,7 +54054,7 @@ SakCastArt:
 
 	even
 
-KnifeArt:	binclude "art\knife_art.bin"
+KnifeArt:	binclude "data\art\knife_art.bin"
 
 SwordArt:
 	dc.b	$01, $00, $EE, $DD, $BB, $77, $0E, $E0, $0E, $E0, $0C, $C0, $0C, $C0, $01, $00
@@ -59544,18 +59544,18 @@ Map_FanbiAcidShot_8:
 
 	even
 
-TitleScrBGArt:	binclude "art\title_scr_bg_art.bin"
+TitleScrBGArt:	binclude "data\art\title_scr_bg_art.bin"
 
-TitleScrCopyrightArt:	binclude "art\tit_scr_copyright_art.bin"
+TitleScrCopyrightArt:	binclude "data\art\tit_scr_copyright_art.bin"
 
-TitleScrWomenArt:	binclude "art\title_scr_women_art.bin"
+TitleScrWomenArt:	binclude "data\art\title_scr_women_art.bin"
 
 	even
 
-TitScrPhantasyStarLogoArt:	binclude "art\tit_scr_phan_star_logo_art.bin"
+TitScrPhantasyStarLogoArt:	binclude "data\art\tit_scr_phan_star_logo_art.bin"
 
 
-TitleScrBGTileInd:	binclude "art\tit_scr_background_tile_ind.bin"
+TitleScrBGTileInd:	binclude "data\art\tit_scr_background_tile_ind.bin"
 
 
 loc_6C5DA:
@@ -59701,7 +59701,7 @@ loc_6C5DA:
 	dc.b	$20, $0C, $20, $13, $20, $08, $20, $0F, $20, $0C, $20, $08, $20, $03, $20, $01 ;0x8A0
 
 
-TitleScrPlaneATileInd:	binclude "art\tit_scr_bg_tile_ind.bin"
+TitleScrPlaneATileInd:	binclude "data\art\tit_scr_bg_tile_ind.bin"
 
 
 ; -----------------------------------------------------------------
@@ -60882,23 +60882,23 @@ loc_71E88:
 ; =================================================================
 
 
-Battle_RolfArt:	binclude "art\battle_rolf_art.bin"
+Battle_RolfArt:	binclude "data\art\battle_rolf_art.bin"
 
-Battle_NeiArt: binclude "art\battle_nei_art.bin"
+Battle_NeiArt: binclude "data\art\battle_nei_art.bin"
 
-Battle_RudoArt: binclude "art\battle_rudo_art.bin"
-
-	even
-
-Battle_AmyShirArt: binclude "art\battle_amy_shir_art.bin"
+Battle_RudoArt: binclude "data\art\battle_rudo_art.bin"
 
 	even
 
-Battle_AnnaArt: binclude "art\battle_anna_art.bin"
+Battle_AmyShirArt: binclude "data\art\battle_amy_shir_art.bin"
 
 	even
 
-Battle_HughKainArt: binclude "art\battle_hugh_kain_art.bin"
+Battle_AnnaArt: binclude "data\art\battle_anna_art.bin"
+
+	even
+
+Battle_HughKainArt: binclude "data\art\battle_hugh_kain_art.bin"
 
 ; -----------------------------------------------------------------
 ; Rolf Sprite Mappings in battle
@@ -61584,37 +61584,37 @@ loc_762D8:
 
 
 
-Battle_AntArt:	binclude "art\battle_ant_art.bin"
+Battle_AntArt:	binclude "data\art\battle_ant_art.bin"
 
-Battle_MosquitoArt:	binclude "art\battle_mosquito_art.bin"
-
-	even
-
-Battle_SpinnerArt:	binclude "art\battle_spinner_art.bin"
-
-Battle_BeeArt:	binclude "art\battle_bee_art.bin"
-
-Battle_PoisonerArt:	binclude "art\battle_poisoner_art.bin"
+Battle_MosquitoArt:	binclude "data\art\battle_mosquito_art.bin"
 
 	even
 
-Battle_HitTailArt:	binclude "art\battle_hittail_art.bin"
+Battle_SpinnerArt:	binclude "data\art\battle_spinner_art.bin"
+
+Battle_BeeArt:	binclude "data\art\battle_bee_art.bin"
+
+Battle_PoisonerArt:	binclude "data\art\battle_poisoner_art.bin"
 
 	even
 
-Battle_FroggyArt:	binclude "art\battle_froggy_art.bin"
-
-Battle_CarrierArt:	binclude "art\battle_carrier_act.bin"
-
-Battle_WhistleArt:	binclude "art\battle_whistle_art.bin"
+Battle_HitTailArt:	binclude "data\art\battle_hittail_art.bin"
 
 	even
 
-Battle_LocustArt:	binclude "art\battle_locust_art.bin"
+Battle_FroggyArt:	binclude "data\art\battle_froggy_art.bin"
+
+Battle_CarrierArt:	binclude "data\art\battle_carrier_act.bin"
+
+Battle_WhistleArt:	binclude "data\art\battle_whistle_art.bin"
 
 	even
 
-Battle_AmoebaArt:	binclude "art\battle_amoeba_art.bin"
+Battle_LocustArt:	binclude "data\art\battle_locust_art.bin"
+
+	even
+
+Battle_AmoebaArt:	binclude "data\art\battle_amoeba_art.bin"
 
 	even
 
@@ -64097,13 +64097,13 @@ loc_83116:
 
 	even
 
-Battle_PoleziArt:	binclude "art\battle_polezi_art.bin"
+Battle_PoleziArt:	binclude "data\art\battle_polezi_art.bin"
 
-Battle_LeecherArt:	binclude "art\battle_leecher_art.bin"
+Battle_LeecherArt:	binclude "data\art\battle_leecher_art.bin"
 
-Battle_PulserArt:	binclude "art\battle_pulser_art.bin"
+Battle_PulserArt:	binclude "data\art\battle_pulser_art.bin"
 
-Battle_RotWoodArt:	binclude "art\battle_rotwood_art.bin"
+Battle_RotWoodArt:	binclude "data\art\battle_rotwood_art.bin"
 
 Battle_WolfangArt:
 	dc.b	$01, $00, $FF, $FF, $FE, $EE, $0B, $0C, $0D, $01, $00, $FF, $CC, $C8, $88, $B0
@@ -89358,7 +89358,7 @@ loc_BDBF4:
 PCMDrums:
 	org 0		; we need to start from an address less than $10000 for Z80 otherwise the assembler throws an Address Overflow error; so we conveniently start from 0
 	save		; save 68000 CPU settings
-	include	"sound/ps2.pcm_drums.asm"
+	include "data\sound\ps2.pcm_drums.asm"
 	restore		; restore 68000 CPU settings
 	padding off	; padding is not restored, so we need to set the flag again
 	org (PCMDrums+PCMDrumsEnd-PCMDrumsStart)		; PC must be set to the correct value, so it's the whole code up until the PCMDrums label + the whole z80 code
