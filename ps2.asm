@@ -31772,7 +31772,7 @@ loc_17DA2:
 	even
 
 
-TylerPortraitTileInd:	binclude "data\art\tyler_port_tile_ind.bin"
+TylerPortraitTileInd:	binclude "data\art\portrait\tyler_tile_ind.bin"
 
 	even
 
@@ -31881,7 +31881,7 @@ Map_PalmExplosion_4:
 
 	even
 
-LutzPortraitTileInd:	binclude "data\art\lutz_port_tile_ind.bin"
+LutzPortraitTileInd:	binclude "data\art\portrait\lutz_tile_ind.bin"
 
 	even
 
@@ -40697,71 +40697,71 @@ loc_2B1F0:
 
 	even
 
-LibrPortraitArt: binclude "data\art\librarian_portrait.bin"
+LibrPortraitArt: binclude "data\art\portrait\librarian.bin"
 
 	even
 
-MotSaveEmplPortArt: binclude "data\art\mot_save_empl_port.bin"
+MotSaveEmplPortArt: binclude "data\art\portrait\mot_save_empl.bin"
 
 	even
 
-MotDoctorPortraitArt: binclude "data\art\mot_doctor_port.bin"
+MotDoctorPortraitArt: binclude "data\art\portrait\mot_doctor.bin"
 
-CLGrandmaPortraitArt: binclude "data\art\cl_grandma_port.bin"
+CLGrandmaPortraitArt: binclude "data\art\portrait\cl_grandma.bin"
 
-MotItemSelPortArt: binclude "data\art\mot_item_sel_port.bin"
-
-	even
-
-MotWpnSelPortArt: binclude "data\art\mot_wpn_sel_port.bin"
-
-MotArmSelPortArt: binclude "data\art\mot_arm_sel_port.bin"
-
-UstvestiaPortraitArt: binclude "data\art\ustvestia_portrait.bin"
+MotItemSelPortArt: binclude "data\art\portrait\mot_item_sel.bin"
 
 	even
 
-DezolianPortraitArt: binclude "data\art\dezolian_portrait.bin"
+MotWpnSelPortArt: binclude "data\art\portrait\mot_wpn_sel.bin"
 
-CentTowOutPortArt: binclude "data\art\cen_tow_out_port.bin"
+MotArmSelPortArt: binclude "data\art\portrait\mot_arm_sel.bin"
 
-GovernorPortraitArt: binclude "data\art\governor_portrait.bin"
-
-ItemKeeperPortArt: binclude "data\art\item_keeper_port.bin"
+UstvestiaPortraitArt: binclude "data\art\portrait\ustvestia.bin"
 
 	even
 
-SpaceshipPortArt: binclude "data\art\cen_tow_roof_port.bin"
+DezolianPortraitArt: binclude "data\art\portrait\dezolian.bin"
+
+CentTowOutPortArt: binclude "data\art\portrait\cen_tow_out.bin"
+
+GovernorPortraitArt: binclude "data\art\portrait\governor.bin"
+
+ItemKeeperPortArt: binclude "data\art\portrait\item_keeper.bin"
+
+	even
+
+SpaceshipPortArt: binclude "data\art\portrait\cen_tow_roof.bin"
 
 TylerSpaceshipArt:	binclude "data\art\tyler_spaceship_art.bin"
 
-RolfPortraitArt: binclude "data\art\rolf_portrait.bin"
+RolfPortraitArt: binclude "data\art\portrait\rolf.bin"
 
-NeiPortraitArt: binclude "data\art\nei_portrait.bin"
+NeiPortraitArt: binclude "data\art\portrait\nei.bin"
 
-RudoPortraitArt: binclude "data\art\rudo_portrait.bin"
+RudoPortraitArt: binclude "data\art\portrait\rudo.bin"
 
-AmyPortraitArt: binclude "data\art\amy_portrait.bin"
+AmyPortraitArt: binclude "data\art\portrait\amy.bin"
 
-HughPortraitArt: binclude "data\art\hugh_portrait.bin"
+HughPortraitArt: binclude "data\art\portrait\hugh.bin"
 
-AnnaPortraitArt: binclude "data\art\anna_portrait.bin"
-
-	even
-
-KainPortraitArt: binclude "data\art\kain_portrait.bin"
+AnnaPortraitArt: binclude "data\art\portrait\anna.bin"
 
 	even
 
-ShirPortraitArt: binclude "data\art\shir_portrait.bin"
+KainPortraitArt: binclude "data\art\portrait\kain.bin"
 
 	even
 
-LibrGraphPortArt: binclude "data\art\graph_portrait.bin"
+ShirPortraitArt: binclude "data\art\portrait\shir.bin"
 
 	even
 
-RadarPortraitArt: binclude "data\art\radar_portrait.bin"
+LibrGraphPortArt: binclude "data\art\portrait\graph.bin"
+
+	even
+
+RadarPortraitArt: binclude "data\art\portrait\radar.bin"
 
 MotTeleEmplPortArt: binclude "data\art\mot_tele_empl.bin"
 
