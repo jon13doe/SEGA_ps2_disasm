@@ -34,834 +34,1634 @@ CharExperiencePtrsEnd:
 ; ==============================================================
 
 RolfExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$13, $0F, $14, $1C, $0F, $0D, $14, $0C, $0A, $10
-	dc.l	$0200001D
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $1D	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$03000053
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $53	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$040000AA
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $AA	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $05, $01
-	dc.l	$05000121
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $21	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $20
-	dc.l	$060001F8
+	
+	dc.b	6		; Level
+	dc.b	$00, $01, $F8	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$07000328
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $28	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $11
-	dc.l	$080004EC
+	
+	dc.b	8		; Level
+	dc.b	$00, $04, $EC	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $11
-	dc.l	$0900078A
+	
+	dc.b	9		; Level
+	dc.b	$00, $07, $8A	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$0A000B6C
+	
+	dc.b	10		; Level
+	dc.b	$00, $0B, $6C	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $10
-	dc.l	$0B001117
+	
+	dc.b	11		; Level
+	dc.b	$00, $11, $17	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $10
-	dc.l	$0C001968
+	
+	dc.b	12		; Level
+	dc.b	$00, $19, $68	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $00
-	dc.l	$0D002596
+	
+	dc.b	13		; Level
+	dc.b	$00, $25, $96	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$0E003754
+	
+	dc.b	14		; Level
+	dc.b	$00, $37, $54	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $10
-	dc.l	$0F00512F
+	
+	dc.b	15		; Level
+	dc.b	$00, $51, $2F	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$100076DB
+	
+	dc.b	16		; Level
+	dc.b	$00, $76, $DB	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $21
-	dc.l	$1100ADBB
+	
+	dc.b	17		; Level
+	dc.b	$00, $AD, $BB	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$1200FD71
+	
+	dc.b	18		; Level
+	dc.b	$00, $FD, $71	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$13015370
+	
+	dc.b	19		; Level
+	dc.b	$01, $53, $70	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$1401B197
+	
+	dc.b	20		; Level
+	dc.b	$01, $B1, $97	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $10
-	dc.l	$15021B80
+	
+	dc.b	21		; Level
+	dc.b	$02, $1B, $80	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$160290CC
+	
+	dc.b	22		; Level
+	dc.b	$02, $90, $CC	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$170319DD
+	
+	dc.b	23		; Level
+	dc.b	$03, $19, $DD	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$1803B67F
+	
+	dc.b	24		; Level
+	dc.b	$03, $B6, $7F	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $10
-	dc.l	$190466CC
+	
+	dc.b	25		; Level
+	dc.b	$04, $66, $CC	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$1A052B00
+	
+	dc.b	26		; Level
+	dc.b	$05, $2B, $00	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$1B0601B3
+	
+	dc.b	27		; Level
+	dc.b	$06, $01, $B3	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$1C06EC98
+	
+	dc.b	28		; Level
+	dc.b	$06, $EC, $98	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $10
-	dc.l	$1D07EA81
+	
+	dc.b	29		; Level
+	dc.b	$07, $EA, $81	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$1E08FC6B
+	
+	dc.b	30		; Level
+	dc.b	$08, $FC, $6B	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $01
-	dc.l	$1F0A5D84
+	
+	dc.b	31		; Level
+	dc.b	$0A, $5D, $84	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$200BB679
+	
+	dc.b	32		; Level
+	dc.b	$0B, $B6, $79	; Experience points
 	dc.b	$09, $06, $0C, $0A, $08, $0A, $0A, $07, $06, $00
-	dc.l	$210D3C46
+	
+	dc.b	33		; Level
+	dc.b	$0D, $3C, $46	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$220EF4C0
+	
+	dc.b	34		; Level
+	dc.b	$0E, $F4, $C0	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$2310E67D
+	
+	dc.b	35		; Level
+	dc.b	$10, $E6, $7D	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $10
-	dc.l	$241318EF
+	
+	dc.b	36		; Level
+	dc.b	$13, $18, $EF	; Experience points
 	dc.b	$09, $06, $0E, $0A, $08, $0A, $0A, $07, $06, $00
-	dc.l	$2515947E
+	
+	dc.b	37		; Level
+	dc.b	$15, $94, $7E	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$261862AD
+	
+	dc.b	38		; Level
+	dc.b	$18, $62, $AD	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$271B8E3A
+	
+	dc.b	39		; Level
+	dc.b	$1B, $8E, $3A	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$281F2347
+	
+	dc.b	40		; Level
+	dc.b	$1F, $23, $47	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $00
-	dc.l	$29232F8B
+	
+	dc.b	41		; Level
+	dc.b	$23, $2F, $8B	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$2A27C286
+	
+	dc.b	42		; Level
+	dc.b	$27, $C2, $86	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$2B2CEDBB
+	
+	dc.b	43		; Level
+	dc.b	$2C, $ED, $BB	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$2C32C4F5
+	
+	dc.b	44		; Level
+	dc.b	$32, $C4, $F5	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $00
-	dc.l	$2D395E8F
+	
+	dc.b	45		; Level
+	dc.b	$39, $5E, $8F	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$2E40D3D0
+	
+	dc.b	46		; Level
+	dc.b	$40, $D3, $D0	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
-	dc.l	$2F494145
+	
+	dc.b	47		; Level
+	dc.b	$49, $41, $45	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $06, $05, $00
-	dc.l	$3052C732
+	
+	dc.b	48		; Level
+	dc.b	$52, $C7, $32	; Experience points
 	dc.b	$09, $06, $0D, $0A, $08, $0A, $0A, $07, $06, $00
-	dc.l	$315D8A0D
+	
+	dc.b	49		; Level
+	dc.b	$5D, $8A, $0D	; Experience points
 	dc.b	$06, $03, $05, $04, $03, $04, $04, $04, $03, $00
-	dc.l	$3269B309
+	
+	dc.b	50		; Level
+	dc.b	$69, $B3, $09	; Experience points
 	dc.b	$07, $03, $05, $04, $03, $04, $04, $05, $04, $00
 
 ; ==============================================================
 
 NeiExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$0C, $0A, $0E, $12, $1B, $0A, $0E, $07, $0C, $11
-	dc.l	$0200000C
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $0C	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$03000019
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $19	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$04000038
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $38	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$05000053
+	
+	dc.b	5		; Level
+	dc.b	$00, $00, $53	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$0600007C
+	
+	dc.b	6		; Level
+	dc.b	$00, $00, $7C	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$070000A9
+	
+	dc.b	7		; Level
+	dc.b	$00, $00, $A9	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$080000E9
+	
+	dc.b	8		; Level
+	dc.b	$00, $00, $E9	; Experience points
 	dc.b	$06, $04, $0F, $09, $02, $0A, $0A, $06, $05, $00
-	dc.l	$0900012F
+	
+	dc.b	9		; Level
+	dc.b	$00, $01, $2F	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$0A00018C
+	
+	dc.b	10		; Level
+	dc.b	$00, $01, $8C	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$0B0001FE
+	
+	dc.b	11		; Level
+	dc.b	$00, $01, $FE	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$0C000291
+	
+	dc.b	12		; Level
+	dc.b	$00, $02, $91	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$0D000340
+	
+	dc.b	13		; Level
+	dc.b	$00, $03, $40	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$0E00041E
+	
+	dc.b	14		; Level
+	dc.b	$00, $04, $1E	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$0F00051E
+	
+	dc.b	15		; Level
+	dc.b	$00, $05, $1E	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$1000065D
+	
+	dc.b	16		; Level
+	dc.b	$00, $06, $5D	; Experience points
 	dc.b	$06, $04, $0F, $09, $02, $0A, $0A, $06, $05, $01
-	dc.l	$110007E4
+	
+	dc.b	17		; Level
+	dc.b	$00, $07, $E4	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$120009CA
+	
+	dc.b	18		; Level
+	dc.b	$00, $09, $CA	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$13000C0B
+	
+	dc.b	19		; Level
+	dc.b	$00, $0C, $0B	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$14000ED1
+	
+	dc.b	20		; Level
+	dc.b	$00, $0E, $D1	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $11
-	dc.l	$150011EF
+	
+	dc.b	21		; Level
+	dc.b	$00, $11, $EF	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$160015B5
+	
+	dc.b	22		; Level
+	dc.b	$00, $15, $B5	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$17001A10
+	
+	dc.b	23		; Level
+	dc.b	$00, $1A, $10	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$18001F4D
+	
+	dc.b	24		; Level
+	dc.b	$00, $1F, $4D	; Experience points
 	dc.b	$06, $04, $0F, $09, $02, $0A, $0A, $06, $05, $11
-	dc.l	$19002581
+	
+	dc.b	25		; Level
+	dc.b	$00, $25, $81	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$1A002CF2
+	
+	dc.b	26		; Level
+	dc.b	$00, $2C, $F2	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$1B0035EA
+	
+	dc.b	27		; Level
+	dc.b	$00, $35, $EA	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$1C0040AE
+	
+	dc.b	28		; Level
+	dc.b	$00, $40, $AE	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$1D004EF4
+	
+	dc.b	29		; Level
+	dc.b	$00, $4E, $F4	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$1E006062
+	
+	dc.b	30		; Level
+	dc.b	$00, $60, $62	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$1F0075FF
+	
+	dc.b	31		; Level
+	dc.b	$00, $75, $FF	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$20009077
+	
+	dc.b	32		; Level
+	dc.b	$00, $90, $77	; Experience points
 	dc.b	$06, $04, $0F, $09, $02, $0A, $0A, $06, $05, $00
-	dc.l	$2100B048
+	
+	dc.b	33		; Level
+	dc.b	$00, $B0, $48	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $01, $00
-	dc.l	$2200D71D
+	
+	dc.b	34		; Level
+	dc.b	$00, $D7, $1D	; Experience points
 	dc.b	$04, $02, $02, $01, $02, $01, $01, $02, $02, $00
-	dc.l	$23010366
+	
+	dc.b	35		; Level
+	dc.b	$01, $03, $66	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$240138CE
+	
+	dc.b	36		; Level
+	dc.b	$01, $38, $CE	; Experience points
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $02, $02, $00
-	dc.l	$25017C13
+	
+	dc.b	37		; Level
+	dc.b	$01, $7C, $13	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$2601CDD0
+	
+	dc.b	38		; Level
+	dc.b	$01, $CD, $D0	; Experience points
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $02, $02, $00
-	dc.l	$27023008
+	
+	dc.b	39		; Level
+	dc.b	$02, $30, $08	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$2802A726
+	
+	dc.b	40		; Level
+	dc.b	$02, $A7, $26	; Experience points
 	dc.b	$06, $06, $0F, $09, $08, $0A, $0A, $06, $05, $00
-	dc.l	$290313AE
+	
+	dc.b	41		; Level
+	dc.b	$03, $13, $AE	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $02, $00
-	dc.l	$2A03918F
+	
+	dc.b	42		; Level
+	dc.b	$03, $91, $8F	; Experience points
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$2B03CB20
+	
+	dc.b	43		; Level
+	dc.b	$03, $CB, $20	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $02, $00
-	dc.l	$2C040852
+	
+	dc.b	44		; Level
+	dc.b	$04, $08, $52	; Experience points
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$2D04495E
+	
+	dc.b	45		; Level
+	dc.b	$04, $49, $5E	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $02, $00
-	dc.l	$2E048E85
+	
+	dc.b	46		; Level
+	dc.b	$04, $8E, $85	; Experience points
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$2F04D807
+	
+	dc.b	47		; Level
+	dc.b	$04, $D8, $07	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $02, $00
-	dc.l	$3005262B
+	
+	dc.b	48		; Level
+	dc.b	$05, $26, $2B	; Experience points
 	dc.b	$06, $06, $0F, $09, $08, $0A, $0A, $06, $05, $00
-	dc.l	$3105793B
+	
+	dc.b	49		; Level
+	dc.b	$05, $79, $3B	; Experience points
 	dc.b	$04, $01, $02, $01, $01, $01, $01, $02, $01, $00
-	dc.l	$3205D188
+	
+	dc.b	50		; Level
+	dc.b	$05, $D1, $88	; Experience points
 	dc.b	$04, $02, $02, $01, $01, $01, $01, $01, $02, $00
 
 ; ==============================================================
 
 RudoExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$2C, $00, $3C, $1C, $0F, $07, $0C, $0A, $0C, $00
-	dc.l	$02000020
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $20	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$0300005B
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $5B	; Experience points
 	dc.b	$07, $00, $0D, $06, $06, $08, $06, $05, $08, $00
-	dc.l	$040000BA
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $BA	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $06, $00
-	dc.l	$0500013C
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $3C	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$06000227
+	
+	dc.b	6		; Level
+	dc.b	$00, $02, $27	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $08, $00
-	dc.l	$07000373
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $73	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $06, $00
-	dc.l	$08000560
+	
+	dc.b	8		; Level
+	dc.b	$00, $05, $60	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$0900083C
+	
+	dc.b	9		; Level
+	dc.b	$00, $08, $3C	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $08, $00
-	dc.l	$0A000C7B
+	
+	dc.b	10		; Level
+	dc.b	$00, $0C, $7B	; Experience points
 	dc.b	$06, $00, $06, $03, $03, $02, $03, $03, $06, $00
-	dc.l	$0B0012AD
+	
+	dc.b	11		; Level
+	dc.b	$00, $12, $AD	; Experience points
 	dc.b	$08, $00, $06, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$0C001BC3
+	
+	dc.b	12		; Level
+	dc.b	$00, $1B, $C3	; Experience points
 	dc.b	$09, $00, $09, $06, $06, $08, $06, $06, $08, $00
-	dc.l	$0D002912
+	
+	dc.b	13		; Level
+	dc.b	$00, $29, $12	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $06, $00
-	dc.l	$0E003C75
+	
+	dc.b	14		; Level
+	dc.b	$00, $3C, $75	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$0F0058B6
+	
+	dc.b	15		; Level
+	dc.b	$00, $58, $B6	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $08, $00
-	dc.l	$100081E0
+	
+	dc.b	16		; Level
+	dc.b	$00, $81, $E0	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $06, $00
-	dc.l	$1100BDD7
+	
+	dc.b	17		; Level
+	dc.b	$00, $BD, $D7	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$120114F1
+	
+	dc.b	18		; Level
+	dc.b	$01, $14, $F1	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $08, $00
-	dc.l	$130172E9
+	
+	dc.b	19		; Level
+	dc.b	$01, $72, $E9	; Experience points
 	dc.b	$06, $00, $02, $03, $03, $02, $03, $03, $06, $00
-	dc.l	$1401D9CB
+	
+	dc.b	20		; Level
+	dc.b	$01, $D9, $CB	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $07, $00
-	dc.l	$15024D86
+	
+	dc.b	21		; Level
+	dc.b	$02, $4D, $86	; Experience points
 	dc.b	$09, $00, $0F, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$1602CDB3
+	
+	dc.b	22		; Level
+	dc.b	$02, $CD, $B3	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$17036379
+	
+	dc.b	23		; Level
+	dc.b	$03, $63, $79	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$18040EA1
+	
+	dc.b	24		; Level
+	dc.b	$04, $0E, $A1	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$1904CF48
+	
+	dc.b	25		; Level
+	dc.b	$04, $CF, $48	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$1A05A5AD
+	
+	dc.b	26		; Level
+	dc.b	$05, $A5, $AD	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$1B069049
+	
+	dc.b	27		; Level
+	dc.b	$06, $90, $49	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$1C0790F6
+	
+	dc.b	28		; Level
+	dc.b	$07, $90, $F6	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$1D08A66A
+	
+	dc.b	29		; Level
+	dc.b	$08, $A6, $6A	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$1E09D1BA
+	
+	dc.b	30		; Level
+	dc.b	$09, $D1, $BA	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$1F0B5391
+	
+	dc.b	31		; Level
+	dc.b	$0B, $53, $91	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$200CCC83
+	
+	dc.b	32		; Level
+	dc.b	$0C, $CC, $83	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$210E7675
+	
+	dc.b	33		; Level
+	dc.b	$0E, $76, $75	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$221057C7
+	
+	dc.b	34		; Level
+	dc.b	$10, $57, $C7	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$231277AB
+	
+	dc.b	35		; Level
+	dc.b	$12, $77, $AB	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$2414DE45
+	
+	dc.b	36		; Level
+	dc.b	$14, $DE, $45	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$251794C3
+	
+	dc.b	37		; Level
+	dc.b	$17, $94, $C3	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$261AA58A
+	
+	dc.b	38		; Level
+	dc.b	$1A, $A5, $8A	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$271E1C58
+	
+	dc.b	39		; Level
+	dc.b	$1E, $1C, $58	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$2822066E
+	
+	dc.b	40		; Level
+	dc.b	$22, $06, $6E	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$292672C9
+	
+	dc.b	41		; Level
+	dc.b	$26, $72, $C9	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$2A2B7258
+	
+	dc.b	42		; Level
+	dc.b	$2B, $72, $58	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$2B311840
+	
+	dc.b	43		; Level
+	dc.b	$31, $18, $40	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$2C377A20
+	
+	dc.b	44		; Level
+	dc.b	$37, $7A, $20	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$2D3EB066
+	
+	dc.b	45		; Level
+	dc.b	$3E, $B0, $66	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$2E46D6B1
+	
+	dc.b	46		; Level
+	dc.b	$46, $D6, $B1	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$2F500C34
+	
+	dc.b	47		; Level
+	dc.b	$50, $0C, $34	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
-	dc.l	$305A7430
+	
+	dc.b	48		; Level
+	dc.b	$5A, $74, $30	; Experience points
 	dc.b	$09, $00, $0D, $06, $06, $08, $06, $06, $04, $00
-	dc.l	$3166367F
+	
+	dc.b	49		; Level
+	dc.b	$66, $36, $7F	; Experience points
 	dc.b	$06, $00, $04, $03, $03, $02, $03, $03, $02, $00
-	dc.l	$32738023
+	
+	dc.b	50		; Level
+	dc.b	$73, $80, $23	; Experience points
 	dc.b	$08, $00, $04, $03, $03, $02, $03, $04, $03, $00
 
 ; ==============================================================
 
 AmyExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$0A, $12, $0D, $18, $05, $08, $10, $07, $04, $11
-	dc.l	$02000023
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $23	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $10
-	dc.l	$03000063
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $63	; Experience points
 	dc.b	$07, $03, $06, $03, $04, $08, $07, $03, $03, $00
-	dc.l	$040000CB
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $CB	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $10
-	dc.l	$05000159
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $59	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $11
-	dc.l	$06000259
+	
+	dc.b	6		; Level
+	dc.b	$00, $02, $59	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $11
-	dc.l	$070003C5
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $C5	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$080005E0
+	
+	dc.b	8		; Level
+	dc.b	$00, $05, $E0	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$09000900
+	
+	dc.b	9		; Level
+	dc.b	$00, $09, $00	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $11, $03, $03, $11
-	dc.l	$0A000DA3
+	
+	dc.b	10		; Level
+	dc.b	$00, $0D, $A3	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $11
-	dc.l	$0B001469
+	
+	dc.b	11		; Level
+	dc.b	$00, $14, $69	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$0C001E56
+	
+	dc.b	12		; Level
+	dc.b	$00, $1E, $56	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $11
-	dc.l	$0D002CE1
+	
+	dc.b	13		; Level
+	dc.b	$00, $2C, $E1	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$0E004210
+	
+	dc.b	14		; Level
+	dc.b	$00, $42, $10	; Experience points
 	dc.b	$05, $04, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$0F0060EF
+	
+	dc.b	15		; Level
+	dc.b	$00, $60, $EF	; Experience points
 	dc.b	$07, $05, $06, $07, $04, $08, $07, $03, $03, $21
-	dc.l	$10008DEB
+	
+	dc.b	16		; Level
+	dc.b	$00, $8D, $EB	; Experience points
 	dc.b	$05, $04, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$1100CF71
+	
+	dc.b	17		; Level
+	dc.b	$00, $CF, $71	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$120127FB
+	
+	dc.b	18		; Level
+	dc.b	$01, $27, $FB	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $00
-	dc.l	$1301954E
+	
+	dc.b	19		; Level
+	dc.b	$01, $95, $4E	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$140205BA
+	
+	dc.b	20		; Level
+	dc.b	$02, $05, $BA	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$15028430
+	
+	dc.b	21		; Level
+	dc.b	$02, $84, $30	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $00
-	dc.l	$1603103F
+	
+	dc.b	22		; Level
+	dc.b	$03, $10, $3F	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$1703B3EA
+	
+	dc.b	23		; Level
+	dc.b	$03, $B3, $EA	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$18046EF1
+	
+	dc.b	24		; Level
+	dc.b	$04, $6E, $F1	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $11
-	dc.l	$19054174
+	
+	dc.b	25		; Level
+	dc.b	$05, $41, $74	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$1A062BBB
+	
+	dc.b	26		; Level
+	dc.b	$06, $2B, $BB	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$1B072C17
+	
+	dc.b	27		; Level
+	dc.b	$07, $2C, $17	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $11
-	dc.l	$1C084491
+	
+	dc.b	28		; Level
+	dc.b	$08, $44, $91	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$1D0973C0
+	
+	dc.b	29		; Level
+	dc.b	$09, $73, $C0	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$1E0ABAD1
+	
+	dc.b	30		; Level
+	dc.b	$0A, $BA, $D1	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $11
-	dc.l	$1F0C606F
+	
+	dc.b	31		; Level
+	dc.b	$0C, $60, $6F	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $06, $03, $02, $02, $00
-	dc.l	$200DFC55
+	
+	dc.b	32		; Level
+	dc.b	$0D, $FC, $55	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$210FCDC6
+	
+	dc.b	33		; Level
+	dc.b	$0F, $CD, $C6	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $06, $07, $03, $03, $00
-	dc.l	$2211DBBA
+	
+	dc.b	34		; Level
+	dc.b	$11, $DB, $BA	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$23142E0D
+	
+	dc.b	35		; Level
+	dc.b	$14, $2E, $0D	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$2416CDA4
+	
+	dc.b	36		; Level
+	dc.b	$16, $CD, $A4	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $00
-	dc.l	$2519C488
+	
+	dc.b	37		; Level
+	dc.b	$19, $C4, $88	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$261D1E14
+	
+	dc.b	38		; Level
+	dc.b	$1D, $1E, $14	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$2720E71D
+	
+	dc.b	39		; Level
+	dc.b	$20, $E7, $1D	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $10
-	dc.l	$2824DFFF
+	
+	dc.b	40		; Level
+	dc.b	$24, $DF, $FF	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$292A037A
+	
+	dc.b	41		; Level
+	dc.b	$2A, $03, $7A	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$2A2F79B0
+	
+	dc.b	42		; Level
+	dc.b	$2F, $79, $B0	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $00
-	dc.l	$2B35A5AA
+	
+	dc.b	43		; Level
+	dc.b	$35, $A5, $AA	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$2C3C9F0B
+	
+	dc.b	44		; Level
+	dc.b	$3C, $9F, $0B	; Experience points
 	dc.b	$05, $04, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$2D448084
+	
+	dc.b	45		; Level
+	dc.b	$44, $80, $84	; Experience points
 	dc.b	$07, $05, $06, $07, $04, $08, $07, $03, $03, $00
-	dc.l	$2E4D6844
+	
+	dc.b	46		; Level
+	dc.b	$4D, $68, $44	; Experience points
 	dc.b	$05, $04, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$2F577862
+	
+	dc.b	47		; Level
+	dc.b	$57, $78, $62	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
-	dc.l	$3062D765
+	
+	dc.b	48		; Level
+	dc.b	$62, $D7, $65	; Experience points
 	dc.b	$07, $06, $06, $07, $04, $08, $07, $03, $03, $10
-	dc.l	$316FB0D6
+	
+	dc.b	49		; Level
+	dc.b	$6F, $B0, $D6	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $02, $00
-	dc.l	$327E35E7
+	
+	dc.b	50		; Level
+	dc.b	$7E, $35, $E7	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $03, $02, $03, $00
 
 ; ==============================================================
 
 HughExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$10, $13, $0E, $1A, $08, $06, $0A, $07, $06, $00
-	dc.l	$02000022
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $22	; Experience points
 	dc.b	$04, $03, $03, $03, $02, $04, $02, $03, $03, $10
-	dc.l	$03000060
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $60	; Experience points
 	dc.b	$06, $05, $07, $05, $04, $08, $07, $03, $03, $20
-	dc.l	$040000C5
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $C5	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$0500014F
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $4F	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $20
-	dc.l	$06000248
+	
+	dc.b	6		; Level
+	dc.b	$00, $02, $48	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$070003A9
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $A9	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$080005B4
+	
+	dc.b	8		; Level
+	dc.b	$00, $05, $B4	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $11
-	dc.l	$090008BD
+	
+	dc.b	9		; Level
+	dc.b	$00, $08, $BD	; Experience points
 	dc.b	$07, $04, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$0A000D3D
+	
+	dc.b	10		; Level
+	dc.b	$00, $0D, $3D	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$0B0013D0
+	
+	dc.b	11		; Level
+	dc.b	$00, $13, $D0	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$0C001D73
+	
+	dc.b	12		; Level
+	dc.b	$00, $1D, $73	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $03, $10
-	dc.l	$0D002B92
+	
+	dc.b	13		; Level
+	dc.b	$00, $2B, $92	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$0E004023
+	
+	dc.b	14		; Level
+	dc.b	$00, $40, $23	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$0F005E1D
+	
+	dc.b	15		; Level
+	dc.b	$00, $5E, $1D	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$100089C9
+	
+	dc.b	16		; Level
+	dc.b	$00, $89, $C9	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$1100C966
+	
+	dc.b	17		; Level
+	dc.b	$00, $C9, $66	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$120125CE
+	
+	dc.b	18		; Level
+	dc.b	$01, $25, $CE	; Experience points
 	dc.b	$07, $04, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$13018980
+	
+	dc.b	19		; Level
+	dc.b	$01, $89, $80	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$1401F6A6
+	
+	dc.b	20		; Level
+	dc.b	$01, $F6, $A6	; Experience points
 	dc.b	$06, $04, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$1502716D
+	
+	dc.b	21		; Level
+	dc.b	$02, $71, $6D	; Experience points
 	dc.b	$07, $04, $07, $05, $04, $08, $07, $03, $03, $00
-	dc.l	$1602F968
+	
+	dc.b	22		; Level
+	dc.b	$02, $F9, $68	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$1703984E
+	
+	dc.b	23		; Level
+	dc.b	$03, $98, $4E	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$18044DE2
+	
+	dc.b	24		; Level
+	dc.b	$04, $4D, $E2	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$19051A44
+	
+	dc.b	25		; Level
+	dc.b	$05, $1A, $44	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$1A05FDB8
+	
+	dc.b	26		; Level
+	dc.b	$05, $FD, $B8	; Experience points
 	dc.b	$06, $00, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$1B06F69D
+	
+	dc.b	27		; Level
+	dc.b	$06, $F6, $9D	; Experience points
 	dc.b	$07, $07, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$1C0806EC
+	
+	dc.b	28		; Level
+	dc.b	$08, $06, $EC	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$1D092D46
+	
+	dc.b	29		; Level
+	dc.b	$09, $2D, $46	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$1E0A6AD0
+	
+	dc.b	30		; Level
+	dc.b	$0A, $6A, $D0	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $03, $10	; This is where Hugh learns Gires, but the increment for the techniques learned only applies to the battle techniques. I'm not sure if this
 																; was intentional, but if you don't like this, replace the value $10 with $11 and it will be fine.
-	dc.l	$1F0C0426
+	
+	dc.b	31		; Level
+	dc.b	$0C, $04, $26	; Experience points
 	dc.b	$05, $02, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$200D940D
+	
+	dc.b	32		; Level
+	dc.b	$0D, $94, $0D	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$210F57F0
+	
+	dc.b	33		; Level
+	dc.b	$0F, $57, $F0	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$22115692
+	
+	dc.b	34		; Level
+	dc.b	$11, $56, $92	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$23139795
+	
+	dc.b	35		; Level
+	dc.b	$13, $97, $95	; Experience points
 	dc.b	$06, $02, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$2416239D
+	
+	dc.b	36		; Level
+	dc.b	$16, $23, $9D	; Experience points
 	dc.b	$07, $06, $07, $05, $04, $08, $07, $03, $04, $10
-	dc.l	$25190466
+	
+	dc.b	37		; Level
+	dc.b	$19, $04, $66	; Experience points
 	dc.b	$05, $02, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$261C44F8
+	
+	dc.b	38		; Level
+	dc.b	$1C, $44, $F8	; Experience points
 	dc.b	$06, $02, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$271FF1C8
+	
+	dc.b	39		; Level
+	dc.b	$1F, $F1, $C8	; Experience points
 	dc.b	$07, $07, $07, $05, $04, $08, $07, $03, $03, $00
-	dc.l	$282418E5
+	
+	dc.b	40		; Level
+	dc.b	$24, $18, $E5	; Experience points
 	dc.b	$05, $02, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$2928CA36
+	
+	dc.b	41		; Level
+	dc.b	$28, $CA, $36	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$2A2E17B2
+	
+	dc.b	42		; Level
+	dc.b	$2E, $17, $B2	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $04, $00
-	dc.l	$2B3415A8
+	
+	dc.b	43		; Level
+	dc.b	$34, $15, $A8	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$2C3ADB09
+	
+	dc.b	44		; Level
+	dc.b	$3A, $DB, $09	; Experience points
 	dc.b	$06, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$2D4281BF
+	
+	dc.b	45		; Level
+	dc.b	$42, $81, $BF	; Experience points
 	dc.b	$07, $05, $07, $05, $04, $08, $07, $03, $04, $00
-	dc.l	$2E4B2718
+	
+	dc.b	46		; Level
+	dc.b	$4B, $27, $18	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $02, $00
-	dc.l	$2F54EC2D
+	
+	dc.b	47		; Level
+	dc.b	$54, $EC, $2D	; Experience points
 	dc.b	$06, $02, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$305FF667
+	
+	dc.b	48		; Level
+	dc.b	$5F, $F6, $67	; Experience points
 	dc.b	$07, $06, $07, $05, $04, $08, $07, $03, $03, $00
-	dc.l	$316C7009
+	
+	dc.b	49		; Level
+	dc.b	$6C, $70, $09	; Experience points
 	dc.b	$05, $03, $03, $03, $02, $04, $02, $03, $03, $00
-	dc.l	$327A88D6
+	
+	dc.b	50		; Level
+	dc.b	$7A, $88, $D6	; Experience points
 	dc.b	$06, $02, $03, $03, $02, $04, $02, $03, $02, $00
 
 ; ==============================================================
 
 AnnaExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$12, $0C, $14, $1B, $14, $09, $0F, $0C, $0B, $10
-	dc.l	$0200001F
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $1F	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$03000058
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $58	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$040000B4
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $B4	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$05000132
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $32	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$06000217
+	
+	dc.b	6		; Level
+	dc.b	$00, $02, $17	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $10
-	dc.l	$07000359
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $59	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$08000538
+	
+	dc.b	8		; Level
+	dc.b	$00, $05, $38	; Experience points
 	dc.b	$07, $06, $10, $0D, $14, $11, $19, $04, $0B, $10
-	dc.l	$090007FF
+	
+	dc.b	9		; Level
+	dc.b	$00, $07, $FF	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$0A000C1E
+	
+	dc.b	10		; Level
+	dc.b	$00, $0C, $1E	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$0B001222
+	
+	dc.b	11		; Level
+	dc.b	$00, $12, $22	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$0C001AF4
+	
+	dc.b	12		; Level
+	dc.b	$00, $1A, $F4	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$0D0027DF
+	
+	dc.b	13		; Level
+	dc.b	$00, $27, $DF	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$0E003AB2
+	
+	dc.b	14		; Level
+	dc.b	$00, $3A, $B2	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$0F005620
+	
+	dc.b	15		; Level
+	dc.b	$00, $56, $20	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$10007E18
+	
+	dc.b	16		; Level
+	dc.b	$00, $7E, $18	; Experience points
 	dc.b	$07, $07, $10, $0D, $14, $11, $19, $04, $0B, $10
-	dc.l	$1100B84F
+	
+	dc.b	17		; Level
+	dc.b	$00, $B8, $4F	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$12010CE0
+	
+	dc.b	18		; Level
+	dc.b	$01, $0C, $E0	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1301681B
+	
+	dc.b	19		; Level
+	dc.b	$01, $68, $1B	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$1401CBFE
+	
+	dc.b	20		; Level
+	dc.b	$01, $CB, $FE	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$15023C5B
+	
+	dc.b	21		; Level
+	dc.b	$02, $3C, $5B	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1602B8CB
+	
+	dc.b	22		; Level
+	dc.b	$02, $B8, $CB	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$17034A35
+	
+	dc.b	23		; Level
+	dc.b	$03, $4A, $35	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1803F061
+	
+	dc.b	24		; Level
+	dc.b	$03, $F0, $61	; Experience points
 	dc.b	$07, $06, $10, $0D, $14, $11, $19, $04, $0B, $00
-	dc.l	$1904AB6B
+	
+	dc.b	25		; Level
+	dc.b	$04, $AB, $6B	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$1A057B92
+	
+	dc.b	26		; Level
+	dc.b	$05, $7B, $92	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1B065F58
+	
+	dc.b	27		; Level
+	dc.b	$06, $5F, $58	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$1C07588B
+	
+	dc.b	28		; Level
+	dc.b	$07, $58, $8B	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1D0865EB
+	
+	dc.b	29		; Level
+	dc.b	$08, $65, $EB	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1E098883
+	
+	dc.b	30		; Level
+	dc.b	$09, $88, $83	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$1F0AFF1D
+	
+	dc.b	31		; Level
+	dc.b	$0A, $FF, $1D	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$200C6D14
+	
+	dc.b	32		; Level
+	dc.b	$0C, $6D, $14	; Experience points
 	dc.b	$07, $06, $10, $0D, $14, $11, $19, $04, $0B, $10
-	dc.l	$210E0A9E
+	
+	dc.b	33		; Level
+	dc.b	$0E, $0A, $9E	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$220FDDEB
+	
+	dc.b	34		; Level
+	dc.b	$0F, $DD, $EB	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2311EDF8
+	
+	dc.b	35		; Level
+	dc.b	$11, $ED, $F8	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$241442AB
+	
+	dc.b	36		; Level
+	dc.b	$14, $42, $AB	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2516E4B3
+	
+	dc.b	37		; Level
+	dc.b	$16, $E4, $B3	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2619DEDA
+	
+	dc.b	38		; Level
+	dc.b	$19, $DE, $DA	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$271D3BD4
+	
+	dc.b	39		; Level
+	dc.b	$1D, $3B, $D4	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$282108BA
+	
+	dc.b	40		; Level
+	dc.b	$21, $08, $BA	; Experience points
 	dc.b	$07, $06, $10, $0D, $14, $11, $19, $04, $0B, $00
-	dc.l	$2925541A
+	
+	dc.b	41		; Level
+	dc.b	$25, $54, $1A	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2A2A2E65
+	
+	dc.b	42		; Level
+	dc.b	$2A, $2E, $65	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2B2FAA2F
+	
+	dc.b	43		; Level
+	dc.b	$2F, $AA, $2F	; Experience points
 	dc.b	$06, $01, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$2C35DC78
+	
+	dc.b	44		; Level
+	dc.b	$35, $DC, $78	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2D3CDCF8
+	
+	dc.b	45		; Level
+	dc.b	$3C, $DC, $F8	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2E44C67F
+	
+	dc.b	46		; Level
+	dc.b	$44, $C6, $7F	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$2F4DB757
+	
+	dc.b	47		; Level
+	dc.b	$4D, $B7, $57	; Experience points
 	dc.b	$06, $02, $04, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$3057D1BD
+	
+	dc.b	48		; Level
+	dc.b	$57, $D1, $BD	; Experience points
 	dc.b	$07, $06, $10, $0D, $14, $11, $19, $04, $0B, $00
-	dc.l	$31633C5D
+	
+	dc.b	49		; Level
+	dc.b	$63, $3C, $5D	; Experience points
 	dc.b	$03, $02, $04, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$327022EE
+	
+	dc.b	50		; Level
+	dc.b	$70, $22, $EE	; Experience points
 	dc.b	$04, $01, $04, $02, $02, $03, $03, $02, $02, $00
 
 ; ==============================================================
 
 KainExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$10, $08, $0F, $0A, $0E, $0B, $08, $08, $08, $20
-	dc.l	$02000021
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $21	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$0300005D
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $5D	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $03, $00
-	dc.l	$040000BF
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $BF	; Experience points
 	dc.b	$07, $02, $03, $02, $02, $03, $03, $03, $02, $10
-	dc.l	$05000145
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $45	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$06000237
+	
+	dc.b	6		; Level
+	dc.b	$00, $02, $37	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$0700038D
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $8D	; Experience points
 	dc.b	$07, $0C, $12, $0F, $0C, $12, $11, $07, $07, $20
-	dc.l	$0800058A
+	
+	dc.b	8		; Level
+	dc.b	$00, $05, $8A	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$0900087C
+	
+	dc.b	9		; Level
+	dc.b	$00, $08, $7C	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $02, $10
-	dc.l	$0A000CDA
+	
+	dc.b	10		; Level
+	dc.b	$00, $0C, $DA	; Experience points
 	dc.b	$07, $03, $03, $02, $02, $03, $03, $02, $02, $20
-	dc.l	$0B00133D
+	
+	dc.b	11		; Level
+	dc.b	$00, $13, $3D	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $03, $00
-	dc.l	$0C001C98
+	
+	dc.b	12		; Level
+	dc.b	$00, $1C, $98	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$0D002A4D
+	
+	dc.b	13		; Level
+	dc.b	$00, $2A, $4D	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $02, $10
-	dc.l	$0E003E45
+	
+	dc.b	14		; Level
+	dc.b	$00, $3E, $45	; Experience points
 	dc.b	$07, $0B, $12, $0F, $0C, $12, $11, $07, $07, $10
-	dc.l	$0F005B5F
+	
+	dc.b	15		; Level
+	dc.b	$00, $5B, $5F	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$100085C5
+	
+	dc.b	16		; Level
+	dc.b	$00, $85, $C5	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $04, $00
-	dc.l	$1100C389
+	
+	dc.b	17		; Level
+	dc.b	$00, $C3, $89	; Experience points
 	dc.b	$07, $03, $03, $02, $02, $03, $03, $02, $02, $10
-	dc.l	$12011D40
+	
+	dc.b	18		; Level
+	dc.b	$01, $1D, $40	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$13017E0A
+	
+	dc.b	19		; Level
+	dc.b	$01, $7E, $0A	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$1401E80A
+	
+	dc.b	20		; Level
+	dc.b	$01, $E8, $0A	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$15025F36
+	
+	dc.b	21		; Level
+	dc.b	$02, $5F, $36	; Experience points
 	dc.b	$07, $0B, $12, $0F, $0C, $12, $11, $07, $07, $10
-	dc.l	$1602E33B
+	
+	dc.b	22		; Level
+	dc.b	$02, $E3, $3B	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $03, $00
-	dc.l	$17037D80
+	
+	dc.b	23		; Level
+	dc.b	$03, $7D, $80	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$18042DCA
+	
+	dc.b	24		; Level
+	dc.b	$04, $2D, $CA	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$1904F438
+	
+	dc.b	25		; Level
+	dc.b	$04, $F4, $38	; Experience points
 	dc.b	$07, $02, $03, $02, $02, $03, $03, $03, $04, $10
-	dc.l	$1A05D10C
+	
+	dc.b	26		; Level
+	dc.b	$05, $D1, $0C	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$1B06C2B1
+	
+	dc.b	27		; Level
+	dc.b	$06, $C2, $B1	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $03, $00
-	dc.l	$1C07CB11
+	
+	dc.b	28		; Level
+	dc.b	$07, $CB, $11	; Experience points
 	dc.b	$07, $0B, $12, $0F, $0C, $12, $11, $09, $07, $10
-	dc.l	$1D08E8D9
+	
+	dc.b	29		; Level
+	dc.b	$08, $E8, $D9	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $04, $00
-	dc.l	$1E0A1D24
+	
+	dc.b	30		; Level
+	dc.b	$0A, $1D, $24	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$1F0BAA8E
+	
+	dc.b	31		; Level
+	dc.b	$0B, $AA, $8E	; Experience points
 	dc.b	$07, $02, $03, $02, $02, $03, $03, $02, $03, $10
-	dc.l	$200D2ECE
+	
+	dc.b	32		; Level
+	dc.b	$0D, $2E, $CE	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$210EE588
+	
+	dc.b	33		; Level
+	dc.b	$0E, $E5, $88	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $04, $00
-	dc.l	$2210D54A
+	
+	dc.b	34		; Level
+	dc.b	$10, $D5, $4A	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$23130580
+	
+	dc.b	35		; Level
+	dc.b	$13, $05, $80	; Experience points
 	dc.b	$07, $0B, $12, $0F, $0C, $12, $11, $09, $07, $00
-	dc.l	$24157E89
+	
+	dc.b	36		; Level
+	dc.b	$15, $7E, $89	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $02, $03, $00
-	dc.l	$251849DD
+	
+	dc.b	37		; Level
+	dc.b	$18, $49, $DD	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$261B722F
+	
+	dc.b	38		; Level
+	dc.b	$1B, $72, $2F	; Experience points
 	dc.b	$07, $02, $03, $02, $02, $03, $03, $02, $04, $00
-	dc.l	$271F0398
+	
+	dc.b	39		; Level
+	dc.b	$1F, $03, $98	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$28230BC8
+	
+	dc.b	40		; Level
+	dc.b	$23, $0B, $C8	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $03, $00
-	dc.l	$29279A11
+	
+	dc.b	41		; Level
+	dc.b	$27, $9A, $11	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2A2CC004
+	
+	dc.b	42		; Level
+	dc.b	$2C, $C0, $04	; Experience points
 	dc.b	$07, $0B, $12, $0F, $0C, $12, $11, $09, $07, $00
-	dc.l	$2B32914C
+	
+	dc.b	43		; Level
+	dc.b	$32, $91, $4C	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $04, $00
-	dc.l	$2C392430
+	
+	dc.b	44		; Level
+	dc.b	$39, $24, $30	; Experience points
 	dc.b	$06, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2D4091D9
+	
+	dc.b	45		; Level
+	dc.b	$40, $91, $D9	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $03, $00
-	dc.l	$2E48F6BB
+	
+	dc.b	46		; Level
+	dc.b	$48, $F6, $BB	; Experience points
 	dc.b	$07, $03, $03, $02, $02, $03, $03, $03, $02, $00
-	dc.l	$2F5272F8
+	
+	dc.b	47		; Level
+	dc.b	$52, $72, $F8	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $02, $02, $00
-	dc.l	$305D2AE0
+	
+	dc.b	48		; Level
+	dc.b	$5D, $2A, $E0	; Experience points
 	dc.b	$06, $02, $03, $02, $02, $03, $03, $03, $04, $00
-	dc.l	$3169477D
+	
+	dc.b	49		; Level
+	dc.b	$69, $47, $7D	; Experience points
 	dc.b	$07, $0C, $12, $0F, $0C, $12, $11, $09, $07, $00
-	dc.l	$3276F72E
+	
+	dc.b	50		; Level
+	dc.b	$76, $F7, $2E	; Experience points
 	dc.b	$03, $02, $03, $02, $02, $03, $03, $02, $03, $00
 
 ; ==============================================================
 
 ShirExpTable:
-	dc.l	$01000000
+	
+	dc.b	1		; Level
+	dc.b	$00, $00, $00	; Experience points
 	dc.b	$0D, $06, $12, $0A, $0F, $0C, $12, $09, $09, $10
-	dc.l	$02000021
+	
+	dc.b	2		; Level
+	dc.b	$00, $00, $21	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$03000055
+	
+	dc.b	3		; Level
+	dc.b	$00, $00, $55	; Experience points
 	dc.b	$05, $03, $07, $03, $06, $06, $06, $03, $04, $00
-	dc.l	$040000AF
+	
+	dc.b	4		; Level
+	dc.b	$00, $00, $AF	; Experience points
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$0500012A
+	
+	dc.b	5		; Level
+	dc.b	$00, $01, $2A	; Experience points
 	dc.b	$04, $02, $03, $02, $04, $02, $03, $05, $03, $00
-	dc.l	$06000207
+	
+	dc.b	6		; Level
+	dc.b	$00, $02, $07	; Experience points
 	dc.b	$06, $02, $07, $03, $06, $06, $06, $04, $04, $01
-	dc.l	$07000340
+	
+	dc.b	7		; Level
+	dc.b	$00, $03, $40	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$08000511
+	
+	dc.b	8		; Level
+	dc.b	$00, $05, $11	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$090007C3
+	
+	dc.b	9		; Level
+	dc.b	$00, $07, $C3	; Experience points
 	dc.b	$05, $03, $07, $03, $06, $06, $06, $03, $04, $01
-	dc.l	$0A000BC3
+	
+	dc.b	10		; Level
+	dc.b	$00, $0B, $C3	; Experience points
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$0B00119B
+	
+	dc.b	11		; Level
+	dc.b	$00, $11, $9B	; Experience points
 	dc.b	$02, $02, $03, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$0C001A2B
+	
+	dc.b	12		; Level
+	dc.b	$00, $1A, $2B	; Experience points
 	dc.b	$08, $02, $07, $03, $06, $06, $06, $04, $04, $11
-	dc.l	$0D0026B6
+	
+	dc.b	13		; Level
+	dc.b	$00, $26, $B6	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$0E0038FC
+	
+	dc.b	14		; Level
+	dc.b	$00, $38, $FC	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$0F00539E
+	
+	dc.b	15		; Level
+	dc.b	$00, $53, $9E	; Experience points
 	dc.b	$05, $03, $07, $03, $06, $06, $06, $03, $04, $10
-	dc.l	$10007A6B
+	
+	dc.b	16		; Level
+	dc.b	$00, $7A, $6B	; Experience points
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$1100B2F1
+	
+	dc.b	17		; Level
+	dc.b	$00, $B2, $F1	; Experience points
 	dc.b	$02, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$1201050B
+	
+	dc.b	18		; Level
+	dc.b	$01, $05, $0B	; Experience points
 	dc.b	$08, $02, $07, $03, $06, $06, $06, $04, $04, $10
-	dc.l	$13015D9E
+	
+	dc.b	19		; Level
+	dc.b	$01, $5D, $9E	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$1401BE98
+	
+	dc.b	20		; Level
+	dc.b	$01, $BE, $98	; Experience points
 	dc.b	$04, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$15022BAF
+	
+	dc.b	21		; Level
+	dc.b	$02, $2B, $AF	; Experience points
 	dc.b	$08, $03, $07, $03, $06, $06, $06, $04, $04, $00
-	dc.l	$1602A480
+	
+	dc.b	22		; Level
+	dc.b	$02, $A4, $80	; Experience points
 	dc.b	$06, $02, $03, $02, $04, $02, $03, $05, $03, $00
-	dc.l	$170331AD
+	
+	dc.b	23		; Level
+	dc.b	$03, $31, $AD	; Experience points
 	dc.b	$02, $02, $03, $02, $04, $02, $03, $01, $03, $00
-	dc.l	$1803D302
+	
+	dc.b	24		; Level
+	dc.b	$03, $D3, $02	; Experience points
 	dc.b	$08, $02, $07, $03, $06, $06, $06, $04, $04, $10
-	dc.l	$19048899
+	
+	dc.b	25		; Level
+	dc.b	$04, $88, $99	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$1A0552B0
+	
+	dc.b	26		; Level
+	dc.b	$05, $52, $B0	; Experience points
 	dc.b	$04, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$1B062FD4
+	
+	dc.b	27		; Level
+	dc.b	$06, $2F, $D4	; Experience points
 	dc.b	$06, $03, $07, $03, $06, $06, $06, $03, $04, $10
-	dc.l	$1C0721C5
+	
+	dc.b	28		; Level
+	dc.b	$07, $21, $C5	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $04, $03, $00
-	dc.l	$1D08274C
+	
+	dc.b	29		; Level
+	dc.b	$08, $27, $4C	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$1E09416E
+	
+	dc.b	30		; Level
+	dc.b	$09, $41, $6E	; Experience points
 	dc.b	$05, $02, $07, $03, $06, $06, $06, $04, $04, $11
-	dc.l	$1F0AAD1F
+	
+	dc.b	31		; Level
+	dc.b	$0A, $AD, $1F	; Experience points
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$200C106D
+	
+	dc.b	32		; Level
+	dc.b	$0C, $10, $6D	; Experience points
 	dc.b	$02, $02, $03, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$210DA1EB
+	
+	dc.b	33		; Level
+	dc.b	$0D, $A1, $EB	; Experience points
 	dc.b	$08, $03, $07, $03, $06, $06, $06, $03, $04, $10
-	dc.l	$220F679C
+	
+	dc.b	34		; Level
+	dc.b	$0F, $67, $9C	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$23116848
+	
+	dc.b	35		; Level
+	dc.b	$11, $68, $48	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $04, $03, $00
-	dc.l	$2413AB9A
+	
+	dc.b	36		; Level
+	dc.b	$13, $AB, $9A	; Experience points
 	dc.b	$05, $02, $07, $03, $06, $06, $06, $04, $04, $10
-	dc.l	$25163A3A
+	
+	dc.b	37		; Level
+	dc.b	$16, $3A, $3A	; Experience points
 	dc.b	$0A, $02, $04, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$26191DF4
+	
+	dc.b	38		; Level
+	dc.b	$19, $1D, $F4	; Experience points
 	dc.b	$04, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$271C61DA
+	
+	dc.b	39		; Level
+	dc.b	$1C, $61, $DA	; Experience points
 	dc.b	$06, $03, $06, $03, $06, $06, $06, $03, $04, $00
-	dc.l	$2820126A
+	
+	dc.b	40		; Level
+	dc.b	$20, $12, $6A	; Experience points
 	dc.b	$08, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$29243DC4
+	
+	dc.b	41		; Level
+	dc.b	$24, $3D, $C4	; Experience points
 	dc.b	$05, $02, $03, $02, $04, $02, $03, $03, $03, $00
-	dc.l	$2A28F3E1
+	
+	dc.b	42		; Level
+	dc.b	$28, $F3, $E1	; Experience points
 	dc.b	$0A, $02, $07, $03, $06, $06, $06, $04, $04, $00
-	dc.l	$2B2E46C8
+	
+	dc.b	43		; Level
+	dc.b	$2E, $46, $C8	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $01, $03, $00
-	dc.l	$2C344ADD
+	
+	dc.b	44		; Level
+	dc.b	$34, $4A, $DD	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$2D3B1727
+	
+	dc.b	45		; Level
+	dc.b	$3B, $17, $27	; Experience points
 	dc.b	$05, $03, $07, $03, $06, $06, $06, $03, $04, $10
-	dc.l	$2E42C5AF
+	
+	dc.b	46		; Level
+	dc.b	$42, $C5, $AF	; Experience points
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $02, $03, $00
-	dc.l	$2F4B73DE
+	
+	dc.b	47		; Level
+	dc.b	$4B, $73, $DE	; Experience points
 	dc.b	$04, $02, $03, $02, $04, $02, $03, $01, $03, $00
-	dc.l	$305542EE
+	
+	dc.b	48		; Level
+	dc.b	$55, $42, $EE	; Experience points
 	dc.b	$04, $02, $07, $03, $06, $06, $06, $04, $04, $00
-	dc.l	$3160586E
+	
+	dc.b	49		; Level
+	dc.b	$60, $58, $6E	; Experience points
 	dc.b	$0A, $02, $03, $02, $04, $02, $03, $01, $03, $00
-	dc.l	$326CDECE
+	
+	dc.b	50		; Level
+	dc.b	$6C, $DE, $CE	; Experience points
 	dc.b	$03, $02, $03, $02, $04, $02, $03, $02, $03, $00
 
 ; ==============================================================
