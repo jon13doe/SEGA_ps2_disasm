@@ -13,12 +13,17 @@ https://github.com/Zuccace/mdps-asm-builder
 
 *Patches and issues should be targeted to the project above.*
 
+== Features
+ * Can create ROM binary images from assembly source files
+ * Can create binary diffs (patches) between two binaries 
+ * Can create checksums from the created binary ROM image
+
 == Dependencies
 It should be pretty easy once you have all the dependencies installed in your $PATH.
 
  * asl from http://john.ccac.rwth-aachen.de:8000/as/ - dev-lang/asl
 on Gentoo https://gitlab.com/roslin-uberlay/roslin[roslin overlay]
- * gcc - for automatic compiling of p2bin
+ * gcc or clang - for automatic compiling of p2bin
  * gawk >= 4.1.1 - for assembly code "live" patching 
  * Assembly sources of said games: https://github.com/lory90/ps2disasm[II] (most actively tested),
 https://github.com/lory90/ps3disasm[III] (tested once, works), and
@@ -32,15 +37,14 @@ Just make sure build.sh has executable bit, then you can run it.
 To learn more pass the `--help` -switch alone.
 Or alternatively see the source. ;)
 
+You can create more different files just by specifying them on command line:
+`some/path/to/build.sh my.asm my.xdelta my.sha256`
+Note that it's *not* neccessary to specify the binary (ROM) on the line.
+
 You can place the script wherever you want.
 It should work from anywhere in the filesystem.
 
 == Known limitations
- * For now Linux users will miss the
-`https://raw.githubusercontent.com/sonicretro/s2disasm/ab771f939679b27398d3bd45c3c390508b0d0a33/build_source/fixheader.cpp[fixheader]`,
-Unless the executable is provided by `--fixheader` cli switch.
-Some emulators may not care about wrong header.
-But it's needed for creating binaries that can run on actual hardware.
  * Won't magically re-compress parts that need
 http://segaretro.org/Kosinski_compression[Kosinski compression].
 It is totally unknown at the moment if the feature will ever
