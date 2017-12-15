@@ -7,3 +7,4 @@ ps2built.prev.bin
 
 # Linux builder creates this.
 p2bin
+ips.py
