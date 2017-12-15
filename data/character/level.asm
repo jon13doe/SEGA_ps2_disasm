@@ -3,7 +3,7 @@
 ;
 ; byte 1 = character level
 ; bytes 2-4 = experience points
-;             You'll have too add the bytes together. No way around it. :(
+;             You'll have to add the bytes together. No way around it. :(
 ; bytes 5-13 = stats
 ; byte 14 =  number of usable techniques increase
 ;			higher nibble = battle techniques
